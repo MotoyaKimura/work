@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Wrapper.h"
+#include "Model.h"
 #include "Renderer.h"
 #include <Windows.h>
 #include <tchar.h>
@@ -105,12 +106,22 @@ bool Application::Init()
 		DebugOutputFormatString("DX12周りの初期化エラー\n ");
 		return false;
 	}
-	_renderer.reset(new Renderer(*_dx));
+
+	_model.reset(new Model(_dx));
+	if (!_model->Init())
+	{
+		DebugOutputFormatString("モデルの初期化エラー\n ");
+		return false;
+	}
+
+	_renderer.reset(new Renderer(_dx));
 	if(!_renderer->Init())
 	{
 		DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
 		return false;
 	}
+
+	_renderer->AddModel(_model);
 }
 void Application::Run()
 {
@@ -134,6 +145,7 @@ void Application::Run()
 		_dx->BeginDraw();
 		_renderer->BeforeDraw();
 		_dx->Draw();
+		_renderer->Draw();
 		_dx->EndDraw();
 		_dx->Flip();
 	}

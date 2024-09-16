@@ -1,9 +1,14 @@
 #include "Renderer.h"
+
+#include "Model.h"
 #include "Wrapper.h"
+
 
 #ifdef _DEBUG
 #include <iostream>
 #endif
+
+using namespace std;
 
 bool Renderer::CheckResult(HRESULT result)
 {
@@ -60,7 +65,7 @@ bool Renderer::RootSignatureInit()
 
 	if (!CheckResult(result)) return false;
 
-	result = _dx.GetDevice()->CreateRootSignature(
+	result = _dx->GetDevice()->CreateRootSignature(
 		0,
 		rootSigBlob->GetBufferPointer(),
 		rootSigBlob->GetBufferSize(),
@@ -109,14 +114,14 @@ bool Renderer::PipelineStateInit()
 	gpipeline.SampleDesc.Count = 1;
 	gpipeline.SampleDesc.Quality = 0;
 
-	auto result = _dx.GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
+	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
 	if (FAILED(result)) return false;
 
 	return true;
 }
 
 
-Renderer::Renderer(Wrapper& dx) : _dx(dx)
+Renderer::Renderer(shared_ptr<Wrapper> dx) : _dx(dx)
 {
 }
 
@@ -131,18 +136,26 @@ bool Renderer::Init()
 	return true;
 }
 
+void Renderer::AddModel(std::shared_ptr<Model> model)
+{
+	_models.emplace_back(model);
+}
+
 void Renderer::Update()
 {
 }
 
 void Renderer::BeforeDraw()
 {
-	_dx.GetCommandList()->SetPipelineState(_pipelinestate.Get());
-	_dx.GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
+	_dx->GetCommandList()->SetPipelineState(_pipelinestate.Get());
+	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
 }
 
 void Renderer::Draw()
 {
+	for (auto& _models : _models) {
+		_models->Draw();
+	}
 }
 
 Renderer::~Renderer()

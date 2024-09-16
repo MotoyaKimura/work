@@ -29,10 +29,10 @@ private:
 	D3D12_VIEWPORT viewport = {};
 	D3D12_RECT scissorrect = {};
 
-	D3D12_VERTEX_BUFFER_VIEW vbView = {};
+	
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
+	
 
 	bool DXGIInit();
 	void DeviceInit();

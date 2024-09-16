@@ -6,10 +6,13 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 class Wrapper;
+class Model;
 class Renderer
 {
 private:
-	Wrapper& _dx;
+	std::shared_ptr<Wrapper> _dx;
+	std::vector<std::shared_ptr<Model>> _models;
+	
 
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr;
@@ -27,8 +30,9 @@ private:
 	bool PipelineStateInit();
 	
 public:
-	Renderer(Wrapper& dx);
+	Renderer(std::shared_ptr<Wrapper> dx);
 	bool Init();
+	void AddModel(std::shared_ptr<Model> model);
 	void Update();
 	void BeforeDraw();
 	void Draw();
