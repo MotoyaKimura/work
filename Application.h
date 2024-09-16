@@ -1,13 +1,18 @@
 #pragma once
 #include <Windows.h>
 
+#ifdef _DEBUG
+#include <iostream>
+#endif
+
+
 class Wrapper;
 class Renderer;
 class Application
 {
 private:
-	Wrapper& _dx;
-	Renderer& _renderer;
+	std::shared_ptr<Wrapper> _dx;
+	std::shared_ptr<Renderer> _renderer;
 
 	const unsigned int window_width = 1280;							//ウィンドウ幅
 	const unsigned int window_height = 720;							//ウィンドウ高

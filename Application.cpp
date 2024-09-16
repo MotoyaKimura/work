@@ -107,8 +107,16 @@ bool Application::Init()
 {
 	CreateGameWindow(hwnd, w);
 	
-	
-
+	_dx.reset(new Wrapper(hwnd));
+	if(!_dx->Init())
+	{
+		return false;
+	}
+	_renderer.reset(new Renderer(*_dx));
+	if(!_renderer->Init())
+	{
+		return false;
+	}
 }
 void Application::Run()
 {
@@ -129,65 +137,11 @@ void Application::Run()
 			break;
 		}
 
-		auto backBufferIndex = _swapchain->GetCurrentBackBufferIndex();
-
-		D3D12_RESOURCE_BARRIER barrierDesc = {};
-		barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrierDesc.Transition.pResource = backBuffers[backBufferIndex];
-		barrierDesc.Transition.Subresource = 0;
-		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		_cmdList->ResourceBarrier(1, &barrierDesc);
-
-
-
-		auto rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
-		rtvH.ptr += backBufferIndex *
-			_dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		_cmdList->OMSetRenderTargets(
-			1,
-			&rtvH,
-			true,
-			nullptr);
-		float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-		_cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
-
-		_cmdList->SetPipelineState(_pipelinestate);
-		_cmdList->SetGraphicsRootSignature(rootsignature);
-		_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		_cmdList->IASetVertexBuffers(0, 1, &vbView);
-		_cmdList->RSSetViewports(1, &viewport);
-		_cmdList->RSSetScissorRects(1, &scissorrect);
-
-		_cmdList->DrawInstanced(3, 1, 0, 0);
-
-
-
-		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-		_cmdList->ResourceBarrier(1, &barrierDesc);
-
-		_cmdList->Close();
-
-		ID3D12CommandList* cmdLists[] = { _cmdList };
-		_cmdQueue->ExecuteCommandLists(1, cmdLists);
-
-		_cmdQueue->Signal(_fence, ++_fenceVal);
-
-		if (_fence->GetCompletedValue() != _fenceVal)
-		{
-			auto event = CreateEvent(nullptr, false, false, nullptr);
-			_fence->SetEventOnCompletion(_fenceVal, event);
-			WaitForSingleObject(event, INFINITE);
-			CloseHandle(event);
-		}
-
-		auto result = _cmdAllocator->Reset();
-		CheckResult(result);
-		_cmdList->Reset(_cmdAllocator, nullptr);
-
-		_swapchain->Present(1, 0);
+		_dx->BeginDraw();
+		_renderer->BeforeDraw();
+		_dx->Draw();
+		_dx->EndDraw();
+		_dx->Flip();
 	}
 }
 void Application::Terminate()

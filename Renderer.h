@@ -19,8 +19,9 @@ private:
 	
 public:
 	Renderer(Wrapper& dx);
-	void Init();
+	bool Init();
 	void Update();
+	void BeforeDraw();
 	void Draw();
 	~Renderer();
 };

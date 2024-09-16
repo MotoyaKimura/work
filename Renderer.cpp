@@ -9,7 +9,7 @@ Renderer::Renderer(Wrapper& dx) : _dx(dx)
 {
 }
 
-void Renderer::Init()
+bool Renderer::Init()
 {
 	auto result = D3DCompileFromFile(
 		L"VertexShader.hlsl",
@@ -137,24 +137,30 @@ void Renderer::Init()
 		}
 	}
 
-
 	result = _dx.GetDevice()->CreateRootSignature(
 		0,
 		rootSigBlob->GetBufferPointer(),
 		rootSigBlob->GetBufferSize(),
 		IID_PPV_ARGS(&rootsignature));
-	CheckResult(result);
+	if (FAILED(result)) return false;
 	rootSigBlob->Release();
 
 	gpipeline.pRootSignature = rootsignature;
 
 	result = _dx.GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
-	CheckResult(result);
+	if (FAILED(result)) return false;
 
+	return true;
 }
 
 void Renderer::Update()
 {
+}
+
+void Renderer::BeforeDraw()
+{
+	_dx.GetCommandList()->SetPipelineState(_pipelinestate);
+	_dx.GetCommandList()->SetGraphicsRootSignature(rootsignature);
 }
 
 void Renderer::Draw()

@@ -4,7 +4,6 @@
 #include <dxgi1_6.h>
 #include <vector>
 
-
 class Wrapper
 {
 private:
@@ -29,13 +28,17 @@ private:
 	ID3D12DescriptorHeap* rtvHeaps = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	UINT64 _fenceVal = 0;
+	D3D12_RESOURCE_BARRIER barrierDesc = {};
 
 public:
 	Wrapper(HWND hwnd);
-	void Init();
+	bool Init();
 	void Update();
 	void BeginDraw();
+	void Draw();
 	void EndDraw();
+	void Flip();
 	ID3D12Device* GetDevice() const;
+	ID3D12GraphicsCommandList* GetCommandList() const;
 	~Wrapper();
 };
