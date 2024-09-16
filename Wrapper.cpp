@@ -11,44 +11,43 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-using namespace DirectX;
 using namespace std;
+using namespace DirectX;
+using namespace Microsoft::WRL;
 
 
 bool EnableDebugLayer()
 {
-	ID3D12Debug* debugLayer = nullptr;
+	ComPtr<ID3D12Debug> debugLayer = nullptr;
 	auto result = D3D12GetDebugInterface(
-		IID_PPV_ARGS(&debugLayer));
+		IID_PPV_ARGS(debugLayer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	
 	debugLayer->EnableDebugLayer();
 	debugLayer->Release();
 }
 
-Wrapper::Wrapper(HWND hwnd) : _hwnd(hwnd)
+bool Wrapper::DXGIInit()
 {
-
-}
-
-bool Wrapper::Init()
-{
-	auto& app = Application::Instance();
-	winSize = app.GetWindowSize();
 #ifdef _DEBUG
 	EnableDebugLayer();
-	auto result = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&_dxgiFactory));
+	auto result = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf()));
 #else
 	auto result = CreateDXGIFactory1(IID_PPV_ARGS(&_dxgiFactory));
 #endif
 	if (FAILED(result)) return false;
-	IDXGIAdapter* tmpAdapter = nullptr;
+	return true;
+}
+
+void Wrapper::DeviceInit()
+{
+	ComPtr<IDXGIAdapter> tmpAdapter = nullptr;
 
 	for (int i = 0;
-		_dxgiFactory->EnumAdapters(i, &tmpAdapter) != DXGI_ERROR_NOT_FOUND;
+		_dxgiFactory->EnumAdapters(i, tmpAdapter.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND;
 		++i)
 	{
-		adapters.push_back(tmpAdapter);
+		adapters.push_back(tmpAdapter.Get());
 	}
 
 	for (auto adpt : adapters)
@@ -76,22 +75,25 @@ bool Wrapper::Init()
 
 	for (auto lv : levels)
 	{
-		if (D3D12CreateDevice(tmpAdapter, lv, IID_PPV_ARGS(&_dev)) == S_OK)
+		if (D3D12CreateDevice(tmpAdapter.Get(), lv, IID_PPV_ARGS(_dev.ReleaseAndGetAddressOf())) == S_OK)
 		{
 			featureLevel = lv;
 			break;
 		}
 	}
+}
 
-	result = _dev->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
-		IID_PPV_ARGS(&_cmdAllocator));
+bool Wrapper::CMDInit()
+{
+	auto result = _dev->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
+		IID_PPV_ARGS(_cmdAllocator.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	result = _dev->CreateCommandList(
 		0,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		_cmdAllocator,
+		_cmdAllocator.Get(),
 		nullptr,
-		IID_PPV_ARGS(&_cmdList));
+		IID_PPV_ARGS(_cmdList.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
 	D3D12_COMMAND_QUEUE_DESC cmdQueueDesc = {};
@@ -100,10 +102,13 @@ bool Wrapper::Init()
 	cmdQueueDesc.NodeMask = 0;
 	cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 	cmdQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	result = _dev->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(&_cmdQueue));
+	result = _dev->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(_cmdQueue.ReleaseAndGetAddressOf()));
 
-	DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
+	return true;
+}
 
+bool Wrapper::SwapChainInit()
+{
 	swapchainDesc.Width = winSize.cx;
 	swapchainDesc.Height = winSize.cy;
 	swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -116,42 +121,84 @@ bool Wrapper::Init()
 	swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapchainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	result = _dxgiFactory->CreateSwapChainForHwnd(
-		_cmdQueue,
+	auto result = _dxgiFactory->CreateSwapChainForHwnd(
+		_cmdQueue.Get(),
 		_hwnd,
 		&swapchainDesc,
 		nullptr,
 		nullptr,
-		(IDXGISwapChain1**)&_swapchain);
+		(IDXGISwapChain1**)_swapchain.ReleaseAndGetAddressOf());
 	if (FAILED(result)) return false;
+	return true;
+}
 
+bool Wrapper::CreateRTV()
+{
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.NodeMask = 0;
 	heapDesc.NumDescriptors = 2;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-
-	result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&rtvHeaps));
+	auto result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(rtvHeaps.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
 	backBuffers.resize(swapchainDesc.BufferCount);
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	for (int idx = 0; idx < swapchainDesc.BufferCount; ++idx)
 	{
-		result = _swapchain->GetBuffer(idx, IID_PPV_ARGS(&backBuffers[idx]));
+		result = _swapchain->GetBuffer(idx, IID_PPV_ARGS(backBuffers[idx].ReleaseAndGetAddressOf()));
 		if (FAILED(result)) return false;
 		_dev->CreateRenderTargetView(
-			backBuffers[idx],
+			backBuffers[idx].Get(),
 			nullptr,
 			handle);
 		handle.ptr += _dev->GetDescriptorHandleIncrementSize(
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
+	return true;
+}
+
+void Wrapper::ViewportInit()
+{
+	viewport.Width = winSize.cx;
+	viewport.Height = winSize.cy;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.MaxDepth = 1.0f;
+	viewport.MinDepth = 0.0f;
+}
+
+void Wrapper::ScissorrectInit()
+{
+	scissorrect.top = 0;
+	scissorrect.left = 0;
+	scissorrect.right = scissorrect.left + winSize.cx;
+	scissorrect.bottom = scissorrect.top + winSize.cy;
+}
 
 
-	result = _dev->CreateFence(
-		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+Wrapper::Wrapper(HWND hwnd) : _hwnd(hwnd)
+{
+}
+
+bool Wrapper::Init()
+{
+
+	const auto& app = Application::Instance();
+	winSize = app.GetWindowSize();
+
+	DXGIInit();
+	DeviceInit();
+	CMDInit();
+	SwapChainInit();
+	CreateRTV();
+
+	ViewportInit();
+	ScissorrectInit();
+
+	auto result = _dev->CreateFence(
+		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
 	XMFLOAT3 vertices[] =
@@ -176,38 +223,26 @@ bool Wrapper::Init()
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-	ID3D12Resource* vertexBuffer = nullptr;
+	
 	result = _dev->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&vertexBuffer));
+		IID_PPV_ARGS(vertexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
 	XMFLOAT3* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
+	
 	std::copy(std::begin(vertices), std::end(vertices), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 	vbView.SizeInBytes = sizeof(vertices);
 	vbView.StrideInBytes = sizeof(vertices[0]);
-
-	viewport.Width = winSize.cx;
-	viewport.Height = winSize.cy;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.MaxDepth = 1.0f;
-	viewport.MinDepth = 0.0f;
-
-	scissorrect.top = 0;
-	scissorrect.left = 0;
-	scissorrect.right = scissorrect.left + winSize.cx;
-	scissorrect.bottom = scissorrect.top + winSize.cy;
 
 	return true;
 }
@@ -223,7 +258,7 @@ void Wrapper::BeginDraw()
 	
 	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrierDesc.Transition.pResource = backBuffers[backBufferIndex];
+	barrierDesc.Transition.pResource = backBuffers[backBufferIndex].Get();
 	barrierDesc.Transition.Subresource = 0;
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -260,10 +295,10 @@ void Wrapper::EndDraw()
 
 	_cmdList->Close();
 
-	ID3D12CommandList* cmdLists[] = { _cmdList };
+	ID3D12CommandList* cmdLists[] = { _cmdList.Get() };
 	_cmdQueue->ExecuteCommandLists(1, cmdLists);
 
-	_cmdQueue->Signal(_fence, ++_fenceVal);
+	_cmdQueue->Signal(_fence.Get(), ++_fenceVal);
 
 	if (_fence->GetCompletedValue() != _fenceVal)
 	{
@@ -274,7 +309,7 @@ void Wrapper::EndDraw()
 	}
 
 	auto result = _cmdAllocator->Reset();
-	_cmdList->Reset(_cmdAllocator, nullptr);
+	_cmdList->Reset(_cmdAllocator.Get(), nullptr);
 
 }
 
@@ -283,14 +318,14 @@ void Wrapper::Flip()
 	_swapchain->Present(1, 0);
 }
 
-ID3D12Device* Wrapper::GetDevice() const
+Microsoft::WRL::ComPtr<ID3D12Device> Wrapper::GetDevice() const
 {
-	return _dev;
+	return _dev.Get();
 }
 
-ID3D12GraphicsCommandList* Wrapper::GetCommandList() const
+Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> Wrapper::GetCommandList() const
 {
-	return _cmdList;
+	return _cmdList.Get();
 }
 
 Wrapper::~Wrapper()

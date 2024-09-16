@@ -5,72 +5,74 @@
 #include <iostream>
 #endif
 
-Renderer::Renderer(Wrapper& dx) : _dx(dx)
+bool Renderer::CheckResult(HRESULT result)
 {
+	if (FAILED(result))
+	{
+		if (result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+		{
+			::OutputDebugStringA("ファイルが見当たりません");
+		}
+		else
+		{
+			std::string errstr;
+			errstr.resize(errBlob->GetBufferSize());
+			std::copy_n((char*)errBlob->GetBufferPointer(),
+				errBlob->GetBufferSize(),
+				errstr.begin());
+			errstr += "\n";
+			::OutputDebugStringA(errstr.c_str());
+
+		}
+		return false;
+	}
+	return true;
 }
 
-bool Renderer::Init()
+
+bool Renderer::CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, std::string model, Microsoft::WRL::ComPtr<ID3DBlob>& _xsBlob)
 {
 	auto result = D3DCompileFromFile(
-		L"VertexShader.hlsl",
+		hlslFile.c_str(),
 		nullptr,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"VS",
-		"vs_5_0",
+		EntryPoint.c_str(),
+		model.c_str(),
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
-		&vsBlob,
+		_xsBlob.ReleaseAndGetAddressOf(),
+		errBlob.ReleaseAndGetAddressOf());
+
+	return CheckResult(result);
+}
+
+bool Renderer::RootSignatureInit()
+{
+	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+	ID3DBlob* rootSigBlob = nullptr;
+	auto result = D3D12SerializeRootSignature(
+		&rootSignatureDesc,
+		D3D_ROOT_SIGNATURE_VERSION_1,
+		&rootSigBlob,
 		&errBlob);
 
-	if (FAILED(result))
-	{
-		if (result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
-		{
-			::OutputDebugStringA("ファイルが見当たりません");
-			return 0;
-		}
-		else
-		{
-			std::string errstr;
-			errstr.resize(errBlob->GetBufferSize());
-			std::copy_n((char*)errBlob->GetBufferPointer(),
-				errBlob->GetBufferSize(),
-				errstr.begin());
-			errstr += "\n";
-			::OutputDebugStringA(errstr.c_str());
-		}
-	}
+	if (!CheckResult(result)) return false;
 
-	result = D3DCompileFromFile(
-		L"PixelShader.hlsl",
-		nullptr,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"PS",
-		"ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	result = _dx.GetDevice()->CreateRootSignature(
 		0,
-		&psBlob,
-		&errBlob);
+		rootSigBlob->GetBufferPointer(),
+		rootSigBlob->GetBufferSize(),
+		IID_PPV_ARGS(&rootsignature));
+	if (FAILED(result)) return false;
+	rootSigBlob->Release();
 
-	if (FAILED(result))
-	{
-		if (result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
-		{
-			::OutputDebugStringA("ファイルが見当たりません");
-			return 0;
-		}
-		else
-		{
-			std::string errstr;
-			errstr.resize(errBlob->GetBufferSize());
-			std::copy_n((char*)errBlob->GetBufferPointer(),
-				errBlob->GetBufferSize(),
-				errstr.begin());
-			errstr += "\n";
-			::OutputDebugStringA(errstr.c_str());
-		}
-	}
+	return true;
+}
 
+bool Renderer::PipelineStateInit()
+{
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 	{
 				{
@@ -80,8 +82,7 @@ bool Renderer::Init()
 				},
 	};
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
-	gpipeline.pRootSignature = nullptr;
+	gpipeline.pRootSignature = rootsignature.Get();
 	gpipeline.VS.pShaderBytecode = vsBlob->GetBufferPointer();
 	gpipeline.VS.BytecodeLength = vsBlob->GetBufferSize();
 	gpipeline.PS.pShaderBytecode = psBlob->GetBufferPointer();
@@ -108,47 +109,24 @@ bool Renderer::Init()
 	gpipeline.SampleDesc.Count = 1;
 	gpipeline.SampleDesc.Quality = 0;
 
-	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-	ID3DBlob* rootSigBlob = nullptr;
-	result = D3D12SerializeRootSignature(
-		&rootSignatureDesc,
-		D3D_ROOT_SIGNATURE_VERSION_1,
-		&rootSigBlob,
-		&errBlob);
-
-	if (FAILED(result))
-	{
-		if (result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
-		{
-			::OutputDebugStringA("ファイルが見当たりません");
-			return 0;
-		}
-		else
-		{
-			std::string errstr;
-			errstr.resize(errBlob->GetBufferSize());
-			std::copy_n((char*)errBlob->GetBufferPointer(),
-				errBlob->GetBufferSize(),
-				errstr.begin());
-			errstr += "\n";
-			::OutputDebugStringA(errstr.c_str());
-		}
-	}
-
-	result = _dx.GetDevice()->CreateRootSignature(
-		0,
-		rootSigBlob->GetBufferPointer(),
-		rootSigBlob->GetBufferSize(),
-		IID_PPV_ARGS(&rootsignature));
+	auto result = _dx.GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
 	if (FAILED(result)) return false;
-	rootSigBlob->Release();
 
-	gpipeline.pRootSignature = rootsignature;
+	return true;
+}
 
-	result = _dx.GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
-	if (FAILED(result)) return false;
+
+Renderer::Renderer(Wrapper& dx) : _dx(dx)
+{
+}
+
+bool Renderer::Init()
+{
+	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
+	if(FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
+	
+	if (!RootSignatureInit()) return false;
+	if (!PipelineStateInit()) return false;
 
 	return true;
 }
@@ -159,8 +137,8 @@ void Renderer::Update()
 
 void Renderer::BeforeDraw()
 {
-	_dx.GetCommandList()->SetPipelineState(_pipelinestate);
-	_dx.GetCommandList()->SetGraphicsRootSignature(rootsignature);
+	_dx.GetCommandList()->SetPipelineState(_pipelinestate.Get());
+	_dx.GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
 }
 
 void Renderer::Draw()
