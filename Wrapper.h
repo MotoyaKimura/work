@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <d3dx12.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <vector>
@@ -12,23 +13,34 @@ private:
 
 	SIZE winSize;
 
-	ID3D12Device* _dev = nullptr;
-	IDXGIFactory6* _dxgiFactory = nullptr;
-	IDXGISwapChain4* _swapchain = nullptr;
-	std::vector<IDXGIAdapter*> adapters;
-	ID3D12CommandAllocator* _cmdAllocator = nullptr;
-	ID3D12GraphicsCommandList* _cmdList = nullptr;
-	ID3D12CommandQueue* _cmdQueue = nullptr;
-	ID3D12Fence* _fence = nullptr;
-	
+	Microsoft::WRL::ComPtr<IDXGIFactory6> _dxgiFactory = nullptr;
+	std::vector< Microsoft::WRL::ComPtr<IDXGIAdapter>> adapters;
+	Microsoft::WRL::ComPtr<ID3D12Device> _dev = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> _cmdAllocator = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> _cmdQueue = nullptr;
+	Microsoft::WRL::ComPtr<IDXGISwapChain4> _swapchain = nullptr;
+	DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeaps = nullptr;
+	std::vector< Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers;
+	Microsoft::WRL::ComPtr<ID3D12Fence> _fence = nullptr;
+	UINT64 _fenceVal = 0;
+
 	D3D12_VIEWPORT viewport = {};
 	D3D12_RECT scissorrect = {};
 
-	std::vector<ID3D12Resource*> backBuffers;
-	ID3D12DescriptorHeap* rtvHeaps = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
-	UINT64 _fenceVal = 0;
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
+
+	bool DXGIInit();
+	void DeviceInit();
+	bool CMDInit();
+	bool SwapChainInit();
+	bool CreateRTV();
+	void ViewportInit();
+	void ScissorrectInit();
 
 public:
 	Wrapper(HWND hwnd);
@@ -38,7 +50,7 @@ public:
 	void Draw();
 	void EndDraw();
 	void Flip();
-	ID3D12Device* GetDevice() const;
-	ID3D12GraphicsCommandList* GetCommandList() const;
+	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
 	~Wrapper();
 };

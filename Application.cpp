@@ -28,15 +28,6 @@ void DebugOutputFormatString(const char* format, ...)
 #endif
 }
 
-void CheckResult(HRESULT result)
-{
-	if (FAILED(result))
-	{
-		DebugOutputFormatString("エラーが発生しました\n");
-		exit(1);
-	}
-}
-
 struct SHeader
 {
 	std::uint8_t version;
@@ -105,16 +96,19 @@ Application& Application::Instance()
 }
 bool Application::Init()
 {
+	//auto result = CoInitializeEx(0, COINIT_MULTITHREADED);
 	CreateGameWindow(hwnd, w);
 	
 	_dx.reset(new Wrapper(hwnd));
 	if(!_dx->Init())
 	{
+		DebugOutputFormatString("DX12周りの初期化エラー\n ");
 		return false;
 	}
 	_renderer.reset(new Renderer(*_dx));
 	if(!_renderer->Init())
 	{
+		DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
 		return false;
 	}
 }
