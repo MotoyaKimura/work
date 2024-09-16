@@ -7,12 +7,14 @@
 
 
 class Wrapper;
+class Model;
 class Renderer;
 class Application
 {
 private:
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Renderer> _renderer;
+	std::shared_ptr<Model> _model;
 
 	const unsigned int window_width = 1280;							//ウィンドウ幅
 	const unsigned int window_height = 720;							//ウィンドウ高
