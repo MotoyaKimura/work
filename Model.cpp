@@ -248,6 +248,8 @@ bool Model::Init(std::string filePath)
 	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size();
 	vbView.StrideInBytes = sizeof(SVertex);
 
+	
+
 	return true;
 }
 

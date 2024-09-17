@@ -8,6 +8,7 @@
 #endif
 
 using namespace std;
+using namespace Microsoft::WRL;
 
 bool Renderer::CheckResult(HRESULT result)
 {
@@ -71,12 +72,12 @@ bool Renderer::RootSignatureInit()
 	rootSignatureDesc.NumParameters = 1;
 
 
-	ID3DBlob* rootSigBlob = nullptr;
+	ComPtr< ID3DBlob> rootSigBlob = nullptr;
 	auto result = D3D12SerializeRootSignature(
 		&rootSignatureDesc,
 		D3D_ROOT_SIGNATURE_VERSION_1,
 		&rootSigBlob,
-		&errBlob);
+		errBlob.ReleaseAndGetAddressOf());
 
 	if (!CheckResult(result)) return false;
 
@@ -84,7 +85,7 @@ bool Renderer::RootSignatureInit()
 		0,
 		rootSigBlob->GetBufferPointer(),
 		rootSigBlob->GetBufferSize(),
-		IID_PPV_ARGS(&rootsignature));
+		IID_PPV_ARGS(rootsignature.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	rootSigBlob->Release();
 
@@ -150,7 +151,7 @@ bool Renderer::PipelineStateInit()
 	gpipeline.SampleDesc.Count = 1;
 	gpipeline.SampleDesc.Quality = 0;
 
-	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
+	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(_pipelinestate.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	return true;
 }

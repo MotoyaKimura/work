@@ -181,7 +181,7 @@ bool Wrapper::MVPBuffInit()
 {
 	XMMATRIX matrix = XMMatrixIdentity();
 
-	XMFLOAT3 eye(0, -40, 40);
+	XMFLOAT3 eye(0, 50, -40);
 	XMFLOAT3 tangent(0, 0, 0);
 	XMFLOAT3 up(0, 1, 0);
 
