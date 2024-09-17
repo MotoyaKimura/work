@@ -10,6 +10,7 @@ min16uint4 index : INDICES
 {
 	Output output;
     output.svpos = mul(mat, pos);
+	output.normal = normal;
 	output.uv = uv;
 
 	return output;
