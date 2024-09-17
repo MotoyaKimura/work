@@ -181,12 +181,12 @@ bool Wrapper::MVPBuffInit()
 {
 	XMMATRIX matrix = XMMatrixIdentity();
 
-	XMFLOAT3 eys(0, 0, -10);
+	XMFLOAT3 eye(0, -40, 40);
 	XMFLOAT3 tangent(0, 0, 0);
 	XMFLOAT3 up(0, 1, 0);
 
-	matrix *= XMMatrixLookAtLH(XMLoadFloat3(&eys), XMLoadFloat3(&tangent), XMLoadFloat3(&up));
-	matrix *= XMMatrixPerspectiveFovLH(XM_PIDIV2, static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy), 1.0f, 10.0f);
+	matrix *= XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&tangent), XMLoadFloat3(&up));
+	matrix *= XMMatrixPerspectiveFovLH(XM_PIDIV2, static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy), 1.0f, 100.0f);
 
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(matrix) + 0xff) & ~0xff);

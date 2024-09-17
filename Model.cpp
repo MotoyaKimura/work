@@ -259,7 +259,7 @@ void Model::Update()
 
 void Model::Draw()
 {
-	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	
 
