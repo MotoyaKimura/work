@@ -28,6 +28,8 @@ private:
 	D3D12_VIEWPORT viewport = {};
 	D3D12_RECT scissorrect = {};
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
+	Microsoft::WRL::ComPtr<ID3D12Resource> _mvpBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _mvpHeap = nullptr;
 
 	bool DXGIInit();
 	void DeviceInit();
@@ -36,6 +38,7 @@ private:
 	bool CreateRTV();
 	void ViewportInit();
 	void ScissorrectInit();
+	bool MVPBuffInit();
 
 public:
 	Wrapper(HWND hwnd);

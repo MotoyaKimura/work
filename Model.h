@@ -12,6 +12,11 @@ private:
 	std::shared_ptr<Wrapper> _dx;
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer = nullptr;
+	D3D12_INDEX_BUFFER_VIEW ibView = {};
+
+	unsigned int vertexNum;
+	unsigned int numIndex;
 
 	std::uint16_t VERSION = 100;
 
@@ -32,11 +37,11 @@ private:
 
 	struct SVertex
 	{
-		float pos[3];
-		float normal[3];
-		float uv[2];
-		float weights[4];
-		std::int16_t indices[4];
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT2 uv;
+		DirectX::XMFLOAT4 weights;
+		unsigned short indices[4];
 	};
 
 	struct SMaterial {

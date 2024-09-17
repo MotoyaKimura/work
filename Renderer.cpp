@@ -8,6 +8,7 @@
 #endif
 
 using namespace std;
+using namespace Microsoft::WRL;
 
 bool Renderer::CheckResult(HRESULT result)
 {
@@ -52,15 +53,31 @@ bool Renderer::CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, 
 
 bool Renderer::RootSignatureInit()
 {
+	D3D12_DESCRIPTOR_RANGE descTblRange = {};
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 0;
+	descTblRange.OffsetInDescriptorsFromTableStart =
+		D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParam = {};
+	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParam.DescriptorTable.pDescriptorRanges = &descTblRange;
+	rootParam.DescriptorTable.NumDescriptorRanges = 1;
+
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	rootSignatureDesc.pParameters = &rootParam;
+	rootSignatureDesc.NumParameters = 1;
 
-	ID3DBlob* rootSigBlob = nullptr;
+
+	ComPtr< ID3DBlob> rootSigBlob = nullptr;
 	auto result = D3D12SerializeRootSignature(
 		&rootSignatureDesc,
 		D3D_ROOT_SIGNATURE_VERSION_1,
 		&rootSigBlob,
-		&errBlob);
+		errBlob.ReleaseAndGetAddressOf());
 
 	if (!CheckResult(result)) return false;
 
@@ -68,7 +85,7 @@ bool Renderer::RootSignatureInit()
 		0,
 		rootSigBlob->GetBufferPointer(),
 		rootSigBlob->GetBufferSize(),
-		IID_PPV_ARGS(&rootsignature));
+		IID_PPV_ARGS(rootsignature.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	rootSigBlob->Release();
 
@@ -79,11 +96,32 @@ bool Renderer::PipelineStateInit()
 {
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 	{
-				{
-					"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
-					D3D12_APPEND_ALIGNED_ELEMENT,
+		{
+			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-				},
+		},
+		{
+			"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		},
+		{
+			"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		},
+		{
+			"WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		},
+				{
+			"INDICES", 0, DXGI_FORMAT_R16G16B16A16_UINT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}
+
 	};
 
 	gpipeline.pRootSignature = rootsignature.Get();
@@ -113,7 +151,7 @@ bool Renderer::PipelineStateInit()
 	gpipeline.SampleDesc.Count = 1;
 	gpipeline.SampleDesc.Quality = 0;
 
-	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
+	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(_pipelinestate.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	return true;
 }
