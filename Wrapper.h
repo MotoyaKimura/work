@@ -25,14 +25,9 @@ private:
 	std::vector< Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers;
 	Microsoft::WRL::ComPtr<ID3D12Fence> _fence = nullptr;
 	UINT64 _fenceVal = 0;
-
 	D3D12_VIEWPORT viewport = {};
 	D3D12_RECT scissorrect = {};
-
-	
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
-
-	
 
 	bool DXGIInit();
 	void DeviceInit();

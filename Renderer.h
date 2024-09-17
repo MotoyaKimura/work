@@ -12,20 +12,15 @@ class Renderer
 private:
 	std::shared_ptr<Wrapper> _dx;
 	std::vector<std::shared_ptr<Model>> _models;
-	
-
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errBlob = nullptr;
-
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelinestate = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature = nullptr;
-
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
 
 	bool CheckResult(HRESULT result);
 	bool CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, std::string model, Microsoft::WRL::ComPtr<ID3DBlob>& _xsBlob);
-
 	bool RootSignatureInit();
 	bool PipelineStateInit();
 	
