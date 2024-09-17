@@ -1,5 +1,4 @@
 #include "Renderer.h"
-
 #include "Model.h"
 #include "Wrapper.h"
 
@@ -116,7 +115,6 @@ bool Renderer::PipelineStateInit()
 
 	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&_pipelinestate));
 	if (FAILED(result)) return false;
-
 	return true;
 }
 
@@ -129,10 +127,8 @@ bool Renderer::Init()
 {
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
 	if(FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
-	
 	if (!RootSignatureInit()) return false;
 	if (!PipelineStateInit()) return false;
-
 	return true;
 }
 
