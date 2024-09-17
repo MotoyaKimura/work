@@ -13,6 +13,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 
+	unsigned int vertexNum;
+
 	std::uint16_t VERSION = 100;
 
 	struct SHeader
@@ -32,11 +34,11 @@ private:
 
 	struct SVertex
 	{
-		float pos[3];
-		float normal[3];
-		float uv[2];
-		float weights[4];
-		std::int16_t indices[4];
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT2 uv;
+		DirectX::XMFLOAT4 weights;
+		unsigned short indices[4];
 	};
 
 	struct SMaterial {
@@ -74,7 +76,7 @@ private:
 	{
 		bool isFlatShading;
 		std::vector<SMaterial> materials;
-		std::vector<SVertex> vertexBuffer;
+		std::vector<unsigned char> vertexBuffer;
 		std::vector<SIndexBuffer32> indexBuffer32Array;		
 		std::vector<SIndexbuffer16> indexBuffer16Array;
 	};

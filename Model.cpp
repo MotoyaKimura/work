@@ -151,19 +151,16 @@ bool Model::LoadModel(std::string filePath)
 		fread(&meshPartsHeader, sizeof(meshPartsHeader), 1, fp);
 
 		meshPart.materials.resize(meshPartsHeader.numMaterial);
+		vertexNum = meshPartsHeader.numVertex;
 
 		for (unsigned int materialNo = 0; materialNo < meshPartsHeader.numMaterial; materialNo++) {
 			auto& material = meshPart.materials[materialNo];
 			BuildMaterial(material, fp, filePath);
 		}
 
-		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex);
+		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex * sizeof(SVertex));
+		fread(meshPart.vertexBuffer.data(), meshPart.vertexBuffer.size(), 1, fp);
 		
-		for (unsigned int vertexNo = 0; vertexNo < meshPartsHeader.numVertex; vertexNo++)
-		{
-			auto& vertex = meshPart.vertexBuffer[vertexNo];
-			fread(&vertex, sizeof(vertex), 1, fp);
-		}
 
 		if (meshPartsHeader.indexSize == 2) {
 			//16bitのインデックスバッファ。
@@ -222,7 +219,7 @@ bool Model::Init(std::string filePath)
 
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = sizeof(vertices);
+	resDesc.Width = m_meshParts[0].vertexBuffer.size();
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -240,16 +237,16 @@ bool Model::Init(std::string filePath)
 		IID_PPV_ARGS(vertexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
-	XMFLOAT3* vertMap = nullptr;
+	unsigned char* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
 
-	std::copy(std::begin(vertices), std::end(vertices), vertMap);
+	std::copy(std::begin(m_meshParts[0].vertexBuffer), std::end(m_meshParts[0].vertexBuffer), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vbView.SizeInBytes = sizeof(vertices);
-	vbView.StrideInBytes = sizeof(vertices[0]);
+	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size();
+	vbView.StrideInBytes = sizeof(SVertex);
 
 	return true;
 }
@@ -265,7 +262,7 @@ void Model::Draw()
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 
-	_dx->GetCommandList()->DrawInstanced(3, 1, 0, 0);
+	_dx->GetCommandList()->DrawInstanced(vertexNum, 1, 0, 0);
 }
 
 Model::~Model()
