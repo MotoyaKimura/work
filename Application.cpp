@@ -118,8 +118,8 @@ void Application::Run()
 			break;
 		}
 
-		_dx->BeginDraw();
 		_renderer->BeforeDraw();
+		_dx->BeginDraw();
 		_dx->Draw();
 		_renderer->Draw();
 		_dx->EndDraw();

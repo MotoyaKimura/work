@@ -52,8 +52,24 @@ bool Renderer::CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, 
 
 bool Renderer::RootSignatureInit()
 {
+	D3D12_DESCRIPTOR_RANGE descTblRange = {};
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 0;
+	descTblRange.OffsetInDescriptorsFromTableStart =
+		D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParam = {};
+	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParam.DescriptorTable.pDescriptorRanges = &descTblRange;
+	rootParam.DescriptorTable.NumDescriptorRanges = 1;
+
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	rootSignatureDesc.pParameters = &rootParam;
+	rootSignatureDesc.NumParameters = 1;
+
 
 	ID3DBlob* rootSigBlob = nullptr;
 	auto result = D3D12SerializeRootSignature(

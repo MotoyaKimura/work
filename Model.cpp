@@ -261,6 +261,7 @@ void Model::Draw()
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
+	
 
 	_dx->GetCommandList()->DrawInstanced(vertexNum, 1, 0, 0);
 }

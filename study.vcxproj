@@ -165,6 +165,9 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Wrapper.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ShaderHeader.hlsli" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

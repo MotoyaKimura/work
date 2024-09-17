@@ -49,4 +49,7 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ShaderHeader.hlsli" />
+  </ItemGroup>
 </Project>

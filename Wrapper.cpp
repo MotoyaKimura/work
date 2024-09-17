@@ -177,6 +177,52 @@ void Wrapper::ScissorrectInit()
 	scissorrect.bottom = scissorrect.top + winSize.cy;
 }
 
+bool Wrapper::MVPBuffInit()
+{
+	XMMATRIX matrix = XMMatrixIdentity();
+
+	XMFLOAT3 eys(0, 0, -10);
+	XMFLOAT3 tangent(0, 0, 0);
+	XMFLOAT3 up(0, 1, 0);
+
+	matrix *= XMMatrixLookAtLH(XMLoadFloat3(&eys), XMLoadFloat3(&tangent), XMLoadFloat3(&up));
+	matrix *= XMMatrixPerspectiveFovLH(XM_PIDIV2, static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy), 1.0f, 10.0f);
+
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(matrix) + 0xff) & ~0xff);
+
+	_dev->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(_mvpBuff.ReleaseAndGetAddressOf())
+	);
+
+	XMMATRIX* mvpMatrix;
+	auto result = _mvpBuff->Map(0, nullptr, (void**)&mvpMatrix);
+	if (FAILED(result)) return false;
+	*mvpMatrix = matrix;
+
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descHeapDesc.NodeMask = 0;
+	descHeapDesc.NumDescriptors = 1;
+	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	result = _dev->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(_mvpHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	auto handle = _mvpHeap->GetCPUDescriptorHandleForHeapStart();
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = _mvpBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_mvpBuff->GetDesc().Width);
+
+	_dev->CreateConstantBufferView(&cbvDesc, handle);
+
+	return true;
+}
 
 Wrapper::Wrapper(HWND hwnd) : _hwnd(hwnd)
 {
@@ -188,14 +234,15 @@ bool Wrapper::Init()
 	const auto& app = Application::Instance();
 	winSize = app.GetWindowSize();
 
-	DXGIInit();
+	if(!DXGIInit()) return false;
 	DeviceInit();
-	CMDInit();
-	SwapChainInit();
-	CreateRTV();
+	if(!CMDInit()) return false;;
+	if(!SwapChainInit()) return false;;
+	if(!CreateRTV()) return false;;
 
 	ViewportInit();
 	ScissorrectInit();
+	if(!MVPBuffInit()) return false;;
 
 	auto result = _dev->CreateFence(
 		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf()));
@@ -234,9 +281,15 @@ void Wrapper::BeginDraw()
 	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	_cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
 
-
 	_cmdList->RSSetViewports(1, &viewport);
 	_cmdList->RSSetScissorRects(1, &scissorrect);
+
+	ID3D12DescriptorHeap* heaps[] = { _mvpHeap.Get() };
+	
+	_cmdList->SetDescriptorHeaps(1, heaps);
+	_cmdList->SetGraphicsRootDescriptorTable(
+		0,
+		_mvpHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 void Wrapper::Draw()

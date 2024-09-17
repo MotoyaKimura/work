@@ -1,10 +1,16 @@
-float4 VS(
+#include "ShaderHeader.hlsli"
+
+Output VS(
 float4 pos : POSITION ,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,
 float4 weight : WEIGHT,
 min16uint4 index : INDICES
-) : SV_POSITION
+) 
 {
-	return pos;
+	Output output;
+    output.svpos = mul(mat, pos);
+	output.uv = uv;
+
+	return output;
 }
