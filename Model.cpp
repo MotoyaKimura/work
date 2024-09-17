@@ -180,7 +180,7 @@ bool Model::LoadModel(std::string filePath)
 			int numPolygon;
 			fread(&numPolygon, sizeof(numPolygon), 1, fp);
 			//トポロジーはトライアングルリストオンリーなので、3を乗算するとインデックスの数になる。
-			int numIndex = numPolygon * 3;
+			numIndex = numPolygon * 3;
 			if (meshPartsHeader.indexSize == 2) {
 				LoadIndexBuffer(
 					meshPart.indexBuffer16Array[materialNo].indices,
@@ -252,6 +252,25 @@ bool Model::Init(std::string filePath)
 	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
 	vbView.StrideInBytes = sizeof(SVertex);
 
+	resDesc.Width = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
+	result = _dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(indexBuffer.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	uint16_t* indexMap = nullptr;
+	result = indexBuffer->Map(0, nullptr, (void**)&indexMap);
+	if (FAILED(result)) return false;
+	std::copy(std::begin(m_meshParts[0].indexBuffer16Array[0].indices), std::end(m_meshParts[0].indexBuffer16Array[0].indices), indexMap);
+	indexBuffer->Unmap(0, nullptr);
+	
+	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+	ibView.Format = DXGI_FORMAT_R16_UINT;
+	ibView.SizeInBytes = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
 
 	return true;
 }
@@ -264,11 +283,11 @@ void Model::Update()
 
 void Model::Draw()
 {
-	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
-	
-
-	_dx->GetCommandList()->DrawInstanced(vertexNum, 1, 0, 0);
+	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
+	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	//_dx->GetCommandList()->DrawInstanced(vertexNum, 1, 0, 0);
 }
 
 Model::~Model()

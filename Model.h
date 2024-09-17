@@ -13,9 +13,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer = nullptr;
-	D3D12_VERTEX_BUFFER_VIEW ibView = {};
+	D3D12_INDEX_BUFFER_VIEW ibView = {};
 
 	unsigned int vertexNum;
+	unsigned int numIndex;
 
 	std::uint16_t VERSION = 100;
 
