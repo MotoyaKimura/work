@@ -158,9 +158,13 @@ bool Model::LoadModel(std::string filePath)
 			BuildMaterial(material, fp, filePath);
 		}
 
-		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex * sizeof(SVertex));
-		fread(meshPart.vertexBuffer.data(), meshPart.vertexBuffer.size(), 1, fp);
-		
+		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex);
+		//fread(meshPart.vertexBuffer.data(), meshPart.vertexBuffer.size(), 1, fp);
+
+		for (unsigned int vertNo = 0; vertNo < meshPartsHeader.numVertex; vertNo++) {
+			auto& vertex = meshPart.vertexBuffer[vertNo];
+			fread(&vertex, sizeof(vertex), 1, fp);
+		}
 
 		if (meshPartsHeader.indexSize == 2) {
 			//16bitのインデックスバッファ。
@@ -219,7 +223,7 @@ bool Model::Init(std::string filePath)
 
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = m_meshParts[0].vertexBuffer.size();
+	resDesc.Width = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -237,7 +241,7 @@ bool Model::Init(std::string filePath)
 		IID_PPV_ARGS(vertexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
-	unsigned char* vertMap = nullptr;
+	SVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
 
@@ -245,10 +249,9 @@ bool Model::Init(std::string filePath)
 	vertexBuffer->Unmap(0, nullptr);
 
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size();
+	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
 	vbView.StrideInBytes = sizeof(SVertex);
 
-	
 
 	return true;
 }

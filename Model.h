@@ -78,7 +78,7 @@ private:
 	{
 		bool isFlatShading;
 		std::vector<SMaterial> materials;
-		std::vector<unsigned char> vertexBuffer;
+		std::vector<SVertex> vertexBuffer;
 		std::vector<SIndexBuffer32> indexBuffer32Array;		
 		std::vector<SIndexbuffer16> indexBuffer16Array;
 	};
