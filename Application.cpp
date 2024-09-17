@@ -84,7 +84,7 @@ bool Application::Init()
 	}
 
 	_model.reset(new Model(_dx));
-	if (!_model->Init())
+	if (!_model->Init("modelData/teapot.tkm"))
 	{
 		DebugOutputFormatString("ƒ‚ƒfƒ‹‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;

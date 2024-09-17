@@ -3,12 +3,208 @@
 
 using namespace DirectX;
 
+template<class T>
+void Model::LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp)
+{
+	indices.resize(numIndex);
+	for (int indexNo = 0; indexNo < numIndex; indexNo++) {
+		T index;
+		fread(&index, sizeof(index), 1, fp);
+		indices[indexNo] = index - 1;	//todo maxのインデックスは1から開始しているので、-1する。
+		//todo エクスポーターで減らすようにしましょう。
+	}
+}
+
+std::string Model::LoadTextureFileName(FILE* fp)
+{
+	std::string fileName;
+	std::uint32_t fileNameLen;
+	fread(&fileNameLen, sizeof(fileNameLen), 1, fp);
+
+	if (fileNameLen > 0) {
+		char* localFileName = reinterpret_cast<char*>(malloc(fileNameLen + 1));
+		//ヌル文字分も読み込むので＋１
+		fread(localFileName, fileNameLen + 1, 1, fp);
+		fileName = localFileName;
+		free(localFileName);
+	}
+
+	return fileName;
+}
+
+void Model::BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath)
+{
+	//アルベドのファイル名をロード。
+	tkmMat.albedoMapFileName = LoadTextureFileName(fp);
+	//法線マップのファイル名をロード。
+	tkmMat.normalMapFileName = LoadTextureFileName(fp);
+	//スペキュラマップのファイル名をロード。
+	tkmMat.specularMapFileName = LoadTextureFileName(fp);
+	//リフレクションマップのファイル名をロード。
+	tkmMat.reflectionMapFileName = LoadTextureFileName(fp);
+	//屈折マップのファイル名をロード。
+	tkmMat.refractionMapFileName = LoadTextureFileName(fp);
+
+	std::string texFilePath = filePath;
+	auto loadTexture = [&](
+		std::string& texFileName,
+		std::unique_ptr<char[]>& ddsFileMemory,
+		unsigned int& fileSize,
+		std::string& texFilePathDst
+		) {
+			int filePathLength = static_cast<int>(texFilePath.length());
+			if (texFileName.length() > 0) {
+				//モデルのファイルパスからラストのフォルダ区切りを探す。
+				auto replaseStartPos = texFilePath.find_last_of('/');
+				if (replaseStartPos == std::string::npos) {
+					replaseStartPos = texFilePath.find_last_of('\\');
+				}
+				replaseStartPos += 1;
+				auto replaceLen = filePathLength - replaseStartPos;
+				texFilePath.replace(replaseStartPos, replaceLen, texFileName);
+				//拡張子をddsに変更する。
+				replaseStartPos = texFilePath.find_last_of('.') + 1;
+				replaceLen = texFilePath.length() - replaseStartPos;
+				texFilePath.replace(replaseStartPos, replaceLen, "dds");
+				//テクスチャファイルパスを記憶しておく。
+				texFilePathDst = texFilePath;
+
+				//テクスチャをロード。
+				FILE* texFileFp;
+				fopen_s(&texFileFp, texFilePath.c_str(), "rb");
+				if (texFileFp != nullptr) {
+					//ファイルサイズを取得。
+					fseek(texFileFp, 0L, SEEK_END);
+					fileSize = ftell(texFileFp);
+					fseek(texFileFp, 0L, SEEK_SET);
+
+					ddsFileMemory = std::make_unique<char[]>(fileSize);
+					fread(ddsFileMemory.get(), fileSize, 1, texFileFp);
+					fclose(texFileFp);
+				}
+				else {
+
+					MessageBoxA(nullptr, "テクスチャのロードに失敗しました。", "エラー", MB_OK);
+					std::abort();
+				}
+			}
+		};
+	//テクスチャをロード。
+	loadTexture(
+		tkmMat.albedoMapFileName,
+		tkmMat.albedoMap,
+		tkmMat.albedoMapSize,
+		tkmMat.albedoMapFilePath
+	);
+	loadTexture(
+		tkmMat.normalMapFileName,
+		tkmMat.normalMap,
+		tkmMat.normalMapSize,
+		tkmMat.normalMapFilePath
+	);
+	loadTexture(
+		tkmMat.specularMapFileName,
+		tkmMat.specularMap,
+		tkmMat.specularMapSize,
+		tkmMat.specularMapFilePath
+	);
+	loadTexture(
+		tkmMat.reflectionMapFileName,
+		tkmMat.reflectionMap,
+		tkmMat.reflectionMapSize,
+		tkmMat.reflectionMapFilePath
+	);
+	loadTexture(
+		tkmMat.refractionMapFileName,
+		tkmMat.refractionMap,
+		tkmMat.refractionMapSize,
+		tkmMat.refractionMapFilePath
+	);
+}
+
+
+bool Model::LoadModel(std::string filePath)
+{
+	FILE* fp;
+
+	fopen_s(&fp, filePath.c_str(), "rb");
+	if (fp == nullptr) {
+		MessageBoxA(nullptr, "tkmファイルが開けません。", "エラー", MB_OK);
+		return false;
+	}
+
+	SHeader header;
+	fread(&header, sizeof(header), 1, fp);
+	if (header.version != VERSION) {
+		//tkmファイルのバージョンが違う。
+		MessageBoxA(nullptr, "tkmファイルのバージョンが異なっています。", "エラー", MB_OK);
+	}
+
+	m_meshParts.resize(header.numMeshParts);
+
+	for (int meshPartsNo = 0; meshPartsNo < header.numMeshParts; meshPartsNo++) {
+
+		SMesh& meshPart = m_meshParts[meshPartsNo];
+		meshPart.isFlatShading = header.isFlatShading;
+
+		SMeshePartsHeader meshPartsHeader;
+		fread(&meshPartsHeader, sizeof(meshPartsHeader), 1, fp);
+
+		meshPart.materials.resize(meshPartsHeader.numMaterial);
+
+		for (unsigned int materialNo = 0; materialNo < meshPartsHeader.numMaterial; materialNo++) {
+			auto& material = meshPart.materials[materialNo];
+			BuildMaterial(material, fp, filePath);
+		}
+
+		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex);
+		
+		for (unsigned int vertexNo = 0; vertexNo < meshPartsHeader.numVertex; vertexNo++)
+		{
+			auto& vertex = meshPart.vertexBuffer[vertexNo];
+			fread(&vertex, sizeof(vertex), 1, fp);
+		}
+
+		if (meshPartsHeader.indexSize == 2) {
+			//16bitのインデックスバッファ。
+			meshPart.indexBuffer16Array.resize(meshPartsHeader.numMaterial);
+		}
+		else {
+			//32bitのインデックスバッファ。
+			meshPart.indexBuffer32Array.resize(meshPartsHeader.numMaterial);
+		}
+
+		for (unsigned int materialNo = 0; materialNo < meshPartsHeader.numMaterial; materialNo++) {
+			//ポリゴン数をロード。
+			int numPolygon;
+			fread(&numPolygon, sizeof(numPolygon), 1, fp);
+			//トポロジーはトライアングルリストオンリーなので、3を乗算するとインデックスの数になる。
+			int numIndex = numPolygon * 3;
+			if (meshPartsHeader.indexSize == 2) {
+				LoadIndexBuffer(
+					meshPart.indexBuffer16Array[materialNo].indices,
+					numIndex,
+					fp
+				);
+			}
+			else {
+				LoadIndexBuffer(
+					meshPart.indexBuffer32Array[materialNo].indices,
+					numIndex,
+					fp
+				);
+			}
+		}
+	}
+	fclose(fp);
+}
+
+
 Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx)
 {
 }
 
-
-bool Model::Init()
+bool Model::Init(std::string filePath)
 {
 	DirectX::XMFLOAT3 vertices[] =
 	{
@@ -16,6 +212,8 @@ bool Model::Init()
 		{-1.0f, 1.0f, 0.0f},
 		{1.0f, -1.0f, 0.0f}
 	};
+
+	if(!LoadModel(filePath)) return false;
 
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -56,10 +254,7 @@ bool Model::Init()
 	return true;
 }
 
-void Model::Load()
-{
 
-}
 
 void Model::Update()
 {
