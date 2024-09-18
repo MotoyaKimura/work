@@ -220,7 +220,7 @@ bool Wrapper::SceneTransBuffInit()
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 1;
+	descHeapDesc.NumDescriptors = 3;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dev->CreateDescriptorHeap(
 		&descHeapDesc, 
@@ -416,6 +416,12 @@ Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> Wrapper::GetCommandList() cons
 {
 	return _cmdList.Get();
 }
+
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> Wrapper::GetSceneTransHeap() const
+{
+	return _sceneTransHeap.Get();
+}
+
 
 Wrapper::~Wrapper()
 {

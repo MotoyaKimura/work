@@ -64,5 +64,6 @@ public:
 	void Flip();
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSceneTransHeap() const;
 	~Wrapper();
 };
