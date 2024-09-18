@@ -9,8 +9,9 @@ min16uint4 index : INDICES
 ) 
 {
 	Output output;
-    output.svpos = mul(mat, pos);
-	output.normal = normal;
+	pos = mul(world, pos);
+    output.svpos = mul(mul(projection, view), pos);
+    output.normal = mul(world, normal);
 	output.uv = uv;
 
 	return output;

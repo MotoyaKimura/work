@@ -93,12 +93,22 @@ private:
 
 	std::vector< SMesh>	m_meshParts;
 
+	Microsoft::WRL::ComPtr<ID3D12Resource> _mTransBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _mTransHeap = nullptr;
+
+	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX* mTransMatrix;
+	float angle = 0.0f;
+
 	template<class T>
 	void LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp);
 	std::string LoadTextureFileName(FILE* fp);
 	void BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath);
 	bool LoadModel(std::string filePath);
-
+	bool VertexInit();
+	bool IndexInit();
+	bool TextureInit();
+	bool MTransBuffInit();
 	
 public:
 	Model(std::shared_ptr<Wrapper> dx);

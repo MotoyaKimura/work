@@ -1,6 +1,12 @@
 cbuffer cbuff0 : register(b0)
 {
-    matrix mat;
+    matrix view;
+    matrix projection;
+};
+
+cbuffer cbuff1 : register(b1)
+{
+    matrix world;
 };
 
 Texture2D<float4> tex : register(t0);
