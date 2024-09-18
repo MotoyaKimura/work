@@ -1,6 +1,8 @@
 #include "Model.h"
 #include "Wrapper.h"
 
+#pragma  comment(lib, "DirectXTex.lib")
+
 using namespace DirectX;
 
 template<class T>
@@ -68,6 +70,8 @@ void Model::BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath)
 				texFilePath.replace(replaseStartPos, replaceLen, "dds");
 				//テクスチャファイルパスを記憶しておく。
 				texFilePathDst = texFilePath;
+
+				LoadFromDDSFile(L"modelData/tex.dds", DDS_FLAGS_NONE, &metadata, scratchImage);
 
 				//テクスチャをロード。
 				FILE* texFileFp;
@@ -272,6 +276,62 @@ bool Model::Init(std::string filePath)
 	ibView.Format = DXGI_FORMAT_R16_UINT;
 	ibView.SizeInBytes = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
 
+	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
+	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+	heapProp.CreationNodeMask = 0;
+	heapProp.VisibleNodeMask = 0;
+
+	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	resDesc.Width = metadata.width / 4;
+	resDesc.Height = metadata.height / 4;
+	resDesc.DepthOrArraySize = metadata.arraySize;
+	resDesc.SampleDesc.Count = 1;
+	resDesc.SampleDesc.Quality = 0;
+	resDesc.MipLevels = metadata.mipLevels;
+	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(metadata.dimension);
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	result = _dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		nullptr,
+		IID_PPV_ARGS(texBuffer.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	auto img = scratchImage.GetImage(0, 0, 0);
+
+	result = texBuffer->WriteToSubresource(
+		0,
+		nullptr,
+		img->pixels,
+		img->rowPitch,
+		img->slicePitch
+	);
+
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descHeapDesc.NodeMask = 0;
+	descHeapDesc.NumDescriptors = 1;
+	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	result = _dx->GetDevice()->CreateDescriptorHeap(
+		&descHeapDesc,
+		IID_PPV_ARGS(_texHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	_dx->GetDevice()->CreateShaderResourceView(
+		texBuffer.Get(),
+		&srvDesc,
+		_texHeap->GetCPUDescriptorHandleForHeapStart());
+
 	return true;
 }
 
@@ -286,8 +346,15 @@ void Model::Draw()
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
+
+	ID3D12DescriptorHeap* heaps[] = { _texHeap.Get() };
+	auto handle = _texHeap->GetGPUDescriptorHandleForHeapStart();
+	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		1,
+		handle);
+
 	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
-	//_dx->GetCommandList()->DrawInstanced(vertexNum, 1, 0, 0);
 }
 
 Model::~Model()

@@ -117,6 +117,7 @@ void Application::Run()
 		{
 			break;
 		}
+		_dx->Update();
 
 		_renderer->BeforeDraw();
 		_dx->BeginDraw();

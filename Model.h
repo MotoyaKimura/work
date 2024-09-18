@@ -2,6 +2,7 @@
 #include <d3d12.h>
 #include <d3dx12.h>
 #include <DirectXMath.h>
+#include <DirectXTex.h>
 
 
 
@@ -17,6 +18,12 @@ private:
 
 	unsigned int vertexNum;
 	unsigned int numIndex;
+
+	DirectX::TexMetadata metadata = {};
+	DirectX::ScratchImage scratchImage = {};
+	Microsoft::WRL::ComPtr<ID3D12Resource> texBuffer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _texHeap = nullptr;
+	D3D12_INDEX_BUFFER_VIEW texView = {};
 
 	std::uint16_t VERSION = 100;
 
