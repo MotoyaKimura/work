@@ -3,6 +3,7 @@
 #include <d3dx12.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
+#include <DirectXMath.h>
 #include <vector>
 
 class Wrapper
@@ -32,6 +33,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _mvpHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
+
+	DirectX::XMMATRIX matrix = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX* mvpMatrix;
+	float angle = 0.0f;
 
 
 	bool DXGIInit();

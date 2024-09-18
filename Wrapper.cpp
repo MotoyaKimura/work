@@ -191,21 +191,8 @@ void Wrapper::ScissorrectInit()
 
 bool Wrapper::MVPBuffInit()
 {
-	XMMATRIX matrix = XMMatrixIdentity();
+	
 
-	XMFLOAT3 eye(0, 50, -40);
-	XMFLOAT3 tangent(0, 0, 0);
-	XMFLOAT3 up(0, 1, 0);
-
-	matrix *= XMMatrixLookAtLH(
-		XMLoadFloat3(&eye),
-		XMLoadFloat3(&tangent), 
-		XMLoadFloat3(&up));
-	matrix *= XMMatrixPerspectiveFovLH(
-		XM_PIDIV2, 
-		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy), 
-		1.0f, 
-		100.0f);
 
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(matrix) + 0xff) & ~0xff);
@@ -219,7 +206,7 @@ bool Wrapper::MVPBuffInit()
 		IID_PPV_ARGS(_mvpBuff.ReleaseAndGetAddressOf())
 	);
 
-	XMMATRIX* mvpMatrix;
+	
 	auto result = _mvpBuff->Map(0, nullptr, (void**)&mvpMatrix);
 	if (FAILED(result)) return false;
 	*mvpMatrix = matrix;
@@ -328,6 +315,25 @@ bool Wrapper::Init()
 
 void Wrapper::Update()
 {
+	XMFLOAT3 eye(0, 20, -100);
+	XMFLOAT3 tangent(0, 0, 0);
+	XMFLOAT3 up(0, 1, 0);
+
+	angle += 0.01f;
+	auto worldMatrix = XMMatrixRotationX(-XM_PIDIV2) * XMMatrixRotationY(-angle);
+
+	auto viewMatrix = XMMatrixLookAtLH(
+		XMLoadFloat3(&eye),
+		XMLoadFloat3(&tangent),
+		XMLoadFloat3(&up));
+	auto ProjectionMatrix = XMMatrixPerspectiveFovLH(
+		XM_PIDIV4,
+		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy),
+		1.0f,
+		200.0f);
+
+	matrix = worldMatrix * viewMatrix * ProjectionMatrix;
+	*mvpMatrix = matrix;
 }
 
 void Wrapper::BeginDraw()
