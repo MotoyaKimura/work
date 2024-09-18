@@ -2,6 +2,8 @@ cbuffer cbuff0 : register(b0)
 {
     matrix view;
     matrix projection;
+    float4 lightVec;
+    float3 eye;
 };
 
 cbuffer cbuff1 : register(b1)

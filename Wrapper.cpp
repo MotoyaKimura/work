@@ -217,6 +217,9 @@ bool Wrapper::SceneTransBuffInit()
 		1.0f,
 		200.0f);
 
+	_sceneTransMatrix->lightVec = lightVec;
+	_sceneTransMatrix->eye = eye;
+
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
@@ -294,7 +297,8 @@ Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
 	eye(0, 20, -100),
 	tangent(0, 0, 0),
-	up(0, 1, 0)
+	up(0, 1, 0),
+lightVec(-1, 1, -1,1)
 {
 }
 
