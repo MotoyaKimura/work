@@ -4,6 +4,6 @@
 float4 PS(Output input) : SV_TARGET
 {
     float brightness = dot(normalize(lightVec.xyz), input.normal);
-
-    return float4(tex.Sample(smp, input.uv).xyz * brightness, 1.0f);
+    float4 texColor = tex.Sample(smp, input.uv);
+    return max(saturate(texColor * brightness), saturate(texColor * 0.2));
 }
