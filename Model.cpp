@@ -283,8 +283,8 @@ bool Model::Init(std::string filePath)
 	heapProp.VisibleNodeMask = 0;
 
 	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	resDesc.Width = metadata.width;
-	resDesc.Height = metadata.height;
+	resDesc.Width = metadata.width / 4;
+	resDesc.Height = metadata.height / 4;
 	resDesc.DepthOrArraySize = metadata.arraySize;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.SampleDesc.Quality = 0;
