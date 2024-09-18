@@ -29,15 +29,20 @@ private:
 	D3D12_VIEWPORT viewport = {};
 	D3D12_RECT scissorrect = {};
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
-	Microsoft::WRL::ComPtr<ID3D12Resource> _mvpBuff = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _mvpHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
 
-	DirectX::XMMATRIX matrix = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX* mvpMatrix;
-	float angle = 0.0f;
-
+	struct SceneTransMatrix {
+		DirectX::XMMATRIX view;//ビュー
+		DirectX::XMMATRIX projection;//プロジェクション
+	};
+	SceneTransMatrix* _sceneTransMatrix;
+	
+	DirectX::XMFLOAT3 eye;
+	DirectX::XMFLOAT3 tangent;
+	DirectX::XMFLOAT3 up;
 
 	bool DXGIInit();
 	void DeviceInit();
@@ -46,7 +51,7 @@ private:
 	bool CreateRTV();
 	void ViewportInit();
 	void ScissorrectInit();
-	bool MVPBuffInit();
+	bool SceneTransBuffInit();
 	bool DepthBuffInit();
 
 public:

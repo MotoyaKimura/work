@@ -189,13 +189,11 @@ void Wrapper::ScissorrectInit()
 	scissorrect.bottom = scissorrect.top + winSize.cy;
 }
 
-bool Wrapper::MVPBuffInit()
+bool Wrapper::SceneTransBuffInit()
 {
-	
-
 
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(matrix) + 0xff) & ~0xff);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(SceneTransMatrix) + 0xff) & ~0xff);
 
 	_dev->CreateCommittedResource(
 		&heapProp,
@@ -203,13 +201,21 @@ bool Wrapper::MVPBuffInit()
 		&resDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(_mvpBuff.ReleaseAndGetAddressOf())
+		IID_PPV_ARGS(_sceneTransBuff.ReleaseAndGetAddressOf())
 	);
 
-	
-	auto result = _mvpBuff->Map(0, nullptr, (void**)&mvpMatrix);
+	auto result = _sceneTransBuff->Map(0, nullptr, (void**)&_sceneTransMatrix);
 	if (FAILED(result)) return false;
-	*mvpMatrix = matrix;
+	_sceneTransMatrix->view = XMMatrixLookAtLH(
+		XMLoadFloat3(&eye),
+		XMLoadFloat3(&tangent),
+		XMLoadFloat3(&up));;
+
+	_sceneTransMatrix->projection = XMMatrixPerspectiveFovLH(
+		XM_PIDIV4,
+		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy),
+		1.0f,
+		200.0f);
 
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
@@ -218,14 +224,14 @@ bool Wrapper::MVPBuffInit()
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dev->CreateDescriptorHeap(
 		&descHeapDesc, 
-		IID_PPV_ARGS(_mvpHeap.ReleaseAndGetAddressOf()));
+		IID_PPV_ARGS(_sceneTransHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
-	auto handle = _mvpHeap->GetCPUDescriptorHandleForHeapStart();
+	auto handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = _mvpBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_mvpBuff->GetDesc().Width);
+	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
 
 	_dev->CreateConstantBufferView(&cbvDesc, handle);
 
@@ -247,6 +253,7 @@ bool Wrapper::DepthBuffInit()
 	depthResDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	depthResDesc.SampleDesc.Count = 1;
 	depthResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
 
 	D3D12_CLEAR_VALUE depthClearValue = {};
 	depthClearValue.DepthStencil.Depth = 1.0f;
@@ -283,7 +290,11 @@ bool Wrapper::DepthBuffInit()
 }
 
 
-Wrapper::Wrapper(HWND hwnd) : _hwnd(hwnd)
+Wrapper::Wrapper(HWND hwnd) :
+	_hwnd(hwnd),
+	eye(0, 20, -100),
+	tangent(0, 0, 0),
+	up(0, 1, 0)
 {
 }
 
@@ -301,7 +312,7 @@ bool Wrapper::Init()
 
 	ViewportInit();
 	ScissorrectInit();
-	if(!MVPBuffInit()) return false;;
+	if(!SceneTransBuffInit()) return false;;
 	if (!DepthBuffInit()) return false;;
 
 	auto result = _dev->CreateFence(
@@ -315,25 +326,6 @@ bool Wrapper::Init()
 
 void Wrapper::Update()
 {
-	XMFLOAT3 eye(0, 20, -100);
-	XMFLOAT3 tangent(0, 0, 0);
-	XMFLOAT3 up(0, 1, 0);
-
-	angle += 0.01f;
-	auto worldMatrix = XMMatrixRotationX(-XM_PIDIV2) * XMMatrixRotationY(-angle);
-
-	auto viewMatrix = XMMatrixLookAtLH(
-		XMLoadFloat3(&eye),
-		XMLoadFloat3(&tangent),
-		XMLoadFloat3(&up));
-	auto ProjectionMatrix = XMMatrixPerspectiveFovLH(
-		XM_PIDIV4,
-		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy),
-		1.0f,
-		200.0f);
-
-	matrix = worldMatrix * viewMatrix * ProjectionMatrix;
-	*mvpMatrix = matrix;
 }
 
 void Wrapper::BeginDraw()
@@ -371,12 +363,12 @@ void Wrapper::BeginDraw()
 	_cmdList->RSSetViewports(1, &viewport);
 	_cmdList->RSSetScissorRects(1, &scissorrect);
 
-	ID3D12DescriptorHeap* heaps[] = { _mvpHeap.Get() };
+	ID3D12DescriptorHeap* heaps[] = { _sceneTransHeap.Get() };
 	
 	_cmdList->SetDescriptorHeaps(1, heaps);
 	_cmdList->SetGraphicsRootDescriptorTable(
 		0,
-		_mvpHeap->GetGPUDescriptorHandleForHeapStart());
+		_sceneTransHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 void Wrapper::Draw()

@@ -204,27 +204,12 @@ bool Model::LoadModel(std::string filePath)
 	fclose(fp);
 }
 
-
-Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx)
+bool Model::VertexInit()
 {
-}
-
-bool Model::Init(std::string filePath)
-{
-	DirectX::XMFLOAT3 vertices[] =
-	{
-		{-1.0f, -1.0f, 0.0f},
-		{-1.0f, 1.0f, 0.0f},
-		{1.0f, -1.0f, 0.0f}
-	};
-
-	if(!LoadModel(filePath)) return false;
-
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
 	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.Width = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
@@ -235,8 +220,7 @@ bool Model::Init(std::string filePath)
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-	auto result =_dx->GetDevice()->CreateCommittedResource(
+	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -244,20 +228,36 @@ bool Model::Init(std::string filePath)
 		nullptr,
 		IID_PPV_ARGS(vertexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-
 	SVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
-
 	std::copy(std::begin(m_meshParts[0].vertexBuffer), std::end(m_meshParts[0].vertexBuffer), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
-
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
 	vbView.StrideInBytes = sizeof(SVertex);
 
+	return true;
+}
+
+bool Model::IndexInit()
+{
+	D3D12_HEAP_PROPERTIES heapProp = {};
+	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	D3D12_RESOURCE_DESC resDesc = {};
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.Width = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
-	result = _dx->GetDevice()->CreateCommittedResource(
+	resDesc.Height = 1;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.Format = DXGI_FORMAT_UNKNOWN;
+	resDesc.SampleDesc.Count = 1;
+	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	
+	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -265,23 +265,27 @@ bool Model::Init(std::string filePath)
 		nullptr,
 		IID_PPV_ARGS(indexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-
 	uint16_t* indexMap = nullptr;
 	result = indexBuffer->Map(0, nullptr, (void**)&indexMap);
 	if (FAILED(result)) return false;
 	std::copy(std::begin(m_meshParts[0].indexBuffer16Array[0].indices), std::end(m_meshParts[0].indexBuffer16Array[0].indices), indexMap);
 	indexBuffer->Unmap(0, nullptr);
-	
 	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	ibView.Format = DXGI_FORMAT_R16_UINT;
 	ibView.SizeInBytes = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
 
+	return true;
+}
+
+bool Model::TextureInit()
+{
+	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
 	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
 	heapProp.CreationNodeMask = 0;
 	heapProp.VisibleNodeMask = 0;
-
+	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	resDesc.Width = metadata.width / 4;
 	resDesc.Height = metadata.height / 4;
@@ -292,8 +296,7 @@ bool Model::Init(std::string filePath)
 	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(metadata.dimension);
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-	result = _dx->GetDevice()->CreateCommittedResource(
+	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -301,9 +304,7 @@ bool Model::Init(std::string filePath)
 		nullptr,
 		IID_PPV_ARGS(texBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-
 	auto img = scratchImage.GetImage(0, 0, 0);
-
 	result = texBuffer->WriteToSubresource(
 		0,
 		nullptr,
@@ -311,7 +312,6 @@ bool Model::Init(std::string filePath)
 		img->rowPitch,
 		img->slicePitch
 	);
-
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
@@ -321,7 +321,6 @@ bool Model::Init(std::string filePath)
 		&descHeapDesc,
 		IID_PPV_ARGS(_texHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -331,7 +330,62 @@ bool Model::Init(std::string filePath)
 		texBuffer.Get(),
 		&srvDesc,
 		_texHeap->GetCPUDescriptorHandleForHeapStart());
+	return true;
+}
 
+bool Model::MTransBuffInit()
+{
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(world) + 0xff) & ~0xff);
+
+	_dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(_mTransBuff.ReleaseAndGetAddressOf())
+	);
+
+	auto result = _mTransBuff->Map(0, nullptr, (void**)&mTransMatrix);
+	if (FAILED(result)) return false;
+	world = XMMatrixIdentity();
+	*mTransMatrix = world;
+
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descHeapDesc.NodeMask = 0;
+	descHeapDesc.NumDescriptors = 1;
+	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	result = _dx->GetDevice()->CreateDescriptorHeap(
+		&descHeapDesc,
+		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = _mTransBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_mTransBuff->GetDesc().Width);
+
+	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+
+	return true;
+}
+
+
+Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx)
+{
+}
+
+bool Model::Init(std::string filePath)
+{
+
+	if(!LoadModel(filePath)) return false;
+	if (!VertexInit()) return false;
+	if (!IndexInit()) return false;
+	if (!TextureInit()) return false;
+	if (!MTransBuffInit()) return false;
 	return true;
 }
 
@@ -339,6 +393,9 @@ bool Model::Init(std::string filePath)
 
 void Model::Update()
 {
+	angle += 0.01f;
+	world = XMMatrixRotationX(-XM_PIDIV2) * XMMatrixRotationY(-angle);
+	*mTransMatrix = world;
 }
 
 void Model::Draw()
@@ -352,6 +409,13 @@ void Model::Draw()
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		1,
+		handle);
+
+	heaps[0] = _mTransHeap.Get();
+	handle = _mTransHeap->GetGPUDescriptorHandleForHeapStart();
+	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		2,
 		handle);
 
 	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
