@@ -31,7 +31,9 @@ bool Wrapper::DXGIInit()
 {
 #ifdef _DEBUG
 	EnableDebugLayer();
-	auto result = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf()));
+	auto result = CreateDXGIFactory2(
+		DXGI_CREATE_FACTORY_DEBUG, 
+		IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf()));
 #else
 	auto result = CreateDXGIFactory1(IID_PPV_ARGS(&_dxgiFactory));
 #endif
@@ -75,7 +77,10 @@ void Wrapper::DeviceInit()
 
 	for (auto lv : levels)
 	{
-		if (D3D12CreateDevice(tmpAdapter.Get(), lv, IID_PPV_ARGS(_dev.ReleaseAndGetAddressOf())) == S_OK)
+		if (D3D12CreateDevice(
+			tmpAdapter.Get(), 
+			lv,
+			IID_PPV_ARGS(_dev.ReleaseAndGetAddressOf())) == S_OK)
 		{
 			featureLevel = lv;
 			break;
@@ -102,7 +107,9 @@ bool Wrapper::CMDInit()
 	cmdQueueDesc.NodeMask = 0;
 	cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 	cmdQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	result = _dev->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(_cmdQueue.ReleaseAndGetAddressOf()));
+	result = _dev->CreateCommandQueue(
+		&cmdQueueDesc, 
+		IID_PPV_ARGS(_cmdQueue.ReleaseAndGetAddressOf()));
 
 	return true;
 }
@@ -140,14 +147,19 @@ bool Wrapper::CreateRTV()
 	heapDesc.NumDescriptors = 2;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	auto result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(rtvHeaps.ReleaseAndGetAddressOf()));
+	auto result = _dev->CreateDescriptorHeap(
+		&heapDesc, 
+		IID_PPV_ARGS(rtvHeaps.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
 	backBuffers.resize(swapchainDesc.BufferCount);
-	D3D12_CPU_DESCRIPTOR_HANDLE handle = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = 
+		rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	for (int idx = 0; idx < swapchainDesc.BufferCount; ++idx)
 	{
-		result = _swapchain->GetBuffer(idx, IID_PPV_ARGS(backBuffers[idx].ReleaseAndGetAddressOf()));
+		result = _swapchain->GetBuffer(
+			idx, 
+			IID_PPV_ARGS(backBuffers[idx].ReleaseAndGetAddressOf()));
 		if (FAILED(result)) return false;
 		_dev->CreateRenderTargetView(
 			backBuffers[idx].Get(),
@@ -185,8 +197,15 @@ bool Wrapper::MVPBuffInit()
 	XMFLOAT3 tangent(0, 0, 0);
 	XMFLOAT3 up(0, 1, 0);
 
-	matrix *= XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&tangent), XMLoadFloat3(&up));
-	matrix *= XMMatrixPerspectiveFovLH(XM_PIDIV2, static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy), 1.0f, 100.0f);
+	matrix *= XMMatrixLookAtLH(
+		XMLoadFloat3(&eye),
+		XMLoadFloat3(&tangent), 
+		XMLoadFloat3(&up));
+	matrix *= XMMatrixPerspectiveFovLH(
+		XM_PIDIV2, 
+		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy), 
+		1.0f, 
+		100.0f);
 
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(matrix) + 0xff) & ~0xff);
@@ -210,7 +229,9 @@ bool Wrapper::MVPBuffInit()
 	descHeapDesc.NodeMask = 0;
 	descHeapDesc.NumDescriptors = 1;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	result = _dev->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(_mvpHeap.ReleaseAndGetAddressOf()));
+	result = _dev->CreateDescriptorHeap(
+		&descHeapDesc, 
+		IID_PPV_ARGS(_mvpHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
 	auto handle = _mvpHeap->GetCPUDescriptorHandleForHeapStart();
@@ -223,6 +244,57 @@ bool Wrapper::MVPBuffInit()
 
 	return true;
 }
+
+bool Wrapper::DepthBuffInit()
+{
+	D3D12_HEAP_PROPERTIES depthHeapProp = {};
+	depthHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
+	depthHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	depthHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+	D3D12_RESOURCE_DESC depthResDesc = {};
+	depthResDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthResDesc.Width = winSize.cx;
+	depthResDesc.Height = winSize.cy;
+	depthResDesc.DepthOrArraySize = 1;
+	depthResDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthResDesc.SampleDesc.Count = 1;
+	depthResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE depthClearValue = {};
+	depthClearValue.DepthStencil.Depth = 1.0f;
+	depthClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+
+	auto result = _dev->CreateCommittedResource(
+		&depthHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&depthResDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthClearValue,
+		IID_PPV_ARGS(_depthBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	result = _dev->CreateDescriptorHeap(
+		&dsvHeapDesc,
+		IID_PPV_ARGS(_dsvHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	_dev->CreateDepthStencilView(
+		_depthBuff.Get(),
+		&dsvDesc, 
+		_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	return true;
+}
+
 
 Wrapper::Wrapper(HWND hwnd) : _hwnd(hwnd)
 {
@@ -243,6 +315,7 @@ bool Wrapper::Init()
 	ViewportInit();
 	ScissorrectInit();
 	if(!MVPBuffInit()) return false;;
+	if (!DepthBuffInit()) return false;;
 
 	auto result = _dev->CreateFence(
 		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf()));
@@ -273,13 +346,21 @@ void Wrapper::BeginDraw()
 	auto rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += backBufferIndex *
 		_dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	auto dsvH = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	_cmdList->OMSetRenderTargets(
 		1,
 		&rtvH,
 		true,
-		nullptr);
+		&dsvH);
 	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	_cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
+	_cmdList->ClearDepthStencilView(
+		dsvH,
+		D3D12_CLEAR_FLAG_DEPTH,
+		1.0f,
+		0,
+		0,
+		nullptr);
 
 	_cmdList->RSSetViewports(1, &viewport);
 	_cmdList->RSSetScissorRects(1, &scissorrect);

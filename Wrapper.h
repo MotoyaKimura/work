@@ -30,6 +30,9 @@ private:
 	D3D12_RESOURCE_BARRIER barrierDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _mvpBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _mvpHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
+
 
 	bool DXGIInit();
 	void DeviceInit();
@@ -39,6 +42,7 @@ private:
 	void ViewportInit();
 	void ScissorrectInit();
 	bool MVPBuffInit();
+	bool DepthBuffInit();
 
 public:
 	Wrapper(HWND hwnd);
