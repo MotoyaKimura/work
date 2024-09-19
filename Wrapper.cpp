@@ -216,13 +216,14 @@ bool Wrapper::SceneTransBuffInit()
 		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy),
 		1.0f,
 		200.0f);
-
+	XMVECTOR det;
+	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->projection);
 	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
 	_sceneTransMatrix->shadow = XMMatrixShadow(
 		XMLoadFloat4(&planeVec),
 		XMLoadFloat3(&lightVec));
 	_sceneTransMatrix->shadowOffsetY = XMMatrixTranslation(0, 15, 0);
-	XMVECTOR det;
+	
 	_sceneTransMatrix->invShadowOffsetY = XMMatrixInverse(&det , _sceneTransMatrix->shadowOffsetY);
 	_sceneTransMatrix->lightVec = lightVec;
 	_sceneTransMatrix->eye = eye;

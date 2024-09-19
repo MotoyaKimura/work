@@ -2,6 +2,7 @@ cbuffer cbuff0 : register(b0)
 {
     matrix view;
     matrix projection;
+    matrix invprojection;
     matrix shadow;
     matrix shadowOffsetY;
     matrix invShadowOffsetY;

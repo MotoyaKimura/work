@@ -43,6 +43,7 @@ private:
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ビュー
 		DirectX::XMMATRIX projection;//プロジェクション
+		DirectX::XMMATRIX invProjection;
 		DirectX::XMMATRIX shadow;
 		DirectX::XMMATRIX shadowOffsetY;
 		DirectX::XMMATRIX invShadowOffsetY;
