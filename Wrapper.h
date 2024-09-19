@@ -23,23 +23,31 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> _swapchain = nullptr;
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeaps = nullptr;
+	
 	std::vector< Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers;
 	Microsoft::WRL::ComPtr<ID3D12Fence> _fence = nullptr;
 	UINT64 _fenceVal = 0;
 	D3D12_VIEWPORT viewport = {};
 	D3D12_RECT scissorrect = {};
-	D3D12_RESOURCE_BARRIER barrierDesc = {};
+	D3D12_RESOURCE_BARRIER backBuffBarrierDesc = {};
+	D3D12_RESOURCE_BARRIER peraBuffBarrierDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _peraBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
 
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ビュー
 		DirectX::XMMATRIX projection;//プロジェクション
+		DirectX::XMFLOAT4 lightVec;
+		DirectX::XMFLOAT3 eye;
 	};
 	SceneTransMatrix* _sceneTransMatrix;
-	
+
+	DirectX::XMFLOAT4 lightVec;
 	DirectX::XMFLOAT3 eye;
 	DirectX::XMFLOAT3 tangent;
 	DirectX::XMFLOAT3 up;
@@ -48,21 +56,25 @@ private:
 	void DeviceInit();
 	bool CMDInit();
 	bool SwapChainInit();
-	bool CreateRTV();
+	bool CreateBackBuffRTV();
 	void ViewportInit();
 	void ScissorrectInit();
 	bool SceneTransBuffInit();
 	bool DepthBuffInit();
-
+	bool CreatePeraRTVAndSRV();
 public:
 	Wrapper(HWND hwnd);
 	bool Init();
 	void Update();
-	void BeginDraw();
+	void BeginDrawTeapot();
+	void EndDrawTeapot();
+	void BeginDrawPera();
+	void EndDrawPera();
 	void Draw();
-	void EndDraw();
 	void Flip();
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSceneTransHeap() const;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetPeraSRVHeap() const;
 	~Wrapper();
 };

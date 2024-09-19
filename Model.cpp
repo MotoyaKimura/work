@@ -292,7 +292,7 @@ bool Model::TextureInit()
 	resDesc.DepthOrArraySize = metadata.arraySize;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.SampleDesc.Quality = 0;
-	resDesc.MipLevels = metadata.mipLevels;
+	resDesc.MipLevels = 1;
 	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(metadata.dimension);
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
@@ -326,10 +326,12 @@ bool Model::TextureInit()
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
+	auto handle = _dx->GetSceneTransHeap()->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	_dx->GetDevice()->CreateShaderResourceView(
 		texBuffer.Get(),
 		&srvDesc,
-		_texHeap->GetCPUDescriptorHandleForHeapStart());
+		handle);
 	return true;
 }
 
@@ -362,7 +364,8 @@ bool Model::MTransBuffInit()
 		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
-	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	auto handle = _dx->GetSceneTransHeap()->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 2;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	cbvDesc.BufferLocation = _mTransBuff->GetGPUVirtualAddress();
@@ -404,19 +407,12 @@ void Model::Draw()
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
 
-	ID3D12DescriptorHeap* heaps[] = { _texHeap.Get() };
-	auto handle = _texHeap->GetGPUDescriptorHandleForHeapStart();
-	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
-	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
-		1,
-		handle);
+	ID3D12DescriptorHeap* heaps[] = { _dx->GetSceneTransHeap().Get() };
 
-	heaps[0] = _mTransHeap.Get();
-	handle = _mTransHeap->GetGPUDescriptorHandleForHeapStart();
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
-		2,
-		handle);
+		0,
+		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
 
 	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
 }

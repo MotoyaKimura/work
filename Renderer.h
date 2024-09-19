@@ -6,30 +6,41 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 class Wrapper;
+class Pera;
 class Model;
 class Renderer
 {
 private:
 	std::shared_ptr<Wrapper> _dx;
+	std::shared_ptr<Pera> _pera;
 	std::vector<std::shared_ptr<Model>> _models;
+
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errBlob = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelinestate = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature = nullptr;
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipeline = {};
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _teapotPipelinestate = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> teapotRootsignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _peraPipelinestate = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> peraRootsignature = nullptr;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC teapotGpipeline = {};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC peraGpipeline = {};
+
 
 	bool CheckResult(HRESULT result);
 	bool CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, std::string model, Microsoft::WRL::ComPtr<ID3DBlob>& _xsBlob);
-	bool RootSignatureInit();
-	bool PipelineStateInit();
+	bool TeapotRootSignatureInit();
+	bool TeapotPipelineStateInit();
+	bool PeraRootSignatureInit();
+	bool PeraPipelineStateInit();
 	
 public:
-	Renderer(std::shared_ptr<Wrapper> dx);
+	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera);
 	bool Init();
 	void AddModel(std::shared_ptr<Model> model);
 	void Update();
-	void BeforeDraw();
-	void Draw();
+	void BeforeDrawTeapot();
+	void DrawTeapot();
+	void BeforeDrawPera();
+	void DrawPera();
 	~Renderer();
 };

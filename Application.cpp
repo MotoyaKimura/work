@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Wrapper.h"
+#include "Pera.h"
 #include "Model.h"
 #include "Renderer.h"
 #include <Windows.h>
@@ -90,7 +91,14 @@ bool Application::Init()
 		return false;
 	}
 
-	_renderer.reset(new Renderer(_dx));
+	_pera.reset(new Pera(_dx));
+	if (!_pera->Init())
+	{
+		DebugOutputFormatString("ペラポリゴンの初期化エラー\n ");
+		return false;
+	}
+
+	_renderer.reset(new Renderer(_dx, _pera));
 	if(!_renderer->Init())
 	{
 		DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
@@ -118,13 +126,16 @@ void Application::Run()
 			break;
 		}
 		_model->Update();
-		_dx->Update();
 
-		_renderer->BeforeDraw();
-		_dx->BeginDraw();
-		_dx->Draw();
-		_renderer->Draw();
-		_dx->EndDraw();
+		_dx->BeginDrawTeapot();
+		_renderer->BeforeDrawTeapot();
+		_renderer->DrawTeapot();
+		_dx->EndDrawTeapot();
+
+		_dx->BeginDrawPera();
+		_renderer->BeforeDrawPera();
+		_renderer->DrawPera();
+		_dx->EndDrawPera();
 		_dx->Flip();
 	}
 }

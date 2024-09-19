@@ -7,12 +7,14 @@
 
 
 class Wrapper;
+class Pera;
 class Model;
 class Renderer;
 class Application
 {
 private:
 	std::shared_ptr<Wrapper> _dx;
+	std::shared_ptr<Pera> _pera;
 	std::shared_ptr<Renderer> _renderer;
 	std::shared_ptr<Model> _model;
 
