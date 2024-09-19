@@ -217,6 +217,13 @@ bool Wrapper::SceneTransBuffInit()
 		1.0f,
 		200.0f);
 
+	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
+	_sceneTransMatrix->shadow = XMMatrixShadow(
+		XMLoadFloat4(&planeVec),
+		XMLoadFloat3(&lightVec));
+	_sceneTransMatrix->shadowOffsetY = XMMatrixTranslation(0, 15, 0);
+	XMVECTOR det;
+	_sceneTransMatrix->invShadowOffsetY = XMMatrixInverse(&det , _sceneTransMatrix->shadowOffsetY);
 	_sceneTransMatrix->lightVec = lightVec;
 	_sceneTransMatrix->eye = eye;
 
@@ -348,10 +355,10 @@ bool Wrapper::CreatePeraRTVAndSRV()
 
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
-	eye(0, 20, -100),
+	eye(0, 50, -100),
 	tangent(0, 0, 0),
 	up(0, 1, 0),
-lightVec(-1, 1, -1,1)
+lightVec(-1, 1, -1)
 {
 }
 

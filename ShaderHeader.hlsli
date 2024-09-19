@@ -2,7 +2,10 @@ cbuffer cbuff0 : register(b0)
 {
     matrix view;
     matrix projection;
-    float4 lightVec;
+    matrix shadow;
+    matrix shadowOffsetY;
+    matrix invShadowOffsetY;
+    float3 lightVec;
     float3 eye;
 };
 
@@ -16,8 +19,9 @@ SamplerState smp : register(s0);
 
 struct Output
 {
+    float4 pos : POSITION;
 	float4 svpos : SV_POSITION;
 	float4 normal : NORMAL;
 	float2 uv : TEXCOORD;
-
+    uint instNo : SV_InstanceID;
 };

@@ -42,12 +42,15 @@ private:
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ビュー
 		DirectX::XMMATRIX projection;//プロジェクション
-		DirectX::XMFLOAT4 lightVec;
+		DirectX::XMMATRIX shadow;
+		DirectX::XMMATRIX shadowOffsetY;
+		DirectX::XMMATRIX invShadowOffsetY;
+		DirectX::XMFLOAT3 lightVec;
 		DirectX::XMFLOAT3 eye;
 	};
 	SceneTransMatrix* _sceneTransMatrix;
 
-	DirectX::XMFLOAT4 lightVec;
+	DirectX::XMFLOAT3 lightVec;
 	DirectX::XMFLOAT3 eye;
 	DirectX::XMFLOAT3 tangent;
 	DirectX::XMFLOAT3 up;

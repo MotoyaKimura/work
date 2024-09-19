@@ -231,6 +231,7 @@ bool Model::VertexInit()
 	SVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
+	
 	std::copy(std::begin(m_meshParts[0].vertexBuffer), std::end(m_meshParts[0].vertexBuffer), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
@@ -312,15 +313,7 @@ bool Model::TextureInit()
 		img->rowPitch,
 		img->slicePitch
 	);
-	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
-	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 1;
-	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	result = _dx->GetDevice()->CreateDescriptorHeap(
-		&descHeapDesc,
-		IID_PPV_ARGS(_texHeap.ReleaseAndGetAddressOf()));
-	if (FAILED(result)) return false;
+	
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -354,15 +347,6 @@ bool Model::MTransBuffInit()
 	world = XMMatrixIdentity();
 	*mTransMatrix = world;
 
-	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
-	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 1;
-	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	result = _dx->GetDevice()->CreateDescriptorHeap(
-		&descHeapDesc,
-		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
-	if (FAILED(result)) return false;
 
 	auto handle = _dx->GetSceneTransHeap()->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 2;
@@ -414,7 +398,7 @@ void Model::Draw()
 		0,
 		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
 
-	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 2, 0, 0, 0);
 }
 
 Model::~Model()
