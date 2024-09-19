@@ -386,7 +386,7 @@ void Wrapper::Update()
 {
 }
 
-void Wrapper::BeginDrawToPeraBuff()
+void Wrapper::BeginDrawTeapot()
 {
 
 	peraBuffBarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -419,7 +419,7 @@ void Wrapper::BeginDrawToPeraBuff()
 	_cmdList->RSSetScissorRects(1, &scissorrect);
 }
 
-void Wrapper::EndDrawToPeraBuff()
+void Wrapper::EndDrawTeapot()
 {
 	peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
@@ -427,7 +427,7 @@ void Wrapper::EndDrawToPeraBuff()
 }
 
 
-void Wrapper::BeginDrawToBackBuff()
+void Wrapper::BeginDrawPera()
 {
 	auto backBufferIndex = _swapchain->GetCurrentBackBufferIndex();
 
@@ -463,7 +463,7 @@ void Wrapper::BeginDrawToBackBuff()
 
 }
 
-void Wrapper::EndDrawToBackBuff()
+void Wrapper::EndDrawPera()
 {
 	backBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	backBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -513,6 +513,10 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> Wrapper::GetSceneTransHeap() const
 	return _sceneTransHeap.Get();
 }
 
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> Wrapper::GetPeraSRVHeap() const
+{
+	return _peraSRVHeap.Get();
+}
 
 Wrapper::~Wrapper()
 {

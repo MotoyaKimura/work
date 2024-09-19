@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Pera.h"
 #include "Model.h"
 #include "Wrapper.h"
 
@@ -51,7 +52,7 @@ bool Renderer::CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, 
 	return CheckResult(result);
 }
 
-bool Renderer::RootSignatureInit()
+bool Renderer::TeapotRootSignatureInit()
 {
 	D3D12_DESCRIPTOR_RANGE descTblRange[3] = {};
 	//ƒV[ƒ“•ÏŠ·
@@ -113,14 +114,14 @@ bool Renderer::RootSignatureInit()
 		0,
 		rootSigBlob->GetBufferPointer(),
 		rootSigBlob->GetBufferSize(),
-		IID_PPV_ARGS(rootsignature.ReleaseAndGetAddressOf()));
+		IID_PPV_ARGS(teapotRootsignature.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	rootSigBlob->Release();
 
 	return true;
 }
 
-bool Renderer::PipelineStateInit()
+bool Renderer::TeapotPipelineStateInit()
 {
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 	{
@@ -152,44 +153,124 @@ bool Renderer::PipelineStateInit()
 
 	};
 
-	gpipeline.pRootSignature = rootsignature.Get();
-	gpipeline.VS.pShaderBytecode = vsBlob->GetBufferPointer();
-	gpipeline.VS.BytecodeLength = vsBlob->GetBufferSize();
-	gpipeline.PS.pShaderBytecode = psBlob->GetBufferPointer();
-	gpipeline.PS.BytecodeLength = psBlob->GetBufferSize();
-	gpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	gpipeline.RasterizerState.MultisampleEnable = false;
-	gpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	gpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	gpipeline.RasterizerState.DepthClipEnable = true;
-	gpipeline.DepthStencilState.DepthEnable = true;
-	gpipeline.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	gpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	gpipeline.BlendState.AlphaToCoverageEnable = false;
-	gpipeline.BlendState.IndependentBlendEnable = false;
+	teapotGpipeline.pRootSignature = teapotRootsignature.Get();
+	teapotGpipeline.VS.pShaderBytecode = vsBlob->GetBufferPointer();
+	teapotGpipeline.VS.BytecodeLength = vsBlob->GetBufferSize();
+	teapotGpipeline.PS.pShaderBytecode = psBlob->GetBufferPointer();
+	teapotGpipeline.PS.BytecodeLength = psBlob->GetBufferSize();
+	teapotGpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	teapotGpipeline.RasterizerState.MultisampleEnable = false;
+	teapotGpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	teapotGpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	teapotGpipeline.RasterizerState.DepthClipEnable = true;
+	teapotGpipeline.DepthStencilState.DepthEnable = true;
+	teapotGpipeline.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	teapotGpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	teapotGpipeline.BlendState.AlphaToCoverageEnable = false;
+	teapotGpipeline.BlendState.IndependentBlendEnable = false;
 	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDesc = {};
 	renderTargetBlendDesc.BlendEnable = false;
 	renderTargetBlendDesc.LogicOpEnable = false;
 	renderTargetBlendDesc.RenderTargetWriteMask =
 		D3D12_COLOR_WRITE_ENABLE_ALL;
-	gpipeline.BlendState.RenderTarget[0] = renderTargetBlendDesc;
-	gpipeline.InputLayout.pInputElementDescs = inputLayout;
-	gpipeline.InputLayout.NumElements = _countof(inputLayout);
-	gpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-	gpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	gpipeline.NumRenderTargets = 1;
-	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	gpipeline.SampleDesc.Count = 1;
-	gpipeline.SampleDesc.Quality = 0;
+	teapotGpipeline.BlendState.RenderTarget[0] = renderTargetBlendDesc;
+	teapotGpipeline.InputLayout.pInputElementDescs = inputLayout;
+	teapotGpipeline.InputLayout.NumElements = _countof(inputLayout);
+	teapotGpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+	teapotGpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	teapotGpipeline.NumRenderTargets = 1;
+	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	teapotGpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	teapotGpipeline.SampleDesc.Count = 1;
+	teapotGpipeline.SampleDesc.Quality = 0;
 
-	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(_pipelinestate.ReleaseAndGetAddressOf()));
+	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&teapotGpipeline, IID_PPV_ARGS(_teapotPipelinestate.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	return true;
 }
 
+bool Renderer::PeraRootSignatureInit()
+{
+	D3D12_DESCRIPTOR_RANGE descTblRange = {};
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descTblRange.BaseShaderRegister = 0;
+	descTblRange.NumDescriptors = 1;
 
-Renderer::Renderer(shared_ptr<Wrapper> dx) : _dx(dx)
+	D3D12_ROOT_PARAMETER rootParam = {};
+	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParam.DescriptorTable.pDescriptorRanges = &descTblRange;
+	rootParam.DescriptorTable.NumDescriptorRanges = 1;
+
+	D3D12_STATIC_SAMPLER_DESC samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);
+
+	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+	rootSignatureDesc.NumParameters = 1;
+	rootSignatureDesc.pParameters = &rootParam;
+	rootSignatureDesc.NumStaticSamplers = 1;
+	rootSignatureDesc.pStaticSamplers = &samplerDesc;
+	rootSignatureDesc.Flags =
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+	ComPtr<ID3DBlob> rootSigBlob = nullptr;
+	auto result = D3D12SerializeRootSignature(
+		&rootSignatureDesc,
+		D3D_ROOT_SIGNATURE_VERSION_1,
+		rootSigBlob.ReleaseAndGetAddressOf(),
+		errBlob.ReleaseAndGetAddressOf());
+	if (!CheckResult(result)) return false;
+
+	result = _dx->GetDevice()->CreateRootSignature(
+		0,
+		rootSigBlob->GetBufferPointer(),
+		rootSigBlob->GetBufferSize(),
+		IID_PPV_ARGS(peraRootsignature.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+	rootSigBlob->Release();
+
+	return true;
+}
+
+bool Renderer::PeraPipelineStateInit()
+{
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+	{
+		{
+			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		},
+		{
+			"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}
+	};
+
+	peraGpipeline.pRootSignature = peraRootsignature.Get();
+	peraGpipeline.VS.pShaderBytecode = vsBlob->GetBufferPointer();
+	peraGpipeline.VS.BytecodeLength = vsBlob->GetBufferSize();
+	peraGpipeline.PS.pShaderBytecode = psBlob->GetBufferPointer();
+	peraGpipeline.PS.BytecodeLength = psBlob->GetBufferSize();
+	peraGpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	peraGpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	peraGpipeline.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	peraGpipeline.InputLayout.pInputElementDescs = inputLayout;
+	peraGpipeline.InputLayout.NumElements = _countof(inputLayout);
+	peraGpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	peraGpipeline.NumRenderTargets = 1;
+	peraGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	peraGpipeline.SampleDesc.Count = 1;
+	peraGpipeline.SampleDesc.Quality = 0;
+	peraGpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&peraGpipeline, IID_PPV_ARGS(_peraPipelinestate.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	return true;
+}
+
+Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera) : _dx(dx), _pera(pera)
 {
 }
 
@@ -197,8 +278,12 @@ bool Renderer::Init()
 {
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
 	if(FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
-	if (!RootSignatureInit()) return false;
-	if (!PipelineStateInit()) return false;
+	if (!TeapotRootSignatureInit()) return false;
+	if (!TeapotPipelineStateInit()) return false;
+	if (FAILED(!CompileShaderFile(L"PeraVertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(L"PeraPixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
+	if (!PeraRootSignatureInit()) return false;
+	if (!PeraPipelineStateInit()) return false;
 	return true;
 }
 
@@ -211,17 +296,28 @@ void Renderer::Update()
 {
 }
 
-void Renderer::BeforeDrawToPeraBuff()
+void Renderer::BeforeDrawTeapot()
 {
-	_dx->GetCommandList()->SetPipelineState(_pipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
+	_dx->GetCommandList()->SetPipelineState(_teapotPipelinestate.Get());
+	_dx->GetCommandList()->SetGraphicsRootSignature(teapotRootsignature.Get());
 }
 
-void Renderer::DrawToPeraBuff()
+void Renderer::DrawTeapot()
 {
 	for (auto& _models : _models) {
 		_models->Draw();
 	}
+}
+
+void Renderer::BeforeDrawPera()
+{
+	_dx->GetCommandList()->SetPipelineState(_peraPipelinestate.Get());
+	_dx->GetCommandList()->SetGraphicsRootSignature(peraRootsignature.Get());
+}
+
+void Renderer::DrawPera()
+{
+	_pera->Draw();
 }
 
 Renderer::~Renderer()
