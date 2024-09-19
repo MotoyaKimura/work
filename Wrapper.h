@@ -35,6 +35,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _depthSRVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _peraBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
@@ -42,12 +43,16 @@ private:
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ビュー
 		DirectX::XMMATRIX projection;//プロジェクション
-		DirectX::XMFLOAT4 lightVec;
+		DirectX::XMMATRIX invProjection;
+		DirectX::XMMATRIX shadow;
+		DirectX::XMMATRIX shadowOffsetY;
+		DirectX::XMMATRIX invShadowOffsetY;
+		DirectX::XMFLOAT3 lightVec;
 		DirectX::XMFLOAT3 eye;
 	};
 	SceneTransMatrix* _sceneTransMatrix;
 
-	DirectX::XMFLOAT4 lightVec;
+	DirectX::XMFLOAT3 lightVec;
 	DirectX::XMFLOAT3 eye;
 	DirectX::XMFLOAT3 tangent;
 	DirectX::XMFLOAT3 up;

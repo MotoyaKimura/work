@@ -216,14 +216,22 @@ bool Wrapper::SceneTransBuffInit()
 		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy),
 		1.0f,
 		200.0f);
-
+	XMVECTOR det;
+	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->projection);
+	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
+	_sceneTransMatrix->shadow = XMMatrixShadow(
+		XMLoadFloat4(&planeVec),
+		XMLoadFloat3(&lightVec));
+	_sceneTransMatrix->shadowOffsetY = XMMatrixTranslation(0, 15, 0);
+	
+	_sceneTransMatrix->invShadowOffsetY = XMMatrixInverse(&det , _sceneTransMatrix->shadowOffsetY);
 	_sceneTransMatrix->lightVec = lightVec;
 	_sceneTransMatrix->eye = eye;
 
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 3;
+	descHeapDesc.NumDescriptors = 4;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dev->CreateDescriptorHeap(
 		&descHeapDesc, 
@@ -253,7 +261,7 @@ bool Wrapper::DepthBuffInit()
 	depthResDesc.Width = winSize.cx;
 	depthResDesc.Height = winSize.cy;
 	depthResDesc.DepthOrArraySize = 1;
-	depthResDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthResDesc.Format = DXGI_FORMAT_R32_TYPELESS;
 	depthResDesc.SampleDesc.Count = 1;
 	depthResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -288,6 +296,19 @@ bool Wrapper::DepthBuffInit()
 		_depthBuff.Get(),
 		&dsvDesc, 
 		_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	auto handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr +=_dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	_dev->CreateShaderResourceView(
+		_depthBuff.Get(),
+		&srvDesc,
+		handle);
 
 	return true;
 }
@@ -348,10 +369,10 @@ bool Wrapper::CreatePeraRTVAndSRV()
 
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
-	eye(0, 20, -100),
+	eye(0, 50, -100),
 	tangent(0, 0, 0),
 	up(0, 1, 0),
-lightVec(-1, 1, -1,1)
+lightVec(-1, 1, -1)
 {
 }
 
