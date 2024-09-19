@@ -15,6 +15,7 @@ cbuffer cbuff1 : register(b1)
 };
 
 Texture2D<float4> tex : register(t0);
+Texture2D<float> depthTex : register(t1);
 SamplerState smp : register(s0);
 
 struct Output

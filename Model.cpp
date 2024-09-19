@@ -398,7 +398,7 @@ void Model::Draw()
 		0,
 		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
 
-	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 2, 0, 0, 0);
+	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
 }
 
 Model::~Model()

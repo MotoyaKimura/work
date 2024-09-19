@@ -230,7 +230,7 @@ bool Wrapper::SceneTransBuffInit()
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 3;
+	descHeapDesc.NumDescriptors = 4;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dev->CreateDescriptorHeap(
 		&descHeapDesc, 
@@ -260,7 +260,7 @@ bool Wrapper::DepthBuffInit()
 	depthResDesc.Width = winSize.cx;
 	depthResDesc.Height = winSize.cy;
 	depthResDesc.DepthOrArraySize = 1;
-	depthResDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthResDesc.Format = DXGI_FORMAT_R32_TYPELESS;
 	depthResDesc.SampleDesc.Count = 1;
 	depthResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -295,6 +295,19 @@ bool Wrapper::DepthBuffInit()
 		_depthBuff.Get(),
 		&dsvDesc, 
 		_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	auto handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr +=_dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	_dev->CreateShaderResourceView(
+		_depthBuff.Get(),
+		&srvDesc,
+		handle);
 
 	return true;
 }

@@ -3,6 +3,8 @@
 
 float4 PS(Output input) : SV_TARGET
 {
+    float dep = pow(depthTex.Sample(smp, input.uv), 20);
+    return float4(dep, dep, dep, 1.0f);
     if(input.instNo == 1)
     {
         return float4(0, 0, 0, 1);

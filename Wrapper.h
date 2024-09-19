@@ -35,6 +35,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _depthSRVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _peraBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
