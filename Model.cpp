@@ -407,6 +407,13 @@ void Model::Draw()
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
 
+	ID3D12DescriptorHeap* heaps[] = { _dx->GetSceneTransHeap().Get() };
+
+	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		0,
+		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
+
 	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
 }
 

@@ -29,7 +29,7 @@ public:
 	bool Init();
 	void AddModel(std::shared_ptr<Model> model);
 	void Update();
-	void BeforeDraw();
-	void Draw();
+	void BeforeDrawToPeraBuff();
+	void DrawToPeraBuff();
 	~Renderer();
 };

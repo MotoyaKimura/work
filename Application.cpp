@@ -118,13 +118,16 @@ void Application::Run()
 			break;
 		}
 		_model->Update();
-		_dx->Update();
 
-		_renderer->BeforeDraw();
-		_dx->BeginDraw();
-		_dx->Draw();
-		_renderer->Draw();
-		_dx->EndDraw();
+		/*_dx->BeginDrawToPeraBuff();
+		_renderer->BeforeDrawToPeraBuff();
+		_renderer->DrawToPeraBuff();
+		_dx->EndDrawToPeraBuff();*/
+
+		_dx->BeginDrawToBackBuff();
+		_renderer->BeforeDrawToPeraBuff();
+		_renderer->DrawToPeraBuff();
+		_dx->EndDrawToBackBuff();
 		_dx->Flip();
 	}
 }

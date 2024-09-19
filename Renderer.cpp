@@ -211,13 +211,13 @@ void Renderer::Update()
 {
 }
 
-void Renderer::BeforeDraw()
+void Renderer::BeforeDrawToPeraBuff()
 {
 	_dx->GetCommandList()->SetPipelineState(_pipelinestate.Get());
 	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
 }
 
-void Renderer::Draw()
+void Renderer::DrawToPeraBuff()
 {
 	for (auto& _models : _models) {
 		_models->Draw();

@@ -139,16 +139,16 @@ bool Wrapper::SwapChainInit()
 	return true;
 }
 
-bool Wrapper::CreateRTV()
+bool Wrapper::CreateBackBuffRTV()
 {
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 2;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	D3D12_DESCRIPTOR_HEAP_DESC _rtvheapDesc = {};
+	_rtvheapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	_rtvheapDesc.NodeMask = 0;
+	_rtvheapDesc.NumDescriptors = 2;
+	_rtvheapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	auto result = _dev->CreateDescriptorHeap(
-		&heapDesc, 
+		&_rtvheapDesc,
 		IID_PPV_ARGS(rtvHeaps.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
@@ -292,6 +292,59 @@ bool Wrapper::DepthBuffInit()
 	return true;
 }
 
+bool Wrapper::CreatePeraRTVAndSRV()
+{
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	auto resDesc = backBuffers[0]->GetDesc();
+	float clsClr[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	D3D12_CLEAR_VALUE clearValue = CD3DX12_CLEAR_VALUE(
+		DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
+
+	auto result = _dev->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&clearValue,
+		IID_PPV_ARGS(_peraBuff.ReleaseAndGetAddressOf()));
+
+	auto heapDesc = rtvHeaps->GetDesc();
+	heapDesc.NumDescriptors = 1;
+
+	result = _dev->CreateDescriptorHeap(
+		&heapDesc,
+		IID_PPV_ARGS(_peraRTVHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	_dev->CreateRenderTargetView(
+		_peraBuff.Get(),
+		nullptr,
+		_peraRTVHeap->GetCPUDescriptorHandleForHeapStart());
+
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+	result = _dev->CreateDescriptorHeap(
+		&heapDesc,
+		IID_PPV_ARGS(_peraSRVHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Format = rtvDesc.Format;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping =
+		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_dev->CreateShaderResourceView(
+		_peraBuff.Get(),
+		&srvDesc,
+		_peraSRVHeap->GetCPUDescriptorHandleForHeapStart());
+
+	return true;
+}
+
 
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
@@ -312,7 +365,8 @@ bool Wrapper::Init()
 	DeviceInit();
 	if(!CMDInit()) return false;;
 	if(!SwapChainInit()) return false;;
-	if(!CreateRTV()) return false;;
+	if(!CreateBackBuffRTV()) return false;;
+	if (!CreatePeraRTVAndSRV()) return false;;
 
 	ViewportInit();
 	ScissorrectInit();
@@ -332,18 +386,58 @@ void Wrapper::Update()
 {
 }
 
-void Wrapper::BeginDraw()
+void Wrapper::BeginDrawToPeraBuff()
+{
+
+	peraBuffBarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	peraBuffBarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	peraBuffBarrierDesc.Transition.pResource = _peraBuff.Get();
+	peraBuffBarrierDesc.Transition.Subresource = 0;
+	peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
+
+	auto peraRTVH = _peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
+
+	auto dsvH = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	_cmdList->OMSetRenderTargets(
+		1,
+		&peraRTVH,
+		true,
+		&dsvH);
+	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	_cmdList->ClearRenderTargetView(peraRTVH, clearColor, 0, nullptr);
+	_cmdList->ClearDepthStencilView(
+		dsvH,
+		D3D12_CLEAR_FLAG_DEPTH,
+		1.0f,
+		0,
+		0,
+		nullptr);
+
+	_cmdList->RSSetViewports(1, &viewport);
+	_cmdList->RSSetScissorRects(1, &scissorrect);
+}
+
+void Wrapper::EndDrawToPeraBuff()
+{
+	peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
+}
+
+
+void Wrapper::BeginDrawToBackBuff()
 {
 	auto backBufferIndex = _swapchain->GetCurrentBackBufferIndex();
 
-	
-	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrierDesc.Transition.pResource = backBuffers[backBufferIndex].Get();
-	barrierDesc.Transition.Subresource = 0;
-	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	_cmdList->ResourceBarrier(1, &barrierDesc);
+	backBuffBarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	backBuffBarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	backBuffBarrierDesc.Transition.pResource = backBuffers[backBufferIndex].Get();
+	backBuffBarrierDesc.Transition.Subresource = 0;
+	backBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	backBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	_cmdList->ResourceBarrier(1, &backBuffBarrierDesc);
 
 	auto rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += backBufferIndex *
@@ -367,24 +461,13 @@ void Wrapper::BeginDraw()
 	_cmdList->RSSetViewports(1, &viewport);
 	_cmdList->RSSetScissorRects(1, &scissorrect);
 
-	ID3D12DescriptorHeap* heaps[] = { _sceneTransHeap.Get() };
-	
-	_cmdList->SetDescriptorHeaps(1, heaps);
-	_cmdList->SetGraphicsRootDescriptorTable(
-		0,
-		_sceneTransHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
-void Wrapper::Draw()
+void Wrapper::EndDrawToBackBuff()
 {
-	
-}
-
-void Wrapper::EndDraw()
-{
-	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	_cmdList->ResourceBarrier(1, &barrierDesc);
+	backBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	backBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	_cmdList->ResourceBarrier(1, &backBuffBarrierDesc);
 
 	_cmdList->Close();
 
@@ -404,6 +487,10 @@ void Wrapper::EndDraw()
 	auto result = _cmdAllocator->Reset();
 	_cmdList->Reset(_cmdAllocator.Get(), nullptr);
 
+}
+
+void Wrapper::Draw()
+{
 }
 
 void Wrapper::Flip()
