@@ -54,30 +54,19 @@ bool Renderer::CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, 
 
 bool Renderer::TeapotRootSignatureInit()
 {
-	D3D12_DESCRIPTOR_RANGE descTblRange[4] = {};
-	//シーン変換
-	descTblRange[0].NumDescriptors = 1;
+	D3D12_DESCRIPTOR_RANGE descTblRange[2] = {};
+	//シーン変換 //ティーポットテクスチャ
+	descTblRange[0].NumDescriptors = 2;
 	descTblRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descTblRange[0].BaseShaderRegister = 0;
 	descTblRange[0].OffsetInDescriptorsFromTableStart =
 		D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	//ティーポットテクスチャ
-	descTblRange[1].NumDescriptors = 1;
+	
+	//モデル座標変換 //視点深度テクスチャ
+	descTblRange[1].NumDescriptors = 2;
 	descTblRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descTblRange[1].BaseShaderRegister = 0;
 	descTblRange[1].OffsetInDescriptorsFromTableStart =
-		D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	//モデル座標変換
-	descTblRange[2].NumDescriptors = 1;
-	descTblRange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descTblRange[2].BaseShaderRegister = 1;
-	descTblRange[2].OffsetInDescriptorsFromTableStart =
-		D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	//視点深度テクスチャ
-	descTblRange[3].NumDescriptors = 1;
-	descTblRange[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descTblRange[3].BaseShaderRegister = 1;
-	descTblRange[3].OffsetInDescriptorsFromTableStart =
 		D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
@@ -86,7 +75,7 @@ bool Renderer::TeapotRootSignatureInit()
 	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	rootParam.DescriptorTable.pDescriptorRanges = &descTblRange[0];
-	rootParam.DescriptorTable.NumDescriptorRanges = 4;
+	rootParam.DescriptorTable.NumDescriptorRanges = 2;
 
 	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;

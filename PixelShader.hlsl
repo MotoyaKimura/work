@@ -6,7 +6,7 @@ float4 PS(Output input) : SV_TARGET
   
    
     float dep = pow(depthTex.Sample(smp, input.uv), 20);
-    return float4(dep, dep, dep, 1);
+   return float4(dep, dep, dep, 1);
     float4 respos = mul(invprojection, float4(input.uv * float2(2, -2) + float2(-1, 1), dep, 1));
     respos.xyz /= respos.w;
     
