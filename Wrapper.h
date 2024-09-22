@@ -44,6 +44,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _peraBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
+	unsigned int shadow_difinition = 1024;
 
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ÉrÉÖÅ[
@@ -52,6 +54,7 @@ private:
 		DirectX::XMMATRIX shadow;
 		DirectX::XMMATRIX shadowOffsetY;
 		DirectX::XMMATRIX invShadowOffsetY;
+		DirectX::XMMATRIX lightCamera;
 		DirectX::XMFLOAT3 lightVec;
 		DirectX::XMFLOAT3 eye;
 	};
@@ -59,7 +62,7 @@ private:
 
 	DirectX::XMFLOAT3 lightVec;
 	DirectX::XMFLOAT3 eye;
-	DirectX::XMFLOAT3 tangent;
+	DirectX::XMFLOAT3 target;
 	DirectX::XMFLOAT3 up;
 
 	bool DXGIInit();
@@ -72,10 +75,12 @@ private:
 	bool SceneTransBuffInit();
 	bool DepthBuffInit();
 	bool CreatePeraRTVAndSRV();
+	bool LightDepthBuffInit();
 public:
 	Wrapper(HWND hwnd);
 	bool Init();
 	void Update();
+	void BeginDrawShadow();
 	void BeginDrawTeapot();
 	void EndDrawTeapot();
 	void BeginDrawPera();

@@ -385,20 +385,26 @@ void Model::Update()
 	*mTransMatrix = world;
 }
 
-void Model::Draw()
+void Model::Draw(bool isShadow)
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
+	if(isShadow)
+	{
+		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	}
+	else
+	{
+		ID3D12DescriptorHeap* heaps[] = { _dx->GetSceneTransHeap().Get() };
 
-	ID3D12DescriptorHeap* heaps[] = { _dx->GetSceneTransHeap().Get() };
+		_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+		_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+			0,
+			_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
 
-	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
-	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
-		0,
-		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
-
-	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	}
 }
 
 Model::~Model()

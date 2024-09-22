@@ -114,6 +114,7 @@ public:
 	Model(std::shared_ptr<Wrapper> dx);
 	bool Init(std::string filePath);
 	void Update();
-	void Draw();
+	void Draw(bool isShadow);
+	
 	~Model();
 };

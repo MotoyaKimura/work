@@ -209,7 +209,7 @@ bool Wrapper::SceneTransBuffInit()
 	if (FAILED(result)) return false;
 	_sceneTransMatrix->view = XMMatrixLookAtLH(
 		XMLoadFloat3(&eye),
-		XMLoadFloat3(&tangent),
+		XMLoadFloat3(&target),
 		XMLoadFloat3(&up));;
 
 	_sceneTransMatrix->projection = XMMatrixPerspectiveFovLH(
@@ -228,11 +228,15 @@ bool Wrapper::SceneTransBuffInit()
 	_sceneTransMatrix->invShadowOffsetY = XMMatrixInverse(&det , _sceneTransMatrix->shadowOffsetY);
 	_sceneTransMatrix->lightVec = lightVec;
 	_sceneTransMatrix->eye = eye;
-
-	
+	auto lightPos = XMLoadFloat3(&target) +
+		XMVector3Normalize(XMLoadFloat3(&lightVec)) *
+		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
+	_sceneTransMatrix->lightCamera = 
+		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) * 
+		XMMatrixOrthographicLH(100, 100, 1.0f, 200.0f);
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 4;
+	descHeapDesc.NumDescriptors = 5;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dev->CreateDescriptorHeap(
 		&descHeapDesc, 
@@ -281,7 +285,7 @@ bool Wrapper::DepthBuffInit()
 	if (FAILED(result)) return false;
 
 	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.NumDescriptors = 2;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	result = _dev->CreateDescriptorHeap(
 		&dsvHeapDesc,
@@ -313,6 +317,64 @@ bool Wrapper::DepthBuffInit()
 
 	return true;
 }
+
+bool Wrapper::LightDepthBuffInit()
+{
+	D3D12_HEAP_PROPERTIES depthHeapProp = {};
+	depthHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
+	depthHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	depthHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+	D3D12_RESOURCE_DESC depthResDesc = {};
+	depthResDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthResDesc.Width = shadow_difinition;
+	depthResDesc.Height = shadow_difinition;
+	depthResDesc.DepthOrArraySize = 1;
+	depthResDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	depthResDesc.SampleDesc.Count = 1;
+	depthResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE depthClearValue = {};
+	depthClearValue.DepthStencil.Depth = 1.0f;
+	depthClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+
+	auto result = _dev->CreateCommittedResource(
+		&depthHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&depthResDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthClearValue,
+		IID_PPV_ARGS(_lightDepthBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	auto handle = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	_dev->CreateDepthStencilView(
+		_lightDepthBuff.Get(),
+		&dsvDesc,
+		handle);
+
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
+	_dev->CreateShaderResourceView(
+		_lightDepthBuff.Get(),
+		&srvDesc,
+		handle);
+
+	return true;
+}
+
 
 bool Wrapper::CreatePeraRTVAndSRV()
 {
@@ -371,7 +433,7 @@ bool Wrapper::CreatePeraRTVAndSRV()
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
 	eye(0, 50, -100),
-	tangent(0, 0, 0),
+	target(0, 0, 0),
 	up(0, 1, 0),
 lightVec(-1, 1, -1),
 _sceneTransMatrix(nullptr),
@@ -393,6 +455,7 @@ bool Wrapper::Init()
 	ScissorrectInit();
 	if(!SceneTransBuffInit()) return false;;
 	if (!DepthBuffInit()) return false;;
+	if (!LightDepthBuffInit()) return false;;
 
 	auto result = _dev->CreateFence(
 		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf()));
@@ -440,11 +503,21 @@ void Wrapper::BeginDrawTeapot()
 	_cmdList->RSSetScissorRects(1, &scissorrect);
 }
 
+
+
 void Wrapper::EndDrawTeapot()
 {
 	peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 	_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
+}
+
+
+void Wrapper::BeginDrawShadow()
+{
+	auto handle = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	_cmdList->OMSetRenderTargets(0, nullptr, false, &handle);
 }
 
 
