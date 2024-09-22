@@ -25,6 +25,7 @@ bool EnableDebugLayer()
 	
 	debugLayer->EnableDebugLayer();
 	debugLayer->Release();
+	return true;
 }
 
 bool Wrapper::DXGIInit()
@@ -73,7 +74,7 @@ void Wrapper::DeviceInit()
 		D3D_FEATURE_LEVEL_11_0
 	};
 
-	D3D_FEATURE_LEVEL featureLevel;
+	//D3D_FEATURE_LEVEL featureLevel;
 
 	for (auto lv : levels)
 	{
@@ -82,7 +83,7 @@ void Wrapper::DeviceInit()
 			lv,
 			IID_PPV_ARGS(_dev.ReleaseAndGetAddressOf())) == S_OK)
 		{
-			featureLevel = lv;
+			//featureLevel = lv;
 			break;
 		}
 	}
@@ -101,7 +102,7 @@ bool Wrapper::CMDInit()
 		IID_PPV_ARGS(_cmdList.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
-	D3D12_COMMAND_QUEUE_DESC cmdQueueDesc = {};
+	
 
 	cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	cmdQueueDesc.NodeMask = 0;
@@ -110,7 +111,7 @@ bool Wrapper::CMDInit()
 	result = _dev->CreateCommandQueue(
 		&cmdQueueDesc, 
 		IID_PPV_ARGS(_cmdQueue.ReleaseAndGetAddressOf()));
-
+	if (FAILED(result)) return false;
 	return true;
 }
 
@@ -141,7 +142,7 @@ bool Wrapper::SwapChainInit()
 
 bool Wrapper::CreateBackBuffRTV()
 {
-	D3D12_DESCRIPTOR_HEAP_DESC _rtvheapDesc = {};
+	
 	_rtvheapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	_rtvheapDesc.NodeMask = 0;
 	_rtvheapDesc.NumDescriptors = 2;
@@ -155,7 +156,7 @@ bool Wrapper::CreateBackBuffRTV()
 	backBuffers.resize(swapchainDesc.BufferCount);
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = 
 		rtvHeaps->GetCPUDescriptorHandleForHeapStart();
-	for (int idx = 0; idx < swapchainDesc.BufferCount; ++idx)
+	for (unsigned int idx = 0; idx < swapchainDesc.BufferCount; ++idx)
 	{
 		result = _swapchain->GetBuffer(
 			idx, 
@@ -173,8 +174,8 @@ bool Wrapper::CreateBackBuffRTV()
 
 void Wrapper::ViewportInit()
 {
-	viewport.Width = winSize.cx;
-	viewport.Height = winSize.cy;
+	viewport.Width = (float)winSize.cx;
+	viewport.Height = (float)winSize.cy;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MaxDepth = 1.0f;
@@ -228,7 +229,7 @@ bool Wrapper::SceneTransBuffInit()
 	_sceneTransMatrix->lightVec = lightVec;
 	_sceneTransMatrix->eye = eye;
 
-	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
 	descHeapDesc.NumDescriptors = 4;
@@ -240,7 +241,7 @@ bool Wrapper::SceneTransBuffInit()
 
 	auto handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
 
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	
 	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
 
@@ -372,15 +373,14 @@ Wrapper::Wrapper(HWND hwnd) :
 	eye(0, 50, -100),
 	tangent(0, 0, 0),
 	up(0, 1, 0),
-lightVec(-1, 1, -1)
+lightVec(-1, 1, -1),
+_sceneTransMatrix(nullptr),
+winSize(Application::Instance().GetWindowSize())
 {
 }
 
 bool Wrapper::Init()
 {
-
-	const auto& app = Application::Instance();
-	winSize = app.GetWindowSize();
 
 	if(!DXGIInit()) return false;
 	DeviceInit();
@@ -499,13 +499,16 @@ void Wrapper::EndDrawPera()
 
 	if (_fence->GetCompletedValue() != _fenceVal)
 	{
+		
 		auto event = CreateEvent(nullptr, false, false, nullptr);
+		if (event == nullptr) return;
 		_fence->SetEventOnCompletion(_fenceVal, event);
 		WaitForSingleObject(event, INFINITE);
 		CloseHandle(event);
 	}
 
 	auto result = _cmdAllocator->Reset();
+	if (FAILED(result)) return;
 	_cmdList->Reset(_cmdAllocator.Get(), nullptr);
 
 }

@@ -30,7 +30,7 @@ void DebugOutputFormatString(const char* format, ...)
 #endif
 }
 
-Application::Application()
+Application::Application() : hwnd(nullptr)
 {
 }
 void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)

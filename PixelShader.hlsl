@@ -14,7 +14,7 @@ float4 PS(Output input) : SV_TARGET
     //{
     //    return float4(0, 0, 0, 1);
     //}
-    float brightness = dot(normalize(lightVec.xyz), input.normal);
+    float brightness = dot(normalize(lightVec.xyz), input.normal.xyz);
     float4 texColor = tex.Sample(smp, input.uv);
     //return float4(texColor.xyz, 1);
     //return float4(input.pos.xyz / input.pos.w, 1.0f);
