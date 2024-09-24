@@ -62,8 +62,8 @@ bool Renderer::TeapotRootSignatureInit()
 	descTblRange[0].OffsetInDescriptorsFromTableStart =
 		D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 	
-	//モデル座標変換 //視点深度テクスチャ
-	descTblRange[1].NumDescriptors = 3;
+	//モデル座標変換 //ライト深度テクスチャ
+	descTblRange[1].NumDescriptors = 2;
 	descTblRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descTblRange[1].BaseShaderRegister = 0;
 	descTblRange[1].OffsetInDescriptorsFromTableStart =
@@ -187,14 +187,11 @@ bool Renderer::TeapotPipelineStateInit()
 bool Renderer::PeraRootSignatureInit()
 {
 	
-	CD3DX12_DESCRIPTOR_RANGE descTblRange[2] = {};		
-	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);		
-	descTblRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);		
-	
+	CD3DX12_DESCRIPTOR_RANGE descTblRange = {};
+	//ペラポリゴン用テクスチャ、視点深度テクスチャ
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0);		
 	CD3DX12_ROOT_PARAMETER rootParam = {};
-	rootParam.InitAsDescriptorTable(2, &descTblRange[0]);
-	
-	
+	rootParam.InitAsDescriptorTable(1, &descTblRange);
 	D3D12_STATIC_SAMPLER_DESC samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);
 	
 
@@ -305,39 +302,10 @@ bool Renderer::ShadowPipelineStateInit()
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		}
-
 	};
 
-	teapotGpipeline.pRootSignature = teapotRootsignature.Get();
-	teapotGpipeline.VS.pShaderBytecode = vsBlob->GetBufferPointer();
-	teapotGpipeline.VS.BytecodeLength = vsBlob->GetBufferSize();
-	teapotGpipeline.PS.pShaderBytecode = psBlob->GetBufferPointer();
-	teapotGpipeline.PS.BytecodeLength = psBlob->GetBufferSize();
-	teapotGpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	teapotGpipeline.RasterizerState.MultisampleEnable = false;
-	teapotGpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	teapotGpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-	teapotGpipeline.RasterizerState.DepthClipEnable = true;
-	teapotGpipeline.DepthStencilState.DepthEnable = true;
-	teapotGpipeline.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	teapotGpipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-	teapotGpipeline.BlendState.AlphaToCoverageEnable = false;
-	teapotGpipeline.BlendState.IndependentBlendEnable = false;
-	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDesc = {};
-	renderTargetBlendDesc.BlendEnable = false;
-	renderTargetBlendDesc.LogicOpEnable = false;
-	renderTargetBlendDesc.RenderTargetWriteMask =
-		D3D12_COLOR_WRITE_ENABLE_ALL;
-	teapotGpipeline.BlendState.RenderTarget[0] = renderTargetBlendDesc;
 	teapotGpipeline.InputLayout.pInputElementDescs = inputLayout;
 	teapotGpipeline.InputLayout.NumElements = _countof(inputLayout);
-	teapotGpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-	teapotGpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	teapotGpipeline.NumRenderTargets = 1;
-	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	teapotGpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	teapotGpipeline.SampleDesc.Count = 1;
-	teapotGpipeline.SampleDesc.Quality = 0;
 
 	teapotGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
 	teapotGpipeline.PS.BytecodeLength = 0;

@@ -397,8 +397,13 @@ void Model::Draw(bool isShadow)
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
 		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
-
-	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	if (isShadow) {
+		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	}
+	else
+	{
+		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 2, 0, 0, 0);
+	}
 	
 }
 

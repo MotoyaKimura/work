@@ -236,7 +236,7 @@ bool Wrapper::SceneTransBuffInit()
 		XMMatrixOrthographicLH(100, 100, 1.0f, 200.0f);
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 5;
+	descHeapDesc.NumDescriptors = 4;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dev->CreateDescriptorHeap(
 		&descHeapDesc, 
@@ -308,14 +308,9 @@ bool Wrapper::DepthBuffInit()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	auto handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr +=_dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
-	_dev->CreateShaderResourceView(
-		_depthBuff.Get(),
-		&srvDesc,
-		handle);
+	
 
-	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	_dev->CreateShaderResourceView(
 		_depthBuff.Get(),
@@ -373,7 +368,7 @@ bool Wrapper::LightDepthBuffInit()
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
 	_dev->CreateShaderResourceView(
 		_lightDepthBuff.Get(),
 		&srvDesc,
@@ -565,13 +560,6 @@ void Wrapper::BeginDrawPera()
 		&dsvH);
 	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	_cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
-	/*_cmdList->ClearDepthStencilView(
-		dsvH,
-		D3D12_CLEAR_FLAG_DEPTH,
-		1.0f,
-		0,
-		0,
-		nullptr);*/
 
 	_cmdList->RSSetViewports(1, &viewport);
 	_cmdList->RSSetScissorRects(1, &scissorrect);

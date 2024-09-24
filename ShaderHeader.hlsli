@@ -16,9 +16,8 @@ cbuffer cbuff1 : register(b1)
     matrix world;
 };
 
-Texture2D<float4> tex : register(t0);
-Texture2D<float> depthTex : register(t1);
-Texture2D<float>lightDepthTex : register(t2);
+Texture2D<float4> texCol : register(t0);
+Texture2D<float>lightDepthTex : register(t1);
 
 SamplerState smp : register(s0);
 
