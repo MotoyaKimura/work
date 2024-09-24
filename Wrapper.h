@@ -36,6 +36,7 @@ private:
 	D3D12_RECT scissorrect = {};
 	D3D12_RESOURCE_BARRIER backBuffBarrierDesc = {};
 	D3D12_RESOURCE_BARRIER peraBuffBarrierDesc = {};
+	D3D12_RESOURCE_BARRIER depthBuffBarrierDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;

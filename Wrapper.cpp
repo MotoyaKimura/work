@@ -315,6 +315,13 @@ bool Wrapper::DepthBuffInit()
 		&srvDesc,
 		handle);
 
+	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	_dev->CreateShaderResourceView(
+		_depthBuff.Get(),
+		&srvDesc,
+		handle);
+
 	return true;
 }
 
@@ -409,6 +416,8 @@ bool Wrapper::CreatePeraRTVAndSRV()
 
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDesc.NodeMask = 0;
+	heapDesc.NumDescriptors = 2;
 
 	result = _dev->CreateDescriptorHeap(
 		&heapDesc,
@@ -518,6 +527,8 @@ void Wrapper::BeginDrawShadow()
 	auto handle = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	_cmdList->OMSetRenderTargets(0, nullptr, false, &handle);
+
+
 }
 
 
@@ -544,13 +555,13 @@ void Wrapper::BeginDrawPera()
 		&dsvH);
 	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	_cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
-	_cmdList->ClearDepthStencilView(
+	/*_cmdList->ClearDepthStencilView(
 		dsvH,
 		D3D12_CLEAR_FLAG_DEPTH,
 		1.0f,
 		0,
 		0,
-		nullptr);
+		nullptr);*/
 
 	_cmdList->RSSetViewports(1, &viewport);
 	_cmdList->RSSetScissorRects(1, &scissorrect);

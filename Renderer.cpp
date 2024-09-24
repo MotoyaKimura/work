@@ -186,18 +186,17 @@ bool Renderer::TeapotPipelineStateInit()
 
 bool Renderer::PeraRootSignatureInit()
 {
-	D3D12_DESCRIPTOR_RANGE descTblRange = {};
-	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descTblRange.BaseShaderRegister = 0;
-	descTblRange.NumDescriptors = 1;
-
-	D3D12_ROOT_PARAMETER rootParam = {};
-	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParam.DescriptorTable.pDescriptorRanges = &descTblRange;
-	rootParam.DescriptorTable.NumDescriptorRanges = 1;
-
+	
+	CD3DX12_DESCRIPTOR_RANGE descTblRange[2] = {};		
+	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);		
+	descTblRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);		
+	
+	CD3DX12_ROOT_PARAMETER rootParam = {};
+	rootParam.InitAsDescriptorTable(2, &descTblRange[0]);
+	
+	
 	D3D12_STATIC_SAMPLER_DESC samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);
+	
 
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.NumParameters = 1;
@@ -241,6 +240,7 @@ bool Renderer::PeraPipelineStateInit()
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		}
 	};
+	
 
 	peraGpipeline.pRootSignature = peraRootsignature.Get();
 	peraGpipeline.VS.pShaderBytecode = vsBlob->GetBufferPointer();
@@ -248,10 +248,21 @@ bool Renderer::PeraPipelineStateInit()
 	peraGpipeline.PS.pShaderBytecode = psBlob->GetBufferPointer();
 	peraGpipeline.PS.BytecodeLength = psBlob->GetBufferSize();
 	peraGpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	peraGpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	peraGpipeline.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	peraGpipeline.RasterizerState.MultisampleEnable = false;
+	peraGpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	peraGpipeline.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	peraGpipeline.RasterizerState.DepthClipEnable = true;
+	peraGpipeline.BlendState.AlphaToCoverageEnable = false;
+	peraGpipeline.BlendState.IndependentBlendEnable = false;
+	D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDesc = {};
+	renderTargetBlendDesc.BlendEnable = false;
+	renderTargetBlendDesc.LogicOpEnable = false;
+	renderTargetBlendDesc.RenderTargetWriteMask =
+		D3D12_COLOR_WRITE_ENABLE_ALL;
+	peraGpipeline.BlendState.RenderTarget[0] = renderTargetBlendDesc;
 	peraGpipeline.InputLayout.pInputElementDescs = inputLayout;
 	peraGpipeline.InputLayout.NumElements = _countof(inputLayout);
+	peraGpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 	peraGpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	peraGpipeline.NumRenderTargets = 1;
 	peraGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -380,6 +391,7 @@ void Renderer::BeforeDrawTeapot()
 void Renderer::BeforeDrawShadow()
 {
 	_dx->GetCommandList()->SetPipelineState(_shadowPipelinestate.Get());
+	_dx->GetCommandList()->SetGraphicsRootSignature(teapotRootsignature.Get());
 }
 
 void Renderer::DrawTeapot()
