@@ -36,6 +36,10 @@ min16uint4 index : INDICES,
 uint instNo : SV_InstanceID
 ) : SV_POSITION
 {
+
     pos = mul(world, pos);
+    pos = mul(shadowOffsetY, pos);
+    pos = mul(invShadowOffsetY, pos);
+	
     return mul(lightCamera, pos);
 }

@@ -527,8 +527,18 @@ void Wrapper::BeginDrawShadow()
 	auto handle = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	_cmdList->OMSetRenderTargets(0, nullptr, false, &handle);
+	_cmdList->ClearDepthStencilView(
+		handle,
+		D3D12_CLEAR_FLAG_DEPTH,
+		1.0f,
+		0,
+		0,
+		nullptr);
 
-
+	D3D12_VIEWPORT vp = CD3DX12_VIEWPORT(0.0f, 0.0f, shadow_difinition, shadow_difinition);
+	CD3DX12_RECT rc(0, 0, shadow_difinition, shadow_difinition);
+	_cmdList->RSSetViewports(1, &vp);
+	_cmdList->RSSetScissorRects(1, &rc);
 }
 
 

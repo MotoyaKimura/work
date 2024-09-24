@@ -380,7 +380,7 @@ bool Model::Init(std::string filePath)
 
 void Model::Update()
 {
-	angle += 0.00f;
+	angle += 0.01f;
 	world = XMMatrixRotationX(-XM_PIDIV2) * XMMatrixRotationY(-angle);
 	*mTransMatrix = world;
 }
@@ -390,21 +390,16 @@ void Model::Draw(bool isShadow)
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
-	if(isShadow)
-	{
-		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
-	}
-	else
-	{
-		ID3D12DescriptorHeap* heaps[] = { _dx->GetSceneTransHeap().Get() };
 
-		_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
-		_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
-			0,
-			_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
+	ID3D12DescriptorHeap* heaps[] = { _dx->GetSceneTransHeap().Get() };
 
-		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
-	}
+	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		0,
+		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
+
+	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	
 }
 
 Model::~Model()
