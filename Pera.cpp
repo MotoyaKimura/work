@@ -50,10 +50,14 @@ void Pera::Draw()
 	ID3D12DescriptorHeap* heaps[] = { _dx->GetPeraSRVHeap().Get() };
 
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	auto handle = _dx->GetPeraSRVHeap()->GetGPUDescriptorHandleForHeapStart();
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
-		_dx->GetPeraSRVHeap()->GetGPUDescriptorHandleForHeapStart());
-
+		handle);
+	/*handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		1,
+		handle);*/
 	_dx->GetCommandList()->DrawInstanced(4, 1, 0, 0);
 }
 

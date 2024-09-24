@@ -23,7 +23,12 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> _swapchain = nullptr;
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeaps = nullptr;
-	
+
+	D3D12_COMMAND_QUEUE_DESC cmdQueueDesc = {};
+	D3D12_DESCRIPTOR_HEAP_DESC _rtvheapDesc = {};
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+
 	std::vector< Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers;
 	Microsoft::WRL::ComPtr<ID3D12Fence> _fence = nullptr;
 	UINT64 _fenceVal = 0;
@@ -31,6 +36,7 @@ private:
 	D3D12_RECT scissorrect = {};
 	D3D12_RESOURCE_BARRIER backBuffBarrierDesc = {};
 	D3D12_RESOURCE_BARRIER peraBuffBarrierDesc = {};
+	D3D12_RESOURCE_BARRIER depthBuffBarrierDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
@@ -39,6 +45,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _peraBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
+	unsigned int shadow_difinition = 1024;
 
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ÉrÉÖÅ[
@@ -47,6 +55,7 @@ private:
 		DirectX::XMMATRIX shadow;
 		DirectX::XMMATRIX shadowOffsetY;
 		DirectX::XMMATRIX invShadowOffsetY;
+		DirectX::XMMATRIX lightCamera;
 		DirectX::XMFLOAT3 lightVec;
 		DirectX::XMFLOAT3 eye;
 	};
@@ -54,7 +63,7 @@ private:
 
 	DirectX::XMFLOAT3 lightVec;
 	DirectX::XMFLOAT3 eye;
-	DirectX::XMFLOAT3 tangent;
+	DirectX::XMFLOAT3 target;
 	DirectX::XMFLOAT3 up;
 
 	bool DXGIInit();
@@ -67,10 +76,12 @@ private:
 	bool SceneTransBuffInit();
 	bool DepthBuffInit();
 	bool CreatePeraRTVAndSRV();
+	bool LightDepthBuffInit();
 public:
 	Wrapper(HWND hwnd);
 	bool Init();
 	void Update();
+	void BeginDrawShadow();
 	void BeginDrawTeapot();
 	void EndDrawTeapot();
 	void BeginDrawPera();

@@ -30,7 +30,7 @@ void DebugOutputFormatString(const char* format, ...)
 #endif
 }
 
-Application::Application()
+Application::Application() : hwnd(nullptr)
 {
 }
 void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
@@ -126,6 +126,10 @@ void Application::Run()
 			break;
 		}
 		_model->Update();
+
+		_dx->BeginDrawShadow();
+		_renderer->BeforeDrawShadow();
+		_renderer->DrawShadow();
 
 		_dx->BeginDrawTeapot();
 		_renderer->BeforeDrawTeapot();
