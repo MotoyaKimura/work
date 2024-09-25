@@ -173,8 +173,9 @@ bool Renderer::TeapotPipelineStateInit()
 	teapotGpipeline.InputLayout.NumElements = _countof(inputLayout);
 	teapotGpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 	teapotGpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	teapotGpipeline.NumRenderTargets = 1;
+	teapotGpipeline.NumRenderTargets = 2;
 	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	teapotGpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	teapotGpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	teapotGpipeline.SampleDesc.Count = 1;
 	teapotGpipeline.SampleDesc.Quality = 0;
@@ -189,7 +190,7 @@ bool Renderer::PeraRootSignatureInit()
 	
 	CD3DX12_DESCRIPTOR_RANGE descTblRange = {};
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0);		
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 0);		
 	CD3DX12_ROOT_PARAMETER rootParam = {};
 	rootParam.InitAsDescriptorTable(1, &descTblRange);
 	D3D12_STATIC_SAMPLER_DESC samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);
@@ -312,6 +313,7 @@ bool Renderer::ShadowPipelineStateInit()
 	teapotGpipeline.PS.pShaderBytecode = nullptr;
 	teapotGpipeline.NumRenderTargets = 0;
 	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	teapotGpipeline.RTVFormats[1] = DXGI_FORMAT_UNKNOWN;
 
 	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&teapotGpipeline, IID_PPV_ARGS(_shadowPipelinestate.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;

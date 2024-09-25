@@ -30,3 +30,9 @@ struct Output
     float4 tpos : TPOS;
     uint instNo : SV_InstanceID;
 };
+
+struct PixelOutput
+{
+    float4 col : SV_TARGET0;
+    float4 normal : SV_TARGET1;
+};

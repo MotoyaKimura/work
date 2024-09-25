@@ -4,7 +4,10 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <DirectXMath.h>
-#include <vector>
+#include <array>
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "DirectXTex.lib")
 
 class Wrapper
 {
@@ -42,7 +45,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _depthSRVHeap = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> _peraBuff = nullptr;
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> _peraBuff;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;

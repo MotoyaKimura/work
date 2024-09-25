@@ -5,6 +5,31 @@
 
 using namespace DirectX;
 
+std::wstring GetWideStringFromString(const std::string& str)
+{
+	auto num1 = MultiByteToWideChar(
+		CP_ACP, 
+		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, 
+		str.c_str(), 
+		-1, 
+		nullptr, 
+		0);
+
+	std::wstring wstr;
+	wstr.resize(num1);
+
+	auto num2 = MultiByteToWideChar(
+		CP_ACP,
+		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
+		str.c_str(),
+		-1,
+		&wstr[0],
+		num1);
+
+	assert(num1 == num2);
+	return wstr;
+}
+
 template<class T>
 void Model::LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp)
 {
@@ -70,8 +95,8 @@ void Model::BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath)
 				texFilePath.replace(replaseStartPos, replaceLen, "dds");
 				//テクスチャファイルパスを記憶しておく。
 				texFilePathDst = texFilePath;
-
-				LoadFromDDSFile(L"modelData/tex.dds", DDS_FLAGS_NONE, &metadata, scratchImage);
+				std::wstring wstr = GetWideStringFromString(texFilePath);
+				LoadFromDDSFile(wstr.c_str(), DDS_FLAGS_NONE, &metadata, scratchImage);
 
 				//テクスチャをロード。
 				FILE* texFileFp;

@@ -1,6 +1,7 @@
 #include "Wrapper.h"
 #include "Application.h"
 #include <d3d12.h>
+#include <d3dx12.h>
 #include <dxgi1_6.h>
 #include <DirectXMath.h>
 
@@ -10,6 +11,7 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "DirectXTex.lib")
 
 using namespace std;
 using namespace DirectX;
@@ -311,7 +313,7 @@ bool Wrapper::DepthBuffInit()
 	
 
 	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 2;
 	_dev->CreateShaderResourceView(
 		_depthBuff.Get(),
 		&srvDesc,
@@ -385,34 +387,39 @@ bool Wrapper::CreatePeraRTVAndSRV()
 	float clsClr[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	D3D12_CLEAR_VALUE clearValue = CD3DX12_CLEAR_VALUE(
 		DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
-
-	auto result = _dev->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		&clearValue,
-		IID_PPV_ARGS(_peraBuff.ReleaseAndGetAddressOf()));
+	for (auto& res : _peraBuff) {
+		auto result = _dev->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&resDesc,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			&clearValue,
+			IID_PPV_ARGS(res.ReleaseAndGetAddressOf()));
+		if (FAILED(result)) return false;
+	}
 
 	auto heapDesc = rtvHeaps->GetDesc();
-	heapDesc.NumDescriptors = 1;
+	heapDesc.NumDescriptors = 2;
 
-	result = _dev->CreateDescriptorHeap(
+	auto result = _dev->CreateDescriptorHeap(
 		&heapDesc,
 		IID_PPV_ARGS(_peraRTVHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	_dev->CreateRenderTargetView(
-		_peraBuff.Get(),
-		nullptr,
-		_peraRTVHeap->GetCPUDescriptorHandleForHeapStart());
-
+	auto handle = _peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
+	for (auto& res : _peraBuff) {
+		_dev->CreateRenderTargetView(
+			res.Get(),
+			nullptr,
+			handle);
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	}
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 2;
+	heapDesc.NumDescriptors = 3;
 
 	result = _dev->CreateDescriptorHeap(
 		&heapDesc,
@@ -425,11 +432,14 @@ bool Wrapper::CreatePeraRTVAndSRV()
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Shader4ComponentMapping =
 		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	_dev->CreateShaderResourceView(
-		_peraBuff.Get(),
-		&srvDesc,
-		_peraSRVHeap->GetCPUDescriptorHandleForHeapStart());
-
+	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+	for (auto& res : _peraBuff) {
+		_dev->CreateShaderResourceView(
+			res.Get(),
+			&srvDesc,
+			handle);
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
 	return true;
 }
 
@@ -476,25 +486,38 @@ void Wrapper::Update()
 
 void Wrapper::BeginDrawTeapot()
 {
+	for (auto& res : _peraBuff) {
+		peraBuffBarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		peraBuffBarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		peraBuffBarrierDesc.Transition.pResource = res.Get();
+		peraBuffBarrierDesc.Transition.Subresource = 0;
+		peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
+	}
+	auto handle = _peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
+	auto rtvIncSize = _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE peraRTVHs[2] = {};
+	uint32_t offset = 0;
+	for (auto& peraRTVH : peraRTVHs) {
+		peraRTVH.InitOffsetted(handle, offset);
+		offset += rtvIncSize;
+	}
 
-	peraBuffBarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	peraBuffBarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	peraBuffBarrierDesc.Transition.pResource = _peraBuff.Get();
-	peraBuffBarrierDesc.Transition.Subresource = 0;
-	peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
-
-	auto peraRTVH = _peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
 
 	auto dsvH = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+
 	_cmdList->OMSetRenderTargets(
-		1,
-		&peraRTVH,
+		2,
+		peraRTVHs,
 		true,
 		&dsvH);
 	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	_cmdList->ClearRenderTargetView(peraRTVH, clearColor, 0, nullptr);
+	for (int i = 0; i < _countof(peraRTVHs); ++i)
+	{
+		_cmdList->ClearRenderTargetView(peraRTVHs[i], clearColor, 0, nullptr);
+	}
+	
 	_cmdList->ClearDepthStencilView(
 		dsvH,
 		D3D12_CLEAR_FLAG_DEPTH,
@@ -511,9 +534,12 @@ void Wrapper::BeginDrawTeapot()
 
 void Wrapper::EndDrawTeapot()
 {
-	peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
+	for (auto& res : _peraBuff) {
+		peraBuffBarrierDesc.Transition.pResource = res.Get();
+		peraBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		peraBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
+	}
 }
 
 

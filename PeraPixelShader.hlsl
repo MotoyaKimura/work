@@ -2,7 +2,9 @@
 
 float4 PS(Output input) : SV_TARGET
 {
+	
 	float dep = pow(depthTex.Sample(smp, input.uv), 20);
+    return normalTex.Sample(smp, input.uv);
 	return tex.Sample(smp, input.uv);
 	return float4(dep, dep, dep, 1);
 }
