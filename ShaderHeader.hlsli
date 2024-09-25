@@ -20,6 +20,7 @@ Texture2D<float4> texCol : register(t0);
 Texture2D<float>lightDepthTex : register(t1);
 
 SamplerState smp : register(s0);
+SamplerComparisonState shadowSmp : register(s1);
 
 struct Output
 {

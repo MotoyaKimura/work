@@ -6,12 +6,12 @@ PixelOutput PS(Output input) : SV_TARGET
     PixelOutput output;
     float3 posFromLightVP = input.tpos.xyz / input.tpos.w;
     float2 shadowUV = (posFromLightVP + float2(1, -1)) * float2(0.5, -0.5);
-    float depthFromLight = lightDepthTex.Sample(smp, shadowUV);
-    float shadowWeight = 1.0f;
-    if(depthFromLight < posFromLightVP.z - 0.001f)
-    {
-        shadowWeight = 0.5f;
-    }
+    float depthFromLight = lightDepthTex.SampleCmp(shadowSmp, shadowUV, posFromLightVP.z - 0.001f);
+    float shadowWeight = lerp(0.5f, 1.0f, depthFromLight);
+    //if(depthFromLight < posFromLightVP.z - 0.001f)
+    //{
+    //    shadowWeight = 0.5f;
+    //}
     
     if (input.instNo == 1)
     {

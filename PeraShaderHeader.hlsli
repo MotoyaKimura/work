@@ -5,6 +5,7 @@ Texture2D<float> lightDepthTex : register(t3);
 
 SamplerState smp : register(s0);
 
+
 struct Output
 {
     float4 svpos : SV_POSITION;
