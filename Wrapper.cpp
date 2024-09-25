@@ -376,6 +376,13 @@ bool Wrapper::LightDepthBuffInit()
 		&srvDesc,
 		handle);
 
+	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	_dev->CreateShaderResourceView(
+		_lightDepthBuff.Get(),
+		&srvDesc,
+		handle);
+
 	return true;
 }
 
@@ -419,7 +426,7 @@ bool Wrapper::CreatePeraRTVAndSRV()
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 3;
+	heapDesc.NumDescriptors = 4;
 
 	result = _dev->CreateDescriptorHeap(
 		&heapDesc,

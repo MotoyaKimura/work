@@ -190,7 +190,7 @@ bool Renderer::PeraRootSignatureInit()
 	
 	CD3DX12_DESCRIPTOR_RANGE descTblRange = {};
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 0);		
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0);		
 	CD3DX12_ROOT_PARAMETER rootParam = {};
 	rootParam.InitAsDescriptorTable(1, &descTblRange);
 	D3D12_STATIC_SAMPLER_DESC samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);

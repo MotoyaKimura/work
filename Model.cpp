@@ -427,7 +427,7 @@ void Model::Draw(bool isShadow)
 	}
 	else
 	{
-		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 2, 0, 0, 0);
+		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
 	}
 	
 }
