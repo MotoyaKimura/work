@@ -1,5 +1,6 @@
 Texture2D<float4> normalTex : register(t1);
 Texture2D<float> depthTex : register(t2);
+Texture2D<float> lightDepthTex : register(t3);
 
 cbuffer cbuff0 : register(b0)
 {

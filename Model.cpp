@@ -405,7 +405,7 @@ bool Model::Init(std::string filePath)
 
 void Model::Update()
 {
-	angle += 0.01f;
+	angle += 0.001f;
 	world = XMMatrixRotationX(-XM_PIDIV2) * XMMatrixRotationY(-angle);
 	*mTransMatrix = world;
 }
