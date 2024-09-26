@@ -25,6 +25,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _shadowPipelinestate = nullptr;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC teapotGpipeline = {};
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC peraGpipeline = {};
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _ssaoPipelinestate = nullptr;
+
 	
 
 
@@ -35,6 +37,7 @@ private:
 	bool PeraRootSignatureInit();
 	bool PeraPipelineStateInit();
 	bool ShadowPipelineStateInit();
+	bool SSAOPipelineStateInit();
 	
 public:
 	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera);
@@ -45,6 +48,8 @@ public:
 	void BeforeDrawShadow();
 	void DrawTeapot();
 	void DrawShadow();
+	void BeforeDrawSSAO();
+	void DrawSSAO();
 	void BeforeDrawPera();
 	void DrawPera();
 	~Renderer();

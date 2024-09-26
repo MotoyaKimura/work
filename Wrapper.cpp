@@ -386,6 +386,66 @@ bool Wrapper::LightDepthBuffInit()
 	return true;
 }
 
+bool Wrapper::CreateSSAORTVAndSRV()
+{
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	auto resDesc = backBuffers[0]->GetDesc();
+	resDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	float clsClr[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	D3D12_CLEAR_VALUE clearValue = CD3DX12_CLEAR_VALUE(
+		DXGI_FORMAT_R32_FLOAT, clsClr);
+	auto result = _dev->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&clearValue,
+		IID_PPV_ARGS(_ssaoBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	desc.NodeMask = 0;
+	desc.NumDescriptors = 1;
+	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	result = _dev->CreateDescriptorHeap(
+		&desc,
+		IID_PPV_ARGS(_ssaoRTVHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	_dev->CreateRenderTargetView(
+		_ssaoBuff.Get(),
+		&rtvDesc,
+		_ssaoRTVHeap->GetCPUDescriptorHandleForHeapStart());
+
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	desc.NodeMask = 0;
+	desc.NumDescriptors = 1;
+	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	result = _dev->CreateDescriptorHeap(
+		&desc,
+		IID_PPV_ARGS(_ssaoSRVHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.Shader4ComponentMapping = 
+		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
+	_dev->CreateShaderResourceView(
+		_ssaoBuff.Get(),
+		&srvDesc,
+		handle);
+
+	return true;
+}
+
 
 bool Wrapper::CreatePeraRTVAndSRV()
 {
@@ -426,7 +486,7 @@ bool Wrapper::CreatePeraRTVAndSRV()
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 4;
+	heapDesc.NumDescriptors = 5;
 
 	result = _dev->CreateDescriptorHeap(
 		&heapDesc,
@@ -477,6 +537,7 @@ bool Wrapper::Init()
 	if(!SceneTransBuffInit()) return false;;
 	if (!DepthBuffInit()) return false;;
 	if (!LightDepthBuffInit()) return false;;
+	if (!CreateSSAORTVAndSRV()) return false;;
 
 	auto result = _dev->CreateFence(
 		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf()));
@@ -548,6 +609,37 @@ void Wrapper::EndDrawTeapot()
 		_cmdList->ResourceBarrier(1, &peraBuffBarrierDesc);
 	}
 }
+
+void Wrapper::BeginDrawSSAO()
+{
+	ssaoBuffBarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	ssaoBuffBarrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	ssaoBuffBarrierDesc.Transition.pResource = _ssaoBuff.Get();
+	ssaoBuffBarrierDesc.Transition.Subresource = 0;
+	ssaoBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	ssaoBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	_cmdList->ResourceBarrier(1, &ssaoBuffBarrierDesc);
+	auto rtvH = _ssaoRTVHeap->GetCPUDescriptorHandleForHeapStart();
+	_cmdList->OMSetRenderTargets(
+		1, 
+		&rtvH, 
+		false, 
+		nullptr);
+
+	D3D12_VIEWPORT vp = CD3DX12_VIEWPORT(0.0f, 0.0f, winSize.cx, winSize.cy);
+	CD3DX12_RECT rc(0, 0, winSize.cx, winSize.cy);
+	_cmdList->RSSetViewports(1, &vp);
+	_cmdList->RSSetScissorRects(1, &rc);
+}
+
+void Wrapper::EndDrawSSAO()
+{
+	ssaoBuffBarrierDesc.Transition.pResource = _ssaoBuff.Get();
+	ssaoBuffBarrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	ssaoBuffBarrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	_cmdList->ResourceBarrier(1, &ssaoBuffBarrierDesc);
+}
+
 
 
 void Wrapper::BeginDrawShadow()

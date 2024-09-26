@@ -40,6 +40,7 @@ private:
 	D3D12_RESOURCE_BARRIER backBuffBarrierDesc = {};
 	D3D12_RESOURCE_BARRIER peraBuffBarrierDesc = {};
 	D3D12_RESOURCE_BARRIER depthBuffBarrierDesc = {};
+	D3D12_RESOURCE_BARRIER ssaoBuffBarrierDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
@@ -50,6 +51,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
 	unsigned int shadow_difinition = 1024;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _ssaoBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoRTVHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoSRVHeap = nullptr;
 
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ÉrÉÖÅ[
@@ -80,6 +84,7 @@ private:
 	bool DepthBuffInit();
 	bool CreatePeraRTVAndSRV();
 	bool LightDepthBuffInit();
+	bool CreateSSAORTVAndSRV();
 public:
 	Wrapper(HWND hwnd);
 	bool Init();
@@ -87,6 +92,8 @@ public:
 	void BeginDrawShadow();
 	void BeginDrawTeapot();
 	void EndDrawTeapot();
+	void BeginDrawSSAO();
+	void EndDrawSSAO();
 	void BeginDrawPera();
 	void EndDrawPera();
 	void Draw();

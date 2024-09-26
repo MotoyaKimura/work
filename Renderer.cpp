@@ -200,7 +200,7 @@ bool Renderer::PeraRootSignatureInit()
 	
 	CD3DX12_DESCRIPTOR_RANGE descTblRange = {};
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0);		
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0);		
 	CD3DX12_ROOT_PARAMETER rootParam = {};
 	rootParam.InitAsDescriptorTable(1, &descTblRange);
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
@@ -333,6 +333,36 @@ bool Renderer::ShadowPipelineStateInit()
 	return true;
 }
 
+bool Renderer::SSAOPipelineStateInit()
+{
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+	{
+		{
+			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		},
+		{
+			"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}
+	};
+
+	peraGpipeline.InputLayout.pInputElementDescs = inputLayout;
+	peraGpipeline.InputLayout.NumElements = _countof(inputLayout);
+	peraGpipeline.NumRenderTargets = 1;
+	peraGpipeline.RTVFormats[0] = DXGI_FORMAT_R32_FLOAT;
+	peraGpipeline.BlendState.RenderTarget[0].BlendEnable = false;
+	peraGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
+	peraGpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
+	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(
+		&peraGpipeline, 
+		IID_PPV_ARGS(_ssaoPipelinestate.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+	return true;
+}
+
 
 Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera) : _dx(dx), _pera(pera)
 {
@@ -350,6 +380,9 @@ bool Renderer::Init()
 	if (!PeraPipelineStateInit()) return false;
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadowVS", "vs_5_0", vsBlob))) return false;
 	if (!ShadowPipelineStateInit()) return false;
+	if (FAILED(!CompileShaderFile(L"SSAOVertexShader.hlsl", "ssaoVS", "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(L"SSAOPixelShader.hlsl", "ssaoPS", "ps_5_0", psBlob))) return false;
+	if (!SSAOPipelineStateInit()) return false;
 	return true;
 }
 
@@ -388,6 +421,17 @@ void Renderer::DrawShadow()
 	for (auto& _models : _models) {
 		_models->Draw(true);
 	}
+}
+
+void Renderer::BeforeDrawSSAO()
+{
+	_dx->GetCommandList()->SetPipelineState(_ssaoPipelinestate.Get());
+	_dx->GetCommandList()->SetGraphicsRootSignature(peraRootsignature.Get());
+}
+
+void Renderer::DrawSSAO()
+{
+	_pera->Draw();
 }
 
 

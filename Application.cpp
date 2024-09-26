@@ -136,6 +136,11 @@ void Application::Run()
 		_renderer->DrawTeapot();
 		_dx->EndDrawTeapot();
 
+		_dx->BeginDrawSSAO();
+		_renderer->BeforeDrawSSAO();
+		_renderer->DrawSSAO();
+		_dx->EndDrawSSAO();
+
 		_dx->BeginDrawPera();
 		_renderer->BeforeDrawPera();
 		_renderer->DrawPera();
