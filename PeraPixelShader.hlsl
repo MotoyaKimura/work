@@ -21,11 +21,14 @@ float4 PS(Output input) : SV_TARGET
     }
     else if(input.uv.x < 0.2 && input.uv.y < 0.8)
     {
-        float s = ssaoTex.Sample(smp, input.uv * 5);
+        float s = pow(ssaoTex.Sample(smp, (input.uv - float2(0, 0.6)) * 5), 10);
         return float4(s, s, s, 1);
     }
     else
     {
-        return tex.Sample(smp, input.uv);
+        float s = ssaoTex.Sample(smp, (input.uv));
+        float4 texColor = tex.Sample(smp, input.uv);
+
+        return float4(texColor.rgb * s, texColor.a);
     }
 }

@@ -198,15 +198,14 @@ bool Renderer::TeapotPipelineStateInit()
 bool Renderer::PeraRootSignatureInit()
 {
 	
-	CD3DX12_DESCRIPTOR_RANGE descTblRange = {};
+	CD3DX12_DESCRIPTOR_RANGE descTblRange[2] = {};
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0);		
+	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0);
+	descTblRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 	CD3DX12_ROOT_PARAMETER rootParam = {};
-	rootParam.InitAsDescriptorTable(1, &descTblRange);
+	rootParam.InitAsDescriptorTable(2, &descTblRange[0]);
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Init(0);
-	
-	
 
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.NumParameters = 1;

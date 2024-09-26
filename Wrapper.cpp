@@ -220,7 +220,7 @@ bool Wrapper::SceneTransBuffInit()
 		1.0f,
 		200.0f);
 	XMVECTOR det;
-	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->projection);
+	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view *  _sceneTransMatrix->projection);
 	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
 	_sceneTransMatrix->shadow = XMMatrixShadow(
 		XMLoadFloat4(&planeVec),
@@ -246,8 +246,6 @@ bool Wrapper::SceneTransBuffInit()
 	if (FAILED(result)) return false;
 
 	auto handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
-
-	
 	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
 
@@ -443,6 +441,13 @@ bool Wrapper::CreateSSAORTVAndSRV()
 		&srvDesc,
 		handle);
 
+	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 5;
+	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
+
+	_dev->CreateConstantBufferView(&cbvDesc, handle);
+
 	return true;
 }
 
@@ -486,7 +491,7 @@ bool Wrapper::CreatePeraRTVAndSRV()
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 5;
+	heapDesc.NumDescriptors = 6;
 
 	result = _dev->CreateDescriptorHeap(
 		&heapDesc,
