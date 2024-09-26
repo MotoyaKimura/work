@@ -100,6 +100,9 @@ private:
 	DirectX::XMMATRIX* mTransMatrix;
 	float angle = 0.0f;
 
+	DirectX::XMFLOAT3 _pos;
+	DirectX::XMFLOAT3 _rotater;
+
 	template<class T>
 	void LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp);
 	std::string LoadTextureFileName(FILE* fp);
@@ -115,6 +118,8 @@ public:
 	bool Init(std::string filePath);
 	void Update();
 	void Draw(bool isShadow);
+	void Move(float x, float y, float z);
+	void Rotate(float x, float y, float z);
 	
 	~Model();
 };

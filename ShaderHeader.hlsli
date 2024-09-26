@@ -16,11 +16,11 @@ cbuffer cbuff1 : register(b1)
     matrix world;
 };
 
-Texture2D<float4> tex : register(t0);
-Texture2D<float> depthTex : register(t1);
-Texture2D<float>lightDepthTex : register(t2);
+Texture2D<float4> texCol : register(t0);
+Texture2D<float>lightDepthTex : register(t1);
 
 SamplerState smp : register(s0);
+SamplerComparisonState shadowSmp : register(s1);
 
 struct Output
 {
@@ -30,4 +30,10 @@ struct Output
 	float2 uv : TEXCOORD;
     float4 tpos : TPOS;
     uint instNo : SV_InstanceID;
+};
+
+struct PixelOutput
+{
+    float4 col : SV_TARGET0;
+    float4 normal : SV_TARGET1;
 };

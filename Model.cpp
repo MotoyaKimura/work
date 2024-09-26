@@ -5,6 +5,31 @@
 
 using namespace DirectX;
 
+std::wstring GetWideStringFromString(const std::string& str)
+{
+	auto num1 = MultiByteToWideChar(
+		CP_ACP, 
+		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS, 
+		str.c_str(), 
+		-1, 
+		nullptr, 
+		0);
+
+	std::wstring wstr;
+	wstr.resize(num1);
+
+	auto num2 = MultiByteToWideChar(
+		CP_ACP,
+		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
+		str.c_str(),
+		-1,
+		&wstr[0],
+		num1);
+
+	assert(num1 == num2);
+	return wstr;
+}
+
 template<class T>
 void Model::LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp)
 {
@@ -70,8 +95,8 @@ void Model::BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath)
 				texFilePath.replace(replaseStartPos, replaceLen, "dds");
 				//テクスチャファイルパスを記憶しておく。
 				texFilePathDst = texFilePath;
-
-				LoadFromDDSFile(L"modelData/tex.dds", DDS_FLAGS_NONE, &metadata, scratchImage);
+				std::wstring wstr = GetWideStringFromString(texFilePath);
+				LoadFromDDSFile(wstr.c_str(), DDS_FLAGS_NONE, &metadata, scratchImage);
 
 				//テクスチャをロード。
 				FILE* texFileFp;
@@ -361,7 +386,7 @@ bool Model::MTransBuffInit()
 }
 
 
-Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx)
+Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
 {
 }
 
@@ -380,8 +405,12 @@ bool Model::Init(std::string filePath)
 
 void Model::Update()
 {
-	angle += 0.01f;
-	world = XMMatrixRotationX(-XM_PIDIV2) * XMMatrixRotationY(-angle);
+	angle += 0.001f;
+	world =
+		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
+		* XMMatrixRotationY(-angle)
+		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
+	
 	*mTransMatrix = world;
 }
 
@@ -397,9 +426,28 @@ void Model::Draw(bool isShadow)
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
 		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
-
-	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	if (isShadow) {
+		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	}
+	else
+	{
+		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	}
 	
+}
+
+void Model::Move(float x, float y, float z)
+{
+	_pos.x += x;
+	_pos.y += y;
+	_pos.z += z;
+}
+
+void Model::Rotate(float x, float y, float z)
+{
+	_rotater.x += x;
+	_rotater.y += y;
+	_rotater.z += z;
 }
 
 Model::~Model()

@@ -17,6 +17,7 @@ private:
 	std::shared_ptr<Pera> _pera;
 	std::shared_ptr<Renderer> _renderer;
 	std::shared_ptr<Model> _model;
+	std::shared_ptr<Model> _model2;
 
 	const unsigned int window_width = 1280;							//ウィンドウ幅
 	const unsigned int window_height = 720;							//ウィンドウ高
