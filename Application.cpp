@@ -84,13 +84,6 @@ bool Application::Init()
 		return false;
 	}
 
-	_model.reset(new Model(_dx));
-	if (!_model->Init("modelData/teapot.tkm"))
-	{
-		DebugOutputFormatString("モデルの初期化エラー\n ");
-		return false;
-	}
-
 	_pera.reset(new Pera(_dx));
 	if (!_pera->Init())
 	{
@@ -105,7 +98,24 @@ bool Application::Init()
 		return false;
 	}
 
+	_model.reset(new Model(_dx));
+	if (!_model->Init("modelData/teapot.tkm"))
+	{
+		DebugOutputFormatString("モデルの初期化エラー\n ");
+		return false;
+	}
+	_model->Move(0, 0, 0);
+	_model->Rotate(-DirectX::XM_PIDIV2, 0, 0);
 	_renderer->AddModel(_model);
+
+	/*_model2 = std::make_shared<Model>(_dx);
+	if (!_model2->Init("modelData/teapot.tkm"))
+	{
+		DebugOutputFormatString("モデルの初期化エラー\n ");
+		return false;
+	}
+	_model2->Move(20, 0, 0);
+	_renderer->AddModel(_model2);*/
 }
 void Application::Run()
 {
@@ -125,7 +135,7 @@ void Application::Run()
 		{
 			break;
 		}
-		_model->Update();
+		_renderer->Update();
 
 		_dx->BeginDrawShadow();
 		_renderer->BeforeDrawShadow();

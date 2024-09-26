@@ -386,7 +386,7 @@ bool Model::MTransBuffInit()
 }
 
 
-Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx)
+Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
 {
 }
 
@@ -406,7 +406,11 @@ bool Model::Init(std::string filePath)
 void Model::Update()
 {
 	angle += 0.001f;
-	world = XMMatrixRotationX(-XM_PIDIV2) * XMMatrixRotationY(-angle);
+	world =
+		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
+		* XMMatrixRotationY(-angle)
+		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
+	
 	*mTransMatrix = world;
 }
 
@@ -430,6 +434,20 @@ void Model::Draw(bool isShadow)
 		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
 	}
 	
+}
+
+void Model::Move(float x, float y, float z)
+{
+	_pos.x += x;
+	_pos.y += y;
+	_pos.z += z;
+}
+
+void Model::Rotate(float x, float y, float z)
+{
+	_rotater.x += x;
+	_rotater.y += y;
+	_rotater.z += z;
 }
 
 Model::~Model()

@@ -392,6 +392,9 @@ void Renderer::AddModel(std::shared_ptr<Model> model)
 
 void Renderer::Update()
 {
+	for (auto& _models : _models) {
+		_models->Update();
+	}
 }
 
 

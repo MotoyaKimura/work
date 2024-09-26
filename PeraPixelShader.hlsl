@@ -26,9 +26,12 @@ float4 PS(Output input) : SV_TARGET
     }
     else
     {
+        //float dp = depthTex.Sample(smp, input.uv);
+        //float4 respos = mul(invprojection, float4(input.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), dp, 1.0f));
+        //return float4(respos.xyz, 1);
         float s = ssaoTex.Sample(smp, (input.uv));
         float4 texColor = tex.Sample(smp, input.uv);
-        return float4(s, s, s, 1);
+       // return float4(s, s, s, 1);
         return float4(texColor.rgb * s, texColor.a);
     }
 }
