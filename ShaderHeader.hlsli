@@ -6,6 +6,7 @@ cbuffer cbuff0 : register(b0)
     matrix shadow;
     matrix shadowOffsetY;
     matrix invShadowOffsetY;
+    matrix lightView;
     matrix lightCamera;
     float3 lightVec;
     float3 eye;

@@ -62,6 +62,7 @@ private:
 		DirectX::XMMATRIX shadow;
 		DirectX::XMMATRIX shadowOffsetY;
 		DirectX::XMMATRIX invShadowOffsetY;
+		DirectX::XMMATRIX lightView;
 		DirectX::XMMATRIX lightCamera;
 		DirectX::XMFLOAT3 lightVec;
 		DirectX::XMFLOAT3 eye;
@@ -102,5 +103,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSceneTransHeap() const;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetPeraSRVHeap() const;
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const;
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetLightDepthBuff() const;
+
 	~Wrapper();
 };

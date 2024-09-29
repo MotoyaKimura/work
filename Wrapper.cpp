@@ -236,6 +236,7 @@ bool Wrapper::SceneTransBuffInit()
 	_sceneTransMatrix->lightCamera = 
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) * 
 		XMMatrixOrthographicLH(100, 100, 1.0f, 200.0f);
+	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
 	descHeapDesc.NumDescriptors = 4;
@@ -753,6 +754,18 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> Wrapper::GetPeraSRVHeap() const
 {
 	return _peraSRVHeap.Get();
 }
+
+Microsoft::WRL::ComPtr<ID3D12Resource> Wrapper::GetSceneTransBuff() const
+{
+	return _sceneTransBuff.Get();
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> Wrapper::GetLightDepthBuff() const
+{
+	return _lightDepthBuff.Get();
+}
+
+
 
 Wrapper::~Wrapper()
 {

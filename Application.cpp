@@ -108,14 +108,14 @@ bool Application::Init()
 	_model->Rotate(-DirectX::XM_PIDIV2, 0, 0);
 	_renderer->AddModel(_model);
 
-	/*_model2 = std::make_shared<Model>(_dx);
+	_model2 = std::make_shared<Model>(_dx);
 	if (!_model2->Init("modelData/teapot.tkm"))
 	{
 		DebugOutputFormatString("ƒ‚ƒfƒ‹‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;
 	}
 	_model2->Move(20, 0, 0);
-	_renderer->AddModel(_model2);*/
+	_renderer->AddModel(_model2);
 }
 void Application::Run()
 {
@@ -135,6 +135,38 @@ void Application::Run()
 		{
 			break;
 		}
+		BYTE keycode[256];
+		GetKeyboardState(keycode);
+		float x = 0, y = 0, z = 0;
+		if (keycode['W'] & 0x80) {
+			z += 0.1f;
+		}
+		if (keycode['A'] & 0x80) {
+			x -= 0.1f;
+		}
+		if (keycode['S'] & 0x80) {
+			z -= 0.1f;
+		}
+		if (keycode['D'] & 0x80) {
+			x += 0.1f;
+		}
+		if (keycode[VK_SPACE] & 0x80)
+		{
+			y += 0.1f;
+		}
+		if (keycode[VK_SHIFT] & 0x80)
+		{
+			y -= 0.1f;
+		}
+		if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
+		{
+			z += 0.5f;
+		}
+		if (keycode[VK_SHIFT] & keycode['S'] & 0x80)
+		{
+			z -= 0.5f;
+		}
+		_model->Move(x, y, z);
 		_renderer->Update();
 
 		_dx->BeginDrawShadow();
