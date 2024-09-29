@@ -339,29 +339,16 @@ bool Model::TextureInit()
 		img->slicePitch
 	);
 
-	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
-	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 4;
-	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	result = _dx->GetDevice()->CreateDescriptorHeap(
-		&descHeapDesc,
-		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
-	if (FAILED(result)) return false;
+	
 	
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
-	auto handle = _dx->GetSceneTransHeap()->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 2;
-	_dx->GetDevice()->CreateShaderResourceView(
-		texBuffer.Get(),
-		&srvDesc,
-		handle);
+	
 
-	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 2;
 	_dx->GetDevice()->CreateShaderResourceView(
 		texBuffer.Get(),
@@ -402,14 +389,21 @@ bool Model::MTransBuffInit()
 	*mTransMatrix = world;
 
 	
-
-	auto handle = _dx->GetSceneTransHeap()->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descHeapDesc.NodeMask = 0;
+	descHeapDesc.NumDescriptors = 4;
+	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	result = _dx->GetDevice()->CreateDescriptorHeap(
+		&descHeapDesc,
+		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+	
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	cbvDesc.BufferLocation = _mTransBuff->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_mTransBuff->GetDesc().Width);
-	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
-	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+
+	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
@@ -432,8 +426,8 @@ bool Model::Init(std::string filePath)
 	if(!LoadModel(filePath)) return false;
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
-	if (!TextureInit()) return false;
 	if (!MTransBuffInit()) return false;
+	if (!TextureInit()) return false;
 	return true;
 }
 

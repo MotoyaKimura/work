@@ -42,7 +42,7 @@ private:
 	D3D12_RESOURCE_BARRIER depthBuffBarrierDesc = {};
 	D3D12_RESOURCE_BARRIER ssaoBuffBarrierDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _sceneTransHeap = nullptr;
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _depthSRVHeap = nullptr;
@@ -101,7 +101,6 @@ public:
 	void Flip();
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSceneTransHeap() const;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetPeraSRVHeap() const;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetLightDepthBuff() const;

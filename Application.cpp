@@ -114,7 +114,8 @@ bool Application::Init()
 		DebugOutputFormatString("ƒ‚ƒfƒ‹‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;
 	}
-	_model2->Move(20, 0, 0);
+	_model2->Move(100, 0, 0);
+	_model2->Rotate(-DirectX::XM_PIDIV2, 0, 0);
 	_renderer->AddModel(_model2);
 }
 void Application::Run()

@@ -218,7 +218,7 @@ bool Wrapper::SceneTransBuffInit()
 		XM_PIDIV4,
 		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy),
 		1.0f,
-		200.0f);
+		300.0f);
 	XMVECTOR det;
 	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view *  _sceneTransMatrix->projection);
 	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
@@ -235,23 +235,9 @@ bool Wrapper::SceneTransBuffInit()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera = 
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) * 
-		XMMatrixOrthographicLH(100, 100, 1.0f, 200.0f);
+		XMMatrixOrthographicLH(100, 100, 1.0f, 300.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
-	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 4;
-	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	result = _dev->CreateDescriptorHeap(
-		&descHeapDesc, 
-		IID_PPV_ARGS(_sceneTransHeap.ReleaseAndGetAddressOf()));
-	if (FAILED(result)) return false;
-
-	auto handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
-	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
-
-	_dev->CreateConstantBufferView(&cbvDesc, handle);
-
+	
 	return true;
 }
 
@@ -368,12 +354,7 @@ bool Wrapper::LightDepthBuffInit()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	handle = _sceneTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
-	_dev->CreateShaderResourceView(
-		_lightDepthBuff.Get(),
-		&srvDesc,
-		handle);
+	
 
 	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
@@ -519,7 +500,7 @@ bool Wrapper::CreatePeraRTVAndSRV()
 
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
-	eye(0, 50, -100),
+	eye(0, 50, -200),
 	target(0, 0, 0),
 	up(0, 1, 0),
 lightVec(-1, 1, -1),
@@ -745,10 +726,7 @@ Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> Wrapper::GetCommandList() cons
 	return _cmdList.Get();
 }
 
-Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> Wrapper::GetSceneTransHeap() const
-{
-	return _sceneTransHeap.Get();
-}
+
 
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> Wrapper::GetPeraSRVHeap() const
 {
