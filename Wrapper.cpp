@@ -237,6 +237,13 @@ bool Wrapper::SceneTransBuffInit()
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) * 
 		XMMatrixOrthographicLH(100, 100, 1.0f, 300.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
+
+	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * peraSRVHeapNum++;
+	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
+
+	_dev->CreateConstantBufferView(&cbvDesc, handle);
 	
 	return true;
 }
@@ -298,7 +305,7 @@ bool Wrapper::DepthBuffInit()
 	
 
 	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 2;
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * peraSRVHeapNum++;
 	_dev->CreateShaderResourceView(
 		_depthBuff.Get(),
 		&srvDesc,
@@ -357,7 +364,7 @@ bool Wrapper::LightDepthBuffInit()
 	
 
 	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * peraSRVHeapNum++;
 	_dev->CreateShaderResourceView(
 		_lightDepthBuff.Get(),
 		&srvDesc,
@@ -417,18 +424,13 @@ bool Wrapper::CreateSSAORTVAndSRV()
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * peraSRVHeapNum++;
 	_dev->CreateShaderResourceView(
 		_ssaoBuff.Get(),
 		&srvDesc,
 		handle);
 
-	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 5;
-	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
-
-	_dev->CreateConstantBufferView(&cbvDesc, handle);
+	
 
 	return true;
 }
@@ -487,12 +489,13 @@ bool Wrapper::CreatePeraRTVAndSRV()
 	srvDesc.Shader4ComponentMapping =
 		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
+
 	for (auto& res : _peraBuff) {
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * peraSRVHeapNum++;
 		_dev->CreateShaderResourceView(
 			res.Get(),
 			&srvDesc,
 			handle);
-		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 	return true;
 }
@@ -521,10 +524,10 @@ bool Wrapper::Init()
 
 	ViewportInit();
 	ScissorrectInit();
-	if(!SceneTransBuffInit()) return false;;
 	if (!DepthBuffInit()) return false;;
 	if (!LightDepthBuffInit()) return false;;
 	if (!CreateSSAORTVAndSRV()) return false;;
+	if(!SceneTransBuffInit()) return false;;
 
 	auto result = _dev->CreateFence(
 		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf()));

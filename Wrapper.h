@@ -49,6 +49,7 @@ private:
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> _peraBuff;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
+	unsigned int peraSRVHeapNum = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
 	unsigned int shadow_difinition = 1024;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _ssaoBuff = nullptr;

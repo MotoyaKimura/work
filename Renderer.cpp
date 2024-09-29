@@ -401,20 +401,46 @@ void Renderer::Update()
 
 void Renderer::Move()
 {
+	int modelNum = _models.size();
 	BYTE keycode[256];
 	GetKeyboardState(keycode);
 	if (keycode[VK_NUMPAD1] & 0x80) modelID = 0;
 	if (keycode[VK_NUMPAD2] & 0x80) modelID = 1;
 	if (keycode[VK_NUMPAD3] & 0x80) modelID = 2;
-
+	if (keycode[VK_NUMPAD4] & 0x80) modelID = 3;
+	if (keycode[VK_NUMPAD5] & 0x80) modelID = 4;
+	if (keycode[VK_NUMPAD6] & 0x80) modelID = 5;
+	if (keycode[VK_NUMPAD7] & 0x80) modelID = 6;
+	if (keycode[VK_NUMPAD8] & 0x80) modelID = 7;
 	switch (modelID){
 	case 0:
 		_keyboard->Move(_models[0]->GetPos());
 		break;
 	case 1:
+		if (modelNum > modelID)
 		_keyboard->Move(_models[1]->GetPos());
 		break;
 	case 2:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[2]->GetPos());
+		break;
+	case 3:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[3]->GetPos());
+		break;
+	case 4:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[4]->GetPos());
+		break;
+	case 5:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[5]->GetPos());
+		break;
+	case 6:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[6]->GetPos());
+		break;
+	case 7:
 		_keyboard->Move(_dx->GetEyePos());
 		break;
 	default:
