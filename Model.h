@@ -120,6 +120,6 @@ public:
 	void Draw(bool isShadow);
 	void Move(float x, float y, float z);
 	void Rotate(float x, float y, float z);
-	
+	DirectX::XMFLOAT3* GetPos();
 	~Model();
 };

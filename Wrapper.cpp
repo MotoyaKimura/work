@@ -537,6 +537,20 @@ bool Wrapper::Init()
 
 void Wrapper::Update()
 {
+	_sceneTransMatrix->eye = eye;
+	_sceneTransMatrix->view = XMMatrixLookAtLH(
+		XMLoadFloat3(&eye),
+		XMLoadFloat3(&target),
+		XMLoadFloat3(&up));;
+	XMVECTOR det;
+	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view * _sceneTransMatrix->projection);
+	auto lightPos = XMLoadFloat3(&target) +
+		XMVector3Normalize(XMLoadFloat3(&lightVec)) *
+		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
+	_sceneTransMatrix->lightCamera =
+		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
+		XMMatrixOrthographicLH(100, 100, 1.0f, 300.0f);
+	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 
 void Wrapper::BeginDrawTeapot()
@@ -742,6 +756,12 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Wrapper::GetLightDepthBuff() const
 {
 	return _lightDepthBuff.Get();
 }
+
+DirectX::XMFLOAT3* Wrapper::GetEyePos()
+{
+	return &eye;
+}
+
 
 
 

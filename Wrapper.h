@@ -104,6 +104,6 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetPeraSRVHeap() const;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetLightDepthBuff() const;
-
+	DirectX::XMFLOAT3* GetEyePos();
 	~Wrapper();
 };

@@ -3,6 +3,7 @@
 #include "Pera.h"
 #include "Model.h"
 #include "Renderer.h"
+#include "Keyboard.h"
 #include <Windows.h>
 #include <tchar.h>
 
@@ -91,7 +92,9 @@ bool Application::Init()
 		return false;
 	}
 
-	_renderer.reset(new Renderer(_dx, _pera));
+	_keyboard.reset(new Keyboard());
+
+	_renderer.reset(new Renderer(_dx, _pera, _keyboard));
 	if(!_renderer->Init())
 	{
 		DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
@@ -117,6 +120,8 @@ bool Application::Init()
 	_model2->Move(100, 0, 0);
 	_model2->Rotate(-DirectX::XM_PIDIV2, 0, 0);
 	_renderer->AddModel(_model2);
+
+	
 }
 void Application::Run()
 {
@@ -136,38 +141,8 @@ void Application::Run()
 		{
 			break;
 		}
-		BYTE keycode[256];
-		GetKeyboardState(keycode);
-		float x = 0, y = 0, z = 0;
-		if (keycode['W'] & 0x80) {
-			z += 0.1f;
-		}
-		if (keycode['A'] & 0x80) {
-			x -= 0.1f;
-		}
-		if (keycode['S'] & 0x80) {
-			z -= 0.1f;
-		}
-		if (keycode['D'] & 0x80) {
-			x += 0.1f;
-		}
-		if (keycode[VK_SPACE] & 0x80)
-		{
-			y += 0.1f;
-		}
-		if (keycode[VK_SHIFT] & 0x80)
-		{
-			y -= 0.1f;
-		}
-		if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
-		{
-			z += 0.5f;
-		}
-		if (keycode[VK_SHIFT] & keycode['S'] & 0x80)
-		{
-			z -= 0.5f;
-		}
-		_model->Move(x, y, z);
+		
+		_renderer->Move();
 		_renderer->Update();
 
 		_dx->BeginDrawShadow();

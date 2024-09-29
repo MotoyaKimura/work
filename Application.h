@@ -10,6 +10,7 @@ class Wrapper;
 class Pera;
 class Model;
 class Renderer;
+class Keyboard;
 class Application
 {
 private:
@@ -18,6 +19,7 @@ private:
 	std::shared_ptr<Renderer> _renderer;
 	std::shared_ptr<Model> _model;
 	std::shared_ptr<Model> _model2;
+	std::shared_ptr<Keyboard> _keyboard;
 
 	const unsigned int window_width = 1280;							//ウィンドウ幅
 	const unsigned int window_height = 720;							//ウィンドウ高

@@ -480,6 +480,12 @@ void Model::Rotate(float x, float y, float z)
 	_rotater.z += z;
 }
 
+DirectX::XMFLOAT3* Model::GetPos()
+{
+	return &_pos;
+}
+
+
 Model::~Model()
 {
 }

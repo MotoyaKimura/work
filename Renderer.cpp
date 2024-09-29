@@ -2,6 +2,7 @@
 #include "Pera.h"
 #include "Model.h"
 #include "Wrapper.h"
+#include "Keyboard.h"
 
 
 #ifdef _DEBUG
@@ -363,7 +364,7 @@ bool Renderer::SSAOPipelineStateInit()
 }
 
 
-Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera) : _dx(dx), _pera(pera)
+Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard) : _dx(dx), _pera(pera), _keyboard(keyboard)
 {
 }
 
@@ -395,9 +396,31 @@ void Renderer::Update()
 	for (auto& _models : _models) {
 		_models->Update();
 	}
+	_dx->Update();
 }
 
+void Renderer::Move()
+{
+	BYTE keycode[256];
+	GetKeyboardState(keycode);
+	if (keycode[VK_NUMPAD1] & 0x80) modelID = 0;
+	if (keycode[VK_NUMPAD2] & 0x80) modelID = 1;
+	if (keycode[VK_NUMPAD3] & 0x80) modelID = 2;
 
+	switch (modelID){
+	case 0:
+		_keyboard->Move(_models[0]->GetPos());
+		break;
+	case 1:
+		_keyboard->Move(_models[1]->GetPos());
+		break;
+	case 2:
+		_keyboard->Move(_dx->GetEyePos());
+		break;
+	default:
+		break;
+	 }
+}
 
 void Renderer::BeforeDrawTeapot()
 {

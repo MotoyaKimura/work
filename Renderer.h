@@ -8,12 +8,14 @@
 class Wrapper;
 class Pera;
 class Model;
+class Keyboard;
 class Renderer
 {
 private:
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Pera> _pera;
 	std::vector<std::shared_ptr<Model>> _models;
+	std::shared_ptr<Keyboard> _keyboard;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr;
@@ -27,7 +29,7 @@ private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC peraGpipeline = {};
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _ssaoPipelinestate = nullptr;
 
-	
+	int modelID = 0;
 
 
 	bool CheckResult(HRESULT result);
@@ -40,9 +42,10 @@ private:
 	bool SSAOPipelineStateInit();
 	
 public:
-	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera);
+	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
 	bool Init();
 	void AddModel(std::shared_ptr<Model> model);
+	void Move();
 	void Update();
 	void BeforeDrawTeapot();
 	void BeforeDrawShadow();
