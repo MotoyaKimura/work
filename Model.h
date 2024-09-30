@@ -95,6 +95,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> _mTransBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _mTransHeap = nullptr;
+	unsigned int mTransHeapNum = 0;
 
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX* mTransMatrix;
@@ -120,6 +121,6 @@ public:
 	void Draw(bool isShadow);
 	void Move(float x, float y, float z);
 	void Rotate(float x, float y, float z);
-	
+	DirectX::XMFLOAT3* GetPos();
 	~Model();
 };

@@ -2,6 +2,7 @@
 #include "Pera.h"
 #include "Model.h"
 #include "Wrapper.h"
+#include "Keyboard.h"
 
 
 #ifdef _DEBUG
@@ -200,7 +201,7 @@ bool Renderer::PeraRootSignatureInit()
 	
 	CD3DX12_DESCRIPTOR_RANGE descTblRange[2] = {};
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0);
+	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 0);
 	descTblRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 	CD3DX12_ROOT_PARAMETER rootParam = {};
 	rootParam.InitAsDescriptorTable(2, &descTblRange[0]);
@@ -320,11 +321,12 @@ bool Renderer::ShadowPipelineStateInit()
 	teapotGpipeline.InputLayout.NumElements = _countof(inputLayout);
 
 	teapotGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	teapotGpipeline.PS.BytecodeLength = 0;
-	teapotGpipeline.PS.pShaderBytecode = nullptr;
-	teapotGpipeline.NumRenderTargets = 0;
-	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
-	teapotGpipeline.RTVFormats[1] = DXGI_FORMAT_UNKNOWN;
+	teapotGpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
+	teapotGpipeline.NumRenderTargets = 3;
+	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	teapotGpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	teapotGpipeline.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	
 
 	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&teapotGpipeline, IID_PPV_ARGS(_shadowPipelinestate.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
@@ -363,7 +365,7 @@ bool Renderer::SSAOPipelineStateInit()
 }
 
 
-Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera) : _dx(dx), _pera(pera)
+Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard) : _dx(dx), _pera(pera), _keyboard(keyboard)
 {
 }
 
@@ -378,6 +380,7 @@ bool Renderer::Init()
 	if (!PeraRootSignatureInit()) return false;
 	if (!PeraPipelineStateInit()) return false;
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadowVS", "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "RSMPS", "ps_5_0", psBlob))) return false;
 	if (!ShadowPipelineStateInit()) return false;
 	if (FAILED(!CompileShaderFile(L"SSAOVertexShader.hlsl", "ssaoVS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"SSAOPixelShader.hlsl", "ssaoPS", "ps_5_0", psBlob))) return false;
@@ -395,9 +398,58 @@ void Renderer::Update()
 	for (auto& _models : _models) {
 		_models->Update();
 	}
+	_dx->Update();
 }
 
+void Renderer::Move()
+{
+	int modelNum = _models.size();
+	BYTE keycode[256];
+	GetKeyboardState(keycode);
+	if (keycode[VK_NUMPAD1] & 0x80) modelID = 0;
+	if (keycode[VK_NUMPAD2] & 0x80) modelID = 1;
+	if (keycode[VK_NUMPAD3] & 0x80) modelID = 2;
+	if (keycode[VK_NUMPAD4] & 0x80) modelID = 3;
+	if (keycode[VK_NUMPAD5] & 0x80) modelID = 4;
+	if (keycode[VK_NUMPAD6] & 0x80) modelID = 5;
+	if (keycode[VK_NUMPAD7] & 0x80) modelID = 6;
+	if (keycode[VK_NUMPAD8] & 0x80) modelID = 7;
 
+	switch (modelID){
+	case 0:
+		_keyboard->Move(_models[0]->GetPos());
+		break;
+	case 1:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[1]->GetPos());
+		break;
+	case 2:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[2]->GetPos());
+		break;
+	case 3:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[3]->GetPos());
+		break;
+	case 4:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[4]->GetPos());
+		break;
+	case 5:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[5]->GetPos());
+		break;
+	case 6:
+		if (modelNum > modelID)
+		_keyboard->Move(_models[6]->GetPos());
+		break;
+	case 7:
+		_keyboard->Move(_dx->GetEyePos());
+		break;
+	default:
+		break;
+	 }
+}
 
 void Renderer::BeforeDrawTeapot()
 {

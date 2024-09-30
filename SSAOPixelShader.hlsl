@@ -35,6 +35,7 @@ float ssaoPS(Output input) : SV_TARGET
             float rnd2 = random(float2(rnd1, i * dy)) * 2.0f - 1.0f;
             float rnd3 = random(float2(rnd2, rnd1)) * 2.0f - 1.0f;
             float3 omega = normalize(float3(rnd1, rnd2, rnd3));
+            
             omega = normalize(omega);
 
             //—”‚ÌŒ‹‰Ê–@ü‚Ì”½‘Î‘¤‚ÉŒü‚¢‚Ä‚¢‚½‚ç”½“]‚·‚é

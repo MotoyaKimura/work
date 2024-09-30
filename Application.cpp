@@ -3,6 +3,7 @@
 #include "Pera.h"
 #include "Model.h"
 #include "Renderer.h"
+#include "Keyboard.h"
 #include <Windows.h>
 #include <tchar.h>
 
@@ -91,7 +92,9 @@ bool Application::Init()
 		return false;
 	}
 
-	_renderer.reset(new Renderer(_dx, _pera));
+	_keyboard.reset(new Keyboard());
+
+	_renderer.reset(new Renderer(_dx, _pera, _keyboard));
 	if(!_renderer->Init())
 	{
 		DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
@@ -108,14 +111,17 @@ bool Application::Init()
 	_model->Rotate(-DirectX::XM_PIDIV2, 0, 0);
 	_renderer->AddModel(_model);
 
-	/*_model2 = std::make_shared<Model>(_dx);
+	_model2 = std::make_shared<Model>(_dx);
 	if (!_model2->Init("modelData/teapot.tkm"))
 	{
 		DebugOutputFormatString("モデルの初期化エラー\n ");
 		return false;
 	}
-	_model2->Move(20, 0, 0);
-	_renderer->AddModel(_model2);*/
+	_model2->Move(100, 0, 0);
+	_model2->Rotate(-DirectX::XM_PIDIV2, 0, 0);
+	_renderer->AddModel(_model2);
+
+	
 }
 void Application::Run()
 {
@@ -135,11 +141,14 @@ void Application::Run()
 		{
 			break;
 		}
+		
+		_renderer->Move();
 		_renderer->Update();
 
 		_dx->BeginDrawShadow();
 		_renderer->BeforeDrawShadow();
 		_renderer->DrawShadow();
+		_dx->EndDrawShadow();
 
 		_dx->BeginDrawTeapot();
 		_renderer->BeforeDrawTeapot();

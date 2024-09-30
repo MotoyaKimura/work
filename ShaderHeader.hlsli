@@ -6,6 +6,7 @@ cbuffer cbuff0 : register(b0)
     matrix shadow;
     matrix shadowOffsetY;
     matrix invShadowOffsetY;
+    matrix lightView;
     matrix lightCamera;
     float3 lightVec;
     float3 eye;
@@ -36,4 +37,11 @@ struct PixelOutput
 {
     float4 col : SV_TARGET0;
     float4 normal : SV_TARGET1;
+};
+
+struct RSMOutput
+{
+    float4 world : SV_TARGET0;
+    float4 normal : SV_TARGET1;
+    float4 indirectLight : SV_TARGET2;
 };

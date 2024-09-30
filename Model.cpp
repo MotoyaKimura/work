@@ -338,18 +338,34 @@ bool Model::TextureInit()
 		img->rowPitch,
 		img->slicePitch
 	);
+
+	
 	
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
-	auto handle = _dx->GetSceneTransHeap()->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 2;
+	
+
+	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
 	_dx->GetDevice()->CreateShaderResourceView(
 		texBuffer.Get(),
 		&srvDesc,
 		handle);
+
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	_dx->GetDevice()->CreateShaderResourceView(
+		_dx->GetLightDepthBuff().Get(),
+		&srvDesc,
+		handle);
+
 	return true;
 }
 
@@ -372,15 +388,31 @@ bool Model::MTransBuffInit()
 	world = XMMatrixIdentity();
 	*mTransMatrix = world;
 
-
-	auto handle = _dx->GetSceneTransHeap()->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
+	
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	descHeapDesc.NodeMask = 0;
+	descHeapDesc.NumDescriptors = 4;
+	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	result = _dx->GetDevice()->CreateDescriptorHeap(
+		&descHeapDesc,
+		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+	
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = _dx->GetSceneTransBuff()->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_dx->GetSceneTransBuff()->GetDesc().Width);
+	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+
 	cbvDesc.BufferLocation = _mTransBuff->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_mTransBuff->GetDesc().Width);
-
+	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+
+	
 
 	return true;
 }
@@ -396,8 +428,8 @@ bool Model::Init(std::string filePath)
 	if(!LoadModel(filePath)) return false;
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
-	if (!TextureInit()) return false;
 	if (!MTransBuffInit()) return false;
+	if (!TextureInit()) return false;
 	return true;
 }
 
@@ -420,12 +452,12 @@ void Model::Draw(bool isShadow)
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
 
-	ID3D12DescriptorHeap* heaps[] = { _dx->GetSceneTransHeap().Get() };
+	ID3D12DescriptorHeap* heaps[] = { _mTransHeap.Get() };
 
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
-		_dx->GetSceneTransHeap()->GetGPUDescriptorHandleForHeapStart());
+		_mTransHeap->GetGPUDescriptorHandleForHeapStart());
 	if (isShadow) {
 		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
 	}
@@ -449,6 +481,12 @@ void Model::Rotate(float x, float y, float z)
 	_rotater.y += y;
 	_rotater.z += z;
 }
+
+DirectX::XMFLOAT3* Model::GetPos()
+{
+	return &_pos;
+}
+
 
 Model::~Model()
 {
