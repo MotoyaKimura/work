@@ -52,6 +52,7 @@ uint instNo : SV_InstanceID
     output.pos = mul(invShadowOffsetY, output.pos);
    // output.svpos = mul(mul(projection, view), output.pos);
     output.svpos = mul(lightCamera, output.pos);
+   // output.pos = mul(lightView, output.pos);
     normal.w = 0;
     output.tpos = mul(lightCamera, output.pos);
     output.normal = mul(world, normal);

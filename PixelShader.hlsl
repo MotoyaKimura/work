@@ -31,9 +31,11 @@ PixelOutput PS(Output input) : SV_TARGET
 RSMOutput RSMPS(Output input) : SV_TARGET
 {
     RSMOutput output;
+    float lambert = saturate(dot(normalize(lightVec), input.normal.xyz));
+    
     output.world = float4(normalize(input.pos.xyz), 1.0f);
     output.normal = float4(float3((input.normal.xyz + 1.0f) / 2.0f), 1.0f);
-    output.indirectLight = float4(0, 0, 1, 1);
+    output.indirectLight = float4((texCol.Sample(smp, input.uv) ).xyz, 1);
     return output;
 }
 
