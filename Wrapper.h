@@ -56,6 +56,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoSRVHeap = nullptr;
 
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> _RSMBuff;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _RSMRTVHeap = nullptr;
+	D3D12_RESOURCE_BARRIER RSMBuffBarrierDesc = {};
+
+
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ビュー
 		DirectX::XMMATRIX projection;//プロジェクション
@@ -84,6 +89,7 @@ private:
 	void ScissorrectInit();
 	bool SceneTransBuffInit();
 	bool DepthBuffInit();
+	bool RSMBuffInit();
 	bool CreatePeraRTVAndSRV();
 	bool LightDepthBuffInit();
 	bool CreateSSAORTVAndSRV();
@@ -92,6 +98,7 @@ public:
 	bool Init();
 	void Update();
 	void BeginDrawShadow();
+	void EndDrawShadow();
 	void BeginDrawTeapot();
 	void EndDrawTeapot();
 	void BeginDrawSSAO();

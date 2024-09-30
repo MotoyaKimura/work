@@ -29,7 +29,7 @@ private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC peraGpipeline = {};
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _ssaoPipelinestate = nullptr;
 
-	int modelID = 0;
+	int modelID  = 0;
 
 
 	bool CheckResult(HRESULT result);

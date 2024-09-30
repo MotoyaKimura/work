@@ -24,6 +24,14 @@ float4 PS(Output input) : SV_TARGET
         float s = pow(ssaoTex.Sample(smp, (input.uv - float2(0, 0.6)) * 5), 10);
         return float4(s, s, s, 1);
     }
+    else if(input.uv.x < 0.2 && input.uv.y < 1)
+    {
+        return worldTex.Sample(smp, input.uv * 5);
+    }
+    else if(input.uv.x < 0.4 && input.uv.y < 0.2)
+    {
+	    return lightNormalTex.Sample(smp, input.uv * 5);
+    }
     else
     {
         float dp = depthTex.Sample(smp, input.uv);

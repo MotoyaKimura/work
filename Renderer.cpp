@@ -201,7 +201,7 @@ bool Renderer::PeraRootSignatureInit()
 	
 	CD3DX12_DESCRIPTOR_RANGE descTblRange[2] = {};
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0);
+	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 7, 0);
 	descTblRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 	CD3DX12_ROOT_PARAMETER rootParam = {};
 	rootParam.InitAsDescriptorTable(2, &descTblRange[0]);
@@ -321,11 +321,12 @@ bool Renderer::ShadowPipelineStateInit()
 	teapotGpipeline.InputLayout.NumElements = _countof(inputLayout);
 
 	teapotGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
-	teapotGpipeline.PS.BytecodeLength = 0;
-	teapotGpipeline.PS.pShaderBytecode = nullptr;
-	teapotGpipeline.NumRenderTargets = 0;
-	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
-	teapotGpipeline.RTVFormats[1] = DXGI_FORMAT_UNKNOWN;
+	teapotGpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
+	teapotGpipeline.NumRenderTargets = 2;
+	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	teapotGpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	//teapotGpipeline.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	
 
 	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&teapotGpipeline, IID_PPV_ARGS(_shadowPipelinestate.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
@@ -379,6 +380,7 @@ bool Renderer::Init()
 	if (!PeraRootSignatureInit()) return false;
 	if (!PeraPipelineStateInit()) return false;
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadowVS", "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "RSMPS", "ps_5_0", psBlob))) return false;
 	if (!ShadowPipelineStateInit()) return false;
 	if (FAILED(!CompileShaderFile(L"SSAOVertexShader.hlsl", "ssaoVS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"SSAOPixelShader.hlsl", "ssaoPS", "ps_5_0", psBlob))) return false;
@@ -412,6 +414,7 @@ void Renderer::Move()
 	if (keycode[VK_NUMPAD6] & 0x80) modelID = 5;
 	if (keycode[VK_NUMPAD7] & 0x80) modelID = 6;
 	if (keycode[VK_NUMPAD8] & 0x80) modelID = 7;
+
 	switch (modelID){
 	case 0:
 		_keyboard->Move(_models[0]->GetPos());

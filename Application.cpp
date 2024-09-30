@@ -148,6 +148,7 @@ void Application::Run()
 		_dx->BeginDrawShadow();
 		_renderer->BeforeDrawShadow();
 		_renderer->DrawShadow();
+		_dx->EndDrawShadow();
 
 		_dx->BeginDrawTeapot();
 		_renderer->BeforeDrawTeapot();
