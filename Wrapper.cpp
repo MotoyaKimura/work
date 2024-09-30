@@ -335,7 +335,7 @@ bool Wrapper::RSMBuffInit()
 	}
 
 	auto heapDesc = rtvHeaps->GetDesc();
-	heapDesc.NumDescriptors = 2;
+	heapDesc.NumDescriptors = 3;
 
 	auto result = _dev->CreateDescriptorHeap(
 		&heapDesc,
@@ -537,7 +537,7 @@ bool Wrapper::CreatePeraRTVAndSRV()
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 8;
+	heapDesc.NumDescriptors = 9;
 
 	result = _dev->CreateDescriptorHeap(
 		&heapDesc,
@@ -722,7 +722,7 @@ void Wrapper::BeginDrawShadow()
 	}
 	auto handle = _RSMRTVHeap->GetCPUDescriptorHandleForHeapStart();
 	auto rtvIncSize = _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	CD3DX12_CPU_DESCRIPTOR_HANDLE RSMRTVHs[2] = {};
+	CD3DX12_CPU_DESCRIPTOR_HANDLE RSMRTVHs[3] = {};
 	uint32_t offset = 0;
 	for (auto& rsmRTVH : RSMRTVHs) {
 		rsmRTVH.InitOffsetted(handle, offset);
@@ -731,7 +731,7 @@ void Wrapper::BeginDrawShadow()
 
 	auto dsvH = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	dsvH.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-	_cmdList->OMSetRenderTargets(2, RSMRTVHs, true, &dsvH);
+	_cmdList->OMSetRenderTargets(3, RSMRTVHs, true, &dsvH);
 	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	for (int i = 0; i < _countof(RSMRTVHs); ++i)
 	{

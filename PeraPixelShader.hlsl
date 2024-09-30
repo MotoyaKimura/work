@@ -32,6 +32,10 @@ float4 PS(Output input) : SV_TARGET
     {
 	    return lightNormalTex.Sample(smp, input.uv * 5);
     }
+    else if(input.uv.x < 0.4 && input.uv.y < 0.4)
+    {
+	    return indirectLightTex.Sample(smp, input.uv * 5);
+    }
     else
     {
         float dp = depthTex.Sample(smp, input.uv);

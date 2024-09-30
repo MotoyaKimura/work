@@ -43,5 +43,5 @@ struct RSMOutput
 {
     float4 world : SV_TARGET0;
     float4 normal : SV_TARGET1;
-   // float4 indirectLight : SV_TARGET2;
+    float4 indirectLight : SV_TARGET2;
 };

@@ -56,7 +56,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoSRVHeap = nullptr;
 
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> _RSMBuff;
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 3> _RSMBuff;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _RSMRTVHeap = nullptr;
 	D3D12_RESOURCE_BARRIER RSMBuffBarrierDesc = {};
 

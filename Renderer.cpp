@@ -201,7 +201,7 @@ bool Renderer::PeraRootSignatureInit()
 	
 	CD3DX12_DESCRIPTOR_RANGE descTblRange[2] = {};
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 7, 0);
+	descTblRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 0);
 	descTblRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 	CD3DX12_ROOT_PARAMETER rootParam = {};
 	rootParam.InitAsDescriptorTable(2, &descTblRange[0]);
@@ -322,10 +322,10 @@ bool Renderer::ShadowPipelineStateInit()
 
 	teapotGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
 	teapotGpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
-	teapotGpipeline.NumRenderTargets = 2;
+	teapotGpipeline.NumRenderTargets = 3;
 	teapotGpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	teapotGpipeline.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	//teapotGpipeline.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	teapotGpipeline.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	
 
 	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(&teapotGpipeline, IID_PPV_ARGS(_shadowPipelinestate.ReleaseAndGetAddressOf()));
