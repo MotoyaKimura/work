@@ -218,7 +218,7 @@ bool Wrapper::SceneTransBuffInit()
 		XM_PIDIV4,
 		static_cast<float>(winSize.cx) / static_cast<float>(winSize.cy),
 		1.0f,
-		300.0f);
+		800.0f);
 	XMVECTOR det;
 	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view *  _sceneTransMatrix->projection);
 	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
@@ -235,7 +235,7 @@ bool Wrapper::SceneTransBuffInit()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera = 
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) * 
-		XMMatrixOrthographicLH(100, 100, 1.0f, 300.0f);
+		XMMatrixOrthographicLH(200, 200, 1.0f, 800.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 
 	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
@@ -615,7 +615,7 @@ void Wrapper::Update()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(100, 100, 1.0f, 300.0f);
+		XMMatrixOrthographicLH(200, 200, 1.0f, 800.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 
@@ -709,7 +709,7 @@ void Wrapper::EndDrawSSAO()
 
 
 
-void Wrapper::BeginDrawShadow()
+void Wrapper::BeginDrawShade()
 {
 	for (auto& res : _RSMBuff) {
 		RSMBuffBarrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -752,7 +752,7 @@ void Wrapper::BeginDrawShadow()
 	_cmdList->RSSetScissorRects(1, &rc);
 }
 
-void Wrapper::EndDrawShadow()
+void Wrapper::EndDrawShade()
 {
 	for (auto& res : _RSMBuff) {
 		RSMBuffBarrierDesc.Transition.pResource = res.Get();

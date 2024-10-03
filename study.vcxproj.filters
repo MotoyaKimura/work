@@ -69,5 +69,6 @@
     <None Include="ShaderHeader.hlsli" />
     <None Include="PeraShaderHeader.hlsli" />
     <None Include="SSAOShaderHeader.hlsli" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

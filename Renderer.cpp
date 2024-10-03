@@ -379,7 +379,7 @@ bool Renderer::Init()
 	if (FAILED(!CompileShaderFile(L"PeraPixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
 	if (!PeraRootSignatureInit()) return false;
 	if (!PeraPipelineStateInit()) return false;
-	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadowVS", "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadeVS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "RSMPS", "ps_5_0", psBlob))) return false;
 	if (!ShadowPipelineStateInit()) return false;
 	if (FAILED(!CompileShaderFile(L"SSAOVertexShader.hlsl", "ssaoVS", "vs_5_0", vsBlob))) return false;
@@ -457,7 +457,7 @@ void Renderer::BeforeDrawTeapot()
 	_dx->GetCommandList()->SetGraphicsRootSignature(teapotRootsignature.Get());
 }
 
-void Renderer::BeforeDrawShadow()
+void Renderer::BeforeDrawShade()
 {
 	_dx->GetCommandList()->SetPipelineState(_shadowPipelinestate.Get());
 	_dx->GetCommandList()->SetGraphicsRootSignature(teapotRootsignature.Get());
@@ -470,7 +470,7 @@ void Renderer::DrawTeapot()
 	}
 }
 
-void Renderer::DrawShadow()
+void Renderer::DrawShade()
 {
 	for (auto& _models : _models) {
 		_models->Draw(true);
