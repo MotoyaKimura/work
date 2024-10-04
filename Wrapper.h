@@ -97,8 +97,8 @@ public:
 	Wrapper(HWND hwnd);
 	bool Init();
 	void Update();
-	void BeginDrawShadow();
-	void EndDrawShadow();
+	void BeginDrawShade();
+	void EndDrawShade();
 	void BeginDrawTeapot();
 	void EndDrawTeapot();
 	void BeginDrawSSAO();

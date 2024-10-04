@@ -27,7 +27,7 @@ uint instNo : SV_InstanceID
 	return output;
 }
 
-Output shadowVS(
+Output shadeVS(
 float4 pos : POSITION ,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,

@@ -108,15 +108,15 @@ private:
 	void LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp);
 	std::string LoadTextureFileName(FILE* fp);
 	void BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath);
-	bool LoadModel(std::string filePath);
 	bool VertexInit();
 	bool IndexInit();
 	bool TextureInit();
 	bool MTransBuffInit();
 	
 public:
+	bool LoadModel(std::string filePath);
 	Model(std::shared_ptr<Wrapper> dx);
-	bool Init(std::string filePath);
+	bool Init();
 	void Update();
 	void Draw(bool isShadow);
 	void Move(float x, float y, float z);

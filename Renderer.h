@@ -48,9 +48,9 @@ public:
 	void Move();
 	void Update();
 	void BeforeDrawTeapot();
-	void BeforeDrawShadow();
+	void BeforeDrawShade();
 	void DrawTeapot();
-	void DrawShadow();
+	void DrawShade();
 	void BeforeDrawSSAO();
 	void DrawSSAO();
 	void BeforeDrawPera();
