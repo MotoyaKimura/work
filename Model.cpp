@@ -422,10 +422,9 @@ Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx), _pos(0, 0, 0), _rotater(0, 
 {
 }
 
-bool Model::Init(std::string filePath)
+bool Model::Init()
 {
 
-	if(!LoadModel(filePath)) return false;
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
 	if (!MTransBuffInit()) return false;

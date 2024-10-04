@@ -102,7 +102,9 @@ bool Application::Init()
 	}
 
 	_model.reset(new Model(_dx));
-	if (!_model->Init("modelData/teapot.tkm"))
+	if (!_model->LoadModel("modelData/teapot.tkm")) return false;
+	
+	if (!_model->Init())
 	{
 		DebugOutputFormatString("モデルの初期化エラー\n ");
 		return false;
@@ -111,15 +113,16 @@ bool Application::Init()
 	_model->Rotate(-DirectX::XM_PIDIV2, 0, 0);
 	_renderer->AddModel(_model);
 
-	_model2 = std::make_shared<Model>(_dx);
-	if (!_model2->Init("modelData/teapot.tkm"))
+	/*_model2 = std::make_shared<Model>(_dx);
+	if (!_model2->LoadModel("modelData/teapot.tkm")) return false;
+	if (!_model2->Init())
 	{
 		DebugOutputFormatString("モデルの初期化エラー\n ");
 		return false;
 	}
 	_model2->Move(100, -50, 0);
 	_model2->Rotate(-DirectX::XM_PIDIV2, 0, 0);
-	_renderer->AddModel(_model2);
+	_renderer->AddModel(_model2);*/
 
 	
 }
