@@ -1,7 +1,11 @@
+#define NOMINMAX
 #include "Model.h"
 #include "Wrapper.h"
-
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #pragma  comment(lib, "DirectXTex.lib")
+#pragma  comment(lib, "assimp-vc143-mtd.lib")
 
 using namespace DirectX;
 
@@ -189,7 +193,7 @@ bool Model::LoadModel(std::string filePath)
 
 		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex);
 		//fread(meshPart.vertexBuffer.data(), meshPart.vertexBuffer.size(), 1, fp);
-
+		
 		for (unsigned int vertNo = 0; vertNo < meshPartsHeader.numVertex; vertNo++) {
 			auto& vertex = meshPart.vertexBuffer[vertNo];
 			fread(&vertex, sizeof(vertex), 1, fp);
@@ -228,6 +232,213 @@ bool Model::LoadModel(std::string filePath)
 	}
 	fclose(fp);
 }
+
+bool Model::Load(std::string filePath)
+{
+	if (filePath == "") return false;
+
+	Assimp::Importer importer;
+	int flag = 0;
+	flag |= aiProcess_Triangulate;
+	flag |= aiProcess_PreTransformVertices;
+	flag |= aiProcess_CalcTangentSpace;
+	flag |= aiProcess_GenSmoothNormals;
+	flag |= aiProcess_GenUVCoords;
+	flag |= aiProcess_RemoveRedundantMaterials;
+	flag |= aiProcess_OptimizeMeshes;
+
+	auto pScene = importer.ReadFile(filePath.c_str(), flag);
+	if (pScene == nullptr) return false;
+
+	Meshes.clear();
+	Meshes.resize(pScene->mNumMeshes);
+
+	for(size_t i = 0; i < Meshes.size(); ++i)
+	{
+		const auto pMesh = pScene->mMeshes[i];
+		Meshes[i].MaterialId = pMesh->mMaterialIndex;
+
+		aiVector3D zero3D(0.0f, 0.0f, 0.0f);
+
+		Meshes[i].Vertices.resize(pMesh->mNumVertices);
+
+		for (auto i = 0u; i < pMesh->mNumVertices; ++i)
+		{
+			auto pPosition = &(pMesh->mVertices[i]);
+			auto pNormal = &(pMesh->mNormals[i]);
+			auto pTexCoord = pMesh->HasTextureCoords(0) ? &(pMesh->mTextureCoords[0][i]) : &zero3D;
+			auto pTangent = pMesh->HasTangentsAndBitangents() ? &(pMesh->mTangents[i]) : &zero3D;
+
+			Meshes[i].Vertices[i] = MeshVertex(
+				XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
+				XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
+				XMFLOAT2(pTexCoord->x, pTexCoord->y),
+				XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
+			);
+		}
+
+		Meshes[i].Indices.resize(pMesh->mNumFaces * 3);
+
+		for (auto i = 0u; i < pMesh->mNumFaces; ++i)
+		{
+			const auto& face = pMesh->mFaces[i];
+			assert(face.mNumIndices == 3);
+
+			Meshes[i].Indices[i * 3 + 0] = face.mIndices[0];
+			Meshes[i].Indices[i * 3 + 1] = face.mIndices[1];
+			Meshes[i].Indices[i * 3 + 2] = face.mIndices[2];
+		}
+	}
+
+	Materials.clear();
+	Materials.resize(pScene->mNumMaterials);
+
+	for (size_t i = 0; i < Materials.size(); ++i)
+	{
+		const auto pMaterial = pScene->mMaterials[i];
+		{
+			aiColor3D color(0.0f, 0.0f, 0.0f);
+
+			if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+			{
+				Materials[i].Diffuse = XMFLOAT3(color.r, color.g, color.b);
+			}
+			else
+			{
+				Materials[i].Diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
+			}
+		}
+
+		{
+			aiColor3D color(0.0f, 0.0f, 0.0f);
+			if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
+			{
+				Materials[i].Specular = XMFLOAT3(color.r, color.g, color.b);
+			}
+			else
+			{
+				Materials[i].Specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			}
+		}
+
+		{
+			float shininess;
+			if (pMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
+			{
+				Materials[i].Shininess = shininess;
+			}
+			else
+			{
+				Materials[i].Shininess = 0.0f;
+			}
+		}
+
+		{
+			aiString path;
+			if (pMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
+			{
+				Materials[i].DiffuseMap = path.C_Str();
+			}
+			else
+			{
+				Materials[i].DiffuseMap.clear();
+			}
+		}
+	}
+
+	pScene = nullptr;
+
+	return true;
+}
+
+//void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
+//{
+//	dstMesh.MaterialId = pSrcMesh->mMaterialIndex;
+//
+//	aiVector3D zero3D(0.0f, 0.0f, 0.0f);
+//
+//	dstMesh.Vertices.resize(pSrcMesh->mNumVertices);
+//
+//	for(auto i = 0u; i < pSrcMesh->mNumVertices; ++i)
+//	{
+//		auto pPosition = &(pSrcMesh->mVertices[i]);
+//		auto pNormal = &(pSrcMesh->mNormals[i]);
+//		auto pTexCoord = pSrcMesh->HasTextureCoords(0) ? &(pSrcMesh->mTextureCoords[0][i]) : &zero3D;
+//		auto pTangent = pSrcMesh->HasTangentsAndBitangents() ? &(pSrcMesh->mTangents[i]) : &zero3D;
+//
+//		dstMesh.Vertices[i] = MeshVertex(
+//			XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
+//			XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
+//			XMFLOAT2(pTexCoord->x, pTexCoord->y),
+//			XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
+//		);
+//	}
+//
+//	dstMesh.Indices.resize(pSrcMesh->mNumFaces * 3);
+//
+//	for(auto i = 0u; i < pSrcMesh->mNumFaces; ++i)
+//	{
+//		const auto& face = pSrcMesh->mFaces[i];
+//		assert(face.mNumIndices == 3);
+//
+//		dstMesh.Indices[i * 3 + 0] = face.mIndices[0];
+//		dstMesh.Indices[i * 3 + 1] = face.mIndices[1];
+//		dstMesh.Indices[i * 3 + 2] = face.mIndices[2];
+//	}
+//}
+
+//void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
+//{
+//	{
+//		aiColor3D color(0.0f, 0.0f, 0.0f);
+//
+//		if (pSrcMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+//		{
+//			dstMaterial.Diffuse = XMFLOAT3(color.r, color.g, color.b);
+//		}
+//		else
+//		{
+//			dstMaterial.Diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
+//		}
+//	}
+//
+//	{
+//		aiColor3D color(0.0f, 0.0f, 0.0f);
+//		if (pSrcMaterial->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
+//		{
+//			dstMaterial.Specular = XMFLOAT3(color.r, color.g, color.b);
+//		}
+//		else
+//		{
+//			dstMaterial.Specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
+//		}
+//	}
+//
+//	{
+//		float shininess;
+//		if (pSrcMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
+//		{
+//			dstMaterial.Shininess = shininess;
+//		}
+//		else
+//		{
+//			dstMaterial.Shininess = 0.0f;
+//		}
+//	}
+//
+//	{
+//		aiString path;
+//		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
+//		{
+//			dstMaterial.DiffuseMap = path.C_Str();
+//		}
+//		else
+//		{
+//			dstMaterial.DiffuseMap.clear();
+//		}
+//	}
+//}
+
 
 bool Model::VertexInit()
 {
