@@ -113,6 +113,9 @@ bool Application::Init()
 	_model->Rotate(-DirectX::XM_PIDIV2, 0, 0);
 	_renderer->AddModel(_model);
 
+	_model2 = std::make_shared<Model>(_dx);
+	if (!_model2->Load("modelData/bunny/bunny.obj")) return false;
+
 	/*_model2 = std::make_shared<Model>(_dx);
 	if (!_model2->LoadModel("modelData/teapot.tkm")) return false;
 	if (!_model2->Init())
