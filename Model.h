@@ -18,8 +18,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer = nullptr;
 	D3D12_INDEX_BUFFER_VIEW ibView = {};
 
-	unsigned int vertexNum;
-	unsigned int numIndex;
+	unsigned int vertexNum = 0;
+	unsigned int numIndex = 0;
 
 	DirectX::TexMetadata metadata = {};
 	DirectX::ScratchImage scratchImage = {};

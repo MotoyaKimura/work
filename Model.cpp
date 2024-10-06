@@ -279,7 +279,7 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 	aiVector3D zero3D(0.0f, 0.0f, 0.0f);
 
 	dstMesh.Vertices.resize(pSrcMesh->mNumVertices);
-
+	vertexNum += pSrcMesh->mNumVertices;
 	for(auto i = 0u; i < pSrcMesh->mNumVertices; ++i)
 	{
 		auto pPosition = &(pSrcMesh->mVertices[i]);
@@ -296,7 +296,7 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 	}
 
 	dstMesh.Indices.resize(pSrcMesh->mNumFaces * 3);
-	numIndex = pSrcMesh->mNumFaces * 3;
+	numIndex += pSrcMesh->mNumFaces * 3;
 	for(auto i = 0u; i < pSrcMesh->mNumFaces; ++i)
 	{
 		const auto& face = pSrcMesh->mFaces[i];
@@ -369,7 +369,7 @@ bool Model::VertexInit()
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = Meshes[0].Vertices.size() * sizeof(MeshVertex);
+	resDesc.Width = vertexNum * sizeof(MeshVertex);
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -388,11 +388,20 @@ bool Model::VertexInit()
 	MeshVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
-	
-	std::copy(std::begin(Meshes[0].Vertices), std::end(Meshes[0].Vertices), vertMap);
+
+	size_t idx = 0;
+	for(size_t i = 0; i < Meshes.size(); ++i)
+	{
+		for (size_t j = 0; j < Meshes[i].Vertices.size(); ++j)
+		{
+			vertMap[idx + j] = Meshes[i].Vertices[j];
+		}
+		idx += Meshes[i].Vertices.size();
+	}
+	//std::copy(std::begin(Meshes[0].Vertices), std::end(Meshes[0].Vertices), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vbView.SizeInBytes = Meshes[0].Vertices.size() * sizeof(MeshVertex);
+	vbView.SizeInBytes = vertexNum * sizeof(MeshVertex);
 	vbView.StrideInBytes = sizeof(MeshVertex);
 
 	return true;
@@ -406,7 +415,7 @@ bool Model::IndexInit()
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = Meshes[0].Indices.size() * sizeof(uint32_t);
+	resDesc.Width = numIndex * sizeof(uint32_t);
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -426,11 +435,21 @@ bool Model::IndexInit()
 	uint32_t* indexMap = nullptr;
 	result = indexBuffer->Map(0, nullptr, (void**)&indexMap);
 	if (FAILED(result)) return false;
-	std::copy(std::begin(Meshes[0].Indices), std::end(Meshes[0].Indices), indexMap);
+
+	size_t idx = 0;
+	for (size_t i = 0; i < Meshes.size(); ++i)
+	{
+		for (size_t j = 0; j < Meshes[i].Indices.size(); ++j)
+		{
+			indexMap[idx + j] = Meshes[i].Indices[j];
+		}
+		idx += Meshes[i].Indices.size();
+	}
+	//std::copy(std::begin(Meshes[0].Indices), std::end(Meshes[0].Indices), indexMap);
 	indexBuffer->Unmap(0, nullptr);
 	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	ibView.Format = DXGI_FORMAT_R32_UINT;
-	ibView.SizeInBytes = Meshes[0].Indices.size() * sizeof(uint32_t);
+	ibView.SizeInBytes = numIndex * sizeof(uint32_t);
 
 	return true;
 }
@@ -568,7 +587,7 @@ bool Model::Init()
 
 void Model::Update()
 {
-	angle += 0.001f;
+	angle += 0.00f;
 	world =
 		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixRotationY(-angle)

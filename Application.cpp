@@ -114,7 +114,9 @@ bool Application::Init()
 	//_renderer->AddModel(_model);
 
 	_model2.reset(new Model(_dx));
+	//if (!_model2->Load("modelData/bunny/bunny.obj")) return false;
 	if (!_model2->Load("modelData/teapot/teapot.obj")) return false;
+	//if (!_model2->Load("modelData/erato/erato.obj")) return false;
 	if (!_model2->Init())
 	{
 		DebugOutputFormatString("ƒ‚ƒfƒ‹‚Ì‰Šú‰»ƒGƒ‰[\n ");
