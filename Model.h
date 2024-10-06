@@ -3,7 +3,7 @@
 #include <d3dx12.h>
 #include <DirectXMath.h>
 #include <DirectXTex.h>
-
+#include <assimp/scene.h>
 
 
 
@@ -152,6 +152,8 @@ private:
 	bool IndexInit();
 	bool TextureInit();
 	bool MTransBuffInit();
+	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
+	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
 	
 public:
 	bool Load(std::string filePath);
