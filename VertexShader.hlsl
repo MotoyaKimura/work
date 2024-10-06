@@ -4,8 +4,7 @@ Output VS(
 float4 pos : POSITION ,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,
-float4 weight : WEIGHT,
-min16uint4 index : INDICES,
+float4 tangent : TANGENT,
 uint instNo : SV_InstanceID
 ) 
 {
@@ -31,8 +30,7 @@ Output shadeVS(
 float4 pos : POSITION ,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,
-float4 weight : WEIGHT,
-min16uint4 index : INDICES,
+float4 tangent : TANGENT,
 uint instNo : SV_InstanceID
 ) 
 {

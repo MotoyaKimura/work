@@ -565,7 +565,7 @@ bool Wrapper::CreatePeraRTVAndSRV()
 
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
-	eye(0, 50, -200),
+	eye(0, 0, -10),
 	target(0, 0, 0),
 	up(0, 1, 0),
 lightVec(-1, 1, -1),

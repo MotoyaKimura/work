@@ -296,7 +296,7 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 	}
 
 	dstMesh.Indices.resize(pSrcMesh->mNumFaces * 3);
-
+	numIndex = pSrcMesh->mNumFaces * 3;
 	for(auto i = 0u; i < pSrcMesh->mNumFaces; ++i)
 	{
 		const auto& face = pSrcMesh->mFaces[i];
@@ -369,7 +369,7 @@ bool Model::VertexInit()
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
+	resDesc.Width = Meshes[0].Vertices.size() * sizeof(MeshVertex);
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -385,15 +385,15 @@ bool Model::VertexInit()
 		nullptr,
 		IID_PPV_ARGS(vertexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-	SVertex* vertMap = nullptr;
+	MeshVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
 	
-	std::copy(std::begin(m_meshParts[0].vertexBuffer), std::end(m_meshParts[0].vertexBuffer), vertMap);
+	std::copy(std::begin(Meshes[0].Vertices), std::end(Meshes[0].Vertices), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
-	vbView.StrideInBytes = sizeof(SVertex);
+	vbView.SizeInBytes = Meshes[0].Vertices.size() * sizeof(MeshVertex);
+	vbView.StrideInBytes = sizeof(MeshVertex);
 
 	return true;
 }
@@ -406,7 +406,7 @@ bool Model::IndexInit()
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
+	resDesc.Width = Meshes[0].Indices.size() * sizeof(uint32_t);
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -423,14 +423,14 @@ bool Model::IndexInit()
 		nullptr,
 		IID_PPV_ARGS(indexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-	uint16_t* indexMap = nullptr;
+	uint32_t* indexMap = nullptr;
 	result = indexBuffer->Map(0, nullptr, (void**)&indexMap);
 	if (FAILED(result)) return false;
-	std::copy(std::begin(m_meshParts[0].indexBuffer16Array[0].indices), std::end(m_meshParts[0].indexBuffer16Array[0].indices), indexMap);
+	std::copy(std::begin(Meshes[0].Indices), std::end(Meshes[0].Indices), indexMap);
 	indexBuffer->Unmap(0, nullptr);
 	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
-	ibView.Format = DXGI_FORMAT_R16_UINT;
-	ibView.SizeInBytes = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
+	ibView.Format = DXGI_FORMAT_R32_UINT;
+	ibView.SizeInBytes = Meshes[0].Indices.size() * sizeof(uint32_t);
 
 	return true;
 }
@@ -560,7 +560,7 @@ bool Model::Init()
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
 	if (!MTransBuffInit()) return false;
-	if (!TextureInit()) return false;
+	//if (!TextureInit()) return false;
 	return true;
 }
 
