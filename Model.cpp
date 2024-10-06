@@ -349,7 +349,7 @@ void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 	}
 
 	{
-		aiString path;
+		/*aiString path;
 		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
 		{
 			dstMaterial.DiffuseMap = path.C_Str();
@@ -357,7 +357,7 @@ void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 		else
 		{
 			dstMaterial.DiffuseMap.clear();
-		}
+		}*/
 	}
 }
 
@@ -458,6 +458,7 @@ bool Model::IndexInit()
 bool Model::TextureInit()
 {
 	LoadFromWICFile(L"modelData/teapot/default.png", WIC_FLAGS_NONE, &metadata, scratchImage);
+	//LoadFromWICFile(L"modelData/erato/erato-101.jpg", WIC_FLAGS_NONE, &metadata, scratchImage);
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
 	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
@@ -545,7 +546,7 @@ bool Model::MTransBuffInit()
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 4;
+	descHeapDesc.NumDescriptors = 5;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dx->GetDevice()->CreateDescriptorHeap(
 		&descHeapDesc,
@@ -565,10 +566,40 @@ bool Model::MTransBuffInit()
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
+	return true;
+}
+
+bool Model::MaterialBuffInit()
+{
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(Materials[0]) + 0xff) & ~0xff);
+
+	_dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(_materialBuff.ReleaseAndGetAddressOf())
+	);
+
+	Material* materialMap = nullptr;
+	auto result = _materialBuff->Map(0, nullptr, (void**)&materialMap);
+	if (FAILED(result)) return false;
 	
+	std::copy(std::begin(Materials), std::end(Materials), materialMap);
+
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = _materialBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_materialBuff->GetDesc().Width);
+	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
 	return true;
 }
+
 
 
 Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
@@ -581,6 +612,7 @@ bool Model::Init()
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
 	if (!MTransBuffInit()) return false;
+	if (!MaterialBuffInit()) return false;
 	if (!TextureInit()) return false;
 	return true;
 }
@@ -589,7 +621,7 @@ bool Model::Init()
 
 void Model::Update()
 {
-	angle += 0.00f;
+	angle += 0.001f;
 	world =
 		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixRotationY(-angle)

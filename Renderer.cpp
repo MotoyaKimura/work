@@ -57,7 +57,7 @@ bool Renderer::TeapotRootSignatureInit()
 {
 	D3D12_DESCRIPTOR_RANGE descTblRange[2] = {};
 	//シーン変換 //ティーポットテクスチャ
-	descTblRange[0].NumDescriptors = 2;
+	descTblRange[0].NumDescriptors = 3;
 	descTblRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descTblRange[0].BaseShaderRegister = 0;
 	descTblRange[0].OffsetInDescriptorsFromTableStart =

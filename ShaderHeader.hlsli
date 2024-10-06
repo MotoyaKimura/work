@@ -17,6 +17,14 @@ cbuffer cbuff1 : register(b1)
     matrix world;
 };
 
+cbuffer cbuff2 : register(b2)
+{
+    float3 diffuse;
+    float3 specular;
+    float alpha;
+    float shininess;
+};
+
 Texture2D<float4> texCol : register(t0);
 Texture2D<float>lightDepthTex : register(t1);
 

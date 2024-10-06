@@ -132,7 +132,7 @@ private:
 		DirectX::XMFLOAT3 Specular;
 		float Alpha;
 		float Shininess;
-		std::string DiffuseMap;
+		//std::string DiffuseMap;
 	};
 	std::vector<Material> Materials;
 
@@ -144,6 +144,8 @@ private:
 	};
 	std::vector<Mesh> Meshes;
 
+	Microsoft::WRL::ComPtr<ID3D12Resource> _materialBuff = nullptr;
+
 	template<class T>
 	void LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp);
 	std::string LoadTextureFileName(FILE* fp);
@@ -152,6 +154,7 @@ private:
 	bool IndexInit();
 	bool TextureInit();
 	bool MTransBuffInit();
+	bool MaterialBuffInit();
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
 	
