@@ -101,22 +101,22 @@ bool Application::Init()
 		return false;
 	}
 
-	//_model.reset(new Model(_dx));
-	//if (!_model->LoadModel("modelData/teapot.tkm")) return false;
-	//
-	//if (!_model->Init())
-	//{
-	//	DebugOutputFormatString("モデルの初期化エラー\n ");
-	//	return false;
-	//}
-	//_model->Move(-10, 10, -90);
-	//_model->Rotate(-DirectX::XM_PIDIV2, 0, 0);
-	//_renderer->AddModel(_model);
+	_model.reset(new Model(_dx));
+	if(!_model->Load("modelData/bunny/bunny.obj")) return false;
+	
+	if (!_model->Init())
+	{
+		DebugOutputFormatString("モデルの初期化エラー\n ");
+		return false;
+	}
+	
+	_renderer->AddModel(_model);
 
-	_model2.reset(new Model(_dx));
-	if (!_model2->Load("modelData/bunny/bunny.obj")) return false;
+	_model2 = std::make_shared<Model>(_dx);
+	//if (!_model2->Load("modelData/bunny/bunny.obj")) return false;
 	//if (!_model2->Load("modelData/teapot/teapot.obj")) return false;
 	//if (!_model2->Load("modelData/erato/erato.obj")) return false;
+	if (!_model2->Load("modelData/box/box.obj")) return false;
 	if (!_model2->Init())
 	{
 		DebugOutputFormatString("モデルの初期化エラー\n ");

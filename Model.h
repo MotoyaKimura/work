@@ -135,7 +135,7 @@ private:
 		//std::string DiffuseMap;
 	};
 	std::vector<Material> Materials;
-
+	//std::string DiffuseMap;
 	struct Mesh
 	{
 		std::vector<MeshVertex> Vertices;
