@@ -269,6 +269,7 @@ bool Model::Load(std::string filePath)
 
 	pScene = nullptr;
 
+	
 	return true;
 }
 
@@ -456,6 +457,7 @@ bool Model::IndexInit()
 
 bool Model::TextureInit()
 {
+	LoadFromWICFile(L"modelData/teapot/default.png", WIC_FLAGS_NONE, &metadata, scratchImage);
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
 	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
@@ -464,8 +466,8 @@ bool Model::TextureInit()
 	heapProp.VisibleNodeMask = 0;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	resDesc.Width = metadata.width / 4;
-	resDesc.Height = metadata.height / 4;
+	resDesc.Width = metadata.width;
+	resDesc.Height = metadata.height;
 	resDesc.DepthOrArraySize = metadata.arraySize;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.SampleDesc.Quality = 0;
@@ -579,7 +581,7 @@ bool Model::Init()
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
 	if (!MTransBuffInit()) return false;
-	//if (!TextureInit()) return false;
+	if (!TextureInit()) return false;
 	return true;
 }
 

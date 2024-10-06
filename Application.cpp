@@ -75,7 +75,7 @@ Application& Application::Instance()
 }
 bool Application::Init()
 {
-	//auto result = CoInitializeEx(0, COINIT_MULTITHREADED);
+	auto result = CoInitializeEx(0, COINIT_MULTITHREADED);
 	CreateGameWindow(hwnd, w);
 	
 	_dx.reset(new Wrapper(hwnd));
@@ -115,8 +115,8 @@ bool Application::Init()
 
 	_model2.reset(new Model(_dx));
 	//if (!_model2->Load("modelData/bunny/bunny.obj")) return false;
-	if (!_model2->Load("modelData/teapot/teapot.obj")) return false;
-	//if (!_model2->Load("modelData/erato/erato.obj")) return false;
+	//if (!_model2->Load("modelData/teapot/teapot.obj")) return false;
+	if (!_model2->Load("modelData/erato/erato.obj")) return false;
 	if (!_model2->Init())
 	{
 		DebugOutputFormatString("ƒ‚ƒfƒ‹‚Ì‰Šú‰»ƒGƒ‰[\n ");
