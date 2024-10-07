@@ -102,7 +102,7 @@ bool Application::Init()
 	}
 
 	_model.reset(new Model(_dx));
-	if(!_model->Load("modelData/bunny/bunny.obj")) return false;
+	if(!_model->Load("modelData/RSMScene/wall/wall_green.obj")) return false;
 	
 	if (!_model->Init())
 	{
@@ -112,11 +112,11 @@ bool Application::Init()
 	
 	_renderer->AddModel(_model);
 
-	_model2 = std::make_shared<Model>(_dx);
 	//if (!_model2->Load("modelData/bunny/bunny.obj")) return false;
 	//if (!_model2->Load("modelData/teapot/teapot.obj")) return false;
 	//if (!_model2->Load("modelData/erato/erato.obj")) return false;
-	if (!_model2->Load("modelData/box/box.obj")) return false;
+	_model2 = std::make_shared<Model>(_dx);
+	if (!_model2->Load("modelData/RSMScene/floor/floor.obj")) return false;
 	if (!_model2->Init())
 	{
 		DebugOutputFormatString("モデルの初期化エラー\n ");
@@ -124,6 +124,23 @@ bool Application::Init()
 	}
 	_renderer->AddModel(_model2);
 
+	_model3 = std::make_shared<Model>(_dx);
+	if (!_model3->Load("modelData/RSMScene/wall/wall_red.obj")) return false;
+	if (!_model3->Init())
+	{
+		DebugOutputFormatString("モデルの初期化エラー\n ");
+		return false;
+	}
+	_renderer->AddModel(_model3);
+
+	//_model4 = std::make_shared<Model>(_dx);
+	//if (!_model4->Load("modelData/RSMScene/wall/wall_green2.obj")) return false;
+	//if (!_model4->Init())
+	//{
+	//	DebugOutputFormatString("モデルの初期化エラー\n ");
+	//	return false;
+	//}
+	//_renderer->AddModel(_model4);
 	/*_model2 = std::make_shared<Model>(_dx);
 	if (!_model2->LoadModel("modelData/teapot.tkm")) return false;
 	if (!_model2->Init())

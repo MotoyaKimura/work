@@ -19,6 +19,9 @@ private:
 	std::shared_ptr<Renderer> _renderer;
 	std::shared_ptr<Model> _model;
 	std::shared_ptr<Model> _model2;
+	std::shared_ptr<Model> _model3;
+	std::shared_ptr<Model> _model4;
+
 	std::shared_ptr<Keyboard> _keyboard;
 
 	const unsigned int window_width = 1280;							//ウィンドウ幅

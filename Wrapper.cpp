@@ -565,10 +565,10 @@ bool Wrapper::CreatePeraRTVAndSRV()
 
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
-	eye(0, 0, -10),
+	eye(30, 30, 100),
 	target(0, 0, 0),
 	up(0, 1, 0),
-lightVec(-1, 1, -1),
+lightVec(60, 60, 60),
 _sceneTransMatrix(nullptr),
 winSize(Application::Instance().GetWindowSize())
 {

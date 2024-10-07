@@ -289,8 +289,8 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 		auto pTangent = pSrcMesh->HasTangentsAndBitangents() ? &(pSrcMesh->mTangents[i]) : &zero3D;
 
 		dstMesh.Vertices[i] = MeshVertex(
-			XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
-			XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
+			XMFLOAT3(-pPosition->x, pPosition->y, pPosition->z),
+			XMFLOAT3(-pNormal->x, pNormal->y, pNormal->z),
 			XMFLOAT2(pTexCoord->x, pTexCoord->y),
 			XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
 		);
@@ -621,7 +621,7 @@ bool Model::Init()
 
 void Model::Update()
 {
-	angle += 0.001f;
+	angle += 0.00f;
 	world =
 		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixRotationY(-angle)
