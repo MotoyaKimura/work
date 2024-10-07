@@ -427,34 +427,34 @@ void Renderer::Move()
 
 	switch (modelID){
 	case 0:
-		_keyboard->Move(_models[0]->GetPos());
+		_keyboard->Move(_models[0]->GetPos(), _models[0]->GetRotate());
 		break;
 	case 1:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[1]->GetPos());
+		_keyboard->Move(_models[1]->GetPos(), _models[1]->GetRotate());
 		break;
 	case 2:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[2]->GetPos());
+		_keyboard->Move(_models[2]->GetPos(), _models[2]->GetRotate());
 		break;
 	case 3:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[3]->GetPos());
+		_keyboard->Move(_models[3]->GetPos(), _models[3]->GetRotate());
 		break;
 	case 4:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[4]->GetPos());
+		_keyboard->Move(_models[4]->GetPos(), _models[4]->GetRotate());
 		break;
 	case 5:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[5]->GetPos());
+		_keyboard->Move(_models[5]->GetPos(), _models[5]->GetRotate());
 		break;
 	case 6:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[6]->GetPos());
+		_keyboard->Move(_models[6]->GetPos(), _models[6]->GetRotate());
 		break;
 	case 7:
-		_keyboard->Move(_dx->GetEyePos());
+		_keyboard->Move(_dx->GetEyePos(), _dx->GetEyeRotate());
 		break;
 	default:
 		break;

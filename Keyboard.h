@@ -8,6 +8,6 @@ private:
 
 public:
 	Keyboard();
-	void Move(DirectX::XMFLOAT3* _pos);
+	void Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate);
 	~Keyboard();
 };

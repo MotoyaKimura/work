@@ -566,9 +566,10 @@ bool Wrapper::CreatePeraRTVAndSRV()
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
 	eye(40, 30, 150),
+	rotate(0, 0, 0),
 	target(20, 30, 0),
 	up(0, 1, 0),
-lightVec(100, 30, 60),
+lightVec(30, 30, 60),
 _sceneTransMatrix(nullptr),
 winSize(Application::Instance().GetWindowSize())
 {
@@ -603,6 +604,7 @@ bool Wrapper::Init()
 
 void Wrapper::Update()
 {
+
 	_sceneTransMatrix->eye = eye;
 	_sceneTransMatrix->view = XMMatrixLookAtLH(
 		XMLoadFloat3(&eye),
@@ -862,6 +864,10 @@ DirectX::XMFLOAT3* Wrapper::GetEyePos()
 	return &eye;
 }
 
+DirectX::XMFLOAT3* Wrapper::GetEyeRotate()
+{
+	return &rotate;
+}
 
 
 

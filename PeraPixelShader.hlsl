@@ -41,7 +41,7 @@ float4 PS(Output input) : SV_TARGET
     }
     else
     {
-        float s = ssaoTex.Sample(smp, (input.uv));
+        float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
     	return float4(texColor.rgb * s, texColor.a);
     }

@@ -671,6 +671,11 @@ DirectX::XMFLOAT3* Model::GetPos()
 	return &_pos;
 }
 
+DirectX::XMFLOAT3* Model::GetRotate()
+{
+	return &_rotater;
+}
+
 
 Model::~Model()
 {
