@@ -1,7 +1,10 @@
 #include "Model.h"
 #include "Wrapper.h"
-
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #pragma  comment(lib, "DirectXTex.lib")
+#pragma  comment(lib, "assimp-vc143-mtd.lib")
 
 using namespace DirectX;
 
@@ -189,7 +192,7 @@ bool Model::LoadModel(std::string filePath)
 
 		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex);
 		//fread(meshPart.vertexBuffer.data(), meshPart.vertexBuffer.size(), 1, fp);
-
+		
 		for (unsigned int vertNo = 0; vertNo < meshPartsHeader.numVertex; vertNo++) {
 			auto& vertex = meshPart.vertexBuffer[vertNo];
 			fread(&vertex, sizeof(vertex), 1, fp);
@@ -229,6 +232,136 @@ bool Model::LoadModel(std::string filePath)
 	fclose(fp);
 }
 
+bool Model::Load(std::string filePath)
+{
+	if (filePath == "") return false;
+
+	Assimp::Importer importer;
+	int flag = 0;
+	flag |= aiProcess_Triangulate;
+	flag |= aiProcess_PreTransformVertices;
+	flag |= aiProcess_CalcTangentSpace;
+	flag |= aiProcess_GenSmoothNormals;
+	flag |= aiProcess_GenUVCoords;
+	flag |= aiProcess_RemoveRedundantMaterials;
+	flag |= aiProcess_OptimizeMeshes;
+
+	auto pScene = importer.ReadFile(filePath.c_str(), flag);
+	if (pScene == nullptr) return false;
+
+	Meshes.clear();
+	Meshes.resize(pScene->mNumMeshes);
+
+	for(size_t i = 0; i < Meshes.size(); ++i)
+	{
+		const auto pMesh = pScene->mMeshes[i];
+		ParseMesh(Meshes[i], pMesh);
+	}
+
+	Materials.clear();
+	Materials.resize(pScene->mNumMaterials);
+
+	for (size_t i = 0; i < Materials.size(); ++i)
+	{
+		const auto pMaterial = pScene->mMaterials[i];
+		ParseMaterial(Materials[i], pMaterial);
+	}
+
+	pScene = nullptr;
+
+	
+	return true;
+}
+
+void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
+{
+	dstMesh.MaterialId = pSrcMesh->mMaterialIndex;
+
+	aiVector3D zero3D(0.0f, 0.0f, 0.0f);
+
+	dstMesh.Vertices.resize(pSrcMesh->mNumVertices);
+	vertexNum += pSrcMesh->mNumVertices;
+	for(auto i = 0u; i < pSrcMesh->mNumVertices; ++i)
+	{
+		auto pPosition = &(pSrcMesh->mVertices[i]);
+		auto pNormal = &(pSrcMesh->mNormals[i]);
+		auto pTexCoord = pSrcMesh->HasTextureCoords(0) ? &(pSrcMesh->mTextureCoords[0][i]) : &zero3D;
+		auto pTangent = pSrcMesh->HasTangentsAndBitangents() ? &(pSrcMesh->mTangents[i]) : &zero3D;
+
+		dstMesh.Vertices[i] = MeshVertex(
+			XMFLOAT3(-pPosition->x, pPosition->y, pPosition->z),
+			XMFLOAT3(-pNormal->x, pNormal->y, pNormal->z),
+			XMFLOAT2(pTexCoord->x, pTexCoord->y),
+			XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
+		);
+	}
+
+	dstMesh.Indices.resize(pSrcMesh->mNumFaces * 3);
+	numIndex += pSrcMesh->mNumFaces * 3;
+	for(auto i = 0u; i < pSrcMesh->mNumFaces; ++i)
+	{
+		const auto& face = pSrcMesh->mFaces[i];
+		assert(face.mNumIndices == 3);
+
+		dstMesh.Indices[i * 3 + 0] = face.mIndices[0];
+		dstMesh.Indices[i * 3 + 1] = face.mIndices[1];
+		dstMesh.Indices[i * 3 + 2] = face.mIndices[2];
+	}
+}
+
+void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
+{
+	{
+		aiColor3D color(0.0f, 0.0f, 0.0f);
+
+		if (pSrcMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+		{
+			dstMaterial.Diffuse = XMFLOAT3(color.r, color.g, color.b);
+		}
+		else
+		{
+			dstMaterial.Diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
+		}
+	}
+
+	{
+		aiColor3D color(0.0f, 0.0f, 0.0f);
+		if (pSrcMaterial->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
+		{
+			dstMaterial.Specular = XMFLOAT3(color.r, color.g, color.b);
+		}
+		else
+		{
+			dstMaterial.Specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		}
+	}
+
+	{
+		float shininess;
+		if (pSrcMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
+		{
+			dstMaterial.Shininess = shininess;
+		}
+		else
+		{
+			dstMaterial.Shininess = 0.0f;
+		}
+	}
+
+	{
+		/*aiString path;
+		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
+		{
+			dstMaterial.DiffuseMap = path.C_Str();
+		}
+		else
+		{
+			dstMaterial.DiffuseMap.clear();
+		}*/
+	}
+}
+
+
 bool Model::VertexInit()
 {
 	D3D12_HEAP_PROPERTIES heapProp = {};
@@ -237,7 +370,7 @@ bool Model::VertexInit()
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
+	resDesc.Width = vertexNum * sizeof(MeshVertex);
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -253,15 +386,24 @@ bool Model::VertexInit()
 		nullptr,
 		IID_PPV_ARGS(vertexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-	SVertex* vertMap = nullptr;
+	MeshVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
-	
-	std::copy(std::begin(m_meshParts[0].vertexBuffer), std::end(m_meshParts[0].vertexBuffer), vertMap);
+
+	size_t idx = 0;
+	for(size_t i = 0; i < Meshes.size(); ++i)
+	{
+		for (size_t j = 0; j < Meshes[i].Vertices.size(); ++j)
+		{
+			vertMap[idx + j] = Meshes[i].Vertices[j];
+		}
+		idx += Meshes[i].Vertices.size();
+	}
+	//std::copy(std::begin(Meshes[0].Vertices), std::end(Meshes[0].Vertices), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vbView.SizeInBytes = m_meshParts[0].vertexBuffer.size() * sizeof(SVertex);
-	vbView.StrideInBytes = sizeof(SVertex);
+	vbView.SizeInBytes = vertexNum * sizeof(MeshVertex);
+	vbView.StrideInBytes = sizeof(MeshVertex);
 
 	return true;
 }
@@ -274,7 +416,7 @@ bool Model::IndexInit()
 	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
+	resDesc.Width = numIndex * sizeof(uint32_t);
 	resDesc.Height = 1;
 	resDesc.DepthOrArraySize = 1;
 	resDesc.MipLevels = 1;
@@ -291,20 +433,32 @@ bool Model::IndexInit()
 		nullptr,
 		IID_PPV_ARGS(indexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-	uint16_t* indexMap = nullptr;
+	uint32_t* indexMap = nullptr;
 	result = indexBuffer->Map(0, nullptr, (void**)&indexMap);
 	if (FAILED(result)) return false;
-	std::copy(std::begin(m_meshParts[0].indexBuffer16Array[0].indices), std::end(m_meshParts[0].indexBuffer16Array[0].indices), indexMap);
+
+	size_t idx = 0;
+	for (size_t i = 0; i < Meshes.size(); ++i)
+	{
+		for (size_t j = 0; j < Meshes[i].Indices.size(); ++j)
+		{
+			indexMap[idx + j] = Meshes[i].Indices[j];
+		}
+		idx += Meshes[i].Indices.size();
+	}
+	//std::copy(std::begin(Meshes[0].Indices), std::end(Meshes[0].Indices), indexMap);
 	indexBuffer->Unmap(0, nullptr);
 	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
-	ibView.Format = DXGI_FORMAT_R16_UINT;
-	ibView.SizeInBytes = m_meshParts[0].indexBuffer16Array[0].indices.size() * sizeof(uint16_t);
+	ibView.Format = DXGI_FORMAT_R32_UINT;
+	ibView.SizeInBytes = numIndex * sizeof(uint32_t);
 
 	return true;
 }
 
 bool Model::TextureInit()
 {
+	LoadFromWICFile(L"modelData/teapot/default.png", WIC_FLAGS_NONE, &metadata, scratchImage);
+	//LoadFromWICFile(L"modelData/erato/erato-101.jpg", WIC_FLAGS_NONE, &metadata, scratchImage);
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
 	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
@@ -313,8 +467,8 @@ bool Model::TextureInit()
 	heapProp.VisibleNodeMask = 0;
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	resDesc.Width = metadata.width / 4;
-	resDesc.Height = metadata.height / 4;
+	resDesc.Width = metadata.width;
+	resDesc.Height = metadata.height;
 	resDesc.DepthOrArraySize = metadata.arraySize;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.SampleDesc.Quality = 0;
@@ -392,7 +546,7 @@ bool Model::MTransBuffInit()
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 4;
+	descHeapDesc.NumDescriptors = 5;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	result = _dx->GetDevice()->CreateDescriptorHeap(
 		&descHeapDesc,
@@ -412,10 +566,40 @@ bool Model::MTransBuffInit()
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
+	return true;
+}
+
+bool Model::MaterialBuffInit()
+{
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(Materials[0]) + 0xff) & ~0xff);
+
+	_dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(_materialBuff.ReleaseAndGetAddressOf())
+	);
+
+	Material* materialMap = nullptr;
+	auto result = _materialBuff->Map(0, nullptr, (void**)&materialMap);
+	if (FAILED(result)) return false;
 	
+	std::copy(std::begin(Materials), std::end(Materials), materialMap);
+
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = _materialBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_materialBuff->GetDesc().Width);
+	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
 	return true;
 }
+
 
 
 Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
@@ -428,6 +612,7 @@ bool Model::Init()
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
 	if (!MTransBuffInit()) return false;
+	if (!MaterialBuffInit()) return false;
 	if (!TextureInit()) return false;
 	return true;
 }
@@ -436,7 +621,7 @@ bool Model::Init()
 
 void Model::Update()
 {
-	angle += 0.001f;
+	angle += 0.00f;
 	world =
 		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixRotationY(-angle)

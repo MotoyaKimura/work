@@ -3,6 +3,8 @@
 #include <d3dx12.h>
 #include <DirectXMath.h>
 #include <DirectXTex.h>
+#include <assimp/scene.h>
+
 
 
 
@@ -16,8 +18,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer = nullptr;
 	D3D12_INDEX_BUFFER_VIEW ibView = {};
 
-	unsigned int vertexNum;
-	unsigned int numIndex;
+	unsigned int vertexNum = 0;
+	unsigned int numIndex = 0;
 
 	DirectX::TexMetadata metadata = {};
 	DirectX::ScratchImage scratchImage = {};
@@ -104,6 +106,46 @@ private:
 	DirectX::XMFLOAT3 _pos;
 	DirectX::XMFLOAT3 _rotater;
 
+	struct MeshVertex
+	{
+		DirectX::XMFLOAT3 Position;
+		DirectX::XMFLOAT3 Normal;
+		DirectX::XMFLOAT2 TexCoord;
+		DirectX::XMFLOAT3 Tangent;
+
+		MeshVertex() = default;
+		MeshVertex(
+			DirectX::XMFLOAT3 const& position,
+			DirectX::XMFLOAT3 const& normal,
+			DirectX::XMFLOAT2 const& texcoord,
+			DirectX::XMFLOAT3 const& tangent
+		): Position(position),
+		Normal(normal),
+		TexCoord(texcoord),
+		Tangent(tangent)
+		{}
+	};
+
+	struct Material
+	{
+		DirectX::XMFLOAT3 Diffuse;
+		DirectX::XMFLOAT3 Specular;
+		float Alpha;
+		float Shininess;
+		//std::string DiffuseMap;
+	};
+	std::vector<Material> Materials;
+	//std::string DiffuseMap;
+	struct Mesh
+	{
+		std::vector<MeshVertex> Vertices;
+		std::vector<uint32_t> Indices;
+		uint32_t MaterialId;
+	};
+	std::vector<Mesh> Meshes;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> _materialBuff = nullptr;
+
 	template<class T>
 	void LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp);
 	std::string LoadTextureFileName(FILE* fp);
@@ -112,8 +154,12 @@ private:
 	bool IndexInit();
 	bool TextureInit();
 	bool MTransBuffInit();
+	bool MaterialBuffInit();
+	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
+	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
 	
 public:
+	bool Load(std::string filePath);
 	bool LoadModel(std::string filePath);
 	Model(std::shared_ptr<Wrapper> dx);
 	bool Init();

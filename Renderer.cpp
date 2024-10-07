@@ -57,7 +57,7 @@ bool Renderer::TeapotRootSignatureInit()
 {
 	D3D12_DESCRIPTOR_RANGE descTblRange[2] = {};
 	//シーン変換 //ティーポットテクスチャ
-	descTblRange[0].NumDescriptors = 2;
+	descTblRange[0].NumDescriptors = 3;
 	descTblRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descTblRange[0].BaseShaderRegister = 0;
 	descTblRange[0].OffsetInDescriptorsFromTableStart =
@@ -147,6 +147,11 @@ bool Renderer::TeapotPipelineStateInit()
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		},
 		{
+		"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}
+		/*{
 			"WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
@@ -155,7 +160,7 @@ bool Renderer::TeapotPipelineStateInit()
 			"INDICES", 0, DXGI_FORMAT_R16G16B16A16_UINT, 0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-		}
+		}*/
 
 	};
 
@@ -306,6 +311,11 @@ bool Renderer::ShadowPipelineStateInit()
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		},
 		{
+		"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}
+		/*{
 			"WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
@@ -314,7 +324,7 @@ bool Renderer::ShadowPipelineStateInit()
 			"INDICES", 0, DXGI_FORMAT_R16G16B16A16_UINT, 0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-		}
+		}*/
 	};
 
 	teapotGpipeline.InputLayout.pInputElementDescs = inputLayout;
