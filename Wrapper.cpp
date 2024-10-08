@@ -235,7 +235,7 @@ bool Wrapper::SceneTransBuffInit()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera = 
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) * 
-		XMMatrixOrthographicLH(200, 200, 1.0f, 800.0f);
+		XMMatrixOrthographicLH(150, 150, 1.0f, 800.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 
 	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
@@ -617,7 +617,7 @@ void Wrapper::Update()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(200, 200, 1.0f, 800.0f);
+		XMMatrixOrthographicLH(150, 150, 1.0f, 800.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 

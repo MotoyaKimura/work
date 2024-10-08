@@ -102,15 +102,15 @@ bool Application::Init()
 	}
 
 	_model.reset(new Model(_dx));
-	if (!_model->Load("modelData/RSMScene/erato/erato.obj")) return false;
-	//if(!_model->Load("modelData/bunny/bunny.obj")) return false;
+	//if (!_model->Load("modelData/RSMScene/erato/erato.obj")) return false;
+	if(!_model->Load("modelData/bunny/bunny.obj")) return false;
 	
 	if (!_model->Init())
 	{
 		DebugOutputFormatString("ƒ‚ƒfƒ‹‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;
 	}
-	_model->Rotate(0, -DirectX::XM_PIDIV4, 0);
+	//_model->Rotate(0, -DirectX::XM_PIDIV4, 0);
 
 	_renderer->AddModel(_model);
 

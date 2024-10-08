@@ -1,5 +1,10 @@
 #include "PeraShaderHeader.hlsli"
 
+float random(float2 uv)
+{
+    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+}
+
 float4 PS(Output input) : SV_TARGET
 {
     //float s = ssaoTex.Sample(smp, (input.uv));
@@ -41,8 +46,54 @@ float4 PS(Output input) : SV_TARGET
     }
     else
     {
+        float dp = depthTex.Sample(smp, input.uv);
+        float4 respos = mul(invprojection, float4(input.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), dp, 1.0f));
+        float3 resposDivW = respos.xyz / respos.w;
+        //respos.xyz /= respos.w;
+       // return float4(respos.xyz, 1);
+        float4 rpos = mul(projection, mul(view, float4(resposDivW, 1.0f)));
+        rpos.xyz = rpos.xyz / rpos.w;
+        
+        float2 lightUVpos = (rpos.xy + float2(1.0f, -1.0f)) * float2(0.5f, -0.5f);
+        //return indirectLightTex.Sample(smp, lightUVpos);
+        float lightdp = lightDepthTex.Sample(smp, input.uv);
+        float w, h, miplevels;
+        depthTex.GetDimensions(0, w, h, miplevels);
+        float dx = 1.0f / w;
+        float dy = 1.0f / h;
+        float div = 0.0f;
+        float3 indLight = float3(0,0,0);
+
+        const int trycnt = 256;
+        if (dp < 1.0f)
+        {
+            for (int i = 0; i < trycnt; ++i)
+            {
+                float rnd1 = random(float2(i * dx, i * dy)) * 2.0f - 1.0f;
+                float rnd2 = random(float2(rnd1, i * dy)) * 2.0f - 1.0f;
+                float2 sample = lightUVpos + float2(rnd1, rnd2) * 0.1;
+                float3 lightNorm = normalize(lightNormalTex.Sample(smp, sample).xyz);
+                
+                float4 lightWorld = worldTex.Sample(smp, sample);
+                lightWorld.xyz = lightWorld.xyz / lightWorld.w;
+                float3 dstVec = normalize(respos.xyz - lightWorld.xyz);
+                float dstDistance = length(respos.xyz - lightWorld.xyz);
+                float dt = dot(lightNorm, dstVec);
+                div += dt;
+                if(dot(lightNorm, dstVec) > 0.0f)
+                {
+
+                    float3 Norm = normalize(normalTex.Sample(smp, sample).xyz);
+                    float dt2 = dot(Norm, -dstVec);
+                    indLight += indirectLightTex.Sample(smp, sample).rgb;
+                }
+                
+            }
+            indLight /= div;
+        }
+
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-    	return float4(texColor.rgb * s, texColor.a);
+    	return float4(texColor.rgb * s * indLight, texColor.a);
     }
 }
