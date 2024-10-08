@@ -85,7 +85,7 @@ float4 PS(Output input) : SV_TARGET
 
                     float3 Norm = normalize(normalTex.Sample(smp, sample).xyz);
                     float dt2 = dot(Norm, -dstVec);
-                    indLight += indirectLightTex.Sample(smp, sample).rgb;
+                    indLight += indirectLightTex.Sample(smp, sample).rgb * dt * dt / pow(dstDistance, 4);
                 }
                 
             }
@@ -94,6 +94,6 @@ float4 PS(Output input) : SV_TARGET
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-    	return float4(texColor.rgb * s * indLight, texColor.a);
+    	return float4(texColor.rgb * s + indLight, texColor.a);
     }
 }
