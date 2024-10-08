@@ -69,13 +69,17 @@ float4 PS(Output input) : SV_TARGET
         {
             for (int i = 0; i < trycnt; ++i)
             {
+                float PI = 3.14159265359;
+               
                 float rnd1 = random(float2(i * dx, i * dy)) * 2.0f - 1.0f;
                 float rnd2 = random(float2(rnd1, i * dy)) * 2.0f - 1.0f;
-                float2 sample = lightUVpos + float2(rnd1, rnd2) * 0.1;
+                float radius = random(float2(rnd1, rnd2));
+                float2 sample = lightUVpos + float2(sin(2 * PI * rnd2), cos(2 * PI * rnd2)) * rnd1 * radius;
+
                 float3 lightNorm = normalize(lightNormalTex.Sample(smp, sample).xyz);
                 lightNorm = lightNorm * 2 - 1;
                 float4 lightWorld = worldTex.Sample(smp, sample);
-                lightWorld.xyz = lightWorld.xyz / lightWorld.w;
+                //lightWorld.xyz = lightWorld.xyz / lightWorld.w;
                 float3 dstVec = normalize(respos.xyz - lightWorld.xyz);
                 float dstDistance = length(respos.xyz - lightWorld.xyz);
                 float dt = dot(lightNorm, dstVec);
@@ -99,6 +103,6 @@ float4 PS(Output input) : SV_TARGET
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-        return float4(texColor * s + indLight, texColor.a);
+        return float4(indLight* 3, texColor.a);
     }
 }
