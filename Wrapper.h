@@ -77,6 +77,7 @@ private:
 
 	DirectX::XMFLOAT3 lightVec;
 	DirectX::XMFLOAT3 eye;
+	DirectX::XMFLOAT3 rotate;
 	DirectX::XMFLOAT3 target;
 	DirectX::XMFLOAT3 up;
 
@@ -113,5 +114,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetLightDepthBuff() const;
 	DirectX::XMFLOAT3* GetEyePos();
+	DirectX::XMFLOAT3* GetEyeRotate();
+
 	~Wrapper();
 };

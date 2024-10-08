@@ -235,7 +235,7 @@ bool Wrapper::SceneTransBuffInit()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera = 
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) * 
-		XMMatrixOrthographicLH(200, 200, 1.0f, 800.0f);
+		XMMatrixOrthographicLH(150, 150, 1.0f, 800.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 
 	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
@@ -566,9 +566,10 @@ bool Wrapper::CreatePeraRTVAndSRV()
 Wrapper::Wrapper(HWND hwnd) :
 	_hwnd(hwnd),
 	eye(40, 30, 150),
-	target(20, 30, 0),
+	rotate(0, 0, 0),
+	target(20, 30, 30),
 	up(0, 1, 0),
-lightVec(100, 30, 60),
+lightVec(30, 30, 60),
 _sceneTransMatrix(nullptr),
 winSize(Application::Instance().GetWindowSize())
 {
@@ -603,6 +604,7 @@ bool Wrapper::Init()
 
 void Wrapper::Update()
 {
+
 	_sceneTransMatrix->eye = eye;
 	_sceneTransMatrix->view = XMMatrixLookAtLH(
 		XMLoadFloat3(&eye),
@@ -615,7 +617,7 @@ void Wrapper::Update()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(200, 200, 1.0f, 800.0f);
+		XMMatrixOrthographicLH(150, 150, 1.0f, 800.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 
@@ -862,6 +864,10 @@ DirectX::XMFLOAT3* Wrapper::GetEyePos()
 	return &eye;
 }
 
+DirectX::XMFLOAT3* Wrapper::GetEyeRotate()
+{
+	return &rotate;
+}
 
 
 
