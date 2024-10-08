@@ -58,7 +58,7 @@ float4 PS(Output input) : SV_TARGET
         //return indirectLightTex.Sample(smp, lightUVpos);
         float lightdp = lightDepthTex.Sample(smp, input.uv);
         float w, h, miplevels;
-        depthTex.GetDimensions(0, w, h, miplevels);
+        lightDepthTex.GetDimensions(0, w, h, miplevels);
         float dx = 1.0f / w;
         float dy = 1.0f / h;
         float div = 0.0f;
@@ -79,13 +79,21 @@ float4 PS(Output input) : SV_TARGET
                 float3 dstVec = normalize(respos.xyz - lightWorld.xyz);
                 float dstDistance = length(respos.xyz - lightWorld.xyz);
                 float dt = dot(lightNorm, dstVec);
+                float sgn = sign(dt);
+                dt *= sgn;
                 div += dt;
                 if(dot(lightNorm, dstVec) > 0.0f)
                 {
 
-                    float3 Norm = normalize(normalTex.Sample(smp, sample).xyz);
+                    float3 Norm = normalize(normalTex.Sample(smp, input.uv).xyz);
                     float dt2 = dot(Norm, -dstVec);
-                    indLight += indirectLightTex.Sample(smp, sample).rgb * dt * dt / pow(dstDistance, 4);
+                    sgn = sign(dt2);
+                    dt2 *= sgn;
+                    div += dt2;
+                    if (dot(Norm, -dstVec) > 0.0f)
+                		indLight += indirectLightTex.Sample(smp, sample).rgb * dt * dt2 / pow(dstDistance, 4);
+                    else
+                        indLight += float3(0,0,0);
                 }
                 
             }
@@ -94,6 +102,6 @@ float4 PS(Output input) : SV_TARGET
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-    	return float4(texColor.rgb * s + indLight, texColor.a);
+    	return float4(indLight, texColor.a);
     }
 }
