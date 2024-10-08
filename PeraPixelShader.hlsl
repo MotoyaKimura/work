@@ -61,7 +61,8 @@ float4 PS(Output input) : SV_TARGET
         lightDepthTex.GetDimensions(0, w, h, miplevels);
         float dx = 1.0f / w;
         float dy = 1.0f / h;
-        float div = 0.0f;
+        float div1 = 0.0f;
+        float div2 = 0.0f;
         float3 indLight = float3(0,0,0);
 
         const int trycnt = 256;
@@ -75,7 +76,6 @@ float4 PS(Output input) : SV_TARGET
                 float rnd2 = random(float2(rnd1, i * dy)) * 2.0f - 1.0f;
                 float radius = random(float2(rnd1, rnd2));
                 float2 sample = lightUVpos + float2(sin(2 * PI * rnd2), cos(2 * PI * rnd2)) * rnd1 * radius;
-
                 float3 lightNorm = normalize(lightNormalTex.Sample(smp, sample).xyz);
                 lightNorm = lightNorm * 2 - 1;
                 float4 lightWorld = worldTex.Sample(smp, sample);
@@ -85,9 +85,9 @@ float4 PS(Output input) : SV_TARGET
                 float dt = dot(lightNorm, dstVec);
                 float sgn = sign(dt);
                 dt *= sgn;
-                div += dt;
-               if(dot(lightNorm, dstVec) > 0.0f)
-               {
+                div1 += dt;
+                if (dot(lightNorm, dstVec) > 0.0f)
+                {
                     float3 Norm = normalize(normalTex.Sample(smp, input.uv).xyz);
                     Norm = Norm * 2 - 1;
                     float dt2 = dot(Norm, -dstVec);
@@ -95,14 +95,19 @@ float4 PS(Output input) : SV_TARGET
                     indLight += indirectLightTex.Sample(smp, sample).rgb * max(0.0f, dt) * max(0.0f, dt2) / max(1.0f, pow(dstDistance, 4));
                     sgn = sign(dt2);
                     dt2 *= sgn;
-                    div += dt2;
+                    div2 += dt2;
+                }
+                else
+                {
+	                indLight += float3(0, 0, 0);
                 }
             }
-            indLight /= div;
+            //indLight /= max(1.0f, div1);
+            indLight /= max(1.0f, div2);
         }
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-        return float4(indLight* 3, texColor.a);
+        return float4(texColor * s + indLight, texColor.a);
     }
 }
