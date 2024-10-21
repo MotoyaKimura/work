@@ -81,6 +81,8 @@ private:
 	DirectX::XMFLOAT3 target;
 	DirectX::XMFLOAT3 up;
 
+	float dest = 0.0f;
+
 	bool DXGIInit();
 	void DeviceInit();
 	bool CMDInit();
