@@ -604,11 +604,13 @@ bool Wrapper::Init()
 
 void Wrapper::Update()
 {
-
+	dest += 0.1f;
+	XMFLOAT3 target2 = target;
+	target2.x += 20 * sin(dest);
 	_sceneTransMatrix->eye = eye;
 	_sceneTransMatrix->view = XMMatrixLookAtLH(
 		XMLoadFloat3(&eye),
-		XMLoadFloat3(&target),
+		XMLoadFloat3(&target2),
 		XMLoadFloat3(&up));;
 	XMVECTOR det;
 	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view * _sceneTransMatrix->projection);
