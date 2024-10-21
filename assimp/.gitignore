@@ -1,5 +1,5 @@
 .idea
-build
+#build
 .project
 *.kdev4*
 .DS_Store
@@ -24,7 +24,7 @@ CMakeSettings.json
 
 # Output
 bin/
-lib/
+#lib/
 x64/
 # QtCreator
 CMakeLists.txt.user
@@ -77,7 +77,7 @@ test/gtest/src/gtest-stamp/Debug/gtest-patch
 *.cache
 test/gtest/src/gtest-stamp/Debug/gtest-build
 *.suo
-*.lib
+#*.lib
 test/gtest/src/gtest-stamp/Debug/
 tools/assimp_view/assimp_viewer.vcxproj.user
 *.pyc
