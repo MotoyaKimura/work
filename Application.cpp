@@ -104,6 +104,7 @@ bool Application::Init()
 	_model.reset(new Model(_dx));
 	//if (!_model->Load("modelData/RSMScene/erato/erato.obj")) return false;
 	if(!_model->Load("modelData/bunny/bunny.obj")) return false;
+	//if (!_model->Load("assimp/test/models/OBJ/spider.obj")) return false;
 	
 	if (!_model->Init())
 	{
