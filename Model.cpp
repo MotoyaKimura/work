@@ -1,4 +1,7 @@
 #include "Model.h"
+
+#include <iostream>
+
 #include "Wrapper.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -245,6 +248,7 @@ bool Model::Load(std::string filePath)
 	flag |= aiProcess_GenUVCoords;
 	flag |= aiProcess_RemoveRedundantMaterials;
 	flag |= aiProcess_OptimizeMeshes;
+	flag |= aiProcess_GenBoundingBoxes;
 
 	auto pScene = importer.ReadFile(filePath.c_str(), flag);
 	if (pScene == nullptr) return false;
@@ -257,7 +261,6 @@ bool Model::Load(std::string filePath)
 		const auto pMesh = pScene->mMeshes[i];
 		ParseMesh(Meshes[i], pMesh);
 	}
-
 	Materials.clear();
 	Materials.resize(pScene->mNumMaterials);
 
@@ -276,7 +279,9 @@ bool Model::Load(std::string filePath)
 void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 {
 	dstMesh.MaterialId = pSrcMesh->mMaterialIndex;
-
+	/*aiVector3D aabbMax = pSrcMesh->mAABB.mMax;
+	aiVector3D aabbMin = pSrcMesh->mAABB.mMin;
+	std::cout << "aabbMax.x = " << aabbMax.x << ", aabbMax.y = " << aabbMax.y << ", aabbMax.z = " << aabbMax.z << "\n" << std::endl;*/
 	aiVector3D zero3D(0.0f, 0.0f, 0.0f);
 
 	dstMesh.Vertices.resize(pSrcMesh->mNumVertices);
