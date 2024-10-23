@@ -116,6 +116,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetLightDepthBuff() const;
 	DirectX::XMFLOAT3* GetEyePos();
+	DirectX::XMFLOAT3* GetTargetPos();
 	DirectX::XMFLOAT3* GetEyeRotate();
 
 	~Wrapper();

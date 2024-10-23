@@ -866,6 +866,11 @@ DirectX::XMFLOAT3* Wrapper::GetEyePos()
 	return &eye;
 }
 
+DirectX::XMFLOAT3* Wrapper::GetTargetPos()
+{
+	return &target;
+}
+
 DirectX::XMFLOAT3* Wrapper::GetEyeRotate()
 {
 	return &rotate;

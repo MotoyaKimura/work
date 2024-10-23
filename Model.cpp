@@ -626,13 +626,14 @@ bool Model::Init()
 
 void Model::Update()
 {
-	angle += 0.00f;
+	angle = 0.001f;
 	world =
 		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
-		* XMMatrixRotationY(-angle)
+		
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 	
 	*mTransMatrix = world;
+	
 }
 
 void Model::Draw(bool isShadow)
@@ -675,6 +676,7 @@ DirectX::XMFLOAT3* Model::GetPos()
 {
 	return &_pos;
 }
+
 
 DirectX::XMFLOAT3* Model::GetRotate()
 {
