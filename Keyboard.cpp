@@ -73,8 +73,17 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 
 	
 	GetCursorPos(&cursorPos);
+	DirectX::XMINT2 currentPos = { cursorPos.x, cursorPos.y };
+	
 	int diff_x = cursorPos.x - x;
 	int diff_y = cursorPos.y - y;
+	/*latitude += diff_y;
+	if (latitude < -60 || 60 < latitude)
+	{
+		latitude = max(-60, min(60, latitude));
+		diff_y = 0;
+	}*/
+	
 	x = cursorPos.x;
 	y = cursorPos.y;
 
