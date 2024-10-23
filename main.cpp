@@ -9,6 +9,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 	auto& app = Application::Instance();
 
+
 	if (!app.Init()) {
 		return -1;
 	}

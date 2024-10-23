@@ -2,27 +2,27 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\Motoya_Kimura\source\repos\work\x64\Debug\work.exe</FullPath>
+      <FullPath>C:\Users\motoy\source\repos\work\work.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>C:\Users\Motoya_Kimura\source\repos\work\x64\Debug\PeraPixelShader.cso</FullPath>
+      <FullPath>C:\Users\motoy\source\repos\work\PeraPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\Motoya_Kimura\source\repos\work\x64\Debug\PeraVertexShader.cso</FullPath>
+      <FullPath>C:\Users\motoy\source\repos\work\PeraVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\Motoya_Kimura\source\repos\work\x64\Debug\PixelShader.cso</FullPath>
+      <FullPath>C:\Users\motoy\source\repos\work\PixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\Motoya_Kimura\source\repos\work\x64\Debug\SSAOPixelShader.cso</FullPath>
+      <FullPath>C:\Users\motoy\source\repos\work\SSAOPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\Motoya_Kimura\source\repos\work\x64\Debug\SSAOVertexShader.cso</FullPath>
+      <FullPath>C:\Users\motoy\source\repos\work\SSAOVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>C:\Users\Motoya_Kimura\source\repos\work\x64\Debug\VertexShader.cso</FullPath>
+      <FullPath>C:\Users\motoy\source\repos\work\VertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

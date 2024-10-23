@@ -37,7 +37,8 @@ Application::Application() : hwnd(nullptr)
 }
 void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 {
-
+	if (hwnd != nullptr)return;
+	
 	w.cbSize = sizeof(WNDCLASSEX);
 	w.lpfnWndProc = (WNDPROC)WindowProcedure;
 	w.lpszClassName = _T("study");
@@ -105,20 +106,17 @@ bool Application::Init()
 	_model.reset(new Model(_dx));
 	//if (!_model->Load("modelData/RSMScene/erato/erato.obj")) return false;
 	if(!_model->Load("modelData/bunny/bunny.obj")) return false;
-	//if (!_model->Load("assimp/test/models/OBJ/spider.obj")) return false;
 	
 	if (!_model->Init())
 	{
 		DebugOutputFormatString("モデルの初期化エラー\n ");
 		return false;
 	}
+	_model->Move(30, 0, 30);
 	//_model->Rotate(0, -DirectX::XM_PIDIV4, 0);
 
 	_renderer->AddModel(_model);
 
-	//if (!_model2->Load("modelData/bunny/bunny.obj")) return false;
-	//if (!_model2->Load("modelData/teapot/teapot.obj")) return false;
-	//if (!_model2->Load("modelData/erato/erato.obj")) return false;
 	_model2 = std::make_shared<Model>(_dx);
 	if (!_model2->Load("modelData/RSMScene/floor/floor.obj")) return false;
 	if (!_model2->Init())
@@ -126,6 +124,7 @@ bool Application::Init()
 		DebugOutputFormatString("モデルの初期化エラー\n ");
 		return false;
 	}
+	_model2->Move(30, 0, 30);
 	_renderer->AddModel(_model2);
 
 	_model3 = std::make_shared<Model>(_dx);
@@ -135,6 +134,7 @@ bool Application::Init()
 		DebugOutputFormatString("モデルの初期化エラー\n ");
 		return false;
 	}
+	_model3->Move(30, 30, 0);
 	_renderer->AddModel(_model3);
 
 	_model4 = std::make_shared<Model>(_dx);
@@ -144,18 +144,8 @@ bool Application::Init()
 		DebugOutputFormatString("モデルの初期化エラー\n ");
 		return false;
 	}
+	_model4->Move(0, 30, 30);
 	_renderer->AddModel(_model4);
-	/*_model2 = std::make_shared<Model>(_dx);
-	if (!_model2->LoadModel("modelData/teapot.tkm")) return false;
-	if (!_model2->Init())
-	{
-		DebugOutputFormatString("モデルの初期化エラー\n ");
-		return false;
-	}
-	_model2->Move(100, -50, 0);
-	_model2->Rotate(-DirectX::XM_PIDIV2, 0, 0);
-	_renderer->AddModel(_model2);*/
-
 	
 }
 void Application::Run()
