@@ -104,6 +104,9 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 
 Keyboard::Keyboard()
 {
+	GetCursorPos(&cursorPos);
+	x = cursorPos.x;
+	y = cursorPos.y;
 }
 
 Keyboard::~Keyboard()
