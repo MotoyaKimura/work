@@ -61,6 +61,8 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 		nullptr,
 		w.hInstance,
 		nullptr);
+
+	
 }
 
 SIZE Application::GetWindowSize() const
@@ -166,7 +168,14 @@ void Application::Run()
 		{
 			break;
 		}
-		
+		LPRECT rect = new RECT();
+		GetWindowRect(hwnd, rect);
+		ClipCursor(rect);
+		BYTE keycode[256];
+		GetKeyboardState(keycode);
+		if (keycode[VK_LWIN] & 0x80) {
+			ClipCursor(NULL);
+		}
 		_renderer->Move();
 		_renderer->Update();
 
