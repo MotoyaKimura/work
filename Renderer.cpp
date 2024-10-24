@@ -411,6 +411,14 @@ void Renderer::Update()
 	_dx->Update();
 }
 
+void Renderer::ResizeBuffers()
+{
+	for (auto& _models : _models) {
+		_models->MTransBuffInit();
+		_models->CreateMTransView();
+	}
+}
+
 void Renderer::Move()
 {
 	int modelNum = _models.size();

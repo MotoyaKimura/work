@@ -92,6 +92,8 @@ private:
 	void ScissorrectInit();
 	bool SceneTransBuffInit();
 	bool DepthBuffInit();
+	bool CreateDepthHeap();
+	bool CreateDepthView();
 	bool RSMBuffInit();
 	bool CreatePeraRTVAndSRV();
 	bool LightDepthBuffInit();
@@ -110,6 +112,7 @@ public:
 	void EndDrawPera();
 	void Draw();
 	void Flip();
+	void ResizeBackBuffers();
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetPeraSRVHeap() const;

@@ -55,5 +55,6 @@ public:
 	void DrawSSAO();
 	void BeforeDrawPera();
 	void DrawPera();
+	void ResizeBuffers();
 	~Renderer();
 };

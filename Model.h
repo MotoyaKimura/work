@@ -153,12 +153,16 @@ private:
 	bool VertexInit();
 	bool IndexInit();
 	bool TextureInit();
-	bool MTransBuffInit();
+	
 	bool MaterialBuffInit();
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
 	
 public:
+	bool MTransBuffInit();
+	bool MTransHeapInit();
+	bool CreateMTransView();
+
 	bool Load(std::string filePath);
 	bool LoadModel(std::string filePath);
 	Model(std::shared_ptr<Wrapper> dx);
