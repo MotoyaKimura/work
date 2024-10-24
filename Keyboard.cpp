@@ -1,5 +1,6 @@
 #include "Keyboard.h"
 
+
 void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX::XMFLOAT3* _eyePos, DirectX::XMFLOAT3* _targetPos)
 {
 	DirectX::XMVECTOR eyeToTarget =DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(_pos), DirectX::XMLoadFloat3(_eyePos));
@@ -72,27 +73,28 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 	_eyePos->z = DirectX::XMVectorGetZ(eyePos);
 
 	
+	
+	LPRECT rect = new RECT();
+	GetWindowRect(_hwnd, rect);
+	ClipCursor(rect);
+
 	GetCursorPos(&cursorPos);
-	DirectX::XMINT2 currentPos = { cursorPos.x, cursorPos.y };
-	
-	int diff_x = cursorPos.x - x;
-	int diff_y = cursorPos.y - y;
-	/*latitude += diff_y;
-	if (latitude < -60 || 60 < latitude)
-	{
-		latitude = max(-60, min(60, latitude));
-		diff_y = 0;
-	}*/
-	
-	x = cursorPos.x;
-	y = cursorPos.y;
+
+	SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
+	x = (rect->left + rect->right) / 2;
+	y = (rect->top + rect->bottom) / 2;
+
+
+	float diff_x = cursorPos.x - x;
+	float diff_y = cursorPos.y - y;
+
 
 
 	DirectX::FXMVECTOR yAxis = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMMATRIX eyeMat =
 		DirectX::XMMatrixTranslation(-_pos->x, -_pos->y, -_pos->z)
-		* DirectX::XMMatrixRotationAxis(yAxis, -diff_x * 0.01)
-		* DirectX::XMMatrixRotationAxis(vRight, -diff_y * 0.01)
+		* DirectX::XMMatrixRotationAxis(yAxis, -diff_x * 0.005)
+		* DirectX::XMMatrixRotationAxis(vRight, -diff_y * 0.005)
 		* DirectX::XMMatrixTranslation(_pos->x, _pos->y, _pos->z);
 	
 	DirectX::FXMVECTOR eyeVec = XMLoadFloat3(_eyePos);
@@ -102,11 +104,8 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 	_eyePos->z = DirectX::XMVectorGetZ(eyeTrans);
 }
 
-Keyboard::Keyboard()
+Keyboard::Keyboard(HWND hwnd) : _hwnd(hwnd)
 {
-	GetCursorPos(&cursorPos);
-	x = cursorPos.x;
-	y = cursorPos.y;
 }
 
 Keyboard::~Keyboard()
