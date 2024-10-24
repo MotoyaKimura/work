@@ -56,7 +56,7 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 
 	hwnd = CreateWindow(w.lpszClassName,
 		_T("studyƒeƒXƒg"),
-		WS_OVERLAPPEDWINDOW,
+		WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		wrc.right - wrc.left,
