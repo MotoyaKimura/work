@@ -547,21 +547,30 @@ bool Model::MTransBuffInit()
 	world = XMMatrixIdentity();
 	*mTransMatrix = world;
 
-	
+	return true;
+}
+
+bool Model::MTransHeapInit()
+{
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
 	descHeapDesc.NumDescriptors = 5;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	result = _dx->GetDevice()->CreateDescriptorHeap(
+	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&descHeapDesc,
 		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-	
+	return true;
+}
+
+bool Model::CreateMTransView()
+{
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	cbvDesc.BufferLocation = _dx->GetSceneTransBuff()->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_dx->GetSceneTransBuff()->GetDesc().Width);
 	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+	mTransHeapNum %= 5;
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
@@ -570,9 +579,9 @@ bool Model::MTransBuffInit()
 	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
-
 	return true;
 }
+
 
 bool Model::MaterialBuffInit()
 {
@@ -617,6 +626,8 @@ bool Model::Init()
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
 	if (!MTransBuffInit()) return false;
+	if (!MTransHeapInit()) return false;
+	if (!CreateMTransView()) return false;
 	if (!MaterialBuffInit()) return false;
 	if (!TextureInit()) return false;
 	return true;

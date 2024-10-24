@@ -177,6 +177,19 @@ void Application::Run()
 			break;
 		}
 
+		if(msg.message == WM_SYSKEYUP)
+		{
+			if (msg.wParam == VK_RETURN)
+			{
+
+				_dx->ResizeBackBuffers();
+				_renderer->ResizeBuffers();
+			}
+		}
+	/*	if (msg.message == WM_SIZE)
+		{
+			_dx->ResizeBackBuffers();
+		}*/
 	
 		HWND _hwnd = GetActiveWindow();
 		if (_hwnd == hwnd) {
