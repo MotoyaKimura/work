@@ -46,13 +46,17 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 
 	RegisterClassEx(&w);
 
+	
+	window_width = GetSystemMetrics(SM_CXSCREEN);
+	window_height = GetSystemMetrics(SM_CYSCREEN);
+
 	RECT wrc = { 0, 0, window_width, window_height };
 
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
 	hwnd = CreateWindow(w.lpszClassName,
 		_T("studyƒeƒXƒg"),
-		WS_OVERLAPPEDWINDOW,
+		WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		wrc.right - wrc.left,
@@ -96,7 +100,7 @@ bool Application::Init()
 		return false;
 	}
 
-	_keyboard.reset(new Keyboard());
+	_keyboard.reset(new Keyboard(hwnd));
 
 	_renderer.reset(new Renderer(_dx, _pera, _keyboard));
 	if(!_renderer->Init())
@@ -148,6 +152,7 @@ bool Application::Init()
 	}
 	_model4->Move(0, 30, 30);
 	_renderer->AddModel(_model4);
+
 	
 }
 void Application::Run()
@@ -155,6 +160,9 @@ void Application::Run()
 	DebugOutputFormatString("Show window test.\n ");
 
 	ShowWindow(hwnd, SW_SHOW);
+
+	
+	
 
 	MSG msg = {};
 	while (true)
@@ -168,15 +176,18 @@ void Application::Run()
 		{
 			break;
 		}
-		LPRECT rect = new RECT();
-		GetWindowRect(hwnd, rect);
-		ClipCursor(rect);
-		BYTE keycode[256];
-		GetKeyboardState(keycode);
-		if (keycode[VK_LWIN] & 0x80) {
+
+	
+		HWND _hwnd = GetActiveWindow();
+		if (_hwnd == hwnd) {
+			ShowCursor(false);
+			_renderer->Move();
+		}
+		else {
+			ShowCursor(true);
 			ClipCursor(NULL);
 		}
-		_renderer->Move();
+		
 		_renderer->Update();
 
 		_dx->BeginDrawShade();
@@ -203,6 +214,7 @@ void Application::Run()
 }
 void Application::Terminate()
 {
+	ClipCursor(NULL);
 	UnregisterClass(w.lpszClassName, w.hInstance);
 }
 Application::~Application()

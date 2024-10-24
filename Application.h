@@ -24,8 +24,8 @@ private:
 
 	std::shared_ptr<Keyboard> _keyboard;
 
-	const unsigned int window_width = 1280;							//ウィンドウ幅
-	const unsigned int window_height = 720;							//ウィンドウ高
+	unsigned int window_width = 1280;							//ウィンドウ幅
+	unsigned int window_height = 720;							//ウィンドウ高
 
 	WNDCLASSEX w = {};
 	HWND hwnd;
