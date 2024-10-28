@@ -505,10 +505,12 @@ bool Model::TextureInit()
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
-	
+
+	_mTransMap["texBuffer"] = mTransHeapNum++;
+	_mTransMap["_lightDepthBuff"] = mTransHeapNum++;
 
 	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["texBuffer"];
 	_dx->GetDevice()->CreateShaderResourceView(
 		texBuffer.Get(),
 		&srvDesc,
@@ -519,11 +521,13 @@ bool Model::TextureInit()
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_lightDepthBuff"];
 	_dx->GetDevice()->CreateShaderResourceView(
 		_dx->GetLightDepthBuff().Get(),
 		&srvDesc,
 		handle);
+
+	
 
 	return true;
 }
@@ -541,7 +545,7 @@ bool Model::MTransBuffInit()
 		nullptr,
 		IID_PPV_ARGS(_mTransBuff.ReleaseAndGetAddressOf())
 	);
-
+	
 	auto result = _mTransBuff->Map(0, nullptr, (void**)&mTransMatrix);
 	if (FAILED(result)) return false;
 	world = XMMatrixIdentity();
@@ -561,6 +565,12 @@ bool Model::MTransHeapInit()
 		&descHeapDesc,
 		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
+
+	_mTransMap["_sceneTransBuff"] = mTransHeapNum++;
+	_mTransMap["_mTransBuff"] = mTransHeapNum++;
+	
+	
+
 	return true;
 }
 
@@ -570,14 +580,14 @@ bool Model::CreateMTransView()
 	cbvDesc.BufferLocation = _dx->GetSceneTransBuff()->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_dx->GetSceneTransBuff()->GetDesc().Width);
 	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	mTransHeapNum %= 5;
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	//mTransHeapNum %= 5;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_sceneTransBuff"];
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
 	cbvDesc.BufferLocation = _mTransBuff->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_mTransBuff->GetDesc().Width);
 	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_mTransBuff"];
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 	return true;
 }
@@ -597,6 +607,8 @@ bool Model::MaterialBuffInit()
 		IID_PPV_ARGS(_materialBuff.ReleaseAndGetAddressOf())
 	);
 
+	_mTransMap["_materialBuff"] = mTransHeapNum++;
+
 	Material* materialMap = nullptr;
 	auto result = _materialBuff->Map(0, nullptr, (void**)&materialMap);
 	if (FAILED(result)) return false;
@@ -608,7 +620,7 @@ bool Model::MaterialBuffInit()
 	cbvDesc.BufferLocation = _materialBuff->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_materialBuff->GetDesc().Width);
 	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * mTransHeapNum++;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_materialBuff"];
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 
 	return true;

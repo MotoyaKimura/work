@@ -72,18 +72,20 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 	_eyePos->y = DirectX::XMVectorGetY(eyePos);
 	_eyePos->z = DirectX::XMVectorGetZ(eyePos);
 
-	
-	
+
 	LPRECT rect = new RECT();
 	GetWindowRect(_hwnd, rect);
-	ClipCursor(rect);
-
+	//std::cout << rect->left << " " << rect->right << " " << rect->top << " " << rect->bottom << std::endl;
+	//GetClientRect(_hwnd, rect);
+	//ClipCursor(rect);
+	//std::cout << rect->left << " " << rect->right << " " << rect->top << " " << rect->bottom << std::endl;
 	GetCursorPos(&cursorPos);
 
 	SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
 	x = (rect->left + rect->right) / 2;
 	y = (rect->top + rect->bottom) / 2;
 
+	
 
 	float diff_x = cursorPos.x - x;
 	float diff_y = cursorPos.y - y;
@@ -104,8 +106,17 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 	_eyePos->z = DirectX::XMVectorGetZ(eyeTrans);
 }
 
+
 Keyboard::Keyboard(HWND hwnd) : _hwnd(hwnd)
 {
+}
+
+void Keyboard::SetCursor()
+{
+	LPRECT rect = new RECT();
+	GetWindowRect(_hwnd, rect);
+	SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
+	GetCursorPos(&cursorPos);
 }
 
 Keyboard::~Keyboard()

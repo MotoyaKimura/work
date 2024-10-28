@@ -149,6 +149,10 @@ void Wrapper::ResizeBackBuffers()
 	{
 		backBuff.Reset();
 	}
+	LPRECT rect = new RECT();
+	GetWindowRect(_hwnd, rect);
+	
+	cout << "x: " << rect->right - rect->left << " y: " << rect->bottom - rect->top << endl;
 	winSize.cx = GetSystemMetrics(SM_CXSCREEN);
 	winSize.cy = GetSystemMetrics(SM_CYSCREEN);
 	_swapchain->ResizeBuffers(
@@ -158,13 +162,12 @@ void Wrapper::ResizeBackBuffers()
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 	CreateBackBuffRTV();
-	ViewportInit();
-	ScissorrectInit();
+	//ViewportInit();
+	//ScissorrectInit();
 	_depthBuff.Reset();
 	peraSRVHeapNum = 5;
 	DepthBuffInit();
 	CreateDepthView();
-	//_sceneTransBuff->Unmap(0, nullptr);
 	_sceneTransBuff.Reset();
 	peraSRVHeapNum = 8;
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
