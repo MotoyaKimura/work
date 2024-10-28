@@ -18,6 +18,52 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		return 0;
 	}
+
+	
+	if(msg == WM_ACTIVATE)
+	{
+		
+		if (wParam == WA_ACTIVE)
+		{
+			std::cout << "アクティブ" << std::endl;
+		}
+		else if (wParam == WA_INACTIVE)
+		{
+			std::cout << "非アクティブ" << std::endl;
+			ShowCursor(true);
+			ClipCursor(NULL);
+		}
+	}
+
+
+	if(msg == WM_EXITSIZEMOVE)
+	{
+		std::cout << "移動" << std::endl;
+		LPRECT rect = new RECT();
+		GetWindowRect(hwnd, rect);
+		SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
+		
+	}
+
+	
+	if(msg == WM_MOUSEMOVE)
+	{
+		while (ShowCursor(false) >= 0);
+		
+	}
+
+	if (msg == WM_NCMOUSEMOVE)
+	{
+		while (ShowCursor(true) < 0);
+	}
+
+	/*if(msg == WM_SIZE)
+	{
+		std::cout << "サイズ変更" << std::endl;
+		
+	}*/
+
+
 	
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -52,11 +98,12 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 
 	RECT wrc = { 0, 0, window_width, window_height };
 
-	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
+	AdjustWindowRect(&wrc, WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX, false);
 
 	hwnd = CreateWindow(w.lpszClassName,
 		_T("studyテスト"),
 		WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
+		//WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		wrc.right - wrc.left,
@@ -153,11 +200,14 @@ bool Application::Init()
 	_model4->Move(0, 30, 30);
 	_renderer->AddModel(_model4);
 
-	
+	LPRECT rect = new RECT();
+	GetWindowRect(hwnd, rect);
+	SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
 }
 void Application::Run()
 {
 	DebugOutputFormatString("Show window test.\n ");
+
 
 	ShowWindow(hwnd, SW_SHOW);
 
@@ -176,29 +226,35 @@ void Application::Run()
 		{
 			break;
 		}
-
-		if(msg.message == WM_SYSKEYUP)
+		
+	/*	if(msg.message == WM_SYSKEYUP)
 		{
 			if (msg.wParam == VK_RETURN)
 			{
 
+				
+			}
+		}*/
+		if (msg.message == WM_SYSKEYUP || msg.message == WM_SYSKEYDOWN)
+		{
+			if (msg.wParam == VK_RETURN)
+			{
+				
 				_dx->ResizeBackBuffers();
 				_renderer->ResizeBuffers();
+				std::cout << "ALT + ENTER" << std::endl;
 			}
+
 		}
-	/*	if (msg.message == WM_SIZE)
-		{
-			_dx->ResizeBackBuffers();
-		}*/
 	
 		HWND _hwnd = GetActiveWindow();
 		if (_hwnd == hwnd) {
-			ShowCursor(false);
+			if(msg.message == WM_LBUTTONDOWN || msg.message == WM_NCLBUTTONDOWN)
+			{
+				_keyboard->SetCursor();
+			}
+			
 			_renderer->Move();
-		}
-		else {
-			ShowCursor(true);
-			ClipCursor(NULL);
 		}
 		
 		_renderer->Update();
@@ -223,6 +279,7 @@ void Application::Run()
 		_renderer->DrawPera();
 		_dx->EndDrawPera();
 		_dx->Flip();
+		
 	}
 }
 void Application::Terminate()

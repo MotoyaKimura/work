@@ -3,6 +3,7 @@
 #include <d3dx12.h>
 #include <DirectXMath.h>
 #include <DirectXTex.h>
+#include <map>
 #include <assimp/scene.h>
 
 
@@ -97,6 +98,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> _mTransBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _mTransHeap = nullptr;
+	std::map<std::string, unsigned int> _mTransMap;
 	unsigned int mTransHeapNum = 0;
 
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
