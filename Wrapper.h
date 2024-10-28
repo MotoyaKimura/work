@@ -83,6 +83,8 @@ private:
 
 	float dest = 0.0f;
 
+	bool isFullScreen = false;
+
 	bool DXGIInit();
 	void DeviceInit();
 	bool CMDInit();

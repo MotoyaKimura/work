@@ -26,7 +26,6 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (wParam == WA_ACTIVE)
 		{
 			std::cout << "アクティブ" << std::endl;
-		
 		}
 		else if (wParam == WA_INACTIVE)
 		{
@@ -58,11 +57,11 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		while (ShowCursor(true) < 0);
 	}
 
-	if(msg == WM_SIZE)
+	/*if(msg == WM_SIZE)
 	{
 		std::cout << "サイズ変更" << std::endl;
 		
-	}
+	}*/
 
 
 	
@@ -94,12 +93,12 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 	RegisterClassEx(&w);
 
 	
-	//window_width = GetSystemMetrics(SM_CXSCREEN);
-	//window_height = GetSystemMetrics(SM_CYSCREEN);
+	window_width = GetSystemMetrics(SM_CXSCREEN);
+	window_height = GetSystemMetrics(SM_CYSCREEN);
 
 	RECT wrc = { 0, 0, window_width, window_height };
 
-	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
+	AdjustWindowRect(&wrc, WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX, false);
 
 	hwnd = CreateWindow(w.lpszClassName,
 		_T("studyテスト"),
@@ -201,7 +200,9 @@ bool Application::Init()
 	_model4->Move(0, 30, 30);
 	_renderer->AddModel(_model4);
 
-	
+	LPRECT rect = new RECT();
+	GetWindowRect(hwnd, rect);
+	SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
 }
 void Application::Run()
 {
@@ -210,9 +211,7 @@ void Application::Run()
 
 	ShowWindow(hwnd, SW_SHOW);
 
-	LPRECT rect = new RECT();
-	GetWindowRect(hwnd, rect);
-	SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
+	
 	
 
 	MSG msg = {};
@@ -227,7 +226,6 @@ void Application::Run()
 		{
 			break;
 		}
-
 		
 	/*	if(msg.message == WM_SYSKEYUP)
 		{
@@ -241,16 +239,17 @@ void Application::Run()
 		{
 			if (msg.wParam == VK_RETURN)
 			{
+				
 				_dx->ResizeBackBuffers();
 				_renderer->ResizeBuffers();
 				std::cout << "ALT + ENTER" << std::endl;
 			}
-				
+
 		}
 	
 		HWND _hwnd = GetActiveWindow();
 		if (_hwnd == hwnd) {
-			if(msg.message == WM_NCLBUTTONDOWN || msg.message == WM_LBUTTONDOWN)
+			if(msg.message == WM_LBUTTONDOWN || msg.message == WM_NCLBUTTONDOWN)
 			{
 				_keyboard->SetCursor();
 			}
@@ -280,7 +279,7 @@ void Application::Run()
 		_renderer->DrawPera();
 		_dx->EndDrawPera();
 		_dx->Flip();
-
+		
 	}
 }
 void Application::Terminate()

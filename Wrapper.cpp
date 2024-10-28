@@ -145,16 +145,43 @@ bool Wrapper::SwapChainInit()
 
 void Wrapper::ResizeBackBuffers()
 {
+	_cmdList->Close();
+	ID3D12CommandList* cmdLists[] = { _cmdList.Get() };
+	_cmdQueue->ExecuteCommandLists(1, cmdLists);
+
+	_cmdQueue->Signal(_fence.Get(), ++_fenceVal);
+	if (_fence->GetCompletedValue() != _fenceVal)
+	{
+
+		auto event = CreateEvent(nullptr, false, false, nullptr);
+		if (event == nullptr) return;
+		_fence->SetEventOnCompletion(_fenceVal, event);
+		WaitForSingleObject(event, INFINITE);
+		CloseHandle(event);
+	}
+	auto result = _cmdAllocator->Reset();
+	if (FAILED(result)) return;
+	_cmdList->Reset(_cmdAllocator.Get(), nullptr);
+
 	for (auto& backBuff : backBuffers)
 	{
 		backBuff.Reset();
 	}
-	LPRECT rect = new RECT();
-	GetWindowRect(_hwnd, rect);
-	
-	cout << "x: " << rect->right - rect->left << " y: " << rect->bottom - rect->top << endl;
-	winSize.cx = GetSystemMetrics(SM_CXSCREEN);
-	winSize.cy = GetSystemMetrics(SM_CYSCREEN);
+	isFullScreen = !isFullScreen;
+	if (isFullScreen)
+	{
+		winSize.cx = GetSystemMetrics(SM_CXSCREEN);
+		winSize.cy = GetSystemMetrics(SM_CYSCREEN);
+	}
+	else
+	{
+		LPRECT rect = new RECT();
+		GetWindowRect(_hwnd, rect);
+
+		winSize.cx = rect->right - rect->left;
+		winSize.cy = rect->bottom - rect->top;
+	}
+	std::cout << winSize.cx << " " << winSize.cy << std::endl;
 	_swapchain->ResizeBuffers(
 		2,
 		winSize.cx,
@@ -182,7 +209,7 @@ void Wrapper::ResizeBackBuffers()
 		IID_PPV_ARGS(_sceneTransBuff.ReleaseAndGetAddressOf())
 	);
 
-	auto result = _sceneTransBuff->Map(0, nullptr, (void**)&_sceneTransMatrix);
+	 result = _sceneTransBuff->Map(0, nullptr, (void**)&_sceneTransMatrix);
 	if (FAILED(result)) return ;
 
 	auto handle = _peraSRVHeap->GetCPUDescriptorHandleForHeapStart();
