@@ -580,7 +580,6 @@ bool Model::CreateMTransView()
 	cbvDesc.BufferLocation = _dx->GetSceneTransBuff()->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = static_cast<UINT>(_dx->GetSceneTransBuff()->GetDesc().Width);
 	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	//mTransHeapNum %= 5;
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_sceneTransBuff"];
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 

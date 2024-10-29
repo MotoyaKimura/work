@@ -156,7 +156,8 @@ void Wrapper::ResizeBackBuffers()
 		winSize.cx,
 		winSize.cy,
 		DXGI_FORMAT_R8G8B8A8_UNORM,
-		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+	);
 	CreateBackBuffRTV();
 	CreateSSAOBuff();
 	CreateSSAORTVAndSRV();
