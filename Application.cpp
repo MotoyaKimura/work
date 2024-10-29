@@ -18,52 +18,36 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		return 0;
 	}
-
 	
 	if(msg == WM_ACTIVATE)
 	{
-		
-		if (wParam == WA_ACTIVE)
-		{
-			std::cout << "アクティブ" << std::endl;
-		}
+		if (wParam == WA_ACTIVE){}
+		else if (wParam == WA_CLICKACTIVE){}
 		else if (wParam == WA_INACTIVE)
 		{
-			std::cout << "非アクティブ" << std::endl;
-			ShowCursor(true);
+			while (ShowCursor(true) < 0);
 			ClipCursor(NULL);
 		}
 	}
-
+	
 
 	if(msg == WM_EXITSIZEMOVE)
 	{
-		std::cout << "移動" << std::endl;
 		LPRECT rect = new RECT();
 		GetWindowRect(hwnd, rect);
-		SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
-		
+		SetCursorPos((rect->left + rect->right) / 2, 
+			(rect->top + rect->bottom) / 2);
 	}
-
 	
 	if(msg == WM_MOUSEMOVE)
 	{
 		while (ShowCursor(false) >= 0);
-		
 	}
 
 	if (msg == WM_NCMOUSEMOVE)
 	{
 		while (ShowCursor(true) < 0);
 	}
-
-	/*if(msg == WM_SIZE)
-	{
-		std::cout << "サイズ変更" << std::endl;
-		
-	}*/
-
-
 	
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -87,7 +71,7 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 	
 	w.cbSize = sizeof(WNDCLASSEX);
 	w.lpfnWndProc = (WNDPROC)WindowProcedure;
-	w.lpszClassName = _T("study");
+	w.lpszClassName = _T("work");
 	w.hInstance = GetModuleHandle(nullptr);
 
 	RegisterClassEx(&w);
@@ -98,12 +82,11 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 
 	RECT wrc = { 0, 0, window_width, window_height };
 
-	AdjustWindowRect(&wrc, WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX, false);
+	AdjustWindowRect(&wrc, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, false);
 
 	hwnd = CreateWindow(w.lpszClassName,
-		_T("studyテスト"),
-		WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
-		//WS_OVERLAPPEDWINDOW,
+		_T("work"),
+		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		wrc.right - wrc.left,
@@ -157,7 +140,6 @@ bool Application::Init()
 	}
 
 	_model.reset(new Model(_dx));
-	//if (!_model->Load("modelData/RSMScene/erato/erato.obj")) return false;
 	if(!_model->Load("modelData/bunny/bunny.obj")) return false;
 	
 	if (!_model->Init())
@@ -166,7 +148,6 @@ bool Application::Init()
 		return false;
 	}
 	_model->Move(30, 0, 30);
-	//_model->Rotate(0, -DirectX::XM_PIDIV4, 0);
 
 	_renderer->AddModel(_model);
 
@@ -200,19 +181,13 @@ bool Application::Init()
 	_model4->Move(0, 30, 30);
 	_renderer->AddModel(_model4);
 
-	LPRECT rect = new RECT();
-	GetWindowRect(hwnd, rect);
-	SetCursorPos((rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2);
+	
 }
 void Application::Run()
 {
 	DebugOutputFormatString("Show window test.\n ");
 
-
 	ShowWindow(hwnd, SW_SHOW);
-
-	
-	
 
 	MSG msg = {};
 	while (true)
@@ -226,37 +201,20 @@ void Application::Run()
 		{
 			break;
 		}
-		
-	/*	if(msg.message == WM_SYSKEYUP)
-		{
-			if (msg.wParam == VK_RETURN)
-			{
 
-				
-			}
-		}*/
-		if (msg.message == WM_SYSKEYUP || msg.message == WM_SYSKEYDOWN)
+		if (msg.message == WM_SYSKEYUP ||
+			msg.message == WM_SYSKEYDOWN)
 		{
 			if (msg.wParam == VK_RETURN)
 			{
-				
 				_dx->ResizeBackBuffers();
 				_renderer->ResizeBuffers();
-				std::cout << "ALT + ENTER" << std::endl;
 			}
+		}
 
-		}
 	
-		HWND _hwnd = GetActiveWindow();
-		if (_hwnd == hwnd) {
-			if(msg.message == WM_LBUTTONDOWN || msg.message == WM_NCLBUTTONDOWN)
-			{
-				_keyboard->SetCursor();
-			}
-			
-			_renderer->Move();
-		}
 		
+		_renderer->Move();
 		_renderer->Update();
 
 		_dx->BeginDrawShade();
@@ -278,13 +236,13 @@ void Application::Run()
 		_renderer->BeforeDrawPera();
 		_renderer->DrawPera();
 		_dx->EndDrawPera();
+		_dx->ExecuteCommand();
 		_dx->Flip();
 		
 	}
 }
 void Application::Terminate()
 {
-	ClipCursor(NULL);
 	UnregisterClass(w.lpszClassName, w.hInstance);
 }
 Application::~Application()

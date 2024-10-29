@@ -30,6 +30,7 @@ private:
 	WNDCLASSEX w = {};
 	HWND hwnd;
 
+
 	Application();
 	Application(const Application&) = delete;
 	void operator=(const Application&) = delete;

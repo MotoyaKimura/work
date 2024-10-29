@@ -9,13 +9,11 @@ private:
 	BYTE keycode[256];
 
 	POINT cursorPos;
-	int x = 0;
-	int y = 0;
-	int frameCount = 0;
-	
+	POINT center;
+	bool isActiveFirst = true;
 public:
 	Keyboard(HWND hwnd);
 	void Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX::XMFLOAT3* _eyePos, DirectX::XMFLOAT3* _targetPos);
-	void SetCursor();
+	void SetCursorCenter();
 	~Keyboard();
 };
