@@ -5,6 +5,7 @@
 #include <dxgi1_6.h>
 #include <DirectXMath.h>
 #include <array>
+#include <map>
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "DirectXTex.lib")
@@ -50,6 +51,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
 	unsigned int peraSRVHeapNum = 0;
+	std::map<std::string, unsigned int> _peraViewMap;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
 	unsigned int shadow_difinition = 1024;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _ssaoBuff = nullptr;
@@ -81,9 +83,9 @@ private:
 	DirectX::XMFLOAT3 target;
 	DirectX::XMFLOAT3 up;
 
-	float dest = 0.0f;
 
-	bool isFullScreen = false;
+
+
 
 	bool DXGIInit();
 	void DeviceInit();
@@ -93,13 +95,17 @@ private:
 	void ViewportInit();
 	void ScissorrectInit();
 	bool SceneTransBuffInit();
+	void CalcSceneTrans();
 	bool DepthBuffInit();
 	bool CreateDepthHeap();
 	bool CreateDepthView();
 	bool RSMBuffInit();
 	bool CreatePeraRTVAndSRV();
 	bool LightDepthBuffInit();
+	bool CreateSSAOBuff();
+	bool CreateSSAOHeap();
 	bool CreateSSAORTVAndSRV();
+
 public:
 	Wrapper(HWND hwnd);
 	bool Init();
@@ -112,6 +118,7 @@ public:
 	void EndDrawSSAO();
 	void BeginDrawPera();
 	void EndDrawPera();
+	void ExecuteCommand();
 	void Draw();
 	void Flip();
 	void ResizeBackBuffers();
