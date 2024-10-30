@@ -16,15 +16,15 @@ class SceneManager;
 class Application
 {
 private:
-	std::shared_ptr<Wrapper> _dx;
-	std::shared_ptr<Pera> _pera;
+	
+	/*std::shared_ptr<Pera> _pera;
 	std::shared_ptr<Renderer> _renderer;
 	std::shared_ptr<Model> _model;
 	std::shared_ptr<Model> _model2;
 	std::shared_ptr<Model> _model3;
 	std::shared_ptr<Model> _model4;
 
-	std::shared_ptr<Keyboard> _keyboard;
+	std::shared_ptr<Keyboard> _keyboard;*/
 
 	std::shared_ptr<SceneManager> _sceneManager;
 	std::shared_ptr<Scene> _scene;
@@ -33,7 +33,7 @@ private:
 	unsigned int window_height = 720;							//ウィンドウ高
 
 	WNDCLASSEX w = {};
-	HWND hwnd;
+	
 
 
 	Application();
@@ -41,9 +41,12 @@ private:
 	void operator=(const Application&) = delete;
 	void CreateGameWindow(HWND& hwnd, WNDCLASSEX& w);
 public:
+	static std::shared_ptr<Wrapper> _dx;
+	static HWND hwnd;
 	SIZE GetWindowSize() const;
 	//Applicationのシングルトンインスタンスを得る
 	static Application& Instance();
+	static void DebugOutputFormatString(const char* format, ...);
 	//初期化
 	bool Init();
 	//ループ起動

@@ -13,6 +13,9 @@
 #include <iostream>
 #endif
 
+std::shared_ptr<Wrapper> Application::_dx = nullptr;
+HWND Application::hwnd = nullptr;
+
 LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (msg == WM_DESTROY)
@@ -54,7 +57,7 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-void DebugOutputFormatString(const char* format, ...)
+void Application::DebugOutputFormatString(const char* format, ...)
 {
 #ifdef _DEBUG
 	va_list valist;
@@ -64,7 +67,7 @@ void DebugOutputFormatString(const char* format, ...)
 #endif
 }
 
-Application::Application() : hwnd(nullptr)
+Application::Application() 
 {
 }
 void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
@@ -125,67 +128,10 @@ bool Application::Init()
 		return false;
 	}
 
-	_pera.reset(new Pera(_dx));
-	if (!_pera->Init())
-	{
-		DebugOutputFormatString("ペラポリゴンの初期化エラー\n ");
-		return false;
-	}
-
-	_keyboard.reset(new Keyboard(hwnd));
-
-	_renderer.reset(new Renderer(_dx, _pera, _keyboard));
-	if(!_renderer->Init())
-	{
-		DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
-		return false;
-	}
-
-	_model.reset(new Model(_dx));
-	if(!_model->Load("modelData/bunny/bunny.obj")) return false;
 	
-	if (!_model->Init())
-	{
-		DebugOutputFormatString("モデルの初期化エラー\n ");
-		return false;
-	}
-	_model->Move(30, 0, 30);
-
-	_renderer->AddModel(_model);
-
-	_model2 = std::make_shared<Model>(_dx);
-	if (!_model2->Load("modelData/RSMScene/floor/floor.obj")) return false;
-	if (!_model2->Init())
-	{
-		DebugOutputFormatString("モデルの初期化エラー\n ");
-		return false;
-	}
-	_model2->Move(30, 0, 30);
-	_renderer->AddModel(_model2);
-
-	_model3 = std::make_shared<Model>(_dx);
-	if (!_model3->Load("modelData/RSMScene/wall/wall_red.obj")) return false;
-	if (!_model3->Init())
-	{
-		DebugOutputFormatString("モデルの初期化エラー\n ");
-		return false;
-	}
-	_model3->Move(30, 30, 0);
-	_renderer->AddModel(_model3);
-
-	_model4 = std::make_shared<Model>(_dx);
-	if (!_model4->Load("modelData/RSMScene/wall/wall_green.obj")) return false;
-	if (!_model4->Init())
-	{
-		DebugOutputFormatString("モデルの初期化エラー\n ");
-		return false;
-	}
-	_model4->Move(0, 30, 30);
-	_renderer->AddModel(_model4);
-
 	
 	_sceneManager.reset(new SceneManager());
-	_scene.reset(new Scene());
+	_scene.reset(new Scene(_dx, hwnd));
 	_sceneManager->InitializeSceneManager();
 	_sceneManager->JumpScene(_scene->SetupTestScene);
 }
@@ -214,37 +160,16 @@ void Application::Run()
 		{
 			if (msg.wParam == VK_RETURN)
 			{
-				_dx->ResizeBackBuffers();
-				_renderer->ResizeBuffers();
+				
+				_sceneManager->UpdateSceneManager();
 			}
 		}
 
 	
 		
-		_renderer->Move();
-		_renderer->Update();
+		_sceneManager->RenderSceneManager();
 
-		_dx->BeginDrawShade();
-		_renderer->BeforeDrawShade();
-		_renderer->DrawShade();
-		_dx->EndDrawShade();
-
-		_dx->BeginDrawTeapot();
-		_renderer->BeforeDrawTeapot();
-		_renderer->DrawTeapot();
-		_dx->EndDrawTeapot();
-
-		_dx->BeginDrawSSAO();
-		_renderer->BeforeDrawSSAO();
-		_renderer->DrawSSAO();
-		_dx->EndDrawSSAO();
-
-		_dx->BeginDrawPera();
-		_renderer->BeforeDrawPera();
-		_renderer->DrawPera();
-		_dx->EndDrawPera();
-		_dx->ExecuteCommand();
-		_dx->Flip();
+		
 		
 	}
 }
