@@ -4,6 +4,8 @@
 #include "Model.h"
 #include "Renderer.h"
 #include "Keyboard.h"
+#include "SceneManager.h"
+#include "Scene.h"
 #include <Windows.h>
 #include <tchar.h>
 
@@ -182,7 +184,12 @@ bool Application::Init()
 	_renderer->AddModel(_model4);
 
 	
+	_sceneManager.reset(new SceneManager());
+	_scene.reset(new Scene());
+	_sceneManager->InitializeSceneManager();
+	_sceneManager->JumpScene(_scene->SetupTestScene);
 }
+
 void Application::Run()
 {
 	DebugOutputFormatString("Show window test.\n ");

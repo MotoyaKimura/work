@@ -11,6 +11,8 @@ class Pera;
 class Model;
 class Renderer;
 class Keyboard;
+class Scene;
+class SceneManager;
 class Application
 {
 private:
@@ -23,6 +25,9 @@ private:
 	std::shared_ptr<Model> _model4;
 
 	std::shared_ptr<Keyboard> _keyboard;
+
+	std::shared_ptr<SceneManager> _sceneManager;
+	std::shared_ptr<Scene> _scene;
 
 	unsigned int window_width = 1280;							//ウィンドウ幅
 	unsigned int window_height = 720;							//ウィンドウ高
