@@ -1,4 +1,7 @@
 #include "Application.h"
+
+#include <sstream>
+
 #include "Wrapper.h"
 #include "Pera.h"
 #include "Model.h"
@@ -13,11 +16,19 @@
 #include <iostream>
 #endif
 
+std::shared_ptr<SceneManager> Application::_sceneManager = nullptr;
 std::shared_ptr<Wrapper> Application::_dx = nullptr;
 HWND Application::hwnd = nullptr;
+bool Application::fullscreenMode = false;
+bool Application::isMinimized = false;
+LPRECT Application::wrc;
+POINT Application::center;
+UINT Application::window_width = 1280;
+UINT Application::window_height = 720;
 
-LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+
 	if (msg == WM_DESTROY)
 	{
 		PostQuitMessage(0);
@@ -26,32 +37,52 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	
 	if(msg == WM_ACTIVATE)
 	{
-		if (wParam == WA_ACTIVE){}
+		if(wParam == WA_ACTIVE){}
 		else if (wParam == WA_CLICKACTIVE){}
 		else if (wParam == WA_INACTIVE)
 		{
 			while (ShowCursor(true) < 0);
 			ClipCursor(NULL);
 		}
+		return 0;
 	}
-	
+
+	if(msg == WM_CREATE)
+	{
+		GetWindowRect(hwnd, Application::wrc);
+		center = { (Application::wrc->left + Application::wrc->right) / 2,
+			(Application::wrc->top + Application::wrc->bottom) / 2 };
+		return 0;
+	}
 
 	if(msg == WM_EXITSIZEMOVE)
 	{
-		LPRECT rect = new RECT();
-		GetWindowRect(hwnd, rect);
-		SetCursorPos((rect->left + rect->right) / 2, 
-			(rect->top + rect->bottom) / 2);
+		GetWindowRect(hwnd, Application::wrc);
+		center = { (Application::wrc->left + Application::wrc->right) / 2,
+			(Application::wrc->top + Application::wrc->bottom) / 2 };
+		return 0;
 	}
 	
 	if(msg == WM_MOUSEMOVE)
 	{
 		while (ShowCursor(false) >= 0);
+		return 0;
 	}
 
 	if (msg == WM_NCMOUSEMOVE)
 	{
 		while (ShowCursor(true) < 0);
+		return 0;
+	}
+
+	if(msg == WM_SYSKEYDOWN)
+	{
+		if (wParam == VK_RETURN && 1 << 29)
+		{
+			_sceneManager->UpdateSceneManager();
+			ToggleFullscreenWindow(_dx->GetSwapChain());
+			return 0;
+		}
 	}
 	
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -84,18 +115,21 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 	
 	window_width = GetSystemMetrics(SM_CXSCREEN);
 	window_height = GetSystemMetrics(SM_CYSCREEN);
+	wrc = new RECT();
+	wrc->left = 0;
+	wrc->top = 0;
+	wrc->right = static_cast<LONG>(window_width);
+	wrc->bottom = static_cast<LONG>(window_height);
 
-	RECT wrc = { 0, 0, window_width, window_height };
-
-	AdjustWindowRect(&wrc, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, false);
+	AdjustWindowRect(wrc, windowStyle, false);
 
 	hwnd = CreateWindow(w.lpszClassName,
 		_T("work"),
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
-		wrc.right - wrc.left,
-		wrc.bottom - wrc.top,
+		wrc->right - wrc->left,
+		wrc->bottom - wrc->top,
 		nullptr,
 		nullptr,
 		w.hInstance,
@@ -104,7 +138,50 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 	
 }
 
-SIZE Application::GetWindowSize() const
+void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain)
+{
+	if (fullscreenMode)
+	{
+		SetWindowLong(hwnd, GWL_STYLE, windowStyle);
+		SetWindowPos(
+			hwnd,
+			HWND_NOTOPMOST,
+			0,
+			0,
+			GetWindowSize().cx,
+			GetWindowSize().cy,
+			SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+		ShowWindow(hwnd, SW_NORMAL);
+	}
+	else
+	{
+		GetWindowRect(hwnd, wrc);
+
+		SetWindowLong(hwnd, GWL_STYLE, windowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+		RECT fullscreenWindowRect;
+		Microsoft::WRL::ComPtr<IDXGIOutput> pOutput;
+		swapChain->GetContainingOutput(&pOutput);
+		DXGI_OUTPUT_DESC Desc;
+		pOutput->GetDesc(&Desc);
+		fullscreenWindowRect = Desc.DesktopCoordinates;
+		
+		SetWindowPos(
+			hwnd,
+			HWND_TOPMOST,
+			fullscreenWindowRect.left,
+			fullscreenWindowRect.top,
+			fullscreenWindowRect.right,
+			fullscreenWindowRect.bottom,
+			SWP_FRAMECHANGED | SWP_NOACTIVATE);
+
+		ShowWindow(hwnd, SW_MAXIMIZE);
+	}
+	fullscreenMode = !fullscreenMode;
+}
+
+
+SIZE Application::GetWindowSize()
 {
 	SIZE winSize;
 	winSize.cx = window_width;
@@ -128,10 +205,8 @@ bool Application::Init()
 		return false;
 	}
 
-	
-	
 	_sceneManager.reset(new SceneManager());
-	_scene.reset(new Scene(_dx, hwnd));
+	_scene.reset(new Scene());
 	_sceneManager->InitializeSceneManager();
 	_sceneManager->JumpScene(_scene->SetupTestScene);
 }
@@ -140,6 +215,7 @@ void Application::Run()
 {
 	DebugOutputFormatString("Show window test.\n ");
 
+	
 	ShowWindow(hwnd, SW_SHOW);
 
 	MSG msg = {};
@@ -155,22 +231,9 @@ void Application::Run()
 			break;
 		}
 
-		if (msg.message == WM_SYSKEYUP ||
-			msg.message == WM_SYSKEYDOWN)
-		{
-			if (msg.wParam == VK_RETURN)
-			{
-				
-				_sceneManager->UpdateSceneManager();
-			}
-		}
 
-	
-		
 		_sceneManager->RenderSceneManager();
 
-		
-		
 	}
 }
 void Application::Terminate()

@@ -33,6 +33,6 @@ private:
 public:
 
 	static SceneProc SetupTestScene(void);
-	Scene(std::shared_ptr<Wrapper> dx, HWND _hwnd);
+	Scene();
 	~Scene();
 };

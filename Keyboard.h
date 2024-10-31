@@ -14,6 +14,5 @@ private:
 public:
 	Keyboard(HWND hwnd);
 	void Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX::XMFLOAT3* _eyePos, DirectX::XMFLOAT3* _targetPos);
-	void SetCursorCenter();
 	~Keyboard();
 };
