@@ -1,18 +1,26 @@
 #include "Keyboard.h"
 
+#include "Application.h"
+
 
 void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX::XMFLOAT3* _eyePos, DirectX::XMFLOAT3* _targetPos)
 {
 	if (_hwnd != GetActiveWindow()) {
+		
+	}
+	
+	if(_hwnd != GetForegroundWindow())
+	{
 		isActiveFirst = true;
 		return;
 	}
 	if (isActiveFirst)
 	{
-		SetCursorCenter();
+		SetCursorPos(Application::center.x, Application::center.y);
 		isActiveFirst = false;
 	}
 
+	
 	DirectX::XMVECTOR eyeToTarget =DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(_pos), DirectX::XMLoadFloat3(_eyePos));
 	DirectX::XMVECTOR vFront = DirectX::XMVectorSetY(eyeToTarget, 0);
 	vFront = DirectX::XMVector3Normalize(vFront);
@@ -84,9 +92,9 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 
 
 	GetCursorPos(&cursorPos);
-	SetCursorCenter();
-	float diff_x = cursorPos.x - center.x;
-	float diff_y = cursorPos.y - center.y;
+	SetCursorPos(Application::center.x, Application::center.y);
+	float diff_x = cursorPos.x - Application::center.x;
+	float diff_y = cursorPos.y - Application::center.y;
 
 	DirectX::FXMVECTOR yAxis = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMMATRIX eyeMat =
@@ -107,13 +115,6 @@ Keyboard::Keyboard(HWND hwnd) : _hwnd(hwnd)
 {
 }
 
-void Keyboard::SetCursorCenter()
-{
-	LPRECT rect = new RECT();
-	GetWindowRect(_hwnd, rect);
-	center = { (rect->left + rect->right) / 2, (rect->top + rect->bottom) / 2 };
-	SetCursorPos(center.x, center.y);
-}
 
 Keyboard::~Keyboard()
 {

@@ -136,7 +136,7 @@ SceneProc Scene::SetupTestScene(void)
 	return proc;
 }
 
-Scene::Scene(std::shared_ptr<Wrapper> dx, HWND _hwnd)
+Scene::Scene()
 {
 }
 

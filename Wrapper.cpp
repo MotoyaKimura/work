@@ -140,6 +140,7 @@ bool Wrapper::SwapChainInit()
 		nullptr,
 		(IDXGISwapChain1**)_swapchain.ReleaseAndGetAddressOf());
 	if (FAILED(result)) return false;
+
 	return true;
 }
 
@@ -151,6 +152,7 @@ void Wrapper::ResizeBackBuffers()
 	{
 		backBuff.Reset();
 	}
+
 	_swapchain->ResizeBuffers(
 		2,
 		winSize.cx,
@@ -958,6 +960,11 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Wrapper::GetSceneTransBuff() const
 Microsoft::WRL::ComPtr<ID3D12Resource> Wrapper::GetLightDepthBuff() const
 {
 	return _lightDepthBuff.Get();
+}
+
+Microsoft::WRL::ComPtr<IDXGISwapChain4> Wrapper::GetSwapChain() const
+{
+	return _swapchain.Get();
 }
 
 DirectX::XMFLOAT3* Wrapper::GetEyePos()

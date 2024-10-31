@@ -1,4 +1,6 @@
 #pragma once
+#include <dxgi1_6.h>
+#include <d3dx12.h>
 #include <Windows.h>
 
 #ifdef _DEBUG
@@ -17,33 +19,33 @@ class Application
 {
 private:
 	
-	/*std::shared_ptr<Pera> _pera;
-	std::shared_ptr<Renderer> _renderer;
-	std::shared_ptr<Model> _model;
-	std::shared_ptr<Model> _model2;
-	std::shared_ptr<Model> _model3;
-	std::shared_ptr<Model> _model4;
-
-	std::shared_ptr<Keyboard> _keyboard;*/
-
-	std::shared_ptr<SceneManager> _sceneManager;
+	static std::shared_ptr<SceneManager> _sceneManager;
 	std::shared_ptr<Scene> _scene;
 
-	unsigned int window_width = 1280;							//ウィンドウ幅
-	unsigned int window_height = 720;							//ウィンドウ高
+	static UINT window_width;							//ウィンドウ幅
+	static UINT window_height;							//ウィンドウ高
+	static const UINT windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
 	WNDCLASSEX w = {};
-	
-
 
 	Application();
 	Application(const Application&) = delete;
 	void operator=(const Application&) = delete;
 	void CreateGameWindow(HWND& hwnd, WNDCLASSEX& w);
+	static void SetCursorCenterFirst();
+	static void ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain);
+	static bool fullscreenMode;
+	static bool isMinimized;
+	static bool isActiveFirst;
+
+protected:
+	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 public:
 	static std::shared_ptr<Wrapper> _dx;
 	static HWND hwnd;
-	SIZE GetWindowSize() const;
+	static LPRECT wrc;
+	static POINT center;
+	static SIZE GetWindowSize();
 	//Applicationのシングルトンインスタンスを得る
 	static Application& Instance();
 	static void DebugOutputFormatString(const char* format, ...);
