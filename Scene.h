@@ -29,10 +29,14 @@ private:
 	static void SceneFinal(void);
 	static void SceneUpdate(void);
 	static void SceneRender(void);
-	
+
+	static bool SceneInit2(void);
+
 public:
 
 	static SceneProc SetupTestScene(void);
+	static SceneProc SetupTestScene2(void);
+
 	Scene();
 	~Scene();
 };

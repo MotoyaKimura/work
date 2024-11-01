@@ -20,18 +20,18 @@ class Application
 private:
 	
 	static std::shared_ptr<SceneManager> _sceneManager;
-	std::shared_ptr<Scene> _scene;
+	static std::shared_ptr<Scene> _scene;
 
 	static UINT window_width;							//ウィンドウ幅
 	static UINT window_height;							//ウィンドウ高
 	static const UINT windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 
-	WNDCLASSEX w = {};
+	static WNDCLASSEX w;
 
 	Application();
 	Application(const Application&) = delete;
 	void operator=(const Application&) = delete;
-	void CreateGameWindow(HWND& hwnd, WNDCLASSEX& w);
+	static void CreateGameWindow(HWND& hwnd, WNDCLASSEX& w);
 	static void SetCursorCenterFirst();
 	static void ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain);
 	static bool fullscreenMode;

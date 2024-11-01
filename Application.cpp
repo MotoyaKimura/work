@@ -17,14 +17,16 @@
 #endif
 
 std::shared_ptr<SceneManager> Application::_sceneManager = nullptr;
+std::shared_ptr<Scene> Application::_scene = nullptr;
 std::shared_ptr<Wrapper> Application::_dx = nullptr;
 HWND Application::hwnd = nullptr;
 bool Application::fullscreenMode = false;
 bool Application::isMinimized = false;
+WNDCLASSEX Application::w;
 LPRECT Application::wrc;
 POINT Application::center;
-UINT Application::window_width = 1280;
-UINT Application::window_height = 720;
+UINT Application::window_width = GetSystemMetrics(SM_CXSCREEN);
+UINT Application::window_height = GetSystemMetrics(SM_CYSCREEN);
 
 LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -84,7 +86,17 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			return 0;
 		}
 	}
-	
+
+	/*if (msg == WM_KEYDOWN)
+	{
+		if (wParam == VK_SPACE && 1 << 29)
+		{
+			_sceneManager->JumpScene(_scene->SetupTestScene2);
+			std::cout << "Space key is pressed." << std::endl;
+			return 0;
+		}
+	}*/
+
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
@@ -113,8 +125,7 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 	RegisterClassEx(&w);
 
 	
-	window_width = GetSystemMetrics(SM_CXSCREEN);
-	window_height = GetSystemMetrics(SM_CYSCREEN);
+	
 	wrc = new RECT();
 	wrc->left = 0;
 	wrc->top = 0;
@@ -231,7 +242,7 @@ void Application::Run()
 			break;
 		}
 
-
+		
 		_sceneManager->RenderSceneManager();
 
 	}
