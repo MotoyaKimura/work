@@ -217,9 +217,6 @@ bool Application::Init()
 	}
 
 	_sceneManager.reset(new SceneManager());
-	_scene.reset(new Scene());
-	_sceneManager->InitializeSceneManager();
-	_sceneManager->JumpScene(_scene->SetupTestScene);
 }
 
 void Application::Run()

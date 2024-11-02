@@ -1,62 +1,45 @@
 #include "SceneManager.h"
-
-
+#include "TitleScene.h"
+#include "GameScene.h"
 
 
 // シーン管理の初期化
 void SceneManager::InitializeSceneManager(void)
 {
-	ZeroMemory(&g_currentScene, sizeof(g_currentScene));
 }
 
 // シーン管理の解放
 void SceneManager::FinalizeSceneManager(void)
 {
-	// 最後は解放して終わる
-	if (g_currentScene.Final) g_currentScene.Final();
-
-	ZeroMemory(&g_currentScene, sizeof(g_currentScene));
 }
 
 // シーンの更新
 void SceneManager::UpdateSceneManager(void)
 {
-	if (g_currentScene.Update) g_currentScene.Update();
+	_scene->SceneUpdate();
 }
 
 // シーンの描画
 void SceneManager::RenderSceneManager(void)
 {
-	if (g_currentScene.Render) g_currentScene.Render();
+	_scene->SceneRender();
 }
 
 // シーンの遷移
-bool SceneManager::JumpScene(SetupFunc func)
+void SceneManager::ChangeScene(Scene* scene)
 {
-	// 現在のシーンを解放する
-	if (g_currentScene.Final) g_currentScene.Final();
-
-	ZeroMemory(&g_currentScene, sizeof(g_currentScene));
-
-	bool ret = true;
-	// 次のシーンがあれば初期化する
-	if (func)
-	{
-		g_currentScene = func();
-		if (g_currentScene.Init) ret = g_currentScene.Init();
-	}
-	return ret;
+	_scene.reset(scene);
 }
 
 // シーン名の取得
 const char* SceneManager::GetSceneName(void)
 {
-	if (g_currentScene.Name) return g_currentScene.Name;
-	return "Unknown";
+	return _scene->GetSceneName();
 }
 
 SceneManager::SceneManager()
 {
+	_scene.reset(new TitleScene(*this));
 }
 
 SceneManager::~SceneManager()
