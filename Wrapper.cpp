@@ -173,7 +173,7 @@ void Wrapper::ResizeBackBuffers()
 
 bool Wrapper::CreateBackBuffRTV()
 {
-	
+	D3D12_DESCRIPTOR_HEAP_DESC _rtvheapDesc = {};
 	_rtvheapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	_rtvheapDesc.NodeMask = 0;
 	_rtvheapDesc.NumDescriptors = 2;
@@ -191,8 +191,10 @@ bool Wrapper::CreateBackBuffRTV()
 	{
 		result = _swapchain->GetBuffer(
 			idx, 
-			IID_PPV_ARGS(backBuffers[idx].ReleaseAndGetAddressOf()));
+			IID_PPV_ARGS(backBuffers[idx].ReleaseAndGetAddressOf())
+		);
 		if (FAILED(result)) return false;
+
 		_dev->CreateRenderTargetView(
 			backBuffers[idx].Get(),
 			nullptr,
@@ -362,9 +364,8 @@ bool Wrapper::RSMBuffInit()
 	auto resDesc = backBuffers[0]->GetDesc();
 	resDesc.Width = shadow_difinition;
 	resDesc.Height = shadow_difinition;
-	float clsClr[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	D3D12_CLEAR_VALUE clearValue = CD3DX12_CLEAR_VALUE(
-		DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
+	
+	CD3DX12_CLEAR_VALUE clearValue(DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
 	
 	for (auto& res : _RSMBuff) {
 		auto result = _dev->CreateCommittedResource(
@@ -488,8 +489,7 @@ bool Wrapper::CreateSSAOBuff()
 	auto resDesc = backBuffers[0]->GetDesc();
 	resDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	float clsClr[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	D3D12_CLEAR_VALUE clearValue = CD3DX12_CLEAR_VALUE(
-		DXGI_FORMAT_R32_FLOAT, clsClr);
+	CD3DX12_CLEAR_VALUE clearValue(DXGI_FORMAT_R32_FLOAT, clsClr);
 	auto result = _dev->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
@@ -504,11 +504,9 @@ bool Wrapper::CreateSSAOBuff()
 
 bool Wrapper::CreateSSAOHeap()
 {
-	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	desc.NodeMask = 0;
+	D3D12_DESCRIPTOR_HEAP_DESC desc = rtvHeaps->GetDesc();
 	desc.NumDescriptors = 1;
-	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	
 	auto result = _dev->CreateDescriptorHeap(
 		&desc,
 		IID_PPV_ARGS(_ssaoRTVHeap.ReleaseAndGetAddressOf()));
@@ -554,17 +552,13 @@ bool Wrapper::CreateSSAORTVAndSRV()
 	return true;
 }
 
-
-
-
 bool Wrapper::CreatePeraRTVAndSRV()
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	auto resDesc = backBuffers[0]->GetDesc();
-	float clsClr[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	D3D12_CLEAR_VALUE clearValue = CD3DX12_CLEAR_VALUE(
-		DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
+	CD3DX12_CLEAR_VALUE clearValue(DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
 	_peraBuff.resize(2);
+
 	for (auto& res : _peraBuff) {
 		auto result = _dev->CreateCommittedResource(
 			&heapProp,
@@ -650,7 +644,6 @@ winSize(Application::Instance().GetWindowSize())
 
 bool Wrapper::Init()
 {
-
 	if(!DXGIInit()) return false;
 	DeviceInit();
 	if(!CMDInit()) return false;
@@ -683,17 +676,16 @@ void Wrapper::Update()
 	CalcSceneTrans();
 }
 
-void Wrapper::BeginDrawTeapot()
+void Wrapper::BeginDrawModel()
 {
 	SetBarrierStateToRT(_peraBuff);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE peraRTVHs[2] = {};
 	SetRenderTargets(peraRTVHs, _peraRTVHeap, 2, _dsvHeap, 0);
-
 	_cmdList->RSSetViewports(1, &viewport);
 	_cmdList->RSSetScissorRects(1, &scissorrect);
 }
 
-void Wrapper::EndDrawTeapot()
+void Wrapper::EndDrawModel()
 {
 	SetBarrierStateToSR(_peraBuff);
 }
@@ -702,10 +694,8 @@ void Wrapper::BeginDrawSSAO()
 {
 	SetBarrierStateToRT(_ssaoBuff.Get());
 	SetRenderTargets(_ssaoRTVHeap, 0, nullptr, 0);
-	CD3DX12_VIEWPORT vp(0.0f, 0.0f, winSize.cx, winSize.cy);
-	CD3DX12_RECT rc(0, 0, winSize.cx, winSize.cy);
-	_cmdList->RSSetViewports(1, &vp);
-	_cmdList->RSSetScissorRects(1, &rc);
+	_cmdList->RSSetViewports(1, &viewport);
+	_cmdList->RSSetScissorRects(1, &scissorrect);
 }
 
 void Wrapper::EndDrawSSAO()
@@ -713,7 +703,7 @@ void Wrapper::EndDrawSSAO()
 	SetBarrierStateToSR(_ssaoBuff.Get());
 }
 
-void Wrapper::BeginDrawShade()
+void Wrapper::BeginDrawRSM()
 {
 	SetBarrierStateToRT(_RSMBuff);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rsmRTVH[3] = {};
@@ -724,7 +714,7 @@ void Wrapper::BeginDrawShade()
 	_cmdList->RSSetScissorRects(1, &rc);
 }
 
-void Wrapper::EndDrawShade()
+void Wrapper::EndDrawRSM()
 {
 	SetBarrierStateToSR(_RSMBuff);
 }

@@ -6,9 +6,6 @@
 #include <map>
 #include <assimp/scene.h>
 
-
-
-
 class Wrapper;
 class Model
 {

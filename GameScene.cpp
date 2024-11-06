@@ -61,15 +61,15 @@ void GameScene::SceneRender(void)
 {
 	
 
-	Application::_dx->BeginDrawShade();
-	_renderer->BeforeDrawShade();
-	_renderer->DrawShade();
-	Application::_dx->EndDrawShade();
+	Application::_dx->BeginDrawRSM();
+	_renderer->BeforeDrawRSM();
+	_renderer->DrawRSM();
+	Application::_dx->EndDrawRSM();
 
-	Application::_dx->BeginDrawTeapot();
-	_renderer->BeforeDrawTeapot();
-	_renderer->DrawTeapot();
-	Application::_dx->EndDrawTeapot();
+	Application::_dx->BeginDrawModel();
+	_renderer->BeforeDrawModel();
+	_renderer->DrawModel();
+	Application::_dx->EndDrawModel();
 
 	Application::_dx->BeginDrawSSAO();
 	_renderer->BeforeDrawSSAO();

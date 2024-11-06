@@ -399,26 +399,26 @@ void Renderer::Move()
 	 }
 }
 
-void Renderer::BeforeDrawTeapot()
+void Renderer::BeforeDrawModel()
 {
 	_dx->GetCommandList()->SetPipelineState(_pipelinestate.Get());
 	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
 }
 
-void Renderer::BeforeDrawShade()
+void Renderer::BeforeDrawRSM()
 {
 	_dx->GetCommandList()->SetPipelineState(_shadowPipelinestate.Get());
 	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
 }
 
-void Renderer::DrawTeapot()
+void Renderer::DrawModel()
 {
 	for (auto& _models : _models) {
 		_models->Draw(false);
 	}
 }
 
-void Renderer::DrawShade()
+void Renderer::DrawRSM()
 {
 	for (auto& _models : _models) {
 		_models->Draw(true);

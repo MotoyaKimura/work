@@ -48,10 +48,10 @@ public:
 	void AddModel(std::shared_ptr<Model> model);
 	void Move();
 	void Update();
-	void BeforeDrawTeapot();
-	void BeforeDrawShade();
-	void DrawTeapot();
-	void DrawShade();
+	void BeforeDrawModel();
+	void BeforeDrawRSM();
+	void DrawModel();
+	void DrawRSM();
 	void BeforeDrawSSAO();
 	void DrawSSAO();
 	void BeforeDrawPera();
