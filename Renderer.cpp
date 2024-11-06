@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "Wrapper.h"
 #include "Keyboard.h"
+#include "TitleScene.h"
 
 
 #ifdef _DEBUG
@@ -375,7 +376,8 @@ bool Renderer::SSAOPipelineStateInit()
 }
 
 
-Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard) : _dx(dx), _pera(pera), _keyboard(keyboard)
+Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard, TitleScene& title)
+	: _dx(dx), _pera(pera), _keyboard(keyboard), _title(title)
 {
 }
 
@@ -435,31 +437,31 @@ void Renderer::Move()
 
 	switch (modelID){
 	case 0:
-		_keyboard->Move(_models[0]->GetPos(), _models[0]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+		_keyboard->Move(_models[0]->GetPos(), _models[0]->GetRotate(), _title.GetEyePos(), _title.GetTargetPos());
 		break;
 	case 1:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[1]->GetPos(), _models[1]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+		_keyboard->Move(_models[1]->GetPos(), _models[1]->GetRotate(), _title.GetEyePos(), _title.GetTargetPos());
 		break;
 	case 2:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[2]->GetPos(), _models[2]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+		_keyboard->Move(_models[2]->GetPos(), _models[2]->GetRotate(), _title.GetEyePos(), _title.GetTargetPos());
 		break;
 	case 3:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[3]->GetPos(), _models[3]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+		_keyboard->Move(_models[3]->GetPos(), _models[3]->GetRotate(), _title.GetEyePos(), _title.GetTargetPos());
 		break;
 	case 4:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[4]->GetPos(), _models[4]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+		_keyboard->Move(_models[4]->GetPos(), _models[4]->GetRotate(), _title.GetEyePos(), _title.GetTargetPos());
 		break;
 	case 5:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[5]->GetPos(), _models[5]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+		_keyboard->Move(_models[5]->GetPos(), _models[5]->GetRotate(), _title.GetEyePos(), _title.GetTargetPos());
 		break;
 	case 6:
 		if (modelNum > modelID)
-		_keyboard->Move(_models[6]->GetPos(), _models[6]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+		_keyboard->Move(_models[6]->GetPos(), _models[6]->GetRotate(), _title.GetEyePos(), _title.GetTargetPos());
 		break;
 	default:
 		break;
