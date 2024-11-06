@@ -9,7 +9,6 @@ class Wrapper;
 class Pera;
 class Model;
 class Keyboard;
-class TitleScene;
 class Renderer
 {
 private:
@@ -17,7 +16,6 @@ private:
 	std::shared_ptr<Pera> _pera;
 	std::vector<std::shared_ptr<Model>> _models;
 	std::shared_ptr<Keyboard> _keyboard;
-	TitleScene& _title;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr;
@@ -44,7 +42,7 @@ private:
 	bool SSAOPipelineStateInit();
 	
 public:
-	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, TitleScene& title);
+	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
 	bool Init();
 	void AddModel(std::shared_ptr<Model> model);
 	void Move();

@@ -16,7 +16,7 @@ std::shared_ptr<Keyboard> GameScene::_keyboard = nullptr;
 
 bool GameScene::SceneInit(void)
 {
-//	_pera.reset(new Pera(Application::_dx));
+	_pera.reset(new Pera(Application::_dx));
 	if (!_pera->Init())
 	{
 		Application::DebugOutputFormatString("ペラポリゴンの初期化エラー\n ");
@@ -25,14 +25,14 @@ bool GameScene::SceneInit(void)
 
 	_keyboard.reset(new Keyboard(Application::hwnd));
 
-	/*_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
+	_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
 	if (!_renderer->Init())
 	{
 		Application::DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
 		return false;
-	}*/
+	}
 
-	//_model.reset(new Model(Application::_dx));
+	_model.reset(new Model(Application::_dx));
 	if (!_model->Load("modelData/bunny/bunny.obj")) return false;
 
 	if (!_model->Init())
@@ -44,7 +44,7 @@ bool GameScene::SceneInit(void)
 
 	_renderer->AddModel(_model);
 
-	//_model2 = std::make_shared<Model>(Application::_dx);
+	_model2 = std::make_shared<Model>(Application::_dx);
 	if (!_model2->Load("modelData/RSMScene/floor/floor.obj")) return false;
 	if (!_model2->Init())
 	{
@@ -64,7 +64,7 @@ bool GameScene::SceneInit(void)
 	_model3->Move(30, 30, 0);
 	_renderer->AddModel(_model3);*/
 
-	//_model4 = std::make_shared<Model>(Application::_dx);
+	_model4 = std::make_shared<Model>(Application::_dx);
 	if (!_model4->Load("modelData/RSMScene/wall/wall_green.obj")) return false;
 	if (!_model4->Init())
 	{
@@ -91,25 +91,25 @@ void GameScene::SceneRender(void)
 	_renderer->Move();
 	_renderer->Update();
 
-	//Application::_dx->BeginDrawShade();
-	//_renderer->BeforeDrawShade();
-	//_renderer->DrawShade();
-	//Application::_dx->EndDrawShade();
+	Application::_dx->BeginDrawShade();
+	_renderer->BeforeDrawShade();
+	_renderer->DrawShade();
+	Application::_dx->EndDrawShade();
 
-	//Application::_dx->BeginDrawTeapot();
-	//_renderer->BeforeDrawTeapot();
-	//_renderer->DrawTeapot();
-	//Application::_dx->EndDrawTeapot();
+	Application::_dx->BeginDrawTeapot();
+	_renderer->BeforeDrawTeapot();
+	_renderer->DrawTeapot();
+	Application::_dx->EndDrawTeapot();
 
-	//Application::_dx->BeginDrawSSAO();
-	//_renderer->BeforeDrawSSAO();
-	//_renderer->DrawSSAO();
-	//Application::_dx->EndDrawSSAO();
+	Application::_dx->BeginDrawSSAO();
+	_renderer->BeforeDrawSSAO();
+	_renderer->DrawSSAO();
+	Application::_dx->EndDrawSSAO();
 
-	//Application::_dx->BeginDrawPera();
-	//_renderer->BeforeDrawPera();
-	//_renderer->DrawPera();
-	//Application::_dx->EndDrawPera();
+	Application::_dx->BeginDrawPera();
+	_renderer->BeforeDrawPera();
+	_renderer->DrawPera();
+	Application::_dx->EndDrawPera();
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 }

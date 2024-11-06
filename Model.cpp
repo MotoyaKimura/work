@@ -1,5 +1,5 @@
 #include "Model.h"
-#include "TitleScene.h"
+
 #include <iostream>
 
 #include "Wrapper.h"
@@ -523,7 +523,7 @@ bool Model::TextureInit()
 	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_lightDepthBuff"];
 	_dx->GetDevice()->CreateShaderResourceView(
-		_title.GetLightDepthBuff().Get(),
+		_dx->GetLightDepthBuff().Get(),
 		&srvDesc,
 		handle);
 
@@ -577,8 +577,8 @@ bool Model::MTransHeapInit()
 bool Model::CreateMTransView()
 {
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = _title.GetSceneTransBuff()->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_title.GetSceneTransBuff()->GetDesc().Width);
+	cbvDesc.BufferLocation = _dx->GetSceneTransBuff()->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_dx->GetSceneTransBuff()->GetDesc().Width);
 	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_sceneTransBuff"];
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
@@ -627,7 +627,7 @@ bool Model::MaterialBuffInit()
 
 
 
-Model::Model(std::shared_ptr<Wrapper> dx, TitleScene& title) : _dx(dx), _title(title), _pos(0, 0, 0), _rotater(0, 0, 0)
+Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
 {
 }
 
