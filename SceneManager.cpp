@@ -4,13 +4,16 @@
 
 
 // シーン管理の初期化
-void SceneManager::InitializeSceneManager(void)
+bool SceneManager::InitializeSceneManager(void)
 {
+	_scene->SceneInit();
+	return true;
 }
 
 // シーン管理の解放
 void SceneManager::FinalizeSceneManager(void)
 {
+	_scene->SceneFinal();
 }
 
 // シーンの更新
@@ -23,6 +26,11 @@ void SceneManager::UpdateSceneManager(void)
 void SceneManager::RenderSceneManager(void)
 {
 	_scene->SceneRender();
+}
+
+void SceneManager::ResizeSceneManager(void)
+{
+	_scene->SceneResize();
 }
 
 // シーンの遷移

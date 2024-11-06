@@ -6,9 +6,6 @@
 #include <map>
 #include <assimp/scene.h>
 
-
-
-
 class Wrapper;
 class Model
 {
@@ -167,7 +164,7 @@ public:
 
 	bool Load(std::string filePath);
 	bool LoadModel(std::string filePath);
-	Model(std::shared_ptr<Wrapper> dx);
+	Model(std::shared_ptr<Wrapper> dx, std::string filePath);
 	bool Init();
 	void Update();
 	void Draw(bool isShadow);
