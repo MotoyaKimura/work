@@ -10,12 +10,10 @@
 
 
 class Wrapper;
-class TitleScene;
 class Model
 {
 private:
 	std::shared_ptr<Wrapper> _dx;
-	TitleScene& _title;
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer = nullptr;
@@ -169,7 +167,7 @@ public:
 
 	bool Load(std::string filePath);
 	bool LoadModel(std::string filePath);
-	Model(std::shared_ptr<Wrapper> dx, TitleScene& title);
+	Model(std::shared_ptr<Wrapper> dx);
 	bool Init();
 	void Update();
 	void Draw(bool isShadow);

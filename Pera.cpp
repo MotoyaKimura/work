@@ -1,6 +1,5 @@
 #include "Pera.h"
 #include "Wrapper.h"
-#include "TitleScene.h"
 
 using namespace std;
 using namespace DirectX;
@@ -30,7 +29,7 @@ bool Pera::VertexInit()
 	return true;
 }
 
-Pera::Pera(std::shared_ptr<Wrapper> dx, TitleScene& title) : _dx(dx), _title(title)
+Pera::Pera(std::shared_ptr<Wrapper> dx) : _dx(dx)
 {
 }
 
@@ -45,10 +44,10 @@ void Pera::Draw()
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	_dx->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
-	ID3D12DescriptorHeap* heaps[] = { _title.GetPeraSRVHeap().Get() };
+	ID3D12DescriptorHeap* heaps[] = { _dx->GetPeraSRVHeap().Get() };
 
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
-	auto handle = _title.GetPeraSRVHeap()->GetGPUDescriptorHandleForHeapStart();
+	auto handle = _dx->GetPeraSRVHeap()->GetGPUDescriptorHandleForHeapStart();
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
 		handle);

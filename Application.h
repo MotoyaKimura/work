@@ -40,7 +40,6 @@ private:
 
 protected:
 	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 public:
 	static std::shared_ptr<Wrapper> _dx;
 	static HWND hwnd;
