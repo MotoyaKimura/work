@@ -49,19 +49,11 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 		return 0;
 	}
 
-	if(msg == WM_CREATE)
+	if(msg == WM_CREATE || msg == WM_EXITSIZEMOVE)
 	{
-		GetWindowRect(hwnd, Application::wrc);
-		center = { (Application::wrc->left + Application::wrc->right) / 2,
-			(Application::wrc->top + Application::wrc->bottom) / 2 };
-		return 0;
-	}
-
-	if(msg == WM_EXITSIZEMOVE)
-	{
-		GetWindowRect(hwnd, Application::wrc);
-		center = { (Application::wrc->left + Application::wrc->right) / 2,
-			(Application::wrc->top + Application::wrc->bottom) / 2 };
+		GetWindowRect(hwnd, wrc);
+		center = { (wrc->left + wrc->right) / 2,
+			(wrc->top + wrc->bottom) / 2 };
 		return 0;
 	}
 	
@@ -81,21 +73,11 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 	{
 		if (wParam == VK_RETURN && 1 << 29)
 		{
-			_sceneManager->UpdateSceneManager();
+			_sceneManager->ResizeSceneManager();
 			ToggleFullscreenWindow(_dx->GetSwapChain());
 			return 0;
 		}
 	}
-
-	/*if (msg == WM_KEYDOWN)
-	{
-		if (wParam == VK_SPACE && 1 << 29)
-		{
-			_sceneManager->JumpScene(_scene->SetupTestScene2);
-			std::cout << "Space key is pressed." << std::endl;
-			return 0;
-		}
-	}*/
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -124,8 +106,6 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 
 	RegisterClassEx(&w);
 
-	
-	
 	wrc = new RECT();
 	wrc->left = 0;
 	wrc->top = 0;
@@ -145,8 +125,6 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 		nullptr,
 		w.hInstance,
 		nullptr);
-
-	
 }
 
 void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain)
@@ -169,7 +147,8 @@ void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4>
 	{
 		GetWindowRect(hwnd, wrc);
 
-		SetWindowLong(hwnd, GWL_STYLE, windowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
+		SetWindowLong(hwnd, GWL_STYLE,
+			windowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 		RECT fullscreenWindowRect;
 		Microsoft::WRL::ComPtr<IDXGIOutput> pOutput;
 		swapChain->GetContainingOutput(&pOutput);
@@ -190,7 +169,6 @@ void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4>
 	}
 	fullscreenMode = !fullscreenMode;
 }
-
 
 SIZE Application::GetWindowSize()
 {
@@ -217,13 +195,17 @@ bool Application::Init()
 	}
 
 	_sceneManager.reset(new SceneManager());
+	if(!_sceneManager->InitializeSceneManager())
+	{
+		DebugOutputFormatString("管理シーンの初期化エラー\n ");
+		return false;
+	}
 }
 
 void Application::Run()
 {
 	DebugOutputFormatString("Show window test.\n ");
 
-	
 	ShowWindow(hwnd, SW_SHOW);
 
 	MSG msg = {};
@@ -239,13 +221,15 @@ void Application::Run()
 			break;
 		}
 
-		
+		_sceneManager->UpdateSceneManager();
 		_sceneManager->RenderSceneManager();
 
 	}
 }
 void Application::Terminate()
 {
+	_sceneManager->FinalizeSceneManager();
+	CoUninitialize();
 	UnregisterClass(w.lpszClassName, w.hInstance);
 }
 Application::~Application()

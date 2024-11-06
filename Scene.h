@@ -19,6 +19,7 @@ public:
 	virtual bool SceneInit(void) = 0;
 	virtual void SceneFinal(void) = 0;
 	virtual void SceneRender(void) = 0;
+	virtual void SceneResize(void) = 0;
 	virtual const char* GetSceneName(void) = 0;
 
 	Scene(SceneManager& controller);

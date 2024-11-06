@@ -627,13 +627,13 @@ bool Model::MaterialBuffInit()
 
 
 
-Model::Model(std::shared_ptr<Wrapper> dx) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
+Model::Model(std::shared_ptr<Wrapper> dx, std::string filePath) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
 {
+	Load(filePath);
 }
 
 bool Model::Init()
 {
-
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
 	if (!MTransBuffInit()) return false;

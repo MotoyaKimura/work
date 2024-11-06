@@ -11,14 +11,12 @@ class Keyboard;
 class GameScene : public Scene
 {
 private:
-	static std::shared_ptr<Pera> _pera;
-	static std::shared_ptr<Renderer> _renderer;
-	static std::shared_ptr<Model> _model;
-	static std::shared_ptr<Model> _model2;
-	static std::shared_ptr<Model> _model3;
-	static std::shared_ptr<Model> _model4;
+	 std::shared_ptr<Pera> _pera;
+	 std::shared_ptr<Renderer> _renderer;
+	 std::vector<std::shared_ptr<Model>> _models;
+	 UINT modelNum = 0;
 
-	static std::shared_ptr<Keyboard> _keyboard;
+	 std::shared_ptr<Keyboard> _keyboard;
 
 
 	void FadeoutUpdate();
@@ -31,6 +29,7 @@ public:
 	bool SceneInit(void);
 	void SceneFinal(void);
 	void SceneRender(void);
+	void SceneResize(void);
 	const char* GetSceneName(void);
 
 };

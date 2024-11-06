@@ -36,18 +36,18 @@ private:
 	std::vector< Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers;
 	Microsoft::WRL::ComPtr<ID3D12Fence> _fence = nullptr;
 	UINT64 _fenceVal = 0;
-	D3D12_VIEWPORT viewport = {};
-	D3D12_RECT scissorrect = {};
-	D3D12_RESOURCE_BARRIER backBuffBarrierDesc = {};
-	D3D12_RESOURCE_BARRIER peraBuffBarrierDesc = {};
-	D3D12_RESOURCE_BARRIER depthBuffBarrierDesc = {};
-	D3D12_RESOURCE_BARRIER ssaoBuffBarrierDesc = {};
+	CD3DX12_VIEWPORT viewport = {};
+	CD3DX12_RECT scissorrect = {};
+	CD3DX12_RESOURCE_BARRIER backBuffBarrierDesc = {};
+	CD3DX12_RESOURCE_BARRIER peraBuffBarrierDesc = {};
+	CD3DX12_RESOURCE_BARRIER depthBuffBarrierDesc = {};
+	CD3DX12_RESOURCE_BARRIER ssaoBuffBarrierDesc = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _depthSRVHeap = nullptr;
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 2> _peraBuff;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _peraBuff;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraSRVHeap = nullptr;
 	unsigned int peraSRVHeapNum = 0;
@@ -58,9 +58,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoRTVHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _ssaoSRVHeap = nullptr;
 
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 3> _RSMBuff;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _RSMBuff;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _RSMRTVHeap = nullptr;
-	D3D12_RESOURCE_BARRIER RSMBuffBarrierDesc = {};
+	CD3DX12_RESOURCE_BARRIER RSMBuffBarrierDesc = {};
 
 
 	struct SceneTransMatrix {
@@ -105,6 +105,14 @@ private:
 	bool CreateSSAOBuff();
 	bool CreateSSAOHeap();
 	bool CreateSSAORTVAndSRV();
+	void SetBarrierStateToRT(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer) const;
+	void SetBarrierStateToRT(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const& buffers) const;
+	void SetBarrierStateToSR(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer) const;
+	void SetBarrierStateToSR(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const  &buffers) const;
+	void SetRenderTargets(CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle[], Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, int numRTDescs,
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, int numDSDescs);
+	void SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, int numRTDescs,
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, int numDSDescs);
 
 public:
 	Wrapper(HWND hwnd);
@@ -122,15 +130,15 @@ public:
 	void Draw();
 	void Flip();
 	void ResizeBackBuffers();
-	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
-	Microsoft::WRL::ComPtr<IDXGISwapChain4> GetSwapChain() const;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetPeraSRVHeap() const;
-	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const;
-	Microsoft::WRL::ComPtr<ID3D12Resource> GetLightDepthBuff() const;
-	DirectX::XMFLOAT3* GetEyePos();
-	DirectX::XMFLOAT3* GetTargetPos();
-	DirectX::XMFLOAT3* GetEyeRotate();
+	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const {return _dev.Get();}
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const {return  _cmdList.Get();}
+	Microsoft::WRL::ComPtr<IDXGISwapChain4> GetSwapChain() const { return _swapchain.Get();}
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetPeraSRVHeap() const { return _peraSRVHeap.Get();}
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const { return _sceneTransBuff.Get();}
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetLightDepthBuff() const { return _lightDepthBuff.Get();}
+	DirectX::XMFLOAT3* GetEyePos() { return &eye; }
+	DirectX::XMFLOAT3* GetTargetPos() { return &target; }
+	DirectX::XMFLOAT3* GetEyeRotate() { return &rotate; }
 
 	~Wrapper();
 };

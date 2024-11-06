@@ -9,13 +9,15 @@ private:
 public:
 
 	// シーン管理の初期化
-	void InitializeSceneManager(void);
+	bool InitializeSceneManager(void);
 	// シーン管理の解放
 	void FinalizeSceneManager(void);
 	// シーンの更新
 	void UpdateSceneManager(void);
 	// シーンの描画
 	void RenderSceneManager(void);
+
+	void ResizeSceneManager(void);
 
 	// シーンの遷移
 	void ChangeScene(Scene* scene);
