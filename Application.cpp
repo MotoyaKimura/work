@@ -204,6 +204,9 @@ Application& Application::Instance()
 	static Application instance;
 	return instance;
 }
+
+
+
 bool Application::Init()
 {
 	auto result = CoInitializeEx(0, COINIT_MULTITHREADED);

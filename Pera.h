@@ -4,10 +4,11 @@
 
 
 class Wrapper;
+class TitleScene;
 class Pera
 {
 private:
-
+	TitleScene& _title;
 	struct PeraVertex {
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT2 uv;
@@ -28,7 +29,7 @@ private:
 	bool VertexInit();
 
 public:
-	Pera(std::shared_ptr<Wrapper> dx);
+	Pera(std::shared_ptr<Wrapper> dx, TitleScene& title);
 	bool Init();
 	void Draw();
 	~Pera();
