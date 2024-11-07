@@ -11,7 +11,7 @@ class Model;
 class Keyboard;
 class Renderer
 {
-private:
+protected:
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Pera> _pera;
 	std::vector<std::shared_ptr<Model>> _models;

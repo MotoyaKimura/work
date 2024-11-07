@@ -152,10 +152,14 @@
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="Pera.cpp" />
+    <ClCompile Include="PeraRenderer.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RSM.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SSAO.cpp" />
     <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="Wrapper.cpp" />
   </ItemGroup>
@@ -226,10 +230,14 @@
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="Pera.h" />
+    <ClInclude Include="PeraRenderer.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RSM.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SSAO.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="Wrapper.h" />
   </ItemGroup>

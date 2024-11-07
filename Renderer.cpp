@@ -260,6 +260,19 @@ bool Renderer::ShadowPipelineStateInit()
 	
 	};
 
+	gpipelineDesc.pRootSignature = rootsignature.Get();
+	gpipelineDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	gpipelineDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	gpipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	gpipelineDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	gpipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	gpipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+	gpipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	gpipelineDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	gpipelineDesc.SampleDesc.Count = 1;
+	gpipelineDesc.SampleDesc.Quality = 0;
+
+
 	gpipelineDesc.InputLayout.pInputElementDescs = inputLayout;
 	gpipelineDesc.InputLayout.NumElements = _countof(inputLayout);
 				 
@@ -293,10 +306,21 @@ bool Renderer::SSAOPipelineStateInit()
 		}
 	};
 
+	peraGpipeline.pRootSignature = peraRootsignature.Get();
+	peraGpipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	peraGpipeline.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	peraGpipeline.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	peraGpipeline.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+	peraGpipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	peraGpipeline.SampleDesc.Count = 1;
+	peraGpipeline.SampleDesc.Quality = 0;
+	peraGpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
 	peraGpipeline.InputLayout.pInputElementDescs = inputLayout;
 	peraGpipeline.InputLayout.NumElements = _countof(inputLayout);
 	peraGpipeline.NumRenderTargets = 1;
 	peraGpipeline.RTVFormats[0] = DXGI_FORMAT_R32_FLOAT;
+	peraGpipeline.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	peraGpipeline.BlendState.RenderTarget[0].BlendEnable = false;
 	peraGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
 	peraGpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());

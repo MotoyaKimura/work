@@ -24,12 +24,14 @@ private:
 	std::shared_ptr<Wrapper> _dx;
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraHeaps = nullptr;
 
 	bool VertexInit();
-
+	bool HeapInit();
 public:
 	Pera(std::shared_ptr<Wrapper> dx);
 	bool Init();
 	void Draw();
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const;
 	~Pera();
 };

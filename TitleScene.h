@@ -7,10 +7,17 @@ class Pera;
 class Model;
 class Renderer;
 class Keyboard;
+class RSM;
+class ModelRenderer;
+class SSAO;
+class PeraRenderer;
 class TitleScene : public Scene
 {
 private:
-
+	std::shared_ptr<RSM> _rsm;
+	std::shared_ptr<ModelRenderer> _modelRenderer;
+	std::shared_ptr<SSAO> _ssao;
+	std::shared_ptr<PeraRenderer> _peraRenderer;
 	SceneManager& _controller;
 	std::shared_ptr<Pera> _pera;
 	std::shared_ptr<Renderer> _renderer;
