@@ -29,6 +29,22 @@ bool Pera::VertexInit()
 	return true;
 }
 
+bool Pera::HeapInit()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDesc.NodeMask = 0;
+	heapDesc.NumDescriptors = 9;
+
+	auto result = _dx->GetDevice()->CreateDescriptorHeap(
+		&heapDesc,
+		IID_PPV_ARGS(_peraHeaps.ReleaseAndGetAddressOf()));
+	if (FAILED(result)) return false;
+	return true;
+}
+
+
 Pera::Pera(std::shared_ptr<Wrapper> dx) : _dx(dx)
 {
 }
@@ -36,7 +52,7 @@ Pera::Pera(std::shared_ptr<Wrapper> dx) : _dx(dx)
 bool Pera::Init()
 {
 	if (!VertexInit()) return false;
-	
+	if (!HeapInit()) return false;
 	return true;
 }
 
@@ -44,15 +60,20 @@ void Pera::Draw()
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	_dx->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
-	ID3D12DescriptorHeap* heaps[] = { _dx->GetPeraSRVHeap().Get() };
+	ID3D12DescriptorHeap* heaps[] = { _peraHeaps.Get() };
 
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
-	auto handle = _dx->GetPeraSRVHeap()->GetGPUDescriptorHandleForHeapStart();
+	auto handle = _peraHeaps->GetGPUDescriptorHandleForHeapStart();
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
 		handle);
 	
 	_dx->GetCommandList()->DrawInstanced(4, 1, 0, 0);
+}
+
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> Pera::GetHeap() const
+{
+	return _peraHeaps.Get();
 }
 
 Pera::~Pera()

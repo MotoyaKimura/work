@@ -170,6 +170,7 @@ public:
 	void Draw(bool isShadow);
 	void Move(float x, float y, float z);
 	void Rotate(float x, float y, float z);
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() { return _mTransHeap; }
 	DirectX::XMFLOAT3* GetPos();
 	DirectX::XMFLOAT3* GetRotate();
 	~Model();

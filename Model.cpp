@@ -516,7 +516,7 @@ bool Model::TextureInit()
 		&srvDesc,
 		handle);
 
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	/*srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -525,7 +525,7 @@ bool Model::TextureInit()
 	_dx->GetDevice()->CreateShaderResourceView(
 		_dx->GetLightDepthBuff().Get(),
 		&srvDesc,
-		handle);
+		handle);*/
 
 	
 
