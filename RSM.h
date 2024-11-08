@@ -11,7 +11,7 @@ class Renderer;
 class RSM : public Renderer
 {
 private:
-	unsigned int rsm_difinition = 1024;
+	UINT rsm_difinition = 1024;
 	float clsClr[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Pera> _pera;
@@ -21,16 +21,11 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _RSMBuff;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _RSMRTVHeap = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _DSVHeap = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _DSVHeap = nullptr;
 
 	bool RSMBuffInit();
+	UINT rsmBuffSize = 3;
 	bool LightDepthBuffInit();
-	void SetBarrierStateToRT(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer) const;
-	void SetBarrierStateToRT(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const& buffers) const;
-	void SetBarrierStateToSR(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer) const;
-	void SetBarrierStateToSR(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const& buffers) const;
-	void SetRenderTargets(CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle[], Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, int numRTDescs,
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, int numDSDescs);
 
 public:
 	bool Init();

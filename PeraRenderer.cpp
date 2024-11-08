@@ -26,9 +26,8 @@ void PeraRenderer::BeginDraw()
 	CD3DX12_RECT rc(0, 0, Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	_dx->GetCommandList()->RSSetViewports(1, &vp);
 	_dx->GetCommandList()->RSSetScissorRects(1, &rc);
-
-	_dx->GetCommandList()->SetPipelineState(_peraPipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(peraRootsignature.Get());
+	BeforeDraw(_peraPipelinestate.Get(), peraRootsignature.Get());
+	
 }
 
 void PeraRenderer::EndDraw()

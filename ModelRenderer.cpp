@@ -18,7 +18,7 @@ bool ModelRenderer::BuffInit()
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	auto resDesc = _dx->GetBackBuff()->GetDesc();
-	CD3DX12_CLEAR_VALUE clearValue(DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
+	CD3DX12_CLEAR_VALUE clearValue(resDesc.Format, clsClr);
 	_Buff.resize(2);
 
 	for (auto& res : _Buff) {
@@ -42,9 +42,7 @@ bool ModelRenderer::BuffInit()
 		&heapDesc,
 		IID_PPV_ARGS(_RTVHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	
 	auto handle = _RTVHeap->GetCPUDescriptorHandleForHeapStart();
 	for (auto& res : _Buff) {
 		_dx->GetDevice()->CreateRenderTargetView(
@@ -116,8 +114,7 @@ void ModelRenderer::BeginDraw()
 	CD3DX12_RECT rc(0, 0, Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	_dx->GetCommandList()->RSSetViewports(1, &vp);
 	_dx->GetCommandList()->RSSetScissorRects(1, &rc);
-	_dx->GetCommandList()->SetPipelineState(_pipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
+	BeforeDraw(_pipelinestate.Get(), rootsignature.Get());
 }
 
 void ModelRenderer::EndDraw()

@@ -1,12 +1,7 @@
 #include "Application.h"
-
-#include <sstream>
-
 #include "Wrapper.h"
 #include "Pera.h"
 #include "Model.h"
-#include "Renderer.h"
-#include "Keyboard.h"
 #include "SceneManager.h"
 #include "Scene.h"
 #include <Windows.h>
@@ -17,11 +12,9 @@
 #endif
 
 std::shared_ptr<SceneManager> Application::_sceneManager = nullptr;
-std::shared_ptr<Scene> Application::_scene = nullptr;
 std::shared_ptr<Wrapper> Application::_dx = nullptr;
 HWND Application::hwnd = nullptr;
 bool Application::fullscreenMode = false;
-bool Application::isMinimized = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
 POINT Application::center;
@@ -131,6 +124,7 @@ void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4>
 {
 	if (fullscreenMode)
 	{
+		
 		SetWindowLong(hwnd, GWL_STYLE, windowStyle);
 		SetWindowPos(
 			hwnd,
@@ -146,7 +140,6 @@ void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4>
 	else
 	{
 		GetWindowRect(hwnd, wrc);
-
 		SetWindowLong(hwnd, GWL_STYLE,
 			windowStyle & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU | WS_THICKFRAME));
 		RECT fullscreenWindowRect;

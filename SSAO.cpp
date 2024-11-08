@@ -63,9 +63,8 @@ void SSAO::BeginDraw()
 	CD3DX12_RECT rc(0, 0, Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	_dx->GetCommandList()->RSSetViewports(1, &vp);
 	_dx->GetCommandList()->RSSetScissorRects(1, &rc);
-
-	_dx->GetCommandList()->SetPipelineState(_ssaoPipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(peraRootsignature.Get());
+	BeforeDraw(_ssaoPipelinestate.Get(), peraRootsignature.Get());
+	
 }
 
 void SSAO::EndDraw()
@@ -76,7 +75,7 @@ void SSAO::EndDraw()
 void SSAO::Draw()
 {
 	BeginDraw();
-	DrawSSAO();
+	DrawPera();
 	EndDraw();
 }
 

@@ -61,27 +61,27 @@ void GameScene::SceneRender(void)
 {
 	
 
-	Application::_dx->BeginDrawRSM();
-	_renderer->BeforeDrawRSM();
-	_renderer->DrawRSM();
-	Application::_dx->EndDrawRSM();
+	//Application::_dx->BeginDrawRSM();
+	//_renderer->BeforeDrawRSM();
+	//_renderer->DrawRSM();
+	//Application::_dx->EndDrawRSM();
 
-	Application::_dx->BeginDrawModel();
-	_renderer->BeforeDrawModel();
-	_renderer->DrawModel();
-	Application::_dx->EndDrawModel();
+	//Application::_dx->BeginDrawModel();
+	//_renderer->BeforeDrawModel();
+	//_renderer->DrawModel();
+	//Application::_dx->EndDrawModel();
 
-	Application::_dx->BeginDrawSSAO();
-	_renderer->BeforeDrawSSAO();
-	_renderer->DrawSSAO();
-	Application::_dx->EndDrawSSAO();
+	//Application::_dx->BeginDrawSSAO();
+	//_renderer->BeforeDrawSSAO();
+	//_renderer->DrawSSAO();
+	//Application::_dx->EndDrawSSAO();
 
-	Application::_dx->BeginDrawPera();
-	_renderer->BeforeDrawPera();
-	_renderer->DrawPera();
-	Application::_dx->EndDrawPera();
-	Application::_dx->ExecuteCommand();
-	Application::_dx->Flip();
+	//Application::_dx->BeginDrawPera();
+	//_renderer->BeforeDrawPera();
+	//_renderer->DrawPera();
+	//Application::_dx->EndDrawPera();
+	//Application::_dx->ExecuteCommand();
+	//Application::_dx->Flip();
 }
 
 void GameScene::SceneFinal(void)
