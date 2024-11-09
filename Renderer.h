@@ -31,7 +31,7 @@ protected:
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 
 	int modelID  = 0;
-	float clsClr[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	float clsClr[4];
 
 	UINT _numBuffers;
 	UINT resWidth;
@@ -44,7 +44,7 @@ protected:
 	void SetNumBuffers(UINT num) { _numBuffers = num; }
 	void SetResSize(UINT width, UINT height) { resWidth = width; resHeight = height; }
 	void SetFormat(DXGI_FORMAT format) { _format = format; }
-
+	void SetClearValue(float r, float g, float b, float a) { clsClr[0] = r; clsClr[1] = g; clsClr[2] = b; clsClr[3] = a; }
 	bool CreateBuffers();
 	bool CreateDepthBuffer();
 

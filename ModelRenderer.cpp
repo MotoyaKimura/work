@@ -12,6 +12,7 @@ bool ModelRenderer::Init()
 	SetNumBuffers(2);
 	SetResSize(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	SetClearValue(0.5, 0.5, 0.5, 1.0);
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
 
