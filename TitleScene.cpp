@@ -103,10 +103,10 @@ void TitleScene::SceneFinal(void)
 void TitleScene::SceneResize(void)
 {
 	Application::_dx->ResizeBackBuffers();
-	_modelRenderer->DepthBuffInit();
-	_ssao->SSAOBuffInit();
-	_rsm->ResizeBuffers();
-	_modelRenderer->ResizeBuffers();
+	//_modelRenderer->CreateDepthBuffer();
+	//_ssao->CreateBuffers();
+	//_rsm->ResizeBuffers();
+	//_modelRenderer->ResizeBuffers();
 
 }
 

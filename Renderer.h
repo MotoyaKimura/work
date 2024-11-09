@@ -20,14 +20,14 @@ protected:
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errBlob = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelinestate = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> _peraPipelinestate = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> peraRootsignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> _shadowPipelinestate = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _pipelinestate = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _ssaoPipelinestate = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> _peraPipelinestate = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> peraRootsignature = nullptr;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipelineDesc = {};
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC peraGpipeline = {};
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> _ssaoPipelinestate = nullptr;
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 
 	int modelID  = 0;
@@ -45,8 +45,6 @@ protected:
 	void SetResSize(UINT width, UINT height) { resWidth = width; resHeight = height; }
 	void SetFormat(DXGI_FORMAT format) { _format = format; }
 	void SetClearValue(float r, float g, float b, float a) { clsClr[0] = r; clsClr[1] = g; clsClr[2] = b; clsClr[3] = a; }
-	bool CreateBuffers();
-	bool CreateDepthBuffer();
 
 	bool CheckResult(HRESULT result);
 	bool CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, std::string model, Microsoft::WRL::ComPtr<ID3DBlob>& _xsBlob);
@@ -63,6 +61,8 @@ protected:
 	void SetVPAndSR(UINT windowWidth, UINT windowHeight);
 	void SetSRVDesc(DXGI_FORMAT format);
 public:
+	bool CreateBuffers();
+	bool CreateDepthBuffer();
 	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
 	bool Init();
 	void AddModel(std::shared_ptr<Model> model);

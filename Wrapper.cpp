@@ -160,7 +160,7 @@ void Wrapper::ResizeBackBuffers()
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
 	);
 	CreateBackBuffRTV();
-	SceneTransBuffInit();
+	//SceneTransBuffInit();
 }
 
 

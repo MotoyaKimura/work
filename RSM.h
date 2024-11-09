@@ -18,15 +18,6 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	std::shared_ptr<Keyboard> _keyboard;
 
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _RSMBuff;
-	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _RSMRTVHeap = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _DSVHeap = nullptr;
-
-	bool RSMBuffInit();
-	UINT rsmBuffSize = 3;
-	bool LightDepthBuffInit();
-
 public:
 	bool Init();
 	void BeginDraw();

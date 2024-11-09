@@ -321,7 +321,6 @@ bool Renderer::SSAOPipelineStateInit()
 	peraGpipeline.NumRenderTargets = 1;
 	peraGpipeline.RTVFormats[0] = DXGI_FORMAT_R32_FLOAT;
 	peraGpipeline.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	peraGpipeline.BlendState.RenderTarget[0].BlendEnable = false;
 	peraGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
 	peraGpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(
