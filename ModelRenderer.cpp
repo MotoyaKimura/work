@@ -9,8 +9,14 @@ bool ModelRenderer::Init()
 	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
 	if (!RootSignatureInit()) return false;
 	if (!PipelineStateInit()) return false;
-	if (!BuffInit()) return false;
-	if (!DepthBuffInit()) return false;
+	SetNumBuffers(2);
+	SetResSize(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
+	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	if (!CreateBuffers()) return false;
+	if (!CreateDepthBuffer()) return false;
+
+	//if (!BuffInit()) return false;
+	//if (!DepthBuffInit()) return false;
 	return true;
 }
 
@@ -107,19 +113,23 @@ bool ModelRenderer::DepthBuffInit()
 
 void ModelRenderer::BeginDraw()
 {
-	SetBarrierStateToRT(_Buff);
+	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	SetRenderTargets(_rtvHeap, _dsvHeap);
+	SetVPAndSR(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
+
+	/*SetBarrierStateToRT(_Buff);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE peraRTVHs[2] = {};
 	SetRenderTargets(peraRTVHs, _RTVHeap, 2, _DSVHeap, 0);
 	CD3DX12_VIEWPORT vp(0.0f, 0.0f, Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	CD3DX12_RECT rc(0, 0, Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	_dx->GetCommandList()->RSSetViewports(1, &vp);
-	_dx->GetCommandList()->RSSetScissorRects(1, &rc);
+	_dx->GetCommandList()->RSSetScissorRects(1, &rc);*/
 	BeforeDraw(_pipelinestate.Get(), rootsignature.Get());
 }
 
 void ModelRenderer::EndDraw()
 {
-	SetBarrierStateToSR(_Buff);
+	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void ModelRenderer::Draw()
@@ -140,7 +150,7 @@ void ModelRenderer::SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> h
 		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	for (auto& res : _Buff) {
+	for (auto& res : _buffers) {
 		handle = heap->GetCPUDescriptorHandleForHeapStart();
 		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
 		_dx->GetDevice()->CreateShaderResourceView(
@@ -153,7 +163,7 @@ void ModelRenderer::SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> h
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
 	_dx->GetDevice()->CreateShaderResourceView(
-		_DepthBuff.Get(),
+		_depthBuffer.Get(),
 		&srvDesc,
 		handle);
 
@@ -191,41 +201,41 @@ void ModelRenderer::SetBarrierStateToSR(std::vector<Microsoft::WRL::ComPtr<ID3D1
 		SetBarrierStateToSR(res);
 }
 
-void ModelRenderer::SetRenderTargets(CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle[],
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, int numRTDescs,
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, int numDSDescs)
-{
-	auto baseHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	auto rtvIncSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	uint32_t offset = 0;
-	for (int i = 0; i < numRTDescs; ++i) {
-		rtvHandle[i].InitOffsetted(baseHandle, offset);
-		offset += rtvIncSize;
-	}
-
-	if (dsvHeap)
-	{
-		auto dsvHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
-		dsvHandle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV) * numDSDescs;
-		_dx->GetCommandList()->OMSetRenderTargets(numRTDescs, rtvHandle, true, &dsvHandle);
-		_dx->GetCommandList()->ClearDepthStencilView(
-			dsvHandle,
-			D3D12_CLEAR_FLAG_DEPTH,
-			1.0f,
-			0,
-			0,
-			nullptr);
-	}
-	else
-	{
-		_dx->GetCommandList()->OMSetRenderTargets(numRTDescs, rtvHandle, true, nullptr);
-	}
-	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	for (int i = 0; i < numRTDescs; ++i)
-	{
-		_dx->GetCommandList()->ClearRenderTargetView(rtvHandle[i], clearColor, 0, nullptr);
-	}
-}
+//void ModelRenderer::SetRenderTargets(CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle[],
+//	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, int numRTDescs,
+//	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, int numDSDescs)
+//{
+//	auto baseHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
+//	auto rtvIncSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+//	uint32_t offset = 0;
+//	for (int i = 0; i < numRTDescs; ++i) {
+//		rtvHandle[i].InitOffsetted(baseHandle, offset);
+//		offset += rtvIncSize;
+//	}
+//
+//	if (dsvHeap)
+//	{
+//		auto dsvHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
+//		dsvHandle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV) * numDSDescs;
+//		_dx->GetCommandList()->OMSetRenderTargets(numRTDescs, rtvHandle, true, &dsvHandle);
+//		_dx->GetCommandList()->ClearDepthStencilView(
+//			dsvHandle,
+//			D3D12_CLEAR_FLAG_DEPTH,
+//			1.0f,
+//			0,
+//			0,
+//			nullptr);
+//	}
+//	else
+//	{
+//		_dx->GetCommandList()->OMSetRenderTargets(numRTDescs, rtvHandle, true, nullptr);
+//	}
+//	float clearColor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+//	for (int i = 0; i < numRTDescs; ++i)
+//	{
+//		_dx->GetCommandList()->ClearRenderTargetView(rtvHandle[i], clearColor, 0, nullptr);
+//	}
+//}
 
 ModelRenderer::ModelRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard)
 	: Renderer(dx, pera, keyboard), _dx(dx), _pera(pera), _keyboard(keyboard)

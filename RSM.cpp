@@ -9,12 +9,13 @@ bool RSM::Init()
 	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "RSMPS", "ps_5_0", psBlob))) return false;
 	if (!RootSignatureInit()) return false;
 	if (!ShadowPipelineStateInit()) return false;
-	/*SetNumBuffers(3);
+	SetNumBuffers(3);
 	SetResSize(rsm_difinition, rsm_difinition);
+	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	if (!CreateBuffers()) return false;
-	if (!CreateDepthBuffer()) return false;*/
-	if (!RSMBuffInit()) return false;
-	if (!LightDepthBuffInit()) return false;
+	if (!CreateDepthBuffer()) return false;
+	/*if (!RSMBuffInit()) return false;
+	if (!LightDepthBuffInit()) return false;*/
 	return true;
 }
 
@@ -24,6 +25,7 @@ bool RSM::RSMBuffInit()
 	auto resDesc = _dx->GetBackBuff()->GetDesc();
 	resDesc.Width = rsm_difinition;
 	resDesc.Height = rsm_difinition;
+	
 
 	CD3DX12_CLEAR_VALUE clearValue(resDesc.Format, clsClr);
 	_RSMBuff.resize(rsmBuffSize);
@@ -110,7 +112,7 @@ void RSM::SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT 
 	SetSRVDesc(DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	for (auto& res : _RSMBuff) {
+	for (auto& res : _buffers) {
 		handle = heap->GetCPUDescriptorHandleForHeapStart();
 		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
 		_dx->GetDevice()->CreateShaderResourceView(
@@ -122,7 +124,7 @@ void RSM::SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT 
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
 	_dx->GetDevice()->CreateShaderResourceView(
-		_lightDepthBuff.Get(),
+		_depthBuffer.Get(),
 		&srvDesc,
 		handle);
 
@@ -141,21 +143,21 @@ void RSM::SetDepthBuffToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, 
 
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
 	_dx->GetDevice()->CreateShaderResourceView(
-		_lightDepthBuff.Get(),
+		_depthBuffer.Get(),
 		&srvDesc,
 		handle);
 }
 
 void RSM::Draw()
 {
-	SetBarrierState(_RSMBuff, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	SetRenderTargets(_RSMRTVHeap, _DSVHeap);
+	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	SetRenderTargets(_rtvHeap, _dsvHeap);
 	SetVPAndSR(rsm_difinition, rsm_difinition);
 	BeforeDraw(_shadowPipelinestate.Get(), rootsignature.Get());
 	
 	DrawModel();
 
-	SetBarrierState(_RSMBuff, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 RSM::RSM(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard)

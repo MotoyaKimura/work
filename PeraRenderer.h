@@ -32,7 +32,7 @@ public:
 	void BeginDraw();
 	void Draw();
 	void EndDraw();
-	void SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
+	
 	PeraRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
 	~PeraRenderer();
 };

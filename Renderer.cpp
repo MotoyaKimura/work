@@ -522,10 +522,12 @@ bool Renderer::CreateBuffers()
 {
 	_buffers.resize(_numBuffers);
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-		DXGI_FORMAT_R8G8B8A8_UNORM, resWidth, resHeight);
+	auto resDesc = _dx->GetBackBuff()->GetDesc();
+	resDesc.Width = resWidth;
+	resDesc.Height = resHeight;
+	resDesc.Format = _format;
 
-	CD3DX12_CLEAR_VALUE clearValue(resDesc.Format, clsClr);
+	CD3DX12_CLEAR_VALUE clearValue(_format, clsClr);
 	for (auto& res : _buffers) {
 		auto result = _dx->GetDevice()->CreateCommittedResource(
 			&heapProp,
@@ -544,15 +546,18 @@ bool Renderer::CreateBuffers()
 
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&heapDesc,
-		IID_PPV_ARGS(_RTVHeap.ReleaseAndGetAddressOf())
+		IID_PPV_ARGS(_rtvHeap.ReleaseAndGetAddressOf())
 	);
 	if (FAILED(result)) return false;
 
-	auto handle = _RTVHeap->GetCPUDescriptorHandleForHeapStart();
+	auto handle = _rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Format = _format;
 	for (auto& res : _buffers) {
 		_dx->GetDevice()->CreateRenderTargetView(
 			res.Get(),
-			nullptr,
+			&rtvDesc,
 			handle);
 		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
@@ -586,7 +591,7 @@ bool Renderer::CreateDepthBuffer()
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	result = _dx->GetDevice()->CreateDescriptorHeap(
 		&dsvHeapDesc,
-		IID_PPV_ARGS(_DSVHeap.ReleaseAndGetAddressOf())
+		IID_PPV_ARGS(_dsvHeap.ReleaseAndGetAddressOf())
 	);
 	if (FAILED(result)) return false;
 
@@ -595,7 +600,7 @@ bool Renderer::CreateDepthBuffer()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-	auto handle = _DSVHeap->GetCPUDescriptorHandleForHeapStart();
+	auto handle = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	_dx->GetDevice()->CreateDepthStencilView(
 		_depthBuffer.Get(),
 		&dsvDesc,

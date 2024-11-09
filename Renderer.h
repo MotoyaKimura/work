@@ -36,12 +36,15 @@ protected:
 	UINT _numBuffers;
 	UINT resWidth;
 	UINT resHeight;
+	DXGI_FORMAT _format;
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _buffers;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _RTVHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _rtvHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _depthBuffer;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _DSVHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _dsvHeap = nullptr;
 	void SetNumBuffers(UINT num) { _numBuffers = num; }
 	void SetResSize(UINT width, UINT height) { resWidth = width; resHeight = height; }
+	void SetFormat(DXGI_FORMAT format) { _format = format; }
+
 	bool CreateBuffers();
 	bool CreateDepthBuffer();
 

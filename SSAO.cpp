@@ -8,6 +8,9 @@ bool SSAO::Init()
 	if (FAILED(!CompileShaderFile(L"SSAOPixelShader.hlsl", "ssaoPS", "ps_5_0", psBlob))) return false;
 	if (!PeraRootSignatureInit()) return false;
 	if (!SSAOPipelineStateInit()) return false;
+	/*SetNumBuffers(1);
+	SetResSize(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
+	if (!CreateBuffers()) return false;*/
 	if (!SSAOBuffInit()) return false;
 
 	return true;

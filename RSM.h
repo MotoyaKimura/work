@@ -21,7 +21,7 @@ private:
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> _RSMBuff;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _lightDepthBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _RSMRTVHeap = nullptr;
-	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _DSVHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _DSVHeap = nullptr;
 
 	bool RSMBuffInit();
 	UINT rsmBuffSize = 3;
