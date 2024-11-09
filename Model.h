@@ -167,7 +167,7 @@ public:
 	Model(std::shared_ptr<Wrapper> dx, std::string filePath);
 	bool Init();
 	void Update();
-	void Draw(bool isShadow);
+	void Draw();
 	void Move(float x, float y, float z);
 	void Rotate(float x, float y, float z);
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() { return _mTransHeap; }

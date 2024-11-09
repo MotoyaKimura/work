@@ -69,9 +69,7 @@ bool TitleScene::SceneInit()
 		_rsm->AddModel(model);
 		_rsm->SetDepthBuffToHeap(model->GetHeap(), 4);
 		_modelRenderer->AddModel(model);
-		
 	}
-
 	return true;
 }
 
@@ -92,8 +90,6 @@ void TitleScene::SceneRender(void)
 	
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
-
-	
 }
 
 void TitleScene::SceneFinal(void)
@@ -107,10 +103,10 @@ void TitleScene::SceneFinal(void)
 void TitleScene::SceneResize(void)
 {
 	Application::_dx->ResizeBackBuffers();
-	_modelRenderer->DepthBuffInit();
-	_ssao->SSAOBuffInit();
-	_rsm->ResizeBuffers();
-	_modelRenderer->ResizeBuffers();
+	//_modelRenderer->CreateDepthBuffer();
+	//_ssao->CreateBuffers();
+	//_rsm->ResizeBuffers();
+	//_modelRenderer->ResizeBuffers();
 
 }
 

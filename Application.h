@@ -20,7 +20,6 @@ class Application
 private:
 	
 	static std::shared_ptr<SceneManager> _sceneManager;
-	static std::shared_ptr<Scene> _scene;
 
 	static UINT window_width;							//ウィンドウ幅
 	static UINT window_height;							//ウィンドウ高
@@ -32,11 +31,8 @@ private:
 	Application(const Application&) = delete;
 	void operator=(const Application&) = delete;
 	static void CreateGameWindow(HWND& hwnd, WNDCLASSEX& w);
-	static void SetCursorCenterFirst();
 	static void ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain);
 	static bool fullscreenMode;
-	static bool isMinimized;
-	static bool isActiveFirst;
 
 protected:
 	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

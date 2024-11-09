@@ -515,18 +515,6 @@ bool Model::TextureInit()
 		texBuffer.Get(),
 		&srvDesc,
 		handle);
-
-	/*srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_lightDepthBuff"];
-	_dx->GetDevice()->CreateShaderResourceView(
-		_dx->GetLightDepthBuff().Get(),
-		&srvDesc,
-		handle);*/
-
 	
 
 	return true;
@@ -658,7 +646,7 @@ void Model::Update()
 	
 }
 
-void Model::Draw(bool isShadow)
+void Model::Draw()
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
@@ -670,13 +658,9 @@ void Model::Draw(bool isShadow)
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
 		_mTransHeap->GetGPUDescriptorHandleForHeapStart());
-	if (isShadow) {
-		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
-	}
-	else
-	{
-		_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
-	}
+	
+	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
+	
 	
 }
 

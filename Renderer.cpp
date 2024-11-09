@@ -321,7 +321,6 @@ bool Renderer::SSAOPipelineStateInit()
 	peraGpipeline.NumRenderTargets = 1;
 	peraGpipeline.RTVFormats[0] = DXGI_FORMAT_R32_FLOAT;
 	peraGpipeline.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	peraGpipeline.BlendState.RenderTarget[0].BlendEnable = false;
 	peraGpipeline.VS = CD3DX12_SHADER_BYTECODE(vsBlob.Get());
 	peraGpipeline.PS = CD3DX12_SHADER_BYTECODE(psBlob.Get());
 	auto result = _dx->GetDevice()->CreateGraphicsPipelineState(
@@ -338,20 +337,7 @@ Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Key
 
 bool Renderer::Init()
 {
-	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
-	if(FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
-	if (!RootSignatureInit()) return false;
-	if (!PipelineStateInit()) return false;
-	if (FAILED(!CompileShaderFile(L"PeraVertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
-	if (FAILED(!CompileShaderFile(L"PeraPixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
-	if (!PeraRootSignatureInit()) return false;
-	if (!PeraPipelineStateInit()) return false;
-	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadeVS", "vs_5_0", vsBlob))) return false;
-	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "RSMPS", "ps_5_0", psBlob))) return false;
-	if (!ShadowPipelineStateInit()) return false;
-	if (FAILED(!CompileShaderFile(L"SSAOVertexShader.hlsl", "ssaoVS", "vs_5_0", vsBlob))) return false;
-	if (FAILED(!CompileShaderFile(L"SSAOPixelShader.hlsl", "ssaoPS", "ps_5_0", psBlob))) return false;
-	if (!SSAOPipelineStateInit()) return false;
+	
 	return true;
 }
 
@@ -423,54 +409,205 @@ void Renderer::Move()
 	 }
 }
 
-void Renderer::BeforeDrawModel()
-{
-	_dx->GetCommandList()->SetPipelineState(_pipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
-}
-
-void Renderer::BeforeDrawRSM()
-{
-	_dx->GetCommandList()->SetPipelineState(_shadowPipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
-}
-
 void Renderer::DrawModel()
 {
 	for (auto& _models : _models) {
-		_models->Draw(false);
+		_models->Draw();
 	}
-}
-
-void Renderer::DrawRSM()
-{
-	for (auto& _models : _models) {
-		_models->Draw(true);
-	}
-}
-
-void Renderer::BeforeDrawSSAO()
-{
-	_dx->GetCommandList()->SetPipelineState(_ssaoPipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(peraRootsignature.Get());
-}
-
-void Renderer::DrawSSAO()
-{
-	_pera->Draw();
-}
-
-
-void Renderer::BeforeDrawPera()
-{
-	_dx->GetCommandList()->SetPipelineState(_peraPipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(peraRootsignature.Get());
 }
 
 void Renderer::DrawPera()
 {
 	_pera->Draw();
 }
+
+
+void Renderer::BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature)
+{
+	_dx->GetCommandList()->SetPipelineState(pipelinestate.Get());
+	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
+}
+
+void Renderer::SetBarrierState(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
+{
+	CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+		buffer.Get(),
+		before,
+		after
+	);
+	_dx->GetCommandList()->ResourceBarrier(1, &barrier);
+}
+
+void Renderer::SetBarrierState(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const& buffers, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
+{
+	vector<CD3DX12_RESOURCE_BARRIER> barriers;
+	for (auto& buffer : buffers) {
+		barriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(
+			buffer.Get(),
+			before,
+			after
+		));
+	}
+	_dx->GetCommandList()->ResourceBarrier(barriers.size(), barriers.data());
+}
+
+void Renderer::SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap)
+{
+	int numDescs = rtvHeap->GetDesc().NumDescriptors;
+	std::vector<CD3DX12_CPU_DESCRIPTOR_HANDLE> rtvHandles;
+	auto baseHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	auto rtvIncSize =
+		_dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	uint32_t offset = 0;
+	for (int i = 0; i < numDescs; ++i)
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE handle;
+		handle.InitOffsetted(baseHandle, offset);
+		rtvHandles.emplace_back(handle);
+		offset += rtvIncSize;
+	}
+
+	if (dsvHeap)
+	{
+		auto dsvHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
+		_dx->GetCommandList()->OMSetRenderTargets(
+			numDescs,
+			rtvHandles.data(),
+			true,
+			&dsvHandle
+		);
+		_dx->GetCommandList()->ClearDepthStencilView(
+			dsvHandle,
+			D3D12_CLEAR_FLAG_DEPTH,
+			1.0f,
+			0,
+			0,
+			nullptr
+		);
+	}
+	else
+	{
+		_dx->GetCommandList()->OMSetRenderTargets(
+			numDescs,
+			rtvHandles.data(),
+			true,
+			nullptr
+		);
+	}
+	for (int i = 0; i < numDescs; ++i)
+	{
+		_dx->GetCommandList()->ClearRenderTargetView(
+			rtvHandles[i], clsClr, 0, nullptr);
+	}
+}
+void Renderer::SetVPAndSR(UINT windowWidth, UINT windowHeight)
+{
+	CD3DX12_VIEWPORT vp(0.0f, 0.0f, windowWidth, windowHeight);
+	CD3DX12_RECT rc(0, 0, windowWidth, windowHeight);
+	_dx->GetCommandList()->RSSetViewports(1, &vp);
+	_dx->GetCommandList()->RSSetScissorRects(1, &rc);
+}
+
+void Renderer::SetSRVDesc(DXGI_FORMAT format)
+{
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Format = format;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping =
+		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+}
+
+bool Renderer::CreateBuffers()
+{
+	_buffers.resize(_numBuffers);
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	auto resDesc = _dx->GetBackBuff()->GetDesc();
+	resDesc.Width = resWidth;
+	resDesc.Height = resHeight;
+	resDesc.Format = _format;
+
+	CD3DX12_CLEAR_VALUE clearValue(_format, clsClr);
+	for (auto& res : _buffers) {
+		auto result = _dx->GetDevice()->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&resDesc,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			&clearValue,
+			IID_PPV_ARGS(res.ReleaseAndGetAddressOf())
+		);
+		if (FAILED(result)) return false;
+	}
+
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	heapDesc.NumDescriptors = _buffers.size();
+
+	auto result = _dx->GetDevice()->CreateDescriptorHeap(
+		&heapDesc,
+		IID_PPV_ARGS(_rtvHeap.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(result)) return false;
+
+	auto handle = _rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Format = _format;
+	for (auto& res : _buffers) {
+		_dx->GetDevice()->CreateRenderTargetView(
+			res.Get(),
+			&rtvDesc,
+			handle);
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	}
+	return true;
+}
+
+bool Renderer::CreateDepthBuffer()
+{
+	auto depthHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	auto depthResDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		DXGI_FORMAT_R32_TYPELESS, resWidth, resHeight);
+	depthResDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE depthClearValue = {};
+	depthClearValue.DepthStencil.Depth = 1.0f;
+	depthClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+
+	auto result = _dx->GetDevice()->CreateCommittedResource(
+		&depthHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&depthResDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthClearValue,
+		IID_PPV_ARGS(_depthBuffer.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(result)) return false;
+
+
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	result = _dx->GetDevice()->CreateDescriptorHeap(
+		&dsvHeapDesc,
+		IID_PPV_ARGS(_dsvHeap.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(result)) return false;
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	auto handle = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	_dx->GetDevice()->CreateDepthStencilView(
+		_depthBuffer.Get(),
+		&dsvDesc,
+		handle
+	);
+	return true;
+}
+
 
 Renderer::~Renderer()
 {

@@ -26,9 +26,8 @@ void PeraRenderer::BeginDraw()
 	CD3DX12_RECT rc(0, 0, Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	_dx->GetCommandList()->RSSetViewports(1, &vp);
 	_dx->GetCommandList()->RSSetScissorRects(1, &rc);
-
-	_dx->GetCommandList()->SetPipelineState(_peraPipelinestate.Get());
-	_dx->GetCommandList()->SetGraphicsRootSignature(peraRootsignature.Get());
+	BeforeDraw(_peraPipelinestate.Get(), peraRootsignature.Get());
+	
 }
 
 void PeraRenderer::EndDraw()
@@ -48,24 +47,6 @@ void PeraRenderer::Draw()
 	EndDraw();
 }
 
-void PeraRenderer::SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
-{
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.Shader4ComponentMapping =
-		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-
-
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-	_dx->GetDevice()->CreateShaderResourceView(
-		_peraBuff.Get(),
-		&srvDesc,
-		handle);
-}
 
 void PeraRenderer::SetBarrierStateToRT(Microsoft::WRL::ComPtr<ID3D12Resource>const& buffer) const
 {
