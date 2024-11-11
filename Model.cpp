@@ -48,192 +48,192 @@ void Model::LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp)
 	}
 }
 
-std::string Model::LoadTextureFileName(FILE* fp)
-{
-	std::string fileName;
-	std::uint32_t fileNameLen;
-	fread(&fileNameLen, sizeof(fileNameLen), 1, fp);
+//std::string Model::LoadTextureFileName(FILE* fp)
+//{
+//	std::string fileName;
+//	std::uint32_t fileNameLen;
+//	fread(&fileNameLen, sizeof(fileNameLen), 1, fp);
+//
+//	if (fileNameLen > 0) {
+//		char* localFileName = reinterpret_cast<char*>(malloc(fileNameLen + 1));
+//		//ヌル文字分も読み込むので＋１
+//		fread(localFileName, fileNameLen + 1, 1, fp);
+//		fileName = localFileName;
+//		free(localFileName);
+//	}
+//
+//	return fileName;
+//}
 
-	if (fileNameLen > 0) {
-		char* localFileName = reinterpret_cast<char*>(malloc(fileNameLen + 1));
-		//ヌル文字分も読み込むので＋１
-		fread(localFileName, fileNameLen + 1, 1, fp);
-		fileName = localFileName;
-		free(localFileName);
-	}
-
-	return fileName;
-}
-
-void Model::BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath)
-{
-	//アルベドのファイル名をロード。
-	tkmMat.albedoMapFileName = LoadTextureFileName(fp);
-	//法線マップのファイル名をロード。
-	tkmMat.normalMapFileName = LoadTextureFileName(fp);
-	//スペキュラマップのファイル名をロード。
-	tkmMat.specularMapFileName = LoadTextureFileName(fp);
-	//リフレクションマップのファイル名をロード。
-	tkmMat.reflectionMapFileName = LoadTextureFileName(fp);
-	//屈折マップのファイル名をロード。
-	tkmMat.refractionMapFileName = LoadTextureFileName(fp);
-
-	std::string texFilePath = filePath;
-	auto loadTexture = [&](
-		std::string& texFileName,
-		std::unique_ptr<char[]>& ddsFileMemory,
-		unsigned int& fileSize,
-		std::string& texFilePathDst
-		) {
-			int filePathLength = static_cast<int>(texFilePath.length());
-			if (texFileName.length() > 0) {
-				//モデルのファイルパスからラストのフォルダ区切りを探す。
-				auto replaseStartPos = texFilePath.find_last_of('/');
-				if (replaseStartPos == std::string::npos) {
-					replaseStartPos = texFilePath.find_last_of('\\');
-				}
-				replaseStartPos += 1;
-				auto replaceLen = filePathLength - replaseStartPos;
-				texFilePath.replace(replaseStartPos, replaceLen, texFileName);
-				//拡張子をddsに変更する。
-				replaseStartPos = texFilePath.find_last_of('.') + 1;
-				replaceLen = texFilePath.length() - replaseStartPos;
-				texFilePath.replace(replaseStartPos, replaceLen, "dds");
-				//テクスチャファイルパスを記憶しておく。
-				texFilePathDst = texFilePath;
-				std::wstring wstr = GetWideStringFromString(texFilePath);
-				LoadFromDDSFile(wstr.c_str(), DDS_FLAGS_NONE, &metadata, scratchImage);
-
-				//テクスチャをロード。
-				FILE* texFileFp;
-				fopen_s(&texFileFp, texFilePath.c_str(), "rb");
-				if (texFileFp != nullptr) {
-					//ファイルサイズを取得。
-					fseek(texFileFp, 0L, SEEK_END);
-					fileSize = ftell(texFileFp);
-					fseek(texFileFp, 0L, SEEK_SET);
-
-					ddsFileMemory = std::make_unique<char[]>(fileSize);
-					fread(ddsFileMemory.get(), fileSize, 1, texFileFp);
-					fclose(texFileFp);
-				}
-				else {
-
-					MessageBoxA(nullptr, "テクスチャのロードに失敗しました。", "エラー", MB_OK);
-					std::abort();
-				}
-			}
-		};
-	//テクスチャをロード。
-	loadTexture(
-		tkmMat.albedoMapFileName,
-		tkmMat.albedoMap,
-		tkmMat.albedoMapSize,
-		tkmMat.albedoMapFilePath
-	);
-	loadTexture(
-		tkmMat.normalMapFileName,
-		tkmMat.normalMap,
-		tkmMat.normalMapSize,
-		tkmMat.normalMapFilePath
-	);
-	loadTexture(
-		tkmMat.specularMapFileName,
-		tkmMat.specularMap,
-		tkmMat.specularMapSize,
-		tkmMat.specularMapFilePath
-	);
-	loadTexture(
-		tkmMat.reflectionMapFileName,
-		tkmMat.reflectionMap,
-		tkmMat.reflectionMapSize,
-		tkmMat.reflectionMapFilePath
-	);
-	loadTexture(
-		tkmMat.refractionMapFileName,
-		tkmMat.refractionMap,
-		tkmMat.refractionMapSize,
-		tkmMat.refractionMapFilePath
-	);
-}
+//void Model::BuildMaterial(SMaterial& tkmMat, FILE* fp, std::string filePath)
+//{
+//	//アルベドのファイル名をロード。
+//	tkmMat.albedoMapFileName = LoadTextureFileName(fp);
+//	//法線マップのファイル名をロード。
+//	tkmMat.normalMapFileName = LoadTextureFileName(fp);
+//	//スペキュラマップのファイル名をロード。
+//	tkmMat.specularMapFileName = LoadTextureFileName(fp);
+//	//リフレクションマップのファイル名をロード。
+//	tkmMat.reflectionMapFileName = LoadTextureFileName(fp);
+//	//屈折マップのファイル名をロード。
+//	tkmMat.refractionMapFileName = LoadTextureFileName(fp);
+//
+//	std::string texFilePath = filePath;
+//	auto loadTexture = [&](
+//		std::string& texFileName,
+//		std::unique_ptr<char[]>& ddsFileMemory,
+//		unsigned int& fileSize,
+//		std::string& texFilePathDst
+//		) {
+//			int filePathLength = static_cast<int>(texFilePath.length());
+//			if (texFileName.length() > 0) {
+//				//モデルのファイルパスからラストのフォルダ区切りを探す。
+//				auto replaseStartPos = texFilePath.find_last_of('/');
+//				if (replaseStartPos == std::string::npos) {
+//					replaseStartPos = texFilePath.find_last_of('\\');
+//				}
+//				replaseStartPos += 1;
+//				auto replaceLen = filePathLength - replaseStartPos;
+//				texFilePath.replace(replaseStartPos, replaceLen, texFileName);
+//				//拡張子をddsに変更する。
+//				replaseStartPos = texFilePath.find_last_of('.') + 1;
+//				replaceLen = texFilePath.length() - replaseStartPos;
+//				texFilePath.replace(replaseStartPos, replaceLen, "dds");
+//				//テクスチャファイルパスを記憶しておく。
+//				texFilePathDst = texFilePath;
+//				std::wstring wstr = GetWideStringFromString(texFilePath);
+//				LoadFromDDSFile(wstr.c_str(), DDS_FLAGS_NONE, &metadata, scratchImage);
+//
+//				//テクスチャをロード。
+//				FILE* texFileFp;
+//				fopen_s(&texFileFp, texFilePath.c_str(), "rb");
+//				if (texFileFp != nullptr) {
+//					//ファイルサイズを取得。
+//					fseek(texFileFp, 0L, SEEK_END);
+//					fileSize = ftell(texFileFp);
+//					fseek(texFileFp, 0L, SEEK_SET);
+//
+//					ddsFileMemory = std::make_unique<char[]>(fileSize);
+//					fread(ddsFileMemory.get(), fileSize, 1, texFileFp);
+//					fclose(texFileFp);
+//				}
+//				else {
+//
+//					MessageBoxA(nullptr, "テクスチャのロードに失敗しました。", "エラー", MB_OK);
+//					std::abort();
+//				}
+//			}
+//		};
+//	//テクスチャをロード。
+//	loadTexture(
+//		tkmMat.albedoMapFileName,
+//		tkmMat.albedoMap,
+//		tkmMat.albedoMapSize,
+//		tkmMat.albedoMapFilePath
+//	);
+//	loadTexture(
+//		tkmMat.normalMapFileName,
+//		tkmMat.normalMap,
+//		tkmMat.normalMapSize,
+//		tkmMat.normalMapFilePath
+//	);
+//	loadTexture(
+//		tkmMat.specularMapFileName,
+//		tkmMat.specularMap,
+//		tkmMat.specularMapSize,
+//		tkmMat.specularMapFilePath
+//	);
+//	loadTexture(
+//		tkmMat.reflectionMapFileName,
+//		tkmMat.reflectionMap,
+//		tkmMat.reflectionMapSize,
+//		tkmMat.reflectionMapFilePath
+//	);
+//	loadTexture(
+//		tkmMat.refractionMapFileName,
+//		tkmMat.refractionMap,
+//		tkmMat.refractionMapSize,
+//		tkmMat.refractionMapFilePath
+//	);
+//}
 
 
-bool Model::LoadModel(std::string filePath)
-{
-	FILE* fp;
-
-	fopen_s(&fp, filePath.c_str(), "rb");
-	if (fp == nullptr) {
-		MessageBoxA(nullptr, "tkmファイルが開けません。", "エラー", MB_OK);
-		return false;
-	}
-
-	SHeader header;
-	fread(&header, sizeof(header), 1, fp);
-	if (header.version != VERSION) {
-		//tkmファイルのバージョンが違う。
-		MessageBoxA(nullptr, "tkmファイルのバージョンが異なっています。", "エラー", MB_OK);
-	}
-
-	m_meshParts.resize(header.numMeshParts);
-
-	for (int meshPartsNo = 0; meshPartsNo < header.numMeshParts; meshPartsNo++) {
-
-		SMesh& meshPart = m_meshParts[meshPartsNo];
-		meshPart.isFlatShading = header.isFlatShading;
-
-		SMeshePartsHeader meshPartsHeader;
-		fread(&meshPartsHeader, sizeof(meshPartsHeader), 1, fp);
-
-		meshPart.materials.resize(meshPartsHeader.numMaterial);
-		vertexNum = meshPartsHeader.numVertex;
-
-		for (unsigned int materialNo = 0; materialNo < meshPartsHeader.numMaterial; materialNo++) {
-			auto& material = meshPart.materials[materialNo];
-			BuildMaterial(material, fp, filePath);
-		}
-
-		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex);
-		//fread(meshPart.vertexBuffer.data(), meshPart.vertexBuffer.size(), 1, fp);
-		
-		for (unsigned int vertNo = 0; vertNo < meshPartsHeader.numVertex; vertNo++) {
-			auto& vertex = meshPart.vertexBuffer[vertNo];
-			fread(&vertex, sizeof(vertex), 1, fp);
-		}
-
-		if (meshPartsHeader.indexSize == 2) {
-			//16bitのインデックスバッファ。
-			meshPart.indexBuffer16Array.resize(meshPartsHeader.numMaterial);
-		}
-		else {
-			//32bitのインデックスバッファ。
-			meshPart.indexBuffer32Array.resize(meshPartsHeader.numMaterial);
-		}
-
-		for (unsigned int materialNo = 0; materialNo < meshPartsHeader.numMaterial; materialNo++) {
-			//ポリゴン数をロード。
-			int numPolygon;
-			fread(&numPolygon, sizeof(numPolygon), 1, fp);
-			//トポロジーはトライアングルリストオンリーなので、3を乗算するとインデックスの数になる。
-			numIndex = numPolygon * 3;
-			if (meshPartsHeader.indexSize == 2) {
-				LoadIndexBuffer(
-					meshPart.indexBuffer16Array[materialNo].indices,
-					numIndex,
-					fp
-				);
-			}
-			else {
-				LoadIndexBuffer(
-					meshPart.indexBuffer32Array[materialNo].indices,
-					numIndex,
-					fp
-				);
-			}
-		}
-	}
-	fclose(fp);
-}
+//bool Model::LoadModel(std::string filePath)
+//{
+//	FILE* fp;
+//
+//	fopen_s(&fp, filePath.c_str(), "rb");
+//	if (fp == nullptr) {
+//		MessageBoxA(nullptr, "tkmファイルが開けません。", "エラー", MB_OK);
+//		return false;
+//	}
+//
+//	SHeader header;
+//	fread(&header, sizeof(header), 1, fp);
+//	if (header.version != VERSION) {
+//		//tkmファイルのバージョンが違う。
+//		MessageBoxA(nullptr, "tkmファイルのバージョンが異なっています。", "エラー", MB_OK);
+//	}
+//
+//	m_meshParts.resize(header.numMeshParts);
+//
+//	for (int meshPartsNo = 0; meshPartsNo < header.numMeshParts; meshPartsNo++) {
+//
+//		SMesh& meshPart = m_meshParts[meshPartsNo];
+//		meshPart.isFlatShading = header.isFlatShading;
+//
+//		SMeshePartsHeader meshPartsHeader;
+//		fread(&meshPartsHeader, sizeof(meshPartsHeader), 1, fp);
+//
+//		meshPart.materials.resize(meshPartsHeader.numMaterial);
+//		vertexNum = meshPartsHeader.numVertex;
+//
+//		for (unsigned int materialNo = 0; materialNo < meshPartsHeader.numMaterial; materialNo++) {
+//			auto& material = meshPart.materials[materialNo];
+//			BuildMaterial(material, fp, filePath);
+//		}
+//
+//		meshPart.vertexBuffer.resize(meshPartsHeader.numVertex);
+//		//fread(meshPart.vertexBuffer.data(), meshPart.vertexBuffer.size(), 1, fp);
+//		
+//		for (unsigned int vertNo = 0; vertNo < meshPartsHeader.numVertex; vertNo++) {
+//			auto& vertex = meshPart.vertexBuffer[vertNo];
+//			fread(&vertex, sizeof(vertex), 1, fp);
+//		}
+//
+//		if (meshPartsHeader.indexSize == 2) {
+//			//16bitのインデックスバッファ。
+//			meshPart.indexBuffer16Array.resize(meshPartsHeader.numMaterial);
+//		}
+//		else {
+//			//32bitのインデックスバッファ。
+//			meshPart.indexBuffer32Array.resize(meshPartsHeader.numMaterial);
+//		}
+//
+//		for (unsigned int materialNo = 0; materialNo < meshPartsHeader.numMaterial; materialNo++) {
+//			//ポリゴン数をロード。
+//			int numPolygon;
+//			fread(&numPolygon, sizeof(numPolygon), 1, fp);
+//			//トポロジーはトライアングルリストオンリーなので、3を乗算するとインデックスの数になる。
+//			numIndex = numPolygon * 3;
+//			if (meshPartsHeader.indexSize == 2) {
+//				LoadIndexBuffer(
+//					meshPart.indexBuffer16Array[materialNo].indices,
+//					numIndex,
+//					fp
+//				);
+//			}
+//			else {
+//				LoadIndexBuffer(
+//					meshPart.indexBuffer32Array[materialNo].indices,
+//					numIndex,
+//					fp
+//				);
+//			}
+//		}
+//	}
+//	fclose(fp);
+//}
 
 bool Model::Load(std::string filePath)
 {
@@ -460,65 +460,65 @@ bool Model::IndexInit()
 	return true;
 }
 
-bool Model::TextureInit()
-{
-	LoadFromWICFile(L"modelData/teapot/default.png", WIC_FLAGS_NONE, &metadata, scratchImage);
-	//LoadFromWICFile(L"modelData/erato/erato-101.jpg", WIC_FLAGS_NONE, &metadata, scratchImage);
-	D3D12_HEAP_PROPERTIES heapProp = {};
-	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
-	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
-	heapProp.CreationNodeMask = 0;
-	heapProp.VisibleNodeMask = 0;
-	D3D12_RESOURCE_DESC resDesc = {};
-	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	resDesc.Width = metadata.width;
-	resDesc.Height = metadata.height;
-	resDesc.DepthOrArraySize = metadata.arraySize;
-	resDesc.SampleDesc.Count = 1;
-	resDesc.SampleDesc.Quality = 0;
-	resDesc.MipLevels = 1;
-	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(metadata.dimension);
-	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-	auto result = _dx->GetDevice()->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		nullptr,
-		IID_PPV_ARGS(texBuffer.ReleaseAndGetAddressOf()));
-	if (FAILED(result)) return false;
-	auto img = scratchImage.GetImage(0, 0, 0);
-	result = texBuffer->WriteToSubresource(
-		0,
-		nullptr,
-		img->pixels,
-		img->rowPitch,
-		img->slicePitch
-	);
-
-	
-	
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-
-	_mTransMap["texBuffer"] = mTransHeapNum++;
-	_mTransMap["_lightDepthBuff"] = mTransHeapNum++;
-
-	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["texBuffer"];
-	_dx->GetDevice()->CreateShaderResourceView(
-		texBuffer.Get(),
-		&srvDesc,
-		handle);
-	
-
-	return true;
-}
+//bool Model::TextureInit()
+//{
+//	LoadFromWICFile(L"modelData/teapot/default.png", WIC_FLAGS_NONE, &metadata, scratchImage);
+//	//LoadFromWICFile(L"modelData/erato/erato-101.jpg", WIC_FLAGS_NONE, &metadata, scratchImage);
+//	D3D12_HEAP_PROPERTIES heapProp = {};
+//	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
+//	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+//	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+//	heapProp.CreationNodeMask = 0;
+//	heapProp.VisibleNodeMask = 0;
+//	D3D12_RESOURCE_DESC resDesc = {};
+//	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+//	resDesc.Width = metadata.width;
+//	resDesc.Height = metadata.height;
+//	resDesc.DepthOrArraySize = metadata.arraySize;
+//	resDesc.SampleDesc.Count = 1;
+//	resDesc.SampleDesc.Quality = 0;
+//	resDesc.MipLevels = 1;
+//	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(metadata.dimension);
+//	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+//	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+//	auto result = _dx->GetDevice()->CreateCommittedResource(
+//		&heapProp,
+//		D3D12_HEAP_FLAG_NONE,
+//		&resDesc,
+//		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+//		nullptr,
+//		IID_PPV_ARGS(texBuffer.ReleaseAndGetAddressOf()));
+//	if (FAILED(result)) return false;
+//	auto img = scratchImage.GetImage(0, 0, 0);
+//	result = texBuffer->WriteToSubresource(
+//		0,
+//		nullptr,
+//		img->pixels,
+//		img->rowPitch,
+//		img->slicePitch
+//	);
+//
+//	
+//	
+//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+//	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+//	srvDesc.Texture2D.MipLevels = 1;
+//
+//	//_mTransMap["texBuffer"] = mTransHeapNum++;
+//	_mTransMap["_lightDepthBuff"] = mTransHeapNum++;
+//
+//	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
+//	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["texBuffer"];
+//	_dx->GetDevice()->CreateShaderResourceView(
+//		texBuffer.Get(),
+//		&srvDesc,
+//		handle);
+//	
+//
+//	return true;
+//}
 
 bool Model::MTransBuffInit()
 {
@@ -547,7 +547,7 @@ bool Model::MTransHeapInit()
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 5;
+	descHeapDesc.NumDescriptors = 4;
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&descHeapDesc,
@@ -628,7 +628,6 @@ bool Model::Init()
 	if (!MTransHeapInit()) return false;
 	if (!CreateMTransView()) return false;
 	if (!MaterialBuffInit()) return false;
-	if (!TextureInit()) return false;
 	return true;
 }
 

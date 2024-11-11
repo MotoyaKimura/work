@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Microsoft::WRL;
 
-bool Renderer::CheckResult(HRESULT result)
+bool Renderer::CheckResult(HRESULT result) const
 {
 	if (FAILED(result))
 	{
@@ -144,25 +144,27 @@ void Renderer::ResizeBuffers()
 	}
 }
 
-void Renderer::Move()
+void Renderer::Move() const
 {
 	_keyboard->Move();
 }
 
-void Renderer::DrawModel()
+void Renderer::DrawModel() const
+
 {
 	for (auto& _models : _models) {
 		_models->Draw();
 	}
 }
 
-void Renderer::DrawPera()
+void Renderer::DrawPera() const
 {
 	_pera->Draw();
 }
 
 
-void Renderer::BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature)
+void Renderer::BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate,
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature) const
 {
 	_dx->GetCommandList()->SetPipelineState(pipelinestate.Get());
 	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());

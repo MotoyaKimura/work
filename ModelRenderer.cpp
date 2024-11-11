@@ -44,7 +44,7 @@ void ModelRenderer::SetRootSigParam()
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 3, 0);
 	ranges.emplace_back(descTblRange);
 	//モデルテクスチャ（今は使っていない） 、ライト深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 	ranges.emplace_back(descTblRange);
 	rootParam.InitAsDescriptorTable(ranges.size(), ranges.data());
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc;

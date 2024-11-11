@@ -47,7 +47,7 @@ protected:
 	void SetClearValue(float r, float g, float b, float a) { clsClr[0] = r; clsClr[1] = g; clsClr[2] = b; clsClr[3] = a; }
 	void AddElement(const char* semantics, DXGI_FORMAT format);
 
-	bool CheckResult(HRESULT result);
+	bool CheckResult(HRESULT result) const;
 	bool CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, std::string model, Microsoft::WRL::ComPtr<ID3DBlob>& _xsBlob);
 	bool RootSignatureInit();
 	bool PipelineStateInit();
@@ -62,16 +62,21 @@ public:
 	void SetRTsToHeapAsSRV(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
 	bool CreateBuffers();
 	bool CreateDepthBuffer();
-	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera);
+	Renderer(std::shared_ptr<Wrapper> dx,
+		std::shared_ptr<Pera> pera, 
+		std::shared_ptr<Keyboard> keyboard,
+		std::vector<std::shared_ptr<Model>> models, 
+		std::shared_ptr<Camera> camera);
 	virtual bool Init() = 0;
 	virtual void Draw() = 0;
 	virtual void SetRootSigParam() = 0;
 	void AddModel(std::shared_ptr<Model> model);
-	void Move();
+	void Move() const;
 	void Update();
-	void BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature);
-	void DrawModel();
-	void DrawPera();
+	void BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate,
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature) const ;
+	void DrawModel() const ;
+	void DrawPera() const ;
 	void ResizeBuffers();
 	virtual ~Renderer();
 };

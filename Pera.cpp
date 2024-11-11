@@ -57,7 +57,7 @@ bool Pera::Init()
 	return true;
 }
 
-void Pera::Draw()
+void Pera::Draw() const
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	_dx->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);

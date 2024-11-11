@@ -9,7 +9,7 @@
 
 bool GameScene::SceneInit(void)
 {
-	_pera.reset(new Pera(Application::_dx));
+	//_pera.reset(new Pera(Application::_dx));
 	if (!_pera->Init())
 	{
 		Application::DebugOutputFormatString("ペラポリゴンの初期化エラー\n ");
@@ -90,7 +90,7 @@ void GameScene::SceneFinal(void)
 
 void GameScene::SceneResize(void)
 {
-	Application::_dx->ResizeBackBuffers();
+//	Application::_dx->ResizeBackBuffers();
 	_renderer->ResizeBuffers();
 }
 

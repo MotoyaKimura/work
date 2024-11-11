@@ -1,6 +1,5 @@
 #pragma once
 #include <Windows.h>
-#include <DirectXMath.h>
 #include <iostream>
 #include <vector>
 class Camera;

@@ -1,9 +1,4 @@
 #pragma once
-
-
-#ifdef _DEBUG
-#include <iostream>
-#endif
 #include "SceneManager.h"
 
 

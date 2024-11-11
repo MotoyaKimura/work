@@ -1,9 +1,6 @@
 #include "Application.h"
 #include "Wrapper.h"
-#include "Pera.h"
-#include "Model.h"
 #include "SceneManager.h"
-#include "Scene.h"
 #include <Windows.h>
 #include <tchar.h>
 

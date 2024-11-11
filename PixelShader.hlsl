@@ -8,10 +8,6 @@ PixelOutput PS(Output input) : SV_TARGET
     float2 shadowUV = (posFromLightVP + float2(1, -1)) * float2(0.5, -0.5);
     float depthFromLight = lightDepthTex.SampleCmp(shadowSmp, shadowUV, posFromLightVP.z - 0.001f);
     float shadowWeight = lerp(0.5f, 1.0f, depthFromLight);
-    //if(depthFromLight < posFromLightVP.z - 0.001f)
-    //{
-    //    shadowWeight = 0.5f;
-    //}
     
     if (input.instNo == 1)
     {
@@ -20,9 +16,7 @@ PixelOutput PS(Output input) : SV_TARGET
         return output;
     }
     float brightness = saturate(dot(normalize(lightVec), input.normal.xyz));
-    float4 texColor = texCol.Sample(smp, input.uv);
     output.col = max(saturate(float4(diffuse.xyz * brightness * shadowWeight, 1.0f)), saturate(float4(diffuse.xyz * 0.2, 1.0f)));
-    //output.col = float4(normalize(input.pos.xyz), 1.0f);
     output.normal.rgb = float3((input.normal.xyz + 1.0f) / 2.0f);
     output.normal.a = 1.0f;
     return output;

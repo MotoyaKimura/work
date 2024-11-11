@@ -172,7 +172,7 @@ public:
 	void Draw();
 	void Move(float x, float y, float z);
 	void Rotate(float x, float y, float z);
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() { return _mTransHeap; }
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const { return _mTransHeap; }
 	DirectX::XMFLOAT3* GetPos();
 	DirectX::XMFLOAT3* GetRotate();
 	~Model();
