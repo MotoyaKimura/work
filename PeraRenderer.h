@@ -3,6 +3,7 @@
 #include <d3d12.h>
 #include <d3dx12.h>
 
+class Camera;
 class Wrapper;
 class Pera;
 class Keyboard;
@@ -14,26 +15,22 @@ private:
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Pera> _pera;
 	std::shared_ptr<Keyboard> _keyboard;
+	std::vector<std::shared_ptr<Model>> _models;
+	std::shared_ptr<Camera> _camera;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> _peraBuff;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _peraRTVHeap = nullptr;
 
-	bool PeraBuffInit();
-
-	void SetBarrierStateToRT(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer) const;
-	void SetBarrierStateToRT(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const& buffers) const;
-	void SetBarrierStateToSR(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer) const;
-	void SetBarrierStateToSR(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const& buffers) const;
-	void SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, int numRTDescs,
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, int numDSDescs);
+	/*void SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, int numRTDescs,
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, int numDSDescs);*/
 
 public:
 	bool Init();
 	void BeginDraw();
 	void Draw();
 	void EndDraw();
-	
-	PeraRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
+	void SetRootSigParam();
+	PeraRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera);
 	~PeraRenderer();
 };
 

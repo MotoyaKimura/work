@@ -1,9 +1,10 @@
 #include "Keyboard.h"
-
+#include "Model.h"
 #include "Application.h"
+#include "Camera.h"
 
 
-void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX::XMFLOAT3* _eyePos, DirectX::XMFLOAT3* _targetPos)
+void Keyboard::Move()
 {
 	if (_hwnd != GetActiveWindow()) {
 		
@@ -20,6 +21,22 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 		isActiveFirst = false;
 	}
 
+	int modelNum = _models.size();
+	BYTE keycode[256];
+	int modelID = 0;
+	GetKeyboardState(keycode);
+	int key = 0x60;
+	if (modelNum < 10)
+		for (int i = 0; i < modelNum; i++)
+		{
+			if (keycode[key + i] & 0x80)
+				modelID = (key + i) & 0x0f;
+		}
+	
+	DirectX::XMFLOAT3* _pos = _models[modelID]->GetPos();
+	DirectX::XMFLOAT3* _rotate = _models[modelID]->GetRotate();
+	DirectX::XMFLOAT3* _eyePos = _camera->GetEyePos();
+	DirectX::XMFLOAT3* _targetPos = _camera->GetTargetPos();
 	
 	DirectX::XMVECTOR eyeToTarget =DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(_pos), DirectX::XMLoadFloat3(_eyePos));
 	DirectX::XMVECTOR vFront = DirectX::XMVectorSetY(eyeToTarget, 0);
@@ -111,7 +128,8 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 }
 
 
-Keyboard::Keyboard(HWND hwnd) : _hwnd(hwnd)
+Keyboard::Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models) :
+	_hwnd(hwnd), _camera(camera), _models(models)
 {
 }
 

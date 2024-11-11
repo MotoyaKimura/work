@@ -16,16 +16,16 @@ bool GameScene::SceneInit(void)
 		return false;
 	}
 
-	_keyboard.reset(new Keyboard(Application::hwnd));
+	//_keyboard.reset(new Keyboard(Application::hwnd));
 
-	_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
+	/*_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
 	if (!_renderer->Init())
 	{
 		Application::DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
 		return false;
-	}
+	}*/
 
-	modelNum = 4;
+	/*modelNum = 4;
 	_models.resize(modelNum);
 	_models[0].reset(new Model(Application::_dx, "modelData/bunny/bunny.obj"));
 	_models[0]->Move(30, 0, 30);
@@ -43,7 +43,7 @@ bool GameScene::SceneInit(void)
 			return false;
 		}
 		_renderer->AddModel(model);
-	}
+	}*/
 
 	
 

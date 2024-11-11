@@ -10,6 +10,7 @@
 #include "ModelRenderer.h"
 #include "SSAO.h"
 #include "PeraRenderer.h"
+#include "Camera.h"
 
 void TitleScene::FadeoutUpdate()
 {
@@ -25,39 +26,24 @@ bool TitleScene::SceneInit()
 		return false;
 	}
 
-	_keyboard.reset(new Keyboard(Application::hwnd));
+	_camera.reset(new Camera(Application::_dx, _pera));
 
-
-	/*_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
-	if (!_renderer->Init())
+	if(!_camera->Init())
 	{
-		Application::DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
+		Application::DebugOutputFormatString("カメラの初期化エラー\n ");
 		return false;
-	}*/
+	}
 
-	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard));
-	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard));
-	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard));
-	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard));
-	_rsm->Init();
-	_modelRenderer->Init();
-	_ssao->Init();
-	_peraRenderer->Init();
-
-	_modelRenderer->SetSRVsToHeap(_pera->GetHeap(), 0);
-	_rsm->SetSRVsToHeap(_pera->GetHeap(), 3);
-	_ssao->SetSRVsToHeap(_pera->GetHeap(), 7);
-	Application::_dx->SetSRVsToHeap(_pera->GetHeap(), 8);
 
 	modelNum = 4;
 	_models.resize(modelNum);
-	_models[0].reset(new Model(Application::_dx, "modelData/bunny/bunny.obj"));
+	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
 	_models[0]->Move(30, 0, 30);
-	_models[1] = std::make_shared<Model>(Application::_dx, "modelData/RSMScene/floor/floor.obj");
+	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj");
 	_models[1]->Move(30, 0, 30);
-	_models[2] = std::make_shared<Model>(Application::_dx, "modelData/RSMScene/wall/wall_red.obj");
+	_models[2] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[2]->Move(30, 30, 0);
-	_models[3] = std::make_shared<Model>(Application::_dx, "modelData/RSMScene/wall/wall_green.obj");
+	_models[3] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
 	_models[3]->Move(0, 30, 30);
 	for (auto model : _models)
 	{
@@ -66,10 +52,21 @@ bool TitleScene::SceneInit()
 			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
 			return false;
 		}
-		_rsm->AddModel(model);
-		_rsm->SetDepthBuffToHeap(model->GetHeap(), 4);
-		_modelRenderer->AddModel(model);
 	}
+
+	_keyboard.reset(new Keyboard(Application::hwnd, _camera, _models));
+
+
+	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard, _models, _camera));
+	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models, _camera));
+	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+	_rsm->Init();
+	_modelRenderer->Init();
+	_ssao->Init();
+	_peraRenderer->Init();
+
+	
 	return true;
 }
 
@@ -94,10 +91,10 @@ void TitleScene::SceneRender(void)
 
 void TitleScene::SceneFinal(void)
 {
-	/*_renderer.reset();
+	_renderer.reset();
 	_pera.reset();
 	_keyboard.reset();
-	_models.clear();*/
+	_models.clear();
 }
 
 void TitleScene::SceneResize(void)

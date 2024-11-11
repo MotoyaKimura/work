@@ -6,11 +6,13 @@
 #include <map>
 #include <assimp/scene.h>
 
+class Camera;
 class Wrapper;
 class Model
 {
 private:
 	std::shared_ptr<Wrapper> _dx;
+	std::shared_ptr<Camera> _camera;
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer = nullptr;
@@ -164,7 +166,7 @@ public:
 
 	bool Load(std::string filePath);
 	bool LoadModel(std::string filePath);
-	Model(std::shared_ptr<Wrapper> dx, std::string filePath);
+	Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath);
 	bool Init();
 	void Update();
 	void Draw();
