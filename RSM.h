@@ -20,10 +20,8 @@ private:
 
 public:
 	bool Init();
-	void BeginDraw();
 	void Draw();
-	void EndDraw();
-	void SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
+	void SetRootSigParam();
 	void SetDepthBuffToHeap( Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
 	
 	RSM(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);

@@ -18,12 +18,12 @@ bool GameScene::SceneInit(void)
 
 	_keyboard.reset(new Keyboard(Application::hwnd));
 
-	_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
+	/*_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
 	if (!_renderer->Init())
 	{
 		Application::DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
 		return false;
-	}
+	}*/
 
 	modelNum = 4;
 	_models.resize(modelNum);

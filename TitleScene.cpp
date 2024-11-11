@@ -27,14 +27,6 @@ bool TitleScene::SceneInit()
 
 	_keyboard.reset(new Keyboard(Application::hwnd));
 
-
-	/*_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
-	if (!_renderer->Init())
-	{
-		Application::DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
-		return false;
-	}*/
-
 	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard));
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard));
 	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard));
@@ -44,10 +36,10 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_modelRenderer->SetSRVsToHeap(_pera->GetHeap(), 0);
-	_rsm->SetSRVsToHeap(_pera->GetHeap(), 3);
-	_ssao->SetSRVsToHeap(_pera->GetHeap(), 7);
-	Application::_dx->SetSRVsToHeap(_pera->GetHeap(), 8);
+	_modelRenderer->SetRTsToHeapAsSRV(_pera->GetHeap(), 0);
+	_rsm->SetRTsToHeapAsSRV(_pera->GetHeap(), 3);
+	_ssao->SetRTsToHeapAsSRV(_pera->GetHeap(), 7);
+	Application::_dx->SetCBVToHeap(_pera->GetHeap(), 8);
 
 	modelNum = 4;
 	_models.resize(modelNum);
@@ -94,10 +86,10 @@ void TitleScene::SceneRender(void)
 
 void TitleScene::SceneFinal(void)
 {
-	/*_renderer.reset();
+	_renderer.reset();
 	_pera.reset();
 	_keyboard.reset();
-	_models.clear();*/
+	_models.clear();
 }
 
 void TitleScene::SceneResize(void)

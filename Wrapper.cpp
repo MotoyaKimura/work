@@ -309,7 +309,7 @@ void Wrapper::ExecuteCommand()
 	_cmdList->Reset(_cmdAllocator.Get(), nullptr);
 }
 
-void Wrapper::SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
+void Wrapper::SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
 {
 	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs;

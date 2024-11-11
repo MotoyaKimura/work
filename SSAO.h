@@ -18,7 +18,7 @@ protected:
 public:
 	bool Init();
 	void Draw();
-	void SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
+	void SetRootSigParam();
 	SSAO(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
 	~SSAO();
 };

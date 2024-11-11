@@ -5,10 +5,6 @@
 
 bool ModelRenderer::Init()
 {
-	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
-	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
-	if (!RootSignatureInit()) return false;
-	if (!PipelineStateInit()) return false;
 	SetNumBuffers(2);
 	SetResSize(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -16,48 +12,51 @@ bool ModelRenderer::Init()
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
 
+	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
+	SetRootSigParam();
+	if (!RootSignatureInit()) return false;
+	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
+	AddElement("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);
+	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
+	AddElement("TANGENT", DXGI_FORMAT_R32G32B32_FLOAT);
+	if (!PipelineStateInit()) return false;
+
 	return true;
 }
 
 void ModelRenderer::Draw()
 {
 	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	SetRenderTargets(_rtvHeap, _dsvHeap);
+	SetRenderTargets(_rtvHeap, _dsvHeap,false);
 	SetVPAndSR(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	BeforeDraw(_pipelinestate.Get(), rootsignature.Get());
 	DrawModel();
 	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-
-void ModelRenderer::SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
+void ModelRenderer::SetRootSigParam()
 {
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Shader4ComponentMapping =
-		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	for (auto& res : _buffers) {
-		handle = heap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-		_dx->GetDevice()->CreateShaderResourceView(
-			res.Get(),
-			&srvDesc,
-			handle);
-	}
-
-	handle = heap->GetCPUDescriptorHandleForHeapStart();
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-	_dx->GetDevice()->CreateShaderResourceView(
-		_depthBuffer.Get(),
-		&srvDesc,
-		handle);
+	CD3DX12_DESCRIPTOR_RANGE descTblRange;
+	//カメラ、モデル座標、マテリアル
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 3, 0);
+	ranges.emplace_back(descTblRange);
+	//モデルテクスチャ（今は使っていない） 、ライト深度テクスチャ
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0);
+	ranges.emplace_back(descTblRange);
+	rootParam.InitAsDescriptorTable(ranges.size(), ranges.data());
+	CD3DX12_STATIC_SAMPLER_DESC samplerDesc;
+	samplerDesc.Init(0);
+	samplers.emplace_back(samplerDesc);
+	samplerDesc.Init(
+		1,
+		D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	);
+	samplers.emplace_back(samplerDesc);
 }
-
 
 ModelRenderer::ModelRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard)
 	: Renderer(dx, pera, keyboard), _dx(dx), _pera(pera), _keyboard(keyboard)

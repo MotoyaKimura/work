@@ -71,7 +71,7 @@ public:
 	void Flip();
 	void ResizeBackBuffers();
 
-	void SetSRVsToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
+	void SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const {return _dev.Get();}
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const {return  _cmdList.Get();}
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> GetSwapChain() const { return _swapchain.Get();}

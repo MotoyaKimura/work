@@ -29,6 +29,15 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 		PostQuitMessage(0);
 		return 0;
 	}
+
+	if (msg == WM_KEYDOWN)
+	{
+		if (wParam == VK_ESCAPE)
+		{
+			PostMessage(hwnd, WM_CLOSE, 0, 0);
+			return 0;
+		}
+	}
 	
 	if(msg == WM_ACTIVATE)
 	{
@@ -71,6 +80,8 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			return 0;
 		}
 	}
+
+	
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
@@ -222,6 +233,7 @@ void Application::Run()
 void Application::Terminate()
 {
 	_sceneManager->FinalizeSceneManager();
+	_sceneManager.reset();
 	CoUninitialize();
 	UnregisterClass(w.lpszClassName, w.hInstance);
 }
