@@ -5,6 +5,7 @@
 
 #pragma comment(lib, "d3dcompiler.lib")
 
+class Camera;
 class Wrapper;
 class Pera;
 class Model;
@@ -16,6 +17,7 @@ protected:
 	std::shared_ptr<Pera> _pera;
 	std::vector<std::shared_ptr<Model>> _models;
 	std::shared_ptr<Keyboard> _keyboard;
+	std::shared_ptr<Camera> _camera;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr;
@@ -60,7 +62,7 @@ public:
 	void SetRTsToHeapAsSRV(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
 	bool CreateBuffers();
 	bool CreateDepthBuffer();
-	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models);
+	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera);
 	virtual bool Init() = 0;
 	virtual void Draw() = 0;
 	virtual void SetRootSigParam() = 0;

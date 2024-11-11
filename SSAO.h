@@ -3,6 +3,7 @@
 #include <d3d12.h>
 #include <d3dx12.h>
 
+class Camera;
 class Wrapper;
 class Pera;
 class Keyboard;
@@ -15,11 +16,12 @@ protected:
 	std::shared_ptr<Pera> _pera;
 	std::shared_ptr<Keyboard> _keyboard;
 	std::vector<std::shared_ptr<Model>> _models;
+	std::shared_ptr<Camera> _camera; 
 public:
 	bool Init();
 	void Draw();
 	void SetRootSigParam();
-	SSAO(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models);
+	SSAO(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera);
 	~SSAO();
 };
 

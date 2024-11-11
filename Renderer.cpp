@@ -1,4 +1,6 @@
 #include "Renderer.h"
+
+#include "Camera.h"
 #include "Pera.h"
 #include "Model.h"
 #include "Wrapper.h"
@@ -116,8 +118,8 @@ bool Renderer::PipelineStateInit()
 	return true;
 }
 
-Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models) :
-	_dx(dx), _pera(pera), _keyboard(keyboard), _models(models)
+Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera) :
+	_dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
 {
 }
 
@@ -131,7 +133,7 @@ void Renderer::Update()
 	for (auto& _models : _models) {
 		_models->Update();
 	}
-	_dx->Update();
+	_camera->CalcSceneTrans();
 }
 
 void Renderer::ResizeBuffers()
@@ -154,7 +156,7 @@ void Renderer::Move()
 		if (keycode[key + i] & 0x80) 
 			modelID = (key + i) & 0x0f;
 	}
-	_keyboard->Move(_models[modelID]->GetPos(), _models[modelID]->GetRotate(), _dx->GetEyePos(), _dx->GetTargetPos());
+	_keyboard->Move(_models[modelID]->GetPos(), _models[modelID]->GetRotate(), _camera->GetEyePos(), _camera->GetTargetPos());
 }
 
 void Renderer::DrawModel()

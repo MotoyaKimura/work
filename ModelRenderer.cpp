@@ -58,8 +58,8 @@ void ModelRenderer::SetRootSigParam()
 	samplers.emplace_back(samplerDesc);
 }
 
-ModelRenderer::ModelRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models)
-	: Renderer(dx, pera, keyboard, models), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models)
+ModelRenderer::ModelRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera)
+	: Renderer(dx, pera, keyboard, models, camera), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
 {
 }
 

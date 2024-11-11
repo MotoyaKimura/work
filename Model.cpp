@@ -1,7 +1,7 @@
 #include "Model.h"
 
 #include <iostream>
-
+#include "Camera.h"
 #include "Wrapper.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -565,8 +565,8 @@ bool Model::MTransHeapInit()
 bool Model::CreateMTransView()
 {
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = _dx->GetSceneTransBuff()->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_dx->GetSceneTransBuff()->GetDesc().Width);
+	cbvDesc.BufferLocation = _camera->GetSceneTransBuff()->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = static_cast<UINT>(_camera->GetSceneTransBuff()->GetDesc().Width);
 	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_sceneTransBuff"];
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
@@ -615,7 +615,7 @@ bool Model::MaterialBuffInit()
 
 
 
-Model::Model(std::shared_ptr<Wrapper> dx, std::string filePath) : _dx(dx), _pos(0, 0, 0), _rotater(0, 0, 0)
+Model::Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath) : _dx(dx), _camera(camera), _pos(0, 0, 0), _rotater(0, 0, 0)
 {
 	Load(filePath);
 }

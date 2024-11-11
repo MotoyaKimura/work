@@ -111,7 +111,8 @@ void Keyboard::Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX
 }
 
 
-Keyboard::Keyboard(HWND hwnd) : _hwnd(hwnd)
+Keyboard::Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models) :
+	_hwnd(hwnd), _camera(camera), _models(models)
 {
 }
 
