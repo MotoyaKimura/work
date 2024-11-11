@@ -21,6 +21,10 @@ cbuffer cbuff0 : register(b0)
     float3 eye;
 };
 
+cbuffer cbuff1 : register(b1){
+    float wipeSize;
+}
+
 SamplerState smp : register(s0);
 
 

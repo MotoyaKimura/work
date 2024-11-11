@@ -8,14 +8,11 @@ float ssaoPS(Output input) : SV_TARGET
 {
    
     float dp = depthTex.Sample(smp, input.uv);
-   // return pow(dp, 30);
     float w, h, miplevels;
     depthTex.GetDimensions(0, w, h, miplevels);
     float dx = 1.0f / w;
     float dy = 1.0f / h;
 
-   // return dp;
-    //SSAO
     //Œ³‚ÌÀ•W‚ğ•œŒ³‚·‚é
     float4 respos = mul(invprojection, float4(input.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), dp, 1.0f));
 
@@ -52,7 +49,6 @@ float ssaoPS(Output input) : SV_TARGET
             //ŒvZŒ‹‰Ê‚ªŒ»İ‚ÌêŠ‚Ì[“x‚æ‚è‰œ‚É“ü‚Á‚Ä‚¢‚é‚È‚ç
             //Õ•Á‚³‚ê‚Ä‚¢‚é‚Ì‚Å‰ÁZ
             ao += step(depthTex.Sample(smp, (rpos.xy + float2(1.0f, -1.0f)) * float2(0.5f, -0.5f)), rpos.z) * dt;
-            //ao += depthTex.Sample(smp, (rpos.xy + float2(1.0f, -1.0f)) * float2(0.5f, -0.5f)) * dt;
         }
         ao /= div;
 

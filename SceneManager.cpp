@@ -37,6 +37,7 @@ void SceneManager::ResizeSceneManager(void)
 void SceneManager::ChangeScene(Scene* scene)
 {
 	_scene.reset(scene);
+	InitializeSceneManager();
 }
 
 // ƒV[ƒ“–¼‚Ìæ“¾

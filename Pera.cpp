@@ -36,7 +36,7 @@ bool Pera::HeapInit()
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 9;
+	heapDesc.NumDescriptors = 10;
 
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&heapDesc,
@@ -57,7 +57,7 @@ bool Pera::Init()
 	return true;
 }
 
-void Pera::Draw()
+void Pera::Draw() const
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	_dx->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);

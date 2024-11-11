@@ -9,23 +9,18 @@
 
 
 class Wrapper;
-class Pera;
-class Model;
-class Renderer;
-class Keyboard;
-class Scene;
 class SceneManager;
 class Application
 {
 private:
 	
 	static std::shared_ptr<SceneManager> _sceneManager;
-
 	static UINT window_width;							//ウィンドウ幅
 	static UINT window_height;							//ウィンドウ高
 	static const UINT windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
-
 	static WNDCLASSEX w;
+	static LPRECT wrc;
+	static POINT center;
 
 	Application();
 	Application(const Application&) = delete;
@@ -33,18 +28,18 @@ private:
 	static void CreateGameWindow(HWND& hwnd, WNDCLASSEX& w);
 	static void ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain);
 	static bool fullscreenMode;
+	static HWND hwnd;
 
 protected:
-	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 public:
+	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static std::shared_ptr<Wrapper> _dx;
-	static HWND hwnd;
-	static LPRECT wrc;
-	static POINT center;
 	static SIZE GetWindowSize();
 	//Applicationのシングルトンインスタンスを得る
 	static Application& Instance();
 	static void DebugOutputFormatString(const char* format, ...);
+	static POINT GetCenter() { return center; }
+	static HWND GetHwnd() { return hwnd; }
 	//初期化
 	bool Init();
 	//ループ起動

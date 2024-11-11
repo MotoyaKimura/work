@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 #include "SceneManager.h"
+#include "Wrapper.h"
 
 class Wrapper;
 class Pera;
@@ -29,15 +30,15 @@ private:
 
 	void FadeoutUpdate();
 
-	void SceneUpdate(void);
-	bool SceneInit(void);
-	void SceneFinal(void);
-	void SceneRender(void);
-	void SceneResize(void);
-	const char* GetSceneName(void);
+	void SceneUpdate(void) override;
+	bool SceneInit(void) override;
+	void SceneFinal(void) override;
+	void SceneRender(void) override;
+	void SceneResize(void) override;
+	const char* GetSceneName(void) override;
 public:
 	TitleScene(SceneManager& controller);
-	~TitleScene();
+	~TitleScene() override;
 
 };
 

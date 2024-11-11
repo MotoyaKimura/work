@@ -17,7 +17,7 @@ void Keyboard::Move()
 	}
 	if (isActiveFirst)
 	{
-		SetCursorPos(Application::center.x, Application::center.y);
+		SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
 		isActiveFirst = false;
 	}
 
@@ -109,9 +109,9 @@ void Keyboard::Move()
 
 
 	GetCursorPos(&cursorPos);
-	SetCursorPos(Application::center.x, Application::center.y);
-	float diff_x = cursorPos.x - Application::center.x;
-	float diff_y = cursorPos.y - Application::center.y;
+	SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+	float diff_x = cursorPos.x - Application::GetCenter().x;
+	float diff_y = cursorPos.y - Application::GetCenter().y;
 
 	DirectX::FXMVECTOR yAxis = DirectX::XMVectorSet(0, 1, 0, 0);
 	DirectX::XMMATRIX eyeMat =

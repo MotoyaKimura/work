@@ -25,8 +25,8 @@ cbuffer cbuff2 : register(b2)
     float shininess;
 };
 
-Texture2D<float4> texCol : register(t0);
-Texture2D<float>lightDepthTex : register(t1);
+
+Texture2D<float>lightDepthTex : register(t0);
 
 SamplerState smp : register(s0);
 SamplerComparisonState shadowSmp : register(s1);

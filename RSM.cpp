@@ -13,7 +13,7 @@ bool RSM::Init()
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
 	for (auto model : _models) 
-		SetDepthBuffToHeap(model->GetHeap(), 4);
+		SetDepthBuffToHeap(model->GetHeap(), 3);
 	
 
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadeVS", "vs_5_0", vsBlob))) return false;
@@ -64,8 +64,8 @@ void RSM::SetRootSigParam()
 	//カメラ、モデル座標、マテリアル
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 3, 0);
 	ranges.emplace_back(descTblRange);
-	//モデルテクスチャ（今は使っていない） 、ライト深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0);
+	//ライト深度テクスチャ
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 	ranges.emplace_back(descTblRange);
 	rootParam.InitAsDescriptorTable(ranges.size(), ranges.data());
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc;

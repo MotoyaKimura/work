@@ -4,7 +4,6 @@
 #include "Wrapper.h"
 #include "Pera.h"
 #include "Model.h"
-#include "Renderer.h"
 #include "Keyboard.h"
 #include "RSM.h"
 #include "ModelRenderer.h"
@@ -54,7 +53,7 @@ bool TitleScene::SceneInit()
 		}
 	}
 
-	_keyboard.reset(new Keyboard(Application::hwnd, _camera, _models));
+	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 
 
 	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard, _models, _camera));
@@ -76,10 +75,14 @@ void TitleScene::SceneUpdate(void)
 	_modelRenderer->Move();
 	_rsm->Update();
 	_modelRenderer->Update();
+//	_peraRenderer->Update();
 }
 
 void TitleScene::SceneRender(void)
 {
+	
+	
+	
 	_rsm->Draw();
 	_modelRenderer->Draw();
 	_ssao->Draw();
@@ -87,6 +90,12 @@ void TitleScene::SceneRender(void)
 	
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+
+	if (_peraRenderer->LinearWipe())
+	{
+		SceneFinal();
+		FadeoutUpdate();
+	}
 }
 
 void TitleScene::SceneFinal(void)

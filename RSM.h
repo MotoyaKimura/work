@@ -3,17 +3,10 @@
 #include <d3d12.h>
 #include <d3dx12.h>
 
-class Camera;
-class Wrapper;
-class Pera;
-class Model;
-class Keyboard;
-class Renderer;
 class RSM : public Renderer
 {
 private:
 	UINT rsm_difinition = 1024;
-	float clsClr[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Pera> _pera;
 	std::vector<std::shared_ptr<Model>> _models;
@@ -21,11 +14,15 @@ private:
 	std::shared_ptr<Camera> _camera; 
 
 public:
-	bool Init();
-	void Draw();
-	void SetRootSigParam();
+	bool Init() override;
+	void Draw() override;
+	void SetRootSigParam() override;
 	void SetDepthBuffToHeap( Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
 	
-	RSM(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera);
-	~RSM();
+	RSM(std::shared_ptr<Wrapper> dx,
+		std::shared_ptr<Pera> pera,
+		std::shared_ptr<Keyboard> _keyboard,
+		std::vector<std::shared_ptr<Model>> models, 
+		std::shared_ptr<Camera> camera);
+	~RSM() override;
 };

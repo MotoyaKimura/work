@@ -5,7 +5,7 @@
 
 using namespace DirectX;
 
-void Camera::SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
+void Camera::SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs) const
 {
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	auto handle = heap->GetCPUDescriptorHandleForHeapStart();

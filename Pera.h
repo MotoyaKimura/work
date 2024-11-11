@@ -31,7 +31,7 @@ private:
 public:
 	Pera(std::shared_ptr<Wrapper> dx);
 	bool Init();
-	void Draw();
+	void Draw() const;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const;
 	~Pera();
 };
