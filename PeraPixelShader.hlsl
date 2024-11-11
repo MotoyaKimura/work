@@ -7,6 +7,7 @@ float random(float2 uv)
 
 float4 PS(Output input) : SV_TARGET
 {
+	clip(input.uv.x - wipeSize * 0.02);
   
 	if(input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     {
