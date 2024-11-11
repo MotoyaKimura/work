@@ -14,12 +14,12 @@ protected:
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Pera> _pera;
 	std::shared_ptr<Keyboard> _keyboard;
-
+	std::vector<std::shared_ptr<Model>> _models;
 public:
 	bool Init();
 	void Draw();
 	void SetRootSigParam();
-	SSAO(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
+	SSAO(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models);
 	~SSAO();
 };
 

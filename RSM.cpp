@@ -1,6 +1,7 @@
 #include "RSM.h"
 #include "Application.h"
 #include "Wrapper.h"
+#include "Model.h"
 
 
 bool RSM::Init()
@@ -11,6 +12,10 @@ bool RSM::Init()
 	SetClearValue(0.5, 0.5, 0.5, 1.0);
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
+	for (auto model : _models) 
+		SetDepthBuffToHeap(model->GetHeap(), 4);
+	
+
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadeVS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "RSMPS", "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
@@ -75,8 +80,8 @@ void RSM::SetRootSigParam()
 	samplers.emplace_back(samplerDesc);
 }
 
-RSM::RSM(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard)
-	: Renderer(dx, pera, _keyboard), _dx(dx), _pera(pera), _keyboard(_keyboard)
+RSM::RSM(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models)
+	: Renderer(dx, pera, keyboard, models), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models)
 {
 }
 

@@ -60,7 +60,7 @@ public:
 	void SetRTsToHeapAsSRV(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
 	bool CreateBuffers();
 	bool CreateDepthBuffer();
-	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
+	Renderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models);
 	virtual bool Init() = 0;
 	virtual void Draw() = 0;
 	virtual void SetRootSigParam() = 0;

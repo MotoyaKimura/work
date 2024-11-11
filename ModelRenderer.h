@@ -21,6 +21,6 @@ public:
 	bool Init();
 	void Draw();
 	void SetRootSigParam();
-	ModelRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard);
+	ModelRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models);
 	~ModelRenderer();
 }; 

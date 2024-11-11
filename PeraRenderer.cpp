@@ -1,5 +1,6 @@
 #include "PeraRenderer.h"
 #include "Application.h"
+#include "Model.h"
 #include "Wrapper.h"
 
 bool PeraRenderer::Init(void)
@@ -42,8 +43,8 @@ void PeraRenderer::SetRootSigParam()
 	samplers.emplace_back(samplerDesc);
 }
 
-PeraRenderer::PeraRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard)
-	: Renderer(dx, pera, keyboard), _dx(dx), _pera(pera), _keyboard(keyboard)
+PeraRenderer::PeraRenderer(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models)
+	: Renderer(dx, pera, keyboard, models), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models)
 {
 }
 

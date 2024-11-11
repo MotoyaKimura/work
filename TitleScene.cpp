@@ -27,20 +27,6 @@ bool TitleScene::SceneInit()
 
 	_keyboard.reset(new Keyboard(Application::hwnd));
 
-	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard));
-	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard));
-	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard));
-	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard));
-	_rsm->Init();
-	_modelRenderer->Init();
-	_ssao->Init();
-	_peraRenderer->Init();
-
-	_modelRenderer->SetRTsToHeapAsSRV(_pera->GetHeap(), 0);
-	_rsm->SetRTsToHeapAsSRV(_pera->GetHeap(), 3);
-	_ssao->SetRTsToHeapAsSRV(_pera->GetHeap(), 7);
-	Application::_dx->SetCBVToHeap(_pera->GetHeap(), 8);
-
 	modelNum = 4;
 	_models.resize(modelNum);
 	_models[0].reset(new Model(Application::_dx, "modelData/bunny/bunny.obj"));
@@ -58,10 +44,22 @@ bool TitleScene::SceneInit()
 			Application::DebugOutputFormatString("ƒ‚ƒfƒ‹‚Ì‰Šú‰»ƒGƒ‰[\n ");
 			return false;
 		}
-		_rsm->AddModel(model);
-		_rsm->SetDepthBuffToHeap(model->GetHeap(), 4);
-		_modelRenderer->AddModel(model);
 	}
+
+	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard, _models));
+	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models));
+	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models));
+	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models));
+	_rsm->Init();
+	_modelRenderer->Init();
+	_ssao->Init();
+	_peraRenderer->Init();
+
+	_modelRenderer->SetRTsToHeapAsSRV(_pera->GetHeap(), 0);
+	_rsm->SetRTsToHeapAsSRV(_pera->GetHeap(), 3);
+	_ssao->SetRTsToHeapAsSRV(_pera->GetHeap(), 7);
+	Application::_dx->SetCBVToHeap(_pera->GetHeap(), 8);
+	
 	return true;
 }
 

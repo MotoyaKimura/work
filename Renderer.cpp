@@ -116,7 +116,8 @@ bool Renderer::PipelineStateInit()
 	return true;
 }
 
-Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard) : _dx(dx), _pera(pera), _keyboard(keyboard)
+Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models) :
+	_dx(dx), _pera(pera), _keyboard(keyboard), _models(models)
 {
 }
 
