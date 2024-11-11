@@ -3,12 +3,14 @@
 #include <d3dx12.h>
 #include <DirectXMath.h>
 
+class Pera;
 class Wrapper;
 class Camera
 {
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> _sceneTransBuff = nullptr;
 	std::shared_ptr<Wrapper> _dx;
+	std::shared_ptr<Pera> _pera; 
 
 	struct SceneTransMatrix {
 		DirectX::XMMATRIX view;//ÉrÉÖÅ[
@@ -32,11 +34,11 @@ private:
 
 public:
 	void CalcSceneTrans();
-	bool SceneTransBuffInit();
+	bool Init();
 	void SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const { return _sceneTransBuff.Get(); }
 	DirectX::XMFLOAT3* GetEyePos() { return &eye; }
 	DirectX::XMFLOAT3* GetTargetPos() { return &target; }
-	Camera(std::shared_ptr<Wrapper> dx);
+	Camera(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera);
 	~Camera();
 };

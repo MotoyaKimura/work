@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include "Application.h"
 #include "Wrapper.h"
+#include "Pera.h"
 
 using namespace DirectX;
 
@@ -15,7 +16,7 @@ void Camera::SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UIN
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 }
 
-bool Camera::SceneTransBuffInit()
+bool Camera::Init()
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(SceneTransMatrix) + 0xff) & ~0xff);
@@ -31,6 +32,7 @@ bool Camera::SceneTransBuffInit()
 	auto result = _sceneTransBuff->Map(0, nullptr, (void**)&_sceneTransMatrix);
 	if (FAILED(result)) return false;
 
+	SetCBVToHeap(_pera->GetHeap(), 8);
 	return true;
 }
 
@@ -67,7 +69,7 @@ void Camera::CalcSceneTrans()
 }
 
 
-Camera::Camera(std::shared_ptr<Wrapper> dx) : _dx(dx),
+Camera::Camera(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera) : _dx(dx), _pera(pera),
 eye(40, 20, 150),
 rotate(0, 0, 0),
 target(20, 30, 30),

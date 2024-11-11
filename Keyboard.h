@@ -18,6 +18,6 @@ private:
 	bool isActiveFirst = true;
 public:
 	Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models);
-	void Move(DirectX::XMFLOAT3* _pos, DirectX::XMFLOAT3* _rotate, DirectX::XMFLOAT3* _eyePos, DirectX::XMFLOAT3* _targetPos);
+	void Move();
 	~Keyboard();
 };

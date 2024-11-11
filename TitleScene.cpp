@@ -26,8 +26,13 @@ bool TitleScene::SceneInit()
 		return false;
 	}
 
-	_camera.reset(new Camera(Application::_dx));
-	_camera->SceneTransBuffInit();
+	_camera.reset(new Camera(Application::_dx, _pera));
+
+	if(!_camera->Init())
+	{
+		Application::DebugOutputFormatString("ƒJƒƒ‰‚Ì‰Šú‰»ƒGƒ‰[\n ");
+		return false;
+	}
 
 
 	modelNum = 4;
@@ -61,11 +66,6 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_modelRenderer->SetRTsToHeapAsSRV(_pera->GetHeap(), 0);
-	_rsm->SetRTsToHeapAsSRV(_pera->GetHeap(), 3);
-	_ssao->SetRTsToHeapAsSRV(_pera->GetHeap(), 7);
-	_camera->SetCBVToHeap(_pera->GetHeap(), 8);
-	//Application::_dx->SetCBVToHeap(_pera->GetHeap(), 8);
 	
 	return true;
 }

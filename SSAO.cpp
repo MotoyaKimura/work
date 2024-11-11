@@ -1,6 +1,7 @@
 #include "SSAO.h"
 #include "Application.h"
 #include "Wrapper.h"
+#include "Pera.h"
 
 bool SSAO::Init()
 {
@@ -17,6 +18,8 @@ bool SSAO::Init()
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
 	if (!PipelineStateInit()) return false;
+
+	SetRTsToHeapAsSRV(_pera->GetHeap(), 7);
 	return true;
 }
 

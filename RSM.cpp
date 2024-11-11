@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "Wrapper.h"
 #include "Model.h"
-
+#include "Pera.h"
 
 bool RSM::Init()
 {
@@ -25,7 +25,8 @@ bool RSM::Init()
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
 	AddElement("TANGENT", DXGI_FORMAT_R32G32B32_FLOAT);
 	if (!PipelineStateInit()) return false;
-	
+
+	SetRTsToHeapAsSRV(_pera->GetHeap(), 3);
 	return true;
 }
 

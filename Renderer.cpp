@@ -146,17 +146,7 @@ void Renderer::ResizeBuffers()
 
 void Renderer::Move()
 {
-	int modelNum = _models.size();
-	BYTE keycode[256];
-	GetKeyboardState(keycode);
-	int key = 0x60;
-	if (modelNum < 10)
-	for(int i = 0; i < modelNum; i ++)
-	{
-		if (keycode[key + i] & 0x80) 
-			modelID = (key + i) & 0x0f;
-	}
-	_keyboard->Move(_models[modelID]->GetPos(), _models[modelID]->GetRotate(), _camera->GetEyePos(), _camera->GetTargetPos());
+	_keyboard->Move();
 }
 
 void Renderer::DrawModel()

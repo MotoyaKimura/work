@@ -1,6 +1,7 @@
 #include "ModelRenderer.h"
 #include "Application.h"
 #include "Wrapper.h"
+#include "Pera.h"
 
 
 bool ModelRenderer::Init()
@@ -22,6 +23,7 @@ bool ModelRenderer::Init()
 	AddElement("TANGENT", DXGI_FORMAT_R32G32B32_FLOAT);
 	if (!PipelineStateInit()) return false;
 
+	SetRTsToHeapAsSRV(_pera->GetHeap(), 0);
 	return true;
 }
 
