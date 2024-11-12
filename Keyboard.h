@@ -11,7 +11,7 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	HWND _hwnd;
 	BYTE keycode[256];
-
+	int modelID = 0;
 	POINT cursorPos;
 	POINT center;
 	bool isActiveFirst = true;

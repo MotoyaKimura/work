@@ -23,7 +23,7 @@ void Keyboard::Move()
 
 	int modelNum = _models.size();
 	BYTE keycode[256];
-	int modelID = 0;
+	
 	GetKeyboardState(keycode);
 	int key = 0x60;
 	if (modelNum < 10)

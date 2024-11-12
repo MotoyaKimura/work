@@ -1,39 +1,42 @@
-#include "GameScene.h"
 #include "Application.h"
+#include "GameScene.h"
 #include "Wrapper.h"
 #include "Pera.h"
 #include "Model.h"
-#include "Renderer.h"
 #include "Keyboard.h"
+#include "RSM.h"
+#include "ModelRenderer.h"
+#include "SSAO.h"
+#include "PeraRenderer.h"
+#include "Camera.h"
 
 
-bool GameScene::SceneInit(void)
+bool GameScene::SceneInit()
 {
-	//_pera.reset(new Pera(Application::_dx));
+	_pera.reset(new Pera(Application::_dx));
 	if (!_pera->Init())
 	{
 		Application::DebugOutputFormatString("ペラポリゴンの初期化エラー\n ");
 		return false;
 	}
 
-	//_keyboard.reset(new Keyboard(Application::hwnd));
+	_camera.reset(new Camera(Application::_dx, _pera));
 
-	/*_renderer.reset(new Renderer(Application::_dx, _pera, _keyboard));
-	if (!_renderer->Init())
+	if (!_camera->Init())
 	{
-		Application::DebugOutputFormatString("レンダラー周りの初期化エラー\n ");
+		Application::DebugOutputFormatString("カメラの初期化エラー\n ");
 		return false;
-	}*/
+	}
 
-	/*modelNum = 4;
+	modelNum = 4;
 	_models.resize(modelNum);
-	_models[0].reset(new Model(Application::_dx, "modelData/bunny/bunny.obj"));
+	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
 	_models[0]->Move(30, 0, 30);
-	_models[1] = std::make_shared<Model>(Application::_dx, "modelData/RSMScene/floor/floor.obj");
+	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj");
 	_models[1]->Move(30, 0, 30);
-	_models[2] = std::make_shared<Model>(Application::_dx, "modelData/RSMScene/wall/wall_red.obj");
+	_models[2] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[2]->Move(30, 30, 0);
-	_models[3] = std::make_shared<Model>(Application::_dx, "modelData/RSMScene/wall/wall_green.obj");
+	_models[3] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
 	_models[3]->Move(0, 30, 30);
 	for (auto model : _models)
 	{
@@ -42,56 +45,66 @@ bool GameScene::SceneInit(void)
 			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
 			return false;
 		}
-		_renderer->AddModel(model);
-	}*/
+	}
 
-	
+	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
+
+
+	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard, _models, _camera));
+	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models, _camera));
+	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+	_rsm->Init();
+	_modelRenderer->Init();
+	_ssao->Init();
+	_peraRenderer->Init();
+
 
 	return true;
 }
 
 void GameScene::SceneUpdate(void)
 {
-	_renderer->Move();
-	_renderer->Update();
+	_rsm->Move();
+	_modelRenderer->Move();
+	_rsm->Update();
+	_modelRenderer->Update();
 }
-
 
 void GameScene::SceneRender(void)
 {
-	
 
-	//Application::_dx->BeginDrawRSM();
-	//_renderer->BeforeDrawRSM();
-	//_renderer->DrawRSM();
-	//Application::_dx->EndDrawRSM();
+	_rsm->Draw();
+	_modelRenderer->Draw();
+	_ssao->Draw();
+	_peraRenderer->Draw();
 
-	//Application::_dx->BeginDrawModel();
-	//_renderer->BeforeDrawModel();
-	//_renderer->DrawModel();
-	//Application::_dx->EndDrawModel();
+	Application::_dx->ExecuteCommand();
+	Application::_dx->Flip();
 
-	//Application::_dx->BeginDrawSSAO();
-	//_renderer->BeforeDrawSSAO();
-	//_renderer->DrawSSAO();
-	//Application::_dx->EndDrawSSAO();
-
-	//Application::_dx->BeginDrawPera();
-	//_renderer->BeforeDrawPera();
-	//_renderer->DrawPera();
-	//Application::_dx->EndDrawPera();
-	//Application::_dx->ExecuteCommand();
-	//Application::_dx->Flip();
+	if (_peraRenderer->LinearWipe())
+	{
+		SceneFinal();
+		_controller.ChangeScene(new GameScene(_controller));
+	}
 }
 
 void GameScene::SceneFinal(void)
 {
+	_renderer.reset();
+	_pera.reset();
+	_keyboard.reset();
+	_models.clear();
 }
 
 void GameScene::SceneResize(void)
 {
-//	Application::_dx->ResizeBackBuffers();
-	_renderer->ResizeBuffers();
+	Application::_dx->ResizeBackBuffers();
+	//_modelRenderer->CreateDepthBuffer();
+	//_ssao->CreateBuffers();
+	//_rsm->ResizeBuffers();
+	//_modelRenderer->ResizeBuffers();
+
 }
 
 const char* GameScene::GetSceneName(void)
@@ -99,10 +112,10 @@ const char* GameScene::GetSceneName(void)
 	return "GameScene";
 }
 
+
 GameScene::GameScene(SceneManager& controller)
 	: Scene(controller), _controller(controller)
 {
-	SceneInit();
 }
 
 GameScene::~GameScene()
