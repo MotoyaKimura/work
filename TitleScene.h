@@ -28,8 +28,6 @@ private:
 	UINT modelNum = 0;
 	std::shared_ptr<Keyboard> _keyboard;
 
-	void FadeoutUpdate();
-
 	void SceneUpdate(void) override;
 	bool SceneInit(void) override;
 	void SceneFinal(void) override;

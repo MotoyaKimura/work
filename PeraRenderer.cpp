@@ -61,8 +61,8 @@ bool PeraRenderer::wipeBuffInit()
 	);
 	auto result = _wipeBuff->Map(0, nullptr, (void**)&_wipeBuffData);
 	if (FAILED(result)) return false;
-	_wipeBuffData->_wipeSize = 50.0f;
-
+	_wipeBuffData->_startWipeSize = 1.0f;
+	_wipeBuffData->_endWipeSize = 0.0f;
 	SetCBVToHeap(_pera->GetHeap(), 9);
 	return true;
 }
@@ -85,19 +85,14 @@ bool PeraRenderer::LinearWipe()
 	if (keyCode['J'] & 0x80) isWipe = true;
 	if (isWipe)
 	{
-		_wipeBuffData->_wipeSize++;
+		_wipeBuffData->_endWipeSize += 0.02f;
 	}
-		
 	else
 	{
-		if (_wipeBuffData->_wipeSize <= 0)
-			return false;
-		_wipeBuffData->_wipeSize--;
+		if (_wipeBuffData->_startWipeSize <= 0) return false;
+		_wipeBuffData->_startWipeSize -= 0.02f;
 	}
-		
-
-	if (_wipeBuffData->_wipeSize > 50.0f) 
-		return true;
+	if (_wipeBuffData->_endWipeSize > 1.0f) return true;
 	return false;
 }
 

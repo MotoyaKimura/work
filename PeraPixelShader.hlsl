@@ -7,8 +7,11 @@ float random(float2 uv)
 
 float4 PS(Output input) : SV_TARGET
 {
-	clip(input.uv.x - wipeSize * 0.02);
-  
+    float2 dir = float2(1, 1);
+    
+    float t = dot(input.uv, normalize(dir));
+    clip((1 - input.uv.x) - startWipeSize);
+	clip(input.uv.x - endWipeSize);
 	if(input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     {
         float dep = pow(depthTex.Sample(smp, input.uv * 5), 50);

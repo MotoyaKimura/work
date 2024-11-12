@@ -14,7 +14,8 @@ private:
 	
 	Microsoft::WRL::ComPtr<ID3D12Resource> _wipeBuff = nullptr;
 	struct wipeBuffData {
-		float _wipeSize;
+		float _startWipeSize;
+		float _endWipeSize;
 	};
 	wipeBuffData* _wipeBuffData = {};
 	bool isWipe = false;

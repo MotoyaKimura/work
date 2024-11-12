@@ -11,10 +11,6 @@
 #include "PeraRenderer.h"
 #include "Camera.h"
 
-void TitleScene::FadeoutUpdate()
-{
-	_controller.ChangeScene(new GameScene(_controller));
-}
 
 bool TitleScene::SceneInit()
 {
@@ -34,16 +30,14 @@ bool TitleScene::SceneInit()
 	}
 
 
-	modelNum = 4;
+	modelNum = 3;
 	_models.resize(modelNum);
-	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
+	_models[0].reset(new Model(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj"));
 	_models[0]->Move(30, 0, 30);
-	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj");
-	_models[1]->Move(30, 0, 30);
+	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
+	_models[1]->Move(0, 30, 30);
 	_models[2] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[2]->Move(30, 30, 0);
-	_models[3] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
-	_models[3]->Move(0, 30, 30);
 	for (auto model : _models)
 	{
 		if (!model->Init())
@@ -54,7 +48,8 @@ bool TitleScene::SceneInit()
 	}
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
-
+	
+	_keyboard->Init();
 
 	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard, _models, _camera));
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
@@ -71,18 +66,14 @@ bool TitleScene::SceneInit()
 
 void TitleScene::SceneUpdate(void)
 {
-	_rsm->Move();
-	_modelRenderer->Move();
+	
 	_rsm->Update();
 	_modelRenderer->Update();
-//	_peraRenderer->Update();
 }
 
 void TitleScene::SceneRender(void)
 {
-	
-	
-	
+
 	_rsm->Draw();
 	_modelRenderer->Draw();
 	_ssao->Draw();
@@ -94,7 +85,7 @@ void TitleScene::SceneRender(void)
 	if (_peraRenderer->LinearWipe())
 	{
 		SceneFinal();
-		FadeoutUpdate();
+		_controller.ChangeScene(new GameScene(_controller));
 	}
 }
 

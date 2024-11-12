@@ -22,7 +22,8 @@ cbuffer cbuff0 : register(b0)
 };
 
 cbuffer cbuff1 : register(b1){
-    float wipeSize;
+    float startWipeSize;
+    float endWipeSize;
 }
 
 SamplerState smp : register(s0);
