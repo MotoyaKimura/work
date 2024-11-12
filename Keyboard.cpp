@@ -3,85 +3,168 @@
 #include "Application.h"
 #include "Camera.h"
 
+using namespace DirectX;
 
-void Keyboard::Move()
+void Keyboard::Init()
 {
-	if (_hwnd != GetActiveWindow()) {
-		
-	}
-	
-	if(_hwnd != GetForegroundWindow())
+	_pos = _models[modelID]->GetPos();
+	_rotate = _models[modelID]->GetRotate();
+	_eyePos = _camera->GetEyePos();
+	_targetPos = _camera->GetTargetPos();
+
+	eyeToTarget = XMVectorSubtract(XMLoadFloat3(_pos), XMLoadFloat3(_eyePos));
+	vFront = XMVectorSetY(eyeToTarget, 0);
+	vFront = XMVector3Normalize(vFront);
+	vBack = XMVectorNegate(vFront);
+	vUp = XMVectorSet(0, 1, 0, 0);
+	vDown = XMVectorNegate(vUp);
+	vRight = XMVector3Cross(vUp, vFront);
+	vLeft = XMVectorNegate(vRight);
+
+	pos = XMLoadFloat3(_pos);
+	eyePos = XMLoadFloat3(_eyePos);
+}
+
+bool Keyboard::isActive()
+{
+	if (_hwnd != GetForegroundWindow())
 	{
 		isActiveFirst = true;
-		return;
+		return false;
 	}
 	if (isActiveFirst)
 	{
 		SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
 		isActiveFirst = false;
 	}
+	return true;
+}
 
+void Keyboard::Move()
+{
+	if (!isActive()) return;
+	MoveModel();
+	MoveCamera();
+}
+
+void Keyboard::MoveModel()
+{
 	int modelNum = _models.size();
-	BYTE keycode[256];
-	
-	GetKeyboardState(keycode);
 	int key = 0x60;
-	if (modelNum < 10)
-		for (int i = 0; i < modelNum; i++)
-		{
-			if (keycode[key + i] & 0x80)
-				modelID = (key + i) & 0x0f;
+	GetKeyboardState(keycode);
+	for (int i = 0; i < modelNum; i++)
+	{
+		if (keycode[key + i] & 0x80) {
+			modelID = (key + i) & 0x0f;
+			ChangeTarget();
 		}
-	
-	DirectX::XMFLOAT3* _pos = _models[modelID]->GetPos();
-	DirectX::XMFLOAT3* _rotate = _models[modelID]->GetRotate();
-	DirectX::XMFLOAT3* _eyePos = _camera->GetEyePos();
-	DirectX::XMFLOAT3* _targetPos = _camera->GetTargetPos();
-	
-	DirectX::XMVECTOR eyeToTarget =DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(_pos), DirectX::XMLoadFloat3(_eyePos));
-	DirectX::XMVECTOR vFront = DirectX::XMVectorSetY(eyeToTarget, 0);
-	vFront = DirectX::XMVector3Normalize(vFront);
-	DirectX::XMVECTOR vBack = DirectX::XMVectorNegate(vFront);
-	DirectX::XMVECTOR vUp = DirectX::XMVectorSet(0, 1, 0, 0);
-	DirectX::XMVECTOR vDown = DirectX::XMVectorNegate(vUp);
-	DirectX::XMVECTOR vRight = DirectX::XMVector3Cross(vUp, vFront);
-	DirectX::XMVECTOR vLeft = DirectX::XMVectorNegate(vRight);
+	}
+	if (isGetKeyState())
+		SetPos();
+}
 
-	DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(_pos);
-	DirectX::XMVECTOR eyePos = DirectX::XMLoadFloat3(_eyePos);
+void Keyboard::MoveCamera()
+{
+	if(isMoveMouse())
+	{
+		CalcMoveDir();
+		RotateCameraAroundModel();
+	}
+}
+
+bool Keyboard::isMoveMouse()
+{
+	GetCursorPos(&cursorPos);
+	SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+	diff_x = cursorPos.x - Application::GetCenter().x;
+	diff_y = cursorPos.y - Application::GetCenter().y;
+	if (diff_x == 0 && diff_y == 0) 
+		return false;
+	return true;
+}
+
+void Keyboard::SetPos()
+{
+	_pos->x = XMVectorGetX(pos);
+	_pos->y = XMVectorGetY(pos);
+	_pos->z = XMVectorGetZ(pos);
+	_targetPos->x = XMVectorGetX(pos);
+	_targetPos->y = XMVectorGetY(pos) + 20;
+	_targetPos->z = XMVectorGetZ(pos);
+	_eyePos->x = XMVectorGetX(eyePos);
+	_eyePos->y = XMVectorGetY(eyePos);
+	_eyePos->z = XMVectorGetZ(eyePos);
+}
 
 
+void Keyboard::CalcMoveDir()
+{
+	eyeToTarget = XMVectorSubtract(XMLoadFloat3(_pos), XMLoadFloat3(_eyePos));
+	vFront = XMVectorSetY(eyeToTarget, 0);
+	vFront = XMVector3Normalize(vFront);
+	vBack = XMVectorNegate(vFront);
+	vUp = XMVectorSet(0, 1, 0, 0);
+	vDown = XMVectorNegate(vUp);
+	vRight = XMVector3Cross(vUp, vFront);
+	vLeft = XMVectorNegate(vRight);
+}
+
+
+
+void Keyboard::RotateCameraAroundModel()
+{
+	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
+	XMMATRIX eyeMat =
+		XMMatrixTranslation(-_pos->x, -_pos->y, -_pos->z)
+		* XMMatrixRotationAxis(yAxis, -diff_x * 0.005)
+		* XMMatrixRotationAxis(vRight, -diff_y * 0.005)
+		* XMMatrixTranslation(_pos->x, _pos->y, _pos->z);
+
+	FXMVECTOR eyeVec = XMLoadFloat3(_eyePos);
+	FXMVECTOR eyeTrans = XMVector3Transform(eyeVec, eyeMat);
+	eyePos = eyeTrans;
+	_eyePos->x = XMVectorGetX(eyeTrans);
+	_eyePos->y = XMVectorGetY(eyeTrans);
+	_eyePos->z = XMVectorGetZ(eyeTrans);
+}
+
+
+
+bool Keyboard::isGetKeyState()
+{
+	bool isMove = false;
 	GetKeyboardState(keycode);
 	if (keycode['W'] & 0x80) {
-		pos = DirectX::XMVectorAdd(pos, vFront);
-		eyePos = DirectX::XMVectorAdd(eyePos, vFront);
+		pos = XMVectorAdd(pos, vFront);
+		eyePos = XMVectorAdd(eyePos, vFront);
+		isMove = true;
 	}
 	if (keycode['A'] & 0x80) {
-		pos = DirectX::XMVectorAdd(pos, vLeft);
-		eyePos = DirectX::XMVectorAdd(eyePos, vLeft);
-	
+		pos = XMVectorAdd(pos, vLeft);
+		eyePos = XMVectorAdd(eyePos, vLeft);
+		isMove = true;
 	}
 	if (keycode['S'] & 0x80) {
-		pos = DirectX::XMVectorAdd(pos, vBack);
-		eyePos = DirectX::XMVectorAdd(eyePos, vBack);
-
+		pos = XMVectorAdd(pos, vBack);
+		eyePos = XMVectorAdd(eyePos, vBack);
+		isMove = true;
 	}
 	if (keycode['D'] & 0x80) {
-		pos = DirectX::XMVectorAdd(pos, vRight);
-		eyePos = DirectX::XMVectorAdd(eyePos, vRight);
-	
+		pos = XMVectorAdd(pos, vRight);
+		eyePos = XMVectorAdd(eyePos, vRight);
+		isMove = true;
 	}
 	if (keycode[VK_SPACE] & 0x80)
 	{
-		pos = DirectX::XMVectorAdd(pos, vUp);
-		eyePos = DirectX::XMVectorAdd(eyePos, vUp);
-	
+		pos = XMVectorAdd(pos, vUp);
+		eyePos = XMVectorAdd(eyePos, vUp);
+		isMove = true;
 	}
 	if (keycode[VK_SHIFT] & 0x80)
 	{
-		pos = DirectX::XMVectorAdd(pos, vDown);
-		eyePos = DirectX::XMVectorAdd(eyePos, vDown);
-	
+		pos = XMVectorAdd(pos, vDown);
+		eyePos = XMVectorAdd(eyePos, vDown);
+		isMove = true;
 	}
 	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
 	{
@@ -92,41 +175,26 @@ void Keyboard::Move()
 	if (keycode['R'] & 0x80)
 	{
 		_rotate->y += 0.1f;
+		isMove = true;
 	}
 	if (keycode['L'] & 0x80)
 	{
 		_rotate->y -= 0.1f;
+		isMove = true;
 	}
-	_pos->x = DirectX::XMVectorGetX(pos);
-	_pos->y = DirectX::XMVectorGetY(pos);
-	_pos->z = DirectX::XMVectorGetZ(pos);
-	_targetPos->x = DirectX::XMVectorGetX(pos);
-	_targetPos->y = DirectX::XMVectorGetY(pos) + 20;
-	_targetPos->z = DirectX::XMVectorGetZ(pos);
-	_eyePos->x = DirectX::XMVectorGetX(eyePos);
-	_eyePos->y = DirectX::XMVectorGetY(eyePos);
-	_eyePos->z = DirectX::XMVectorGetZ(eyePos);
-
-
-	GetCursorPos(&cursorPos);
-	SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
-	float diff_x = cursorPos.x - Application::GetCenter().x;
-	float diff_y = cursorPos.y - Application::GetCenter().y;
-
-	DirectX::FXMVECTOR yAxis = DirectX::XMVectorSet(0, 1, 0, 0);
-	DirectX::XMMATRIX eyeMat =
-		DirectX::XMMatrixTranslation(-_pos->x, -_pos->y, -_pos->z)
-		* DirectX::XMMatrixRotationAxis(yAxis, -diff_x * 0.005)
-		* DirectX::XMMatrixRotationAxis(vRight, -diff_y * 0.005)
-		* DirectX::XMMatrixTranslation(_pos->x, _pos->y, _pos->z);
-	
-	DirectX::FXMVECTOR eyeVec = XMLoadFloat3(_eyePos);
-	DirectX::FXMVECTOR eyeTrans = DirectX::XMVector3Transform(eyeVec, eyeMat);
-	_eyePos->x = DirectX::XMVectorGetX(eyeTrans);
-	_eyePos->y = DirectX::XMVectorGetY(eyeTrans);
-	_eyePos->z = DirectX::XMVectorGetZ(eyeTrans);
+	return isMove;
 }
 
+
+void Keyboard::ChangeTarget()
+{
+	_pos = _models[modelID]->GetPos();
+	_rotate = _models[modelID]->GetRotate();
+	_eyePos = _camera->GetEyePos();
+	_targetPos = _camera->GetTargetPos();
+	pos = XMLoadFloat3(_pos);
+	eyePos = XMLoadFloat3(_eyePos);
+}
 
 Keyboard::Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models) :
 	_hwnd(hwnd), _camera(camera), _models(models)

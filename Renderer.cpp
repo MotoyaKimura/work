@@ -130,6 +130,8 @@ void Renderer::AddModel(std::shared_ptr<Model> model)
 
 void Renderer::Update()
 {
+
+	_keyboard->Move();
 	for (auto& _models : _models) {
 		_models->Update();
 	}
@@ -144,10 +146,6 @@ void Renderer::ResizeBuffers()
 	}
 }
 
-void Renderer::Move() const
-{
-	_keyboard->Move();
-}
 
 void Renderer::DrawModel() const
 

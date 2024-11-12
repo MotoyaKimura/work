@@ -48,7 +48,7 @@ bool GameScene::SceneInit()
 	}
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
-
+	_keyboard->Init();
 
 	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard, _models, _camera));
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
@@ -65,8 +65,7 @@ bool GameScene::SceneInit()
 
 void GameScene::SceneUpdate(void)
 {
-	_rsm->Move();
-	_modelRenderer->Move();
+	
 	_rsm->Update();
 	_modelRenderer->Update();
 }
