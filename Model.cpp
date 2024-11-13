@@ -54,6 +54,8 @@ bool Model::Load(std::string filePath)
 	Assimp::Importer importer;
 	int flag = 0;
 	flag |= aiProcess_Triangulate;
+	//flag |= aiProcess_ConvertToLeftHanded;
+	//flag |= aiProcess_MakeLeftHanded;
 	flag |= aiProcess_PreTransformVertices;
 	flag |= aiProcess_CalcTangentSpace;
 	flag |= aiProcess_GenSmoothNormals;
@@ -66,14 +68,18 @@ bool Model::Load(std::string filePath)
 	auto pScene = importer.ReadFile(filePath.c_str(), flag);
 	if (pScene == nullptr) return false;
 
+	auto node = pScene->mRootNode;
+	auto numMeshes = node->mNumMeshes;
 	Meshes.clear();
 	Meshes.resize(pScene->mNumMeshes);
-
+	
 	for(size_t i = 0; i < Meshes.size(); ++i)
 	{
 		const auto pMesh = pScene->mMeshes[i];
 		ParseMesh(Meshes[i], pMesh);
 	}
+
+
 	Materials.clear();
 	Materials.resize(pScene->mNumMaterials);
 
@@ -115,6 +121,7 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 	}
 
 	dstMesh.Indices.resize(pSrcMesh->mNumFaces * 3);
+	
 	numIndex += pSrcMesh->mNumFaces * 3;
 	for(auto i = 0u; i < pSrcMesh->mNumFaces; ++i)
 	{
@@ -140,7 +147,36 @@ void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 		{
 			dstMaterial.Diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
 		}
+		/*SetConsoleOutputCP(CP_UTF8);
+		SetConsoleCP(CP_UTF8);
+		std::string name = pSrcMaterial->GetName().C_Str();
+		std::cout << name << std::endl;*/
 
+		aiString path;
+		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
+		{
+			std::string str = path.C_Str();
+			auto num1 = MultiByteToWideChar(
+				CP_UTF8,
+				0U,
+				str.data(),
+				-1,
+				nullptr,
+				0U);
+			std::wstring wstr(num1, L'\0');
+			auto num2 = MultiByteToWideChar(
+				CP_UTF8,
+				0U,
+				str.data(),
+				-1,
+				&wstr[0],
+				num1);
+			
+		}
+		else
+		{
+			std::cout << "no texture" << std::endl;
+		}
 	}
 
 	{
@@ -274,65 +310,6 @@ bool Model::IndexInit()
 	return true;
 }
 
-//bool Model::TextureInit()
-//{
-//	LoadFromWICFile(L"modelData/teapot/default.png", WIC_FLAGS_NONE, &metadata, scratchImage);
-//	//LoadFromWICFile(L"modelData/erato/erato-101.jpg", WIC_FLAGS_NONE, &metadata, scratchImage);
-//	D3D12_HEAP_PROPERTIES heapProp = {};
-//	heapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
-//	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-//	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
-//	heapProp.CreationNodeMask = 0;
-//	heapProp.VisibleNodeMask = 0;
-//	D3D12_RESOURCE_DESC resDesc = {};
-//	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-//	resDesc.Width = metadata.width;
-//	resDesc.Height = metadata.height;
-//	resDesc.DepthOrArraySize = metadata.arraySize;
-//	resDesc.SampleDesc.Count = 1;
-//	resDesc.SampleDesc.Quality = 0;
-//	resDesc.MipLevels = 1;
-//	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(metadata.dimension);
-//	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-//	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-//	auto result = _dx->GetDevice()->CreateCommittedResource(
-//		&heapProp,
-//		D3D12_HEAP_FLAG_NONE,
-//		&resDesc,
-//		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-//		nullptr,
-//		IID_PPV_ARGS(texBuffer.ReleaseAndGetAddressOf()));
-//	if (FAILED(result)) return false;
-//	auto img = scratchImage.GetImage(0, 0, 0);
-//	result = texBuffer->WriteToSubresource(
-//		0,
-//		nullptr,
-//		img->pixels,
-//		img->rowPitch,
-//		img->slicePitch
-//	);
-//
-//	
-//	
-//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-//	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-//	srvDesc.Texture2D.MipLevels = 1;
-//
-//	//_mTransMap["texBuffer"] = mTransHeapNum++;
-//	_mTransMap["_lightDepthBuff"] = mTransHeapNum++;
-//
-//	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-//	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["texBuffer"];
-//	_dx->GetDevice()->CreateShaderResourceView(
-//		texBuffer.Get(),
-//		&srvDesc,
-//		handle);
-//	
-//
-//	return true;
-//}
 
 bool Model::MTransBuffInit()
 {

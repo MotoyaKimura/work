@@ -1,0 +1,282 @@
+# Blender 4.2.2 LTS MTL File: 'None'
+# www.blender.org
+
+newmtl 上衣
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 二重
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 口舌
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 手套
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 新規材質1
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 电池
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 白目
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 目
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 目光
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 目光2
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 目影
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/sph/B.jpg
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/sph/B.jpg
+
+newmtl 眉
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 睫
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 瞳
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 耳机
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 肌
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 腿环
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 袖饰
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 袜
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 裙
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 裙饰
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 裤
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 透明罩
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 鞋
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/体.tga
+
+newmtl 颜
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+
+newmtl 髮
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/髮.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/髮.tga
+
+newmtl 髮+
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/sh.png
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/sh.png
+
+newmtl 齿
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+illum 2
+map_Kd C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga
+map_d C:/Users/motoy/Downloads/MyGtYUhe6t/tex/颜.tga

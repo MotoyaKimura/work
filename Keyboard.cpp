@@ -23,6 +23,16 @@ void Keyboard::Init()
 
 	pos = XMLoadFloat3(_pos);
 	eyePos = XMLoadFloat3(_eyePos);
+
+	_pos->x = XMVectorGetX(pos);
+	_pos->y = XMVectorGetY(pos);
+	_pos->z = XMVectorGetZ(pos);
+	_targetPos->x = XMVectorGetX(pos);
+	_targetPos->y = XMVectorGetY(pos) + 20;
+	_targetPos->z = XMVectorGetZ(pos);
+	_eyePos->x = XMVectorGetX(eyePos);
+	_eyePos->y = XMVectorGetY(eyePos);
+	_eyePos->z = XMVectorGetZ(eyePos);
 }
 
 bool Keyboard::isActive()
