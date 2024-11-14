@@ -32,7 +32,7 @@ bool TitleScene::SceneInit()
 
 	modelNum = 3;
 	_models.resize(modelNum);
-	_models[0].reset(new Model(Application::_dx, _camera, "modelData/amby/anby2.obj"));
+	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
 	_models[0]->Move(30, 0, 30);
 	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
 	_models[1]->Move(0, 30, 30);
@@ -66,9 +66,12 @@ bool TitleScene::SceneInit()
 
 void TitleScene::SceneUpdate(void)
 {
-	
-	_rsm->Update();
-	_modelRenderer->Update();
+	if(_peraRenderer->Update())
+	{}
+	else {
+		_rsm->Update();
+		_modelRenderer->Update();
+	}
 }
 
 void TitleScene::SceneRender(void)

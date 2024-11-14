@@ -8,10 +8,22 @@ float random(float2 uv)
 float4 PS(Output input) : SV_TARGET
 {
     float2 dir = float2(1, 1);
-    
+    float width, height, miplevels;
+    tex.GetDimensions(0, width, height, miplevels);
     float t = dot(input.uv, normalize(dir));
-    clip((1 - input.uv.x) - startWipeSize);
-	clip(input.uv.x - endWipeSize);
+    float step = fmod(input.svpos.x, 64);
+    float PauseCol = 1.0f;
+    if(isPause)
+        PauseCol = 0.5f;
+    if(step < 2)
+        if ((input.svpos.y - endWipeDown) < 0)
+            return float4(1.0f, 0.5f, 0.5f, 1.0f);
+
+    if (((width - input.svpos.x) - startWipeRight) < 0)
+        return float4(0.5f, 0.5f, 1.0f, 1.0f);
+    if ((step - endWipeRight) < 0)
+        return float4(1.0f, 0.5f, 0.5f, 1.0f);
+ 
 	if(input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     {
         float dep = pow(depthTex.Sample(smp, input.uv * 5), 50);
@@ -104,6 +116,6 @@ float4 PS(Output input) : SV_TARGET
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-        return float4(texColor * s + indLight, texColor.a);
+        return float4((texColor * s + indLight) * PauseCol, texColor.a);
     }
 }

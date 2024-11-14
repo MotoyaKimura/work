@@ -22,8 +22,10 @@ cbuffer cbuff0 : register(b0)
 };
 
 cbuffer cbuff1 : register(b1){
-    float startWipeSize;
-    float endWipeSize;
+    float startWipeRight;
+    float endWipeRight;
+    float endWipeDown;
+    bool isPause;
 }
 
 SamplerState smp : register(s0);

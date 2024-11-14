@@ -61,8 +61,10 @@ bool PeraRenderer::wipeBuffInit()
 	);
 	auto result = _wipeBuff->Map(0, nullptr, (void**)&_wipeBuffData);
 	if (FAILED(result)) return false;
-	_wipeBuffData->_startWipeSize = 1.0f;
-	_wipeBuffData->_endWipeSize = 0.0f;
+	_wipeBuffData->_startWipeRight = Application::GetWindowSize().cx;
+	_wipeBuffData->_endWipeRight = 0.0f;
+	_wipeBuffData->_endWipeDown = 0.0f;
+	_wipeBuffData->_isPause = Application::GetPause();
 	SetCBVToHeap(_pera->GetHeap(), 9);
 	return true;
 }
@@ -78,6 +80,18 @@ void PeraRenderer::SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> hea
 	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 }
 
+bool PeraRenderer::Update()
+{
+	_wipeBuffData->_isPause = Application::GetPause();
+	if (_wipeBuffData->_isPause)
+		while (ShowCursor(true) < 0);
+	else
+	{
+		//SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+	}
+	return _wipeBuffData->_isPause;
+}
+
 bool PeraRenderer::LinearWipe()
 {
 	BYTE keyCode[256];
@@ -85,14 +99,17 @@ bool PeraRenderer::LinearWipe()
 	if (keyCode['J'] & 0x80) isWipe = true;
 	if (isWipe)
 	{
-		_wipeBuffData->_endWipeSize += 0.02f;
+		_wipeBuffData->_endWipeDown += 20;
+		if (_wipeBuffData->_endWipeDown < Application::GetWindowSize().cy) return false;
+		_wipeBuffData->_endWipeRight++;
+		if (_wipeBuffData->_endWipeRight > 64.0f) return true;
 	}
 	else
 	{
-		if (_wipeBuffData->_startWipeSize <= 0) return false;
-		_wipeBuffData->_startWipeSize -= 0.02f;
+		if (_wipeBuffData->_startWipeRight <= 0) return false;
+		_wipeBuffData->_startWipeRight -= 30;
 	}
-	if (_wipeBuffData->_endWipeSize > 1.0f) return true;
+	
 	return false;
 }
 

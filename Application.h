@@ -29,6 +29,7 @@ private:
 	static void ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain);
 	static bool fullscreenMode;
 	static HWND hwnd;
+	static bool isPause;
 
 protected:
 public:
@@ -40,6 +41,7 @@ public:
 	static void DebugOutputFormatString(const char* format, ...);
 	static POINT GetCenter() { return center; }
 	static HWND GetHwnd() { return hwnd; }
+	static bool GetPause() { return isPause; }	
 	//‰Šú‰»
 	bool Init();
 	//ƒ‹[ƒv‹N“®
