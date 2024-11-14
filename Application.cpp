@@ -12,6 +12,7 @@ std::shared_ptr<SceneManager> Application::_sceneManager = nullptr;
 std::shared_ptr<Wrapper> Application::_dx = nullptr;
 HWND Application::hwnd = nullptr;
 bool Application::fullscreenMode = false;
+bool Application::isPause = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
 POINT Application::center;
@@ -26,15 +27,6 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 		PostQuitMessage(0);
 		return 0;
 	}
-
-	if (msg == WM_KEYDOWN)
-	{
-		if (wParam == VK_ESCAPE)
-		{
-			PostMessage(hwnd, WM_CLOSE, 0, 0);
-			return 0;
-		}
-	}
 	
 	if(msg == WM_ACTIVATE)
 	{
@@ -46,6 +38,17 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			ClipCursor(NULL);
 		}
 		return 0;
+	}
+
+	if (msg == WM_KEYDOWN)
+	{
+		if ((wParam == VK_ESCAPE) & (lParam >> 30))
+		{}
+		else
+		{
+			isPause = !isPause;
+			return 0;
+		}
 	}
 
 	if(msg == WM_CREATE || msg == WM_EXITSIZEMOVE)
@@ -61,6 +64,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 		while (ShowCursor(false) >= 0);
 		return 0;
 	}
+
 
 	if (msg == WM_NCMOUSEMOVE)
 	{
