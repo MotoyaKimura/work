@@ -42,12 +42,32 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if (msg == WM_KEYDOWN)
 	{
-		if ((wParam == VK_ESCAPE) & (lParam >> 30))
-		{}
-		else
+		if ((wParam == VK_ESCAPE) & !(lParam >> 30))
 		{
 			isPause = !isPause;
+			if (isPause == false)
+			{
+				SetCursorPos(center.x, center.y);
+			}
 			return 0;
+		}
+	}
+
+	if(msg == WM_CREATE)
+	{
+		HWND hBTN = CreateWindowEx(0, _T("BUTTON"), _T("ボタン"), 
+			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 10, 10, 100, 50, hwnd, (HMENU)100, ((LPCREATESTRUCT)lParam)->hInstance, nullptr);
+		GetWindowRect(hwnd, wrc);
+		center = { (wrc->left + wrc->right) / 2,
+			(wrc->top + wrc->bottom) / 2 };
+		return 0;
+	}
+
+	if(msg == WM_COMMAND)
+	{
+		if (LOWORD(wParam) == 100)
+		{
+			MessageBox(hwnd, _T("ボタンが押されました"), _T("ボタン"), MB_OK);
 		}
 	}
 
@@ -58,6 +78,8 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			(wrc->top + wrc->bottom) / 2 };
 		return 0;
 	}
+
+
 	
 	if(msg == WM_MOUSEMOVE)
 	{

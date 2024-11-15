@@ -85,11 +85,12 @@ void Keyboard::MoveCamera()
 bool Keyboard::isMoveMouse()
 {
 	GetCursorPos(&cursorPos);
-	SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
 	diff_x = cursorPos.x - Application::GetCenter().x;
 	diff_y = cursorPos.y - Application::GetCenter().y;
 	if (diff_x == 0 && diff_y == 0) 
 		return false;
+
+	SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
 	return true;
 }
 

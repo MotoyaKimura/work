@@ -85,10 +85,7 @@ bool PeraRenderer::Update()
 	_wipeBuffData->_isPause = Application::GetPause();
 	if (_wipeBuffData->_isPause)
 		while (ShowCursor(true) < 0);
-	else
-	{
-		//SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
-	}
+
 	return _wipeBuffData->_isPause;
 }
 
