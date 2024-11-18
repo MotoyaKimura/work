@@ -26,7 +26,7 @@ float4 PS(Output input) : SV_TARGET
  
 	if(input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     {
-        float dep = pow(depthTex.Sample(smp, input.uv * 5), 50);
+        float dep = pow(depthTex.Sample(smp, input.uv * 5), 10);
         dep = 1 - dep;
         return float4(dep, dep, dep, 1);
     }

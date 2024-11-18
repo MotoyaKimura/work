@@ -47,7 +47,7 @@ void Camera::CalcSceneTrans()
 		XM_PIDIV4,
 		static_cast<float>(Application::GetWindowSize().cx) / static_cast<float>(Application::GetWindowSize().cy),
 		1.0f,
-		400.0f);
+		30.0f);
 	XMVECTOR det;
 	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view * _sceneTransMatrix->projection);
 	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
@@ -64,7 +64,7 @@ void Camera::CalcSceneTrans()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(10, 10, 1.0f, 400.0f);
+		XMMatrixOrthographicLH(10, 10, 1.0f, 30.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 
