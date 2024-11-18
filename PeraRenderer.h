@@ -2,6 +2,8 @@
 #include "Renderer.h"
 #include <d3dx12.h>
 #include <DirectXMath.h>
+#include <DirectXTex.h>
+#pragma comment(lib, "DirectXTex.lib")
 
 class PeraRenderer : public Renderer
 {
@@ -23,6 +25,9 @@ private:
 	bool isWipe = false;
 	bool wipeBuffInit();
 	void SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs) const;
+	bool TextureInit();
+	Microsoft::WRL::ComPtr<ID3D12Resource> _texBuff = nullptr;
+	size_t AlignmentedSize(size_t size, size_t alignment) { return size + alignment - size % alignment; }
 public:
 	bool Init() override;
 	void Draw() override;

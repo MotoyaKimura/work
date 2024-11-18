@@ -46,6 +46,105 @@ void PeraRenderer::SetRootSigParam()
 	samplers.emplace_back(samplerDesc);
 }
 
+bool PeraRenderer::TextureInit()
+{
+	DirectX::TexMetadata metadata = {};
+	DirectX::ScratchImage scratchImg = {};
+
+	auto result = LoadFromWICFile(
+		L"texture/loseHeroine.png", DirectX::WIC_FLAGS_NONE,
+		&metadata, scratchImg);
+
+	if (FAILED(result)) {
+		printf("WICテクスチャがロードできません\n");
+		return false;
+	}
+
+	auto img = scratchImg.GetImage(0, 0, 0);				//生データ抽出
+
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(
+		AlignmentedSize(img->rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT) * img->height,
+		D3D12_RESOURCE_FLAG_NONE
+	);
+	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuff = nullptr;
+	result = _dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(uploadBuff.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(result)) return false;
+
+	heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		metadata.format,
+		metadata.width,
+		metadata.height,
+		metadata.arraySize,
+		metadata.mipLevels
+	);
+
+	result = _dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(_texBuff.ReleaseAndGetAddressOf())
+	);
+
+	uint8_t* mapforImg = nullptr;
+	result = uploadBuff->Map(0, nullptr, (void**)&mapforImg);
+	auto srcAddress = img->pixels;
+	auto rowPitch = AlignmentedSize(img->rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+	for (int y = 0; y < img->height; y++)
+	{
+		std::copy_n(srcAddress, img->rowPitch, mapforImg);
+		srcAddress += img->rowPitch;
+		mapforImg += rowPitch;
+	}
+	uploadBuff->Unmap(0, nullptr);
+
+	D3D12_TEXTURE_COPY_LOCATION src = {};
+	src.pResource = uploadBuff.Get();
+	src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	src.PlacedFootprint.Offset = 0;
+	src.PlacedFootprint.Footprint.Width = metadata.width;
+	src.PlacedFootprint.Footprint.Height = metadata.height;
+	src.PlacedFootprint.Footprint.Depth = metadata.depth;
+	src.PlacedFootprint.Footprint.RowPitch = AlignmentedSize(img->rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+	src.PlacedFootprint.Footprint.Format = img->format;
+
+	D3D12_TEXTURE_COPY_LOCATION dst = {};
+	dst.pResource = _texBuff.Get();
+	dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	dst.SubresourceIndex = 0;
+
+	_dx->GetCommandList()->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+
+	SetBarrierState(_texBuff, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+	Application::_dx->ExecuteCommand();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = metadata.format;//DXGI_FORMAT_R8G8B8A8_UNORM;//RGBA(0.0f～1.0fに正規化)
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;//後述
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
+	srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
+	auto handle = _pera->GetHeap()->GetCPUDescriptorHandleForHeapStart();
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 10;
+	_dx->GetDevice()->CreateShaderResourceView(
+		_texBuff.Get(), //ビューと関連付けるバッファ
+		&srvDesc, //先ほど設定したテクスチャ設定情報
+		handle
+	);
+
+	return true;
+}
+
 bool PeraRenderer::wipeBuffInit()
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
