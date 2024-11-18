@@ -55,7 +55,6 @@ bool Model::Load(std::string filePath)
 	int flag = 0;
 	flag |= aiProcess_Triangulate;
 	flag |= aiProcess_ConvertToLeftHanded;
-	//flag |= aiProcess_MakeLeftHanded;
 	flag |= aiProcess_PreTransformVertices;
 	flag |= aiProcess_CalcTangentSpace;
 	flag |= aiProcess_GenSmoothNormals;
