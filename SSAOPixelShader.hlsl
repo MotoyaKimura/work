@@ -22,7 +22,7 @@ float ssaoPS(Output input) : SV_TARGET
     float ao = 0.0f;
     float3 norm = normalize((normalTex.Sample(smp, input.uv).xyz * 2) - 1);
     const int trycnt = 256;
-    const float radius = 0.5f;
+    const float radius = 0.05f;
 
     if (dp < 1.0f)
     {

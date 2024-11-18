@@ -33,11 +33,11 @@ bool TitleScene::SceneInit()
 	modelNum = 3;
 	_models.resize(modelNum);
 	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
-	_models[0]->Move(30, 0, 30);
+	_models[0]->Move(0, 0, 0);
 	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
-	_models[1]->Move(0, 30, 30);
+	_models[1]->Move(2.5, 2.5, 0);
 	_models[2] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
-	_models[2]->Move(30, 30, 0);
+	_models[2]->Move(0, 2.5, 2.5);
 	for (auto model : _models)
 	{
 		if (!model->Init())

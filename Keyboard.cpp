@@ -28,7 +28,7 @@ void Keyboard::Init()
 	_pos->y = XMVectorGetY(pos);
 	_pos->z = XMVectorGetZ(pos);
 	_targetPos->x = XMVectorGetX(pos);
-	_targetPos->y = XMVectorGetY(pos) + 20;
+	_targetPos->y = XMVectorGetY(pos) + 2.5f;
 	_targetPos->z = XMVectorGetZ(pos);
 	_eyePos->x = XMVectorGetX(eyePos);
 	_eyePos->y = XMVectorGetY(eyePos);
@@ -100,7 +100,7 @@ void Keyboard::SetPos()
 	_pos->y = XMVectorGetY(pos);
 	_pos->z = XMVectorGetZ(pos);
 	_targetPos->x = XMVectorGetX(pos);
-	_targetPos->y = XMVectorGetY(pos) + 20;
+	_targetPos->y = XMVectorGetY(pos) + 2.5f;
 	_targetPos->z = XMVectorGetZ(pos);
 	_eyePos->x = XMVectorGetX(eyePos);
 	_eyePos->y = XMVectorGetY(eyePos);
@@ -146,35 +146,35 @@ bool Keyboard::isGetKeyState()
 	bool isMove = false;
 	GetKeyboardState(keycode);
 	if (keycode['W'] & 0x80) {
-		pos = XMVectorAdd(pos, vFront);
-		eyePos = XMVectorAdd(eyePos, vFront);
+		pos = XMVectorAdd(pos, vFront * 0.1);
+		eyePos = XMVectorAdd(eyePos, vFront * 0.1);
 		isMove = true;
 	}
 	if (keycode['A'] & 0x80) {
-		pos = XMVectorAdd(pos, vLeft);
-		eyePos = XMVectorAdd(eyePos, vLeft);
+		pos = XMVectorAdd(pos, vLeft * 0.1);
+		eyePos = XMVectorAdd(eyePos, vLeft * 0.1);
 		isMove = true;
 	}
 	if (keycode['S'] & 0x80) {
-		pos = XMVectorAdd(pos, vBack);
-		eyePos = XMVectorAdd(eyePos, vBack);
+		pos = XMVectorAdd(pos, vBack * 0.1);
+		eyePos = XMVectorAdd(eyePos, vBack * 0.1);
 		isMove = true;
 	}
 	if (keycode['D'] & 0x80) {
-		pos = XMVectorAdd(pos, vRight);
-		eyePos = XMVectorAdd(eyePos, vRight);
+		pos = XMVectorAdd(pos, vRight * 0.1);
+		eyePos = XMVectorAdd(eyePos, vRight * 0.1);
 		isMove = true;
 	}
 	if (keycode[VK_SPACE] & 0x80)
 	{
-		pos = XMVectorAdd(pos, vUp);
-		eyePos = XMVectorAdd(eyePos, vUp);
+		pos = XMVectorAdd(pos, vUp * 0.1);
+		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
 		isMove = true;
 	}
 	if (keycode[VK_SHIFT] & 0x80)
 	{
-		pos = XMVectorAdd(pos, vDown);
-		eyePos = XMVectorAdd(eyePos, vDown);
+		pos = XMVectorAdd(pos, vDown * 0.1);
+		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
 		isMove = true;
 	}
 	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
@@ -185,12 +185,12 @@ bool Keyboard::isGetKeyState()
 	}
 	if (keycode['R'] & 0x80)
 	{
-		_rotate->y += 0.1f;
+		_rotate->y += 0.05f;
 		isMove = true;
 	}
 	if (keycode['L'] & 0x80)
 	{
-		_rotate->y -= 0.1f;
+		_rotate->y -= 0.05f;
 		isMove = true;
 	}
 	return isMove;

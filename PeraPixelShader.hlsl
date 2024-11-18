@@ -111,6 +111,7 @@ float4 PS(Output input) : SV_TARGET
 	                indLight += float3(0, 0, 0);
                 }
             }
+
             indLight /= max(1.0f, div2);
         }
 

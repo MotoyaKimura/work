@@ -47,7 +47,7 @@ void Camera::CalcSceneTrans()
 		XM_PIDIV4,
 		static_cast<float>(Application::GetWindowSize().cx) / static_cast<float>(Application::GetWindowSize().cy),
 		1.0f,
-		800.0f);
+		400.0f);
 	XMVECTOR det;
 	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view * _sceneTransMatrix->projection);
 	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
@@ -64,17 +64,17 @@ void Camera::CalcSceneTrans()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(150, 150, 1.0f, 800.0f);
+		XMMatrixOrthographicLH(10, 10, 1.0f, 400.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 
 
 Camera::Camera(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera) : _dx(dx), _pera(pera),
-eye(40, 20, 150),
+eye(0, 2.5, -10),
 rotate(0, 0, 0),
-target(20, 30, 30),
+target(0, 0, 0),
 up(0, 1, 0),
-lightVec(30, 30, 60),
+lightVec(-10, 10, -20),
 _sceneTransMatrix(nullptr)
 {
 }
