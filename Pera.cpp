@@ -36,7 +36,7 @@ bool Pera::HeapInit()
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 10;
+	heapDesc.NumDescriptors = 11;
 
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&heapDesc,

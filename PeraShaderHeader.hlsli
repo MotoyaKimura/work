@@ -8,7 +8,7 @@ Texture2D<float4> indirectLightTex : register(t5);
 Texture2D<float> lightDepthTex : register(t6);
 
 Texture2D<float> ssaoTex : register(t7);
-
+Texture2D<float4> startTex : register(t8);
 cbuffer cbuff0 : register(b0)
 {
     matrix view;

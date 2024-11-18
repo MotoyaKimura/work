@@ -7,7 +7,7 @@
 bool PeraRenderer::Init(void)
 {
 	wipeBuffInit();
-
+	if (!TextureInit()) return false;
 	if (FAILED(!CompileShaderFile(L"PeraVertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"PeraPixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
