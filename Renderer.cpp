@@ -361,7 +361,8 @@ bool Renderer::CreateDepthBuffer()
 
 void Renderer::SetRTsToHeapAsSRV(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
 {
-	
+
+
 	SetSRVDesc(_format);
 
 	auto handle = heap->GetCPUDescriptorHandleForHeapStart();

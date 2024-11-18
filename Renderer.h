@@ -76,6 +76,7 @@ public:
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature) const ;
 	void DrawModel() const ;
 	void DrawPera() const ;
+	
 	void ResizeBuffers();
 	virtual ~Renderer();
 };

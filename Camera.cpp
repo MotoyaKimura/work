@@ -32,7 +32,7 @@ bool Camera::Init()
 	auto result = _sceneTransBuff->Map(0, nullptr, (void**)&_sceneTransMatrix);
 	if (FAILED(result)) return false;
 
-	SetCBVToHeap(_pera->GetHeap(), 8);
+	SetCBVToHeap(_pera->GetHeap(), 9);
 	return true;
 }
 

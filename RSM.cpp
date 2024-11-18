@@ -26,6 +26,7 @@ bool RSM::Init()
 	AddElement("TANGENT", DXGI_FORMAT_R32G32B32_FLOAT);
 	if (!PipelineStateInit()) return false;
 
+
 	SetRTsToHeapAsSRV(_pera->GetHeap(), 3);
 	return true;
 }

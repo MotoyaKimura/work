@@ -17,6 +17,7 @@ bool PeraRenderer::Init(void)
 	SetNumBuffers(1);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	if (!PipelineStateInit()) return false;
+	
 	return true;
 }
 
@@ -35,7 +36,7 @@ void PeraRenderer::SetRootSigParam()
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 0);
 	ranges.emplace_back(descTblRange);
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0);
 	ranges.emplace_back(descTblRange);
@@ -52,7 +53,7 @@ bool PeraRenderer::TextureInit()
 	DirectX::ScratchImage scratchImg = {};
 
 	auto result = LoadFromWICFile(
-		L"texture/loseHeroine.png", DirectX::WIC_FLAGS_NONE,
+		L"texture/start.png", DirectX::WIC_FLAGS_NONE,
 		&metadata, scratchImg);
 
 	if (FAILED(result)) {
@@ -135,7 +136,7 @@ bool PeraRenderer::TextureInit()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
 	srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
 	auto handle = _pera->GetHeap()->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 10;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 8;
 	_dx->GetDevice()->CreateShaderResourceView(
 		_texBuff.Get(), //ビューと関連付けるバッファ
 		&srvDesc, //先ほど設定したテクスチャ設定情報
@@ -164,7 +165,7 @@ bool PeraRenderer::wipeBuffInit()
 	_wipeBuffData->_endWipeRight = 0.0f;
 	_wipeBuffData->_endWipeDown = 0.0f;
 	_wipeBuffData->_isPause = Application::GetPause();
-	SetCBVToHeap(_pera->GetHeap(), 9);
+	SetCBVToHeap(_pera->GetHeap(), 10);
 	return true;
 }
 

@@ -117,6 +117,7 @@ float4 PS(Output input) : SV_TARGET
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
+        return startTex.Sample(smp, input.uv * 5);
         return float4((texColor * s + indLight) * PauseCol, texColor.a);
     }
 }

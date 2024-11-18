@@ -19,6 +19,7 @@ bool SSAO::Init()
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
 	if (!PipelineStateInit()) return false;
 
+
 	SetRTsToHeapAsSRV(_pera->GetHeap(), 7);
 	return true;
 }
@@ -37,9 +38,9 @@ void SSAO::SetRootSigParam()
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 0);
 	ranges.emplace_back(descTblRange);
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0);
 	ranges.emplace_back(descTblRange);
 	
 	rootParam.InitAsDescriptorTable(2, ranges.data());
