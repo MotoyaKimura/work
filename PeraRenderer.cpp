@@ -136,20 +136,7 @@ bool PeraRenderer::TextureInit()
 
 	SetBarrierState(_texBuff, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-	Application::_dx->ExecuteCommand();
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format = metadata.format;//DXGI_FORMAT_R8G8B8A8_UNORM;//RGBA(0.0f～1.0fに正規化)
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;//後述
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dテクスチャ
-	srvDesc.Texture2D.MipLevels = 1;//ミップマップは使用しないので1
-	auto handle = _pera->GetHeap()->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 8;
-	_dx->GetDevice()->CreateShaderResourceView(
-		_texBuff.Get(), //ビューと関連付けるバッファ
-		&srvDesc, //先ほど設定したテクスチャ設定情報
-		handle
-	);
+	_dx->ExecuteCommand();
 
 	return true;
 }
