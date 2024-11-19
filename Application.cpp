@@ -55,8 +55,8 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if(msg == WM_CREATE)
 	{
-		HWND hBTN = CreateWindowEx(0, _T("BUTTON"), _T("ボタン"), 
-			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 10, 10, 100, 50, hwnd, (HMENU)100, ((LPCREATESTRUCT)lParam)->hInstance, nullptr);
+		/*HWND hBTN = CreateWindowEx(0, _T("BUTTON"), _T("ボタン"), 
+			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 10, 10, 100, 50, hwnd, (HMENU)100, w.hInstance, nullptr);*/
 		GetWindowRect(hwnd, wrc);
 		center = { (wrc->left + wrc->right) / 2,
 			(wrc->top + wrc->bottom) / 2 };
@@ -65,7 +65,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if(msg == WM_COMMAND)
 	{
-		if (LOWORD(wParam) == 100)
+		if (LOWORD(wParam) == 1)
 		{
 			MessageBox(hwnd, _T("ボタンが押されました"), _T("ボタン"), MB_OK);
 		}

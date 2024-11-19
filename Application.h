@@ -41,6 +41,7 @@ public:
 	static void DebugOutputFormatString(const char* format, ...);
 	static POINT GetCenter() { return center; }
 	static HWND GetHwnd() { return hwnd; }
+	static WNDCLASSEX GetW() { return w; }
 	static bool GetPause() { return isPause; }	
 	//‰Šú‰»
 	bool Init();

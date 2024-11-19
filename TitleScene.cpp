@@ -11,6 +11,7 @@
 #include "PeraRenderer.h"
 #include "Camera.h"
 #include "Texture.h"
+#include <tchar.h>
 
 bool TitleScene::SceneInit()
 {
@@ -68,6 +69,16 @@ bool TitleScene::SceneInit()
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"TitlePeraVertexShader.hlsl", "VS", L"TitlePeraPixelShader.hlsl", "PS");
 
+
+	HWND hBTN = CreateWindowEx(0, _T("BUTTON"), _T("ƒ{ƒ^ƒ“"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 
+		10, 10, 100, 50, 
+		Application::GetHwnd(),
+		(HMENU)1, Application::GetW().hInstance, nullptr);
+	//EnableWindow(hBTN, false);
+	//ShowWindow(hBTN, SW_HIDE);
+	/*DestroyWindow(hBTN);
+	hBTN = nullptr;*/
 	
 	return true;
 }
@@ -85,13 +96,13 @@ void TitleScene::SceneUpdate(void)
 void TitleScene::SceneRender(void)
 {
 
-	_rsm->Draw();
+	/*_rsm->Draw();
 	_modelRenderer->Draw();
 	_ssao->Draw();
 	_peraRenderer->Draw();
 	
 	Application::_dx->ExecuteCommand();
-	Application::_dx->Flip();
+	Application::_dx->Flip();*/
 
 	if (_peraRenderer->LinearWipe())
 	{
