@@ -28,8 +28,12 @@ private:
 	bool TextureInit();
 	Microsoft::WRL::ComPtr<ID3D12Resource> _texBuff = nullptr;
 	size_t AlignmentedSize(size_t size, size_t alignment) { return size + alignment - size % alignment; }
+
+	DirectX::TexMetadata metadata = {};
+	DirectX::ScratchImage scratchImg = {};
 public:
 	bool Init() override;
+	bool RendererInit() override;
 	void Draw() override;
 	bool Update();
 	void SetRootSigParam() override;

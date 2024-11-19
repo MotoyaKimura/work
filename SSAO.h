@@ -12,6 +12,7 @@ protected:
 	std::shared_ptr<Camera> _camera; 
 public:
 	bool Init() override;
+	bool RendererInit() override;
 	void Draw() override;
 	void SetRootSigParam() override;
 	SSAO(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera);

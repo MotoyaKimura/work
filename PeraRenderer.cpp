@@ -7,7 +7,15 @@
 bool PeraRenderer::Init(void)
 {
 	wipeBuffInit();
+	_pera->SetCBV(_wipeBuff);
 	if (!TextureInit()) return false;
+	_pera->SetSRV(_texBuff, metadata.format);
+	
+	return true;
+}
+
+bool PeraRenderer::RendererInit()
+{
 	if (FAILED(!CompileShaderFile(L"PeraVertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"PeraPixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
@@ -18,13 +26,13 @@ bool PeraRenderer::Init(void)
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	SetClearValue(0.5, 0.5, 0.5, 1.0);
 	if (!PipelineStateInit()) return false;
-	
+
 	return true;
 }
 
-
 void PeraRenderer::Draw()
 {
+	_pera->SetViews();
 	SetBarrierState(_dx->GetBackBuff(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	SetRenderTargets(_dx->GetRTVHeap(), nullptr, true);
 	SetVPAndSR(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
@@ -37,9 +45,9 @@ void PeraRenderer::SetRootSigParam()
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, _pera->GetSrvDescs(), 0);
 	ranges.emplace_back(descTblRange);
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, _pera->GetCbvDescs(), 0);
 	ranges.emplace_back(descTblRange);
 	
 	rootParam.InitAsDescriptorTable(2, ranges.data());
@@ -50,8 +58,7 @@ void PeraRenderer::SetRootSigParam()
 
 bool PeraRenderer::TextureInit()
 {
-	DirectX::TexMetadata metadata = {};
-	DirectX::ScratchImage scratchImg = {};
+	
 
 	auto result = LoadFromWICFile(
 		L"texture/start.png", DirectX::WIC_FLAGS_NONE,

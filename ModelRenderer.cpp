@@ -12,7 +12,15 @@ bool ModelRenderer::Init()
 	SetClearValue(0.5, 0.5, 0.5, 1.0);
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
+	for (auto RTBuff : GetBuffers())
+		_pera->SetSRV(RTBuff, GetFormat());
+	_pera->SetSRV(GetDepthBuffer(), DXGI_FORMAT_R32_FLOAT);
+	
+	return true;
+}
 
+bool ModelRenderer::RendererInit()
+{
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
@@ -23,7 +31,8 @@ bool ModelRenderer::Init()
 	AddElement("TANGENT", DXGI_FORMAT_R32G32B32_FLOAT);
 	if (!PipelineStateInit()) return false;
 
-	SetRTsToHeapAsSRV(_pera->GetHeap(), 0);
+
+
 	return true;
 }
 

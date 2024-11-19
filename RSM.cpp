@@ -14,8 +14,14 @@ bool RSM::Init()
 	if (!CreateDepthBuffer()) return false;
 	for (auto model : _models) 
 		SetDepthBuffToHeap(model->GetHeap(), 3);
-	
+	for (auto RTBuff : GetBuffers())
+		_pera->SetSRV(RTBuff, GetFormat());
+	_pera->SetSRV(GetDepthBuffer(), DXGI_FORMAT_R32_FLOAT);
+	return true;
+}
 
+bool RSM::RendererInit()
+{
 	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "shadeVS", "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "RSMPS", "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
@@ -26,10 +32,11 @@ bool RSM::Init()
 	AddElement("TANGENT", DXGI_FORMAT_R32G32B32_FLOAT);
 	if (!PipelineStateInit()) return false;
 
+	
 
-	SetRTsToHeapAsSRV(_pera->GetHeap(), 3);
 	return true;
 }
+
 
 void RSM::SetDepthBuffToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
 {

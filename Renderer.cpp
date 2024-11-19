@@ -372,33 +372,6 @@ bool Renderer::CreateDepthBuffer()
 	return true;
 }
 
-void Renderer::SetRTsToHeapAsSRV(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
-{
-
-
-	SetSRVDesc(_format);
-
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	for (auto& res : _buffers) {
-		handle = heap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-		_dx->GetDevice()->CreateShaderResourceView(
-			res.Get(),
-			&srvDesc,
-			handle);
-	}
-	if (_depthBuffer)
-	{
-		SetSRVDesc(DXGI_FORMAT_R32_FLOAT);
-		handle = heap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-		_dx->GetDevice()->CreateShaderResourceView(
-			_depthBuffer.Get(),
-			&srvDesc,
-			handle);
-	}
-}
-
 
 
 void Renderer::AddElement(const char* semantics, DXGI_FORMAT format)

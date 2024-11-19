@@ -57,6 +57,10 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
+	_rsm->RendererInit();
+	_modelRenderer->RendererInit();
+	_ssao->RendererInit();
+	_peraRenderer->RendererInit();
 
 	return true;
 }
