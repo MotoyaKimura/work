@@ -33,7 +33,7 @@ private:
 	DirectX::ScratchImage scratchImg = {};
 public:
 	bool Init() override;
-	bool RendererInit() override;
+	bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) override;
 	void Draw() override;
 	bool Update();
 	void SetRootSigParam() override;

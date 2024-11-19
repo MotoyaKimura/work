@@ -60,10 +60,10 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_rsm->RendererInit();
-	_modelRenderer->RendererInit();
-	_ssao->RendererInit();
-	_peraRenderer->RendererInit();
+	_rsm->RendererInit(L"VertexShader.hlsl", "shadeVS", L"PixelShader.hlsl", "RSMPS");
+	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
+	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
+	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
 
 	
 	return true;

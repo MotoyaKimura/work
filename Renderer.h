@@ -68,7 +68,7 @@ public:
 		std::vector<std::shared_ptr<Model>> models, 
 		std::shared_ptr<Camera> camera);
 	virtual bool Init() = 0;
-	virtual bool RendererInit() = 0;
+	virtual bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) = 0;
 	virtual void Draw() = 0;
 	virtual void SetRootSigParam() = 0;
 	void AddModel(std::shared_ptr<Model> model);

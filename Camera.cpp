@@ -33,7 +33,6 @@ bool Camera::Init()
 	if (FAILED(result)) return false;
 
 	_pera->SetCBV(_sceneTransBuff);
-	//SetCBVToHeap(_pera->GetHeap(), 9);
 	return true;
 }
 

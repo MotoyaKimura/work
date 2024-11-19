@@ -19,10 +19,10 @@ bool ModelRenderer::Init()
 	return true;
 }
 
-bool ModelRenderer::RendererInit()
+bool ModelRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint)
 {
-	if (FAILED(!CompileShaderFile(L"VertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
-	if (FAILED(!CompileShaderFile(L"PixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
+	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(PShlslFile, PSEntryPoint, "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
 	if (!RootSignatureInit()) return false;
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);

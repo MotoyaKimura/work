@@ -14,10 +14,10 @@ bool PeraRenderer::Init(void)
 	return true;
 }
 
-bool PeraRenderer::RendererInit()
+bool PeraRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint)
 {
-	if (FAILED(!CompileShaderFile(L"PeraVertexShader.hlsl", "VS", "vs_5_0", vsBlob))) return false;
-	if (FAILED(!CompileShaderFile(L"PeraPixelShader.hlsl", "PS", "ps_5_0", psBlob))) return false;
+	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(PShlslFile, PSEntryPoint, "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
 	if (!RootSignatureInit()) return false;
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);

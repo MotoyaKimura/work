@@ -15,7 +15,7 @@ private:
 
 public:
 	bool Init() override;
-	bool RendererInit() override;
+	bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) override;
 	void Draw() override;
 	void SetRootSigParam() override;
 	void SetDepthBuffToHeap( Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
