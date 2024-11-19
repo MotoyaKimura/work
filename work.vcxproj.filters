@@ -74,6 +74,8 @@
     <FxCompile Include="PeraPixelShader.hlsl" />
     <FxCompile Include="SSAOPixelShader.hlsl" />
     <FxCompile Include="SSAOVertexShader.hlsl" />
+    <FxCompile Include="TitlePeraVertexShader.hlsl" />
+    <FxCompile Include="TitlePeraPixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -129,5 +131,6 @@
     <None Include="ShaderHeader.hlsli" />
     <None Include="PeraShaderHeader.hlsli" />
     <None Include="SSAOShaderHeader.hlsli" />
+    <None Include="TitlePeraHeader.hlsli" />
   </ItemGroup>
 </Project>

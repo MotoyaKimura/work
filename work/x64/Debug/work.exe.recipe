@@ -22,6 +22,12 @@
       <FullPath>C:\Users\motoy\source\repos\work\SSAOVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>C:\Users\motoy\source\repos\work\TitlePeraPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\motoy\source\repos\work\TitlePeraVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\motoy\source\repos\work\VertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>

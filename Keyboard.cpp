@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "Camera.h"
 
+
 using namespace DirectX;
 
 void Keyboard::Init()
@@ -87,10 +88,12 @@ bool Keyboard::isMoveMouse()
 	GetCursorPos(&cursorPos);
 	diff_x = cursorPos.x - Application::GetCenter().x;
 	diff_y = cursorPos.y - Application::GetCenter().y;
+
 	if (diff_x == 0 && diff_y == 0) 
 		return false;
 
 	SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+
 	return true;
 }
 
@@ -127,12 +130,13 @@ void Keyboard::RotateCameraAroundModel()
 	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
 	XMMATRIX eyeMat =
 		XMMatrixTranslation(-_pos->x, -_pos->y, -_pos->z)
-		* XMMatrixRotationAxis(yAxis, -diff_x * 0.005)
-		* XMMatrixRotationAxis(vRight, -diff_y * 0.005)
+		* XMMatrixRotationAxis(yAxis, diff_x * 0.005)
+		* XMMatrixRotationAxis(vRight, diff_y * 0.005)
 		* XMMatrixTranslation(_pos->x, _pos->y, _pos->z);
 
 	FXMVECTOR eyeVec = XMLoadFloat3(_eyePos);
 	FXMVECTOR eyeTrans = XMVector3Transform(eyeVec, eyeMat);
+	
 	eyePos = eyeTrans;
 	_eyePos->x = XMVectorGetX(eyeTrans);
 	_eyePos->y = XMVectorGetY(eyeTrans);

@@ -63,10 +63,10 @@ bool TitleScene::SceneInit()
 	_texture.reset(new Texture(Application::_dx, _pera));
 	_texture->Init(L"texture/start.png");
 
-	_rsm->RendererInit(L"VertexShader.hlsl", "shadeVS", L"PixelShader.hlsl", "RSMPS");
+	_rsm->RendererInit(L"VertexShader.hlsl", "rsmVS", L"PixelShader.hlsl", "rsmPS");
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
-	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
+	_peraRenderer->RendererInit(L"TitlePeraVertexShader.hlsl", "VS", L"TitlePeraPixelShader.hlsl", "PS");
 
 	
 	return true;
