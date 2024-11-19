@@ -49,6 +49,11 @@ float4 PS(Output input) : SV_TARGET
     {
         return worldTex.Sample(smp, input.uv * 5);
     }
+    else if(input.uv.x > 0.45 && input.uv.x < 0.55 && input.uv.y > 0.9 && input.uv.y < 1.0)
+    {
+        float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
+        return startTexColor;
+    }
     else if (input.uv.x > 0.2 && input.uv.x < 0.8 && input.uv.y < 0.2)
     {
         return lightNormalTex.Sample(smp, input.uv * 5);
@@ -117,7 +122,8 @@ float4 PS(Output input) : SV_TARGET
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-        return startTex.Sample(smp, input.uv * 5);
-        return float4((texColor * s + indLight) * PauseCol, texColor.a);
+        float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
+        startTexColor.rgb *= startTexColor.a;
+        return float4((texColor * s + indLight + startTexColor) * PauseCol, texColor.a);
     }
 }

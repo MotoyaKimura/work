@@ -16,6 +16,7 @@ bool PeraRenderer::Init(void)
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
 	SetNumBuffers(1);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
+	SetClearValue(0.5, 0.5, 0.5, 1.0);
 	if (!PipelineStateInit()) return false;
 	
 	return true;
