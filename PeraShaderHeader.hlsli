@@ -1,13 +1,14 @@
-Texture2D<float4> tex : register(t0);
-Texture2D<float4> normalTex : register(t1);
-Texture2D<float4> worldTex : register(t3);
-Texture2D<float4> lightNormalTex : register(t4);
-Texture2D<float4> indirectLightTex : register(t5);
-Texture2D<float> depthTex : register(t2);
+Texture2D<float4> tex : register(t4);
+Texture2D<float4> normalTex : register(t5);
+Texture2D<float> depthTex : register(t6);
 
-Texture2D<float> lightDepthTex : register(t6);
+Texture2D<float4> worldTex : register(t0);
+Texture2D<float4> lightNormalTex : register(t1);
+Texture2D<float4> indirectLightTex : register(t2);
+Texture2D<float> lightDepthTex : register(t3);
+
 Texture2D<float> ssaoTex : register(t7);
-
+Texture2D<float4> startTex : register(t8);
 cbuffer cbuff0 : register(b0)
 {
     matrix view;

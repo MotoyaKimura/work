@@ -31,13 +31,11 @@ bool GameScene::SceneInit()
 	modelNum = 4;
 	_models.resize(modelNum);
 	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
-	_models[0]->Move(30, 0, 30);
 	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj");
-	_models[1]->Move(30, 0, 30);
-	_models[2] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
-	_models[2]->Move(30, 30, 0);
-	_models[3] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
-	_models[3]->Move(0, 30, 30);
+	_models[2] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
+	_models[2]->Move(2.5, 2.5, 0);
+	_models[3] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
+	_models[3]->Move(0, 2.5, 2.5);
 	for (auto model : _models)
 	{
 		if (!model->Init())
@@ -59,6 +57,10 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
+	_rsm->RendererInit(L"VertexShader.hlsl", "shadeVS", L"PixelShader.hlsl", "RSMPS");
+	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
+	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
+	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
 
 	return true;
 }

@@ -54,8 +54,7 @@ bool Model::Load(std::string filePath)
 	Assimp::Importer importer;
 	int flag = 0;
 	flag |= aiProcess_Triangulate;
-	//flag |= aiProcess_ConvertToLeftHanded;
-	//flag |= aiProcess_MakeLeftHanded;
+	flag |= aiProcess_ConvertToLeftHanded;
 	flag |= aiProcess_PreTransformVertices;
 	flag |= aiProcess_CalcTangentSpace;
 	flag |= aiProcess_GenSmoothNormals;
@@ -113,8 +112,8 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 		auto pTangent = pSrcMesh->HasTangentsAndBitangents() ? &(pSrcMesh->mTangents[i]) : &zero3D;
 
 		dstMesh.Vertices[i] = MeshVertex(
-			XMFLOAT3(-pPosition->x, pPosition->y, pPosition->z),
-			XMFLOAT3(-pNormal->x, pNormal->y, pNormal->z),
+			XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
+			XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
 			XMFLOAT2(pTexCoord->x, pTexCoord->y),
 			XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
 		);

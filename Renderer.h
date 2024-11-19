@@ -59,7 +59,7 @@ protected:
 	void SetSRVDesc(DXGI_FORMAT format);
 	
 public:
-	void SetRTsToHeapAsSRV(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
+	
 	bool CreateBuffers();
 	bool CreateDepthBuffer();
 	Renderer(std::shared_ptr<Wrapper> dx,
@@ -68,6 +68,7 @@ public:
 		std::vector<std::shared_ptr<Model>> models, 
 		std::shared_ptr<Camera> camera);
 	virtual bool Init() = 0;
+	virtual bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) = 0;
 	virtual void Draw() = 0;
 	virtual void SetRootSigParam() = 0;
 	void AddModel(std::shared_ptr<Model> model);
@@ -76,6 +77,9 @@ public:
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature) const ;
 	void DrawModel() const ;
 	void DrawPera() const ;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> GetBuffers() const { return _buffers; }
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetDepthBuffer() const { return _depthBuffer; }
+	DXGI_FORMAT GetFormat() const { return _format; }
 	void ResizeBuffers();
 	virtual ~Renderer();
 };

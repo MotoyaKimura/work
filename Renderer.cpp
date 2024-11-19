@@ -96,6 +96,18 @@ bool Renderer::PipelineStateInit()
 	gpipelineDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	gpipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	gpipelineDesc.BlendState.AlphaToCoverageEnable = true;
+	gpipelineDesc.BlendState.IndependentBlendEnable = false;
+	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
+		false, false,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_LOGIC_OP_NOOP,
+		D3D12_COLOR_WRITE_ENABLE_ALL
+	};
+	gpipelineDesc.BlendState.RenderTarget[0].BlendEnable = true;
+	gpipelineDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	gpipelineDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 	gpipelineDesc.InputLayout.pInputElementDescs = inputElements.data();
 	gpipelineDesc.InputLayout.NumElements = inputElements.size();
 	gpipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
@@ -104,6 +116,7 @@ bool Renderer::PipelineStateInit()
 	for (int i = 0; i < _numBuffers; i++)
 	{
 		gpipelineDesc.RTVFormats[i] = _format;
+		gpipelineDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
 	}
 	if (_depthBuffer)
 	{
@@ -357,32 +370,6 @@ bool Renderer::CreateDepthBuffer()
 		handle
 	);
 	return true;
-}
-
-void Renderer::SetRTsToHeapAsSRV(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
-{
-	
-	SetSRVDesc(_format);
-
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	for (auto& res : _buffers) {
-		handle = heap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-		_dx->GetDevice()->CreateShaderResourceView(
-			res.Get(),
-			&srvDesc,
-			handle);
-	}
-	if (_depthBuffer)
-	{
-		SetSRVDesc(DXGI_FORMAT_R32_FLOAT);
-		handle = heap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-		_dx->GetDevice()->CreateShaderResourceView(
-			_depthBuffer.Get(),
-			&srvDesc,
-			handle);
-	}
 }
 
 

@@ -10,21 +10,29 @@ bool SSAO::Init()
 	SetFormat(DXGI_FORMAT_R32_FLOAT);
 	SetClearValue(1.0f, 1.0f, 1.0f, 1.0f);
 	if (!CreateBuffers()) return false;
+	for (auto RTBuff : GetBuffers())
+		_pera->SetSRV(RTBuff, GetFormat());
 
-	if (FAILED(!CompileShaderFile(L"SSAOVertexShader.hlsl", "ssaoVS", "vs_5_0", vsBlob))) return false;
-	if (FAILED(!CompileShaderFile(L"SSAOPixelShader.hlsl", "ssaoPS", "ps_5_0", psBlob))) return false;
+	return true;
+}
+
+bool SSAO::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint)
+{
+	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
+	if (FAILED(!CompileShaderFile(PShlslFile, PSEntryPoint, "ps_5_0", psBlob))) return false;
 	SetRootSigParam();
 	if (!RootSignatureInit()) return false;
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
 	if (!PipelineStateInit()) return false;
 
-	SetRTsToHeapAsSRV(_pera->GetHeap(), 7);
+	
 	return true;
 }
 
 void SSAO::Draw()
 {
+	_pera->SetViews();
 	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	SetRenderTargets(_rtvHeap, _dsvHeap,false);
 	SetVPAndSR(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
@@ -37,9 +45,9 @@ void SSAO::SetRootSigParam()
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, _pera->GetSrvDescs(), 0);
 	ranges.emplace_back(descTblRange);
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, _pera->GetCbvDescs(), 0);
 	ranges.emplace_back(descTblRange);
 	
 	rootParam.InitAsDescriptorTable(2, ranges.data());

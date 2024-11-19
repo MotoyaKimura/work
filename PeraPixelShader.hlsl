@@ -26,7 +26,7 @@ float4 PS(Output input) : SV_TARGET
  
 	if(input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     {
-        float dep = pow(depthTex.Sample(smp, input.uv * 5), 50);
+        float dep = pow(depthTex.Sample(smp, input.uv * 5), 10);
         dep = 1 - dep;
         return float4(dep, dep, dep, 1);
     }
@@ -48,6 +48,11 @@ float4 PS(Output input) : SV_TARGET
     else if (input.uv.x > 0.2 && input.uv.x < 0.6 && input.uv.y < 0.2)
     {
         return worldTex.Sample(smp, input.uv * 5);
+    }
+    else if(input.uv.x > 0.45 && input.uv.x < 0.55 && input.uv.y > 0.9 && input.uv.y < 1.0)
+    {
+        float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
+        return startTexColor;
     }
     else if (input.uv.x > 0.2 && input.uv.x < 0.8 && input.uv.y < 0.2)
     {
@@ -111,11 +116,14 @@ float4 PS(Output input) : SV_TARGET
 	                indLight += float3(0, 0, 0);
                 }
             }
+
             indLight /= max(1.0f, div2);
         }
 
         float s = max(ssaoTex.Sample(smp, (input.uv)), 0.7);
         float4 texColor = tex.Sample(smp, input.uv);
-        return float4((texColor * s + indLight) * PauseCol, texColor.a);
+        float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
+        startTexColor.rgb *= startTexColor.a;
+        return float4((texColor * s + indLight + startTexColor) * PauseCol, texColor.a);
     }
 }
