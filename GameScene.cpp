@@ -9,6 +9,7 @@
 #include "SSAO.h"
 #include "PeraRenderer.h"
 #include "Camera.h"
+#include "Texture.h"
 
 
 bool GameScene::SceneInit()
@@ -56,6 +57,9 @@ bool GameScene::SceneInit()
 	_modelRenderer->Init();
 	_ssao->Init();
 	_peraRenderer->Init();
+
+	_texture.reset(new Texture(Application::_dx, _pera));
+	_texture->Init(L"texture/start.png");
 
 	_rsm->RendererInit(L"VertexShader.hlsl", "shadeVS", L"PixelShader.hlsl", "RSMPS");
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");

@@ -1,6 +1,4 @@
 #pragma once
-#include "SceneManager.h"
-
 
 class SceneManager;
 class Scene 

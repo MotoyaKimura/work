@@ -57,8 +57,13 @@ void SSAO::SetRootSigParam()
 }
 
 
-SSAO::SSAO(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera, std::shared_ptr<Keyboard> _keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera)
-	: Renderer(dx, pera, _keyboard, models, camera), _dx(dx), _pera(pera), _keyboard(_keyboard), _models(models), _camera(camera)
+SSAO::SSAO(
+	std::shared_ptr<Wrapper> dx, 
+	std::shared_ptr<Pera> pera, 
+	std::shared_ptr<Keyboard> _keyboard, 
+	std::vector<std::shared_ptr<Model>> models, 
+	std::shared_ptr<Camera> camera
+): Renderer(dx, pera, _keyboard, models, camera), _dx(dx), _pera(pera), _keyboard(_keyboard), _models(models), _camera(camera)
 {
 }
 
