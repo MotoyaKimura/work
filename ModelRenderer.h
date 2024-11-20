@@ -12,7 +12,12 @@ private:
 	std::shared_ptr<Camera> _camera; 
 public:
 	bool Init() override;
-	bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) override;
+	bool RendererInit(
+		std::wstring VShlslFile, 
+		std::string VSEntryPoint, 
+		std::wstring PShlslFile,
+		std::string PSEntryPoint
+	) override;
 	void Draw() override;
 	
 	ModelRenderer(

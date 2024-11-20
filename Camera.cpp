@@ -33,6 +33,7 @@ bool Camera::Init()
 	if (FAILED(result)) return false;
 
 	_pera->SetCBV(_sceneTransBuff);
+	CalcSceneTrans();
 	return true;
 }
 

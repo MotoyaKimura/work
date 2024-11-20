@@ -10,7 +10,12 @@ private:
 	LPRECT rect = new RECT();
 	HMENU _id;
 public:
-	void Create(LPCWSTR name, int left, int top, int width, int height, HMENU id);
+	void Create(
+		LPCWSTR name,
+		int left, int top,
+		int width, int height, 
+		HMENU id
+	);
 	void Show();
 	void Hide();
 	void Enable();
@@ -19,6 +24,7 @@ public:
 	bool IsHover();
 	bool IsClicked();
 	HWND GetHwnd() { return hBTN; }
+	HMENU GetID() { return _id; }
 	Button();
 	~Button();
 };

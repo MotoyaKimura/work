@@ -26,7 +26,12 @@ private:
 	
 public:
 	bool Init() override;
-	bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) override;
+	bool RendererInit(
+		std::wstring VShlslFile, 
+		std::string VSEntryPoint, 
+		std::wstring PShlslFile,
+		std::string PSEntryPoint
+	) override;
 	void Draw() override;
 	bool Update();
 	bool LinearWipe();
