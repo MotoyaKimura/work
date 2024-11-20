@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "GameScene.h"
+#include <tchar.h>
 #include "Wrapper.h"
 #include "Pera.h"
 #include "Model.h"
@@ -10,6 +11,7 @@
 #include "PeraRenderer.h"
 #include "Camera.h"
 #include "Texture.h"
+#include  "Button.h"
 
 
 bool GameScene::SceneInit()
@@ -65,6 +67,9 @@ bool GameScene::SceneInit()
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
+
+	_button.reset(new Button());
+	_button->Create(_T("GameScene"), 10, 10, 100, 50, (HMENU)2);
 
 	return true;
 }

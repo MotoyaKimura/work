@@ -15,6 +15,7 @@ bool Application::fullscreenMode = false;
 bool Application::isPause = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
+HMENU Application::ButtonID = nullptr;
 POINT Application::center;
 UINT Application::window_width = GetSystemMetrics(SM_CXSCREEN);
 UINT Application::window_height = GetSystemMetrics(SM_CYSCREEN);
@@ -67,7 +68,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 	{
 		if (LOWORD(wParam) == 1)
 		{
-			MessageBox(hwnd, _T("ボタンが押されました"), _T("ボタン"), MB_OK);
+			ButtonID = (HMENU)1;
 		}
 	}
 

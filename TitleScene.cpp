@@ -71,8 +71,10 @@ bool TitleScene::SceneInit()
 	_peraRenderer->RendererInit(L"TitlePeraVertexShader.hlsl", "VS", L"TitlePeraPixelShader.hlsl", "PS");
 
 
-	Button button = Button();
-	button.Create(_T("ƒ{ƒ^ƒ“"), 10, 10, 100, 50, (HMENU)1);
+	_button.reset(new Button());
+	int dx = Application::GetWindowSize().cx;
+	int dy = Application::GetWindowSize().cy;
+	_button->Create(_T("Title"), (int)(dx * 0.45), (int)(dy * 0.9), (int)(dx * 0.1), (int)(dy * 0.1), (HMENU)1);
 
 	
 	return true;
@@ -91,13 +93,13 @@ void TitleScene::SceneUpdate(void)
 void TitleScene::SceneRender(void)
 {
 
-	/*_rsm->Draw();
+	_rsm->Draw();
 	_modelRenderer->Draw();
 	_ssao->Draw();
 	_peraRenderer->Draw();
 	
 	Application::_dx->ExecuteCommand();
-	Application::_dx->Flip();*/
+	Application::_dx->Flip();
 
 	if (_peraRenderer->LinearWipe())
 	{
@@ -108,6 +110,7 @@ void TitleScene::SceneRender(void)
 
 void TitleScene::SceneFinal(void)
 {
+	_button->Destroy();
 	_renderer.reset();
 	_pera.reset();
 	_keyboard.reset();

@@ -101,7 +101,11 @@ bool PeraRenderer::LinearWipe()
 {
 	BYTE keyCode[256];
 	GetKeyboardState(keyCode);
-	if (keyCode['J'] & 0x80) isWipe = true;
+	//if (keyCode['J'] & 0x80) isWipe = true;
+	if (Application::GetButtonID() == (HMENU)1) {
+		Application::SetButtonID(nullptr);
+		isWipe = true;
+	}
 	if (isWipe)
 	{
 		_wipeBuffData->_endWipeDown += 20;
