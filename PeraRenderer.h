@@ -34,6 +34,8 @@ public:
 	) override;
 	void Draw() override;
 	bool Update();
+	bool IsPause();
+	bool IsStart();
 	bool LinearWipe();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,

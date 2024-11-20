@@ -64,12 +64,26 @@ bool PeraRenderer::wipeBuffInit()
 
 bool PeraRenderer::Update()
 {
+	if (IsPause()) return true;
+	if (IsStart()) return true;
+
+}
+
+bool PeraRenderer::IsPause()
+{
 	_wipeBuffData->_isPause = Application::GetPause();
 	if (_wipeBuffData->_isPause)
 		while (ShowCursor(true) < 0);
-
 	return _wipeBuffData->_isPause;
 }
+
+bool PeraRenderer::IsStart()
+{
+	if (_wipeBuffData->_startWipeRight <= 0) return false;
+	_wipeBuffData->_startWipeRight -= 30;
+	return true;
+}
+
 
 bool PeraRenderer::LinearWipe()
 {
@@ -86,8 +100,7 @@ bool PeraRenderer::LinearWipe()
 	}
 	else
 	{
-		if (_wipeBuffData->_startWipeRight <= 0) return false;
-		_wipeBuffData->_startWipeRight -= 30;
+	
 	}
 	
 	return false;
