@@ -11,6 +11,7 @@
 #include "PeraRenderer.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "Button.h"
 #include <tchar.h>
 
 bool TitleScene::SceneInit()
@@ -70,15 +71,9 @@ bool TitleScene::SceneInit()
 	_peraRenderer->RendererInit(L"TitlePeraVertexShader.hlsl", "VS", L"TitlePeraPixelShader.hlsl", "PS");
 
 
-	HWND hBTN = CreateWindowEx(0, _T("BUTTON"), _T("ボタン"),
-		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 
-		10, 10, 100, 50, 
-		Application::GetHwnd(),
-		(HMENU)1, Application::GetW().hInstance, nullptr);
-	//EnableWindow(hBTN, false);
-	//ShowWindow(hBTN, SW_HIDE);
-	/*DestroyWindow(hBTN);
-	hBTN = nullptr;*/
+	Button button = Button();
+	button.Create(_T("ボタン"), 10, 10, 100, 50, (HMENU)1);
+
 	
 	return true;
 }
