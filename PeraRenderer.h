@@ -23,7 +23,6 @@ private:
 	wipeBuffData* _wipeBuffData = {};
 	bool isWipe = false;
 	bool wipeBuffInit();
-	void SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs) const;
 	
 public:
 	bool Init() override;

@@ -25,6 +25,7 @@ bool SSAO::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
 	if (!PipelineStateInit()) return false;
+	_pera->SetViews();
 
 	
 	return true;
@@ -32,7 +33,6 @@ bool SSAO::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::
 
 void SSAO::Draw()
 {
-	_pera->SetViews();
 	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	SetRenderTargets(_rtvHeap, _dsvHeap,false);
 	SetVPAndSR(Application::GetWindowSize().cx, Application::GetWindowSize().cy);

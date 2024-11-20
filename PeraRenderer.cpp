@@ -24,13 +24,13 @@ bool PeraRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoin
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	SetClearValue(0.5, 0.5, 0.5, 1.0);
 	if (!PipelineStateInit()) return false;
+	_pera->SetViews();
 
 	return true;
 }
 
 void PeraRenderer::Draw()
 {
-	_pera->SetViews();
 	SetBarrierState(_dx->GetBackBuff(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	SetRenderTargets(_dx->GetRTVHeap(), nullptr, true);
 	SetVPAndSR(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
@@ -59,19 +59,7 @@ bool PeraRenderer::wipeBuffInit()
 	_wipeBuffData->_endWipeRight = 0.0f;
 	_wipeBuffData->_endWipeDown = 0.0f;
 	_wipeBuffData->_isPause = Application::GetPause();
-	SetCBVToHeap(_pera->GetHeap(), 10);
 	return true;
-}
-
-void PeraRenderer::SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs) const
-{
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs;
-	cbvDesc.BufferLocation = _wipeBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_wipeBuff->GetDesc().Width);
-
-	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 }
 
 bool PeraRenderer::Update()
@@ -85,11 +73,6 @@ bool PeraRenderer::Update()
 
 bool PeraRenderer::LinearWipe()
 {
-	
-	
-	BYTE keyCode[256];
-	GetKeyboardState(keyCode);
-	//if (keyCode['J'] & 0x80) isWipe = true;
 	if (Application::GetButtonID() == (HMENU)1) {
 		Application::SetButtonID(nullptr);
 		isWipe = true;
