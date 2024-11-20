@@ -14,7 +14,7 @@ public:
 	bool Init() override;
 	bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) override;
 	void Draw() override;
-	void SetRootSigParam() override;
+	
 	ModelRenderer(
 	std::shared_ptr<Wrapper> dx, 
 		std::shared_ptr<Pera> pera, 

@@ -10,6 +10,7 @@ void Button::Create(LPCWSTR name, int left, int top, int width, int height, HMEN
 		Application::GetHwnd(),
 		id, Application::GetW().hInstance, nullptr
 	);
+	_id = id;
 }
 
 void Button::Show()
@@ -36,6 +37,23 @@ void Button::Destroy()
 {
 	DestroyWindow(hBTN);
 	hBTN = nullptr;
+}
+
+bool Button::IsHover()
+{
+	GetCursorPos(&cursorPos);
+	GetWindowRect(hBTN, rect);
+	if (PtInRect(rect, cursorPos))return true;
+	return false;
+}
+
+bool Button::IsClicked()
+{
+	if (Application::GetButtonID() == _id) {
+		Application::SetButtonID(nullptr);
+		return true;
+	}
+	return false;
 }
 
 Button::Button()

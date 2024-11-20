@@ -1,5 +1,4 @@
 #include "Renderer.h"
-
 #include "Camera.h"
 #include "Pera.h"
 #include "Model.h"
@@ -84,6 +83,30 @@ bool Renderer::RootSignatureInit()
 	rootSigBlob->Release();
 
 	return true;
+}
+
+void Renderer::SetRootSigParam(size_t cbvDescs, size_t srvDescs)
+{
+	CD3DX12_DESCRIPTOR_RANGE descTblRange;
+	//ペラポリゴン用テクスチャ、視点深度テクスチャ
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, cbvDescs, 0);
+	ranges.emplace_back(descTblRange);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, srvDescs, 0);
+	ranges.emplace_back(descTblRange);
+
+	rootParam.InitAsDescriptorTable(ranges.size(), ranges.data());
+	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Init(0);
+	samplers.emplace_back(samplerDesc);
+
+	samplerDesc.Init(
+		1,
+		D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	);
+	samplers.emplace_back(samplerDesc);
 }
 
 

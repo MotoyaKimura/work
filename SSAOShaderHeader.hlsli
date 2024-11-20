@@ -16,6 +16,7 @@ cbuffer cbuff0 : register(b0)
 };
 
 SamplerState smp : register(s0);
+SamplerComparisonState shadowSmp : register(s1);
 
 struct Output
 {

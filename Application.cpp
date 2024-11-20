@@ -3,6 +3,7 @@
 #include "SceneManager.h"
 #include <Windows.h>
 #include <tchar.h>
+#include <Windowsx.h>
 
 #ifdef _DEBUG
 #include <iostream>
@@ -56,8 +57,6 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if(msg == WM_CREATE)
 	{
-		/*HWND hBTN = CreateWindowEx(0, _T("BUTTON"), _T("ƒ{ƒ^ƒ“"), 
-			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 10, 10, 100, 50, hwnd, (HMENU)100, w.hInstance, nullptr);*/
 		GetWindowRect(hwnd, wrc);
 		center = { (wrc->left + wrc->right) / 2,
 			(wrc->top + wrc->bottom) / 2 };
@@ -79,7 +78,6 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			(wrc->top + wrc->bottom) / 2 };
 		return 0;
 	}
-
 
 	
 	if(msg == WM_MOUSEMOVE)

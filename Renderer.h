@@ -57,7 +57,7 @@ protected:
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, bool isBackBuffer);
 	void SetVPAndSR(UINT windowWidth, UINT windowHeight);
 	void SetSRVDesc(DXGI_FORMAT format);
-	
+	void SetRootSigParam(size_t cbvDescs, size_t srvDescs);
 public:
 	
 	bool CreateBuffers();
@@ -70,7 +70,7 @@ public:
 	virtual bool Init() = 0;
 	virtual bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) = 0;
 	virtual void Draw() = 0;
-	virtual void SetRootSigParam() = 0;
+	
 	void AddModel(std::shared_ptr<Model> model);
 	void Update();
 	void BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate,

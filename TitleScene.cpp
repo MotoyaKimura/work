@@ -100,6 +100,11 @@ void TitleScene::SceneRender(void)
 	
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+	
+	/*if (_button->IsClicked())
+	{
+		std::cout << "Clicked" << std::endl;
+	}*/
 
 	if (_peraRenderer->LinearWipe())
 	{
@@ -115,6 +120,7 @@ void TitleScene::SceneFinal(void)
 	_pera.reset();
 	_keyboard.reset();
 	_models.clear();
+	
 }
 
 void TitleScene::SceneResize(void)

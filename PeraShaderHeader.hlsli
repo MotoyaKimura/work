@@ -30,6 +30,7 @@ cbuffer cbuff1 : register(b1){
 }
 
 SamplerState smp : register(s0);
+SamplerComparisonState shadowSmp : register(s1);
 
 
 struct Output

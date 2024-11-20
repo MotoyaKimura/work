@@ -58,6 +58,15 @@ void Pera::SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer)
 
 void Pera::SetViews()
 {
+	for (int i = 0; i < cbvBuffs.size(); ++i)
+	{
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = cbvBuffs[i]->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i]->GetDesc().Width);
+		auto handle = _peraHeaps->GetCPUDescriptorHandleForHeapStart();
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * i;
+		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+	}
 	for (int i = 0; i < srvBuffs.size(); ++i)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -66,18 +75,10 @@ void Pera::SetViews()
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		auto handle = _peraHeaps->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * i;
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + cbvBuffs.size());
 		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i].first.Get(), &srvDesc, handle);
 	}
-	for (int i = 0; i < cbvBuffs.size(); ++i)
-	{
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-		cbvDesc.BufferLocation = cbvBuffs[i]->GetGPUVirtualAddress();
-		cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i]->GetDesc().Width);
-		auto handle = _peraHeaps->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + srvBuffs.size());
-		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
-	}
+	
 }
 
 Pera::Pera(std::shared_ptr<Wrapper> dx) : _dx(dx)

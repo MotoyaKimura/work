@@ -30,7 +30,6 @@ public:
 	bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) override;
 	void Draw() override;
 	bool Update();
-	void SetRootSigParam() override;
 	bool LinearWipe();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
