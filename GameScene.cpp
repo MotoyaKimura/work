@@ -95,10 +95,12 @@ void GameScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	if (_peraRenderer->LinearWipe())
+	if (_button->IsActive())
 	{
-		SceneFinal();
-		_controller.ChangeScene(new GameScene(_controller));
+		if (_peraRenderer->WipeEnd()) {
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+		}
 	}
 }
 

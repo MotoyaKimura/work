@@ -36,7 +36,7 @@ public:
 	bool Update();
 	bool IsPause();
 	bool IsStart();
-	bool LinearWipe();
+	bool WipeEnd();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera, 

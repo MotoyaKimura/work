@@ -9,6 +9,7 @@ private:
 	POINT cursorPos;
 	LPRECT rect = new RECT();
 	HMENU _id;
+	bool isActive = false;
 public:
 	void Create(
 		LPCWSTR name,
@@ -21,8 +22,11 @@ public:
 	void Enable();
 	void Disable();
 	void Destroy();
+	void Update();
 	bool IsHover();
 	bool IsClicked();
+	bool IsActive() { return isActive; }
+	void SetInActive() { isActive = false; }
 	HWND GetHwnd() { return hBTN; }
 	HMENU GetID() { return _id; }
 	Button();

@@ -82,6 +82,7 @@ bool TitleScene::SceneInit()
 
 void TitleScene::SceneUpdate(void)
 {
+	_button->Update();
 	if(_peraRenderer->Update())
 	{}
 	else {
@@ -100,16 +101,14 @@ void TitleScene::SceneRender(void)
 	
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
-	
-	/*if (_button->IsClicked())
-	{
-		std::cout << "Clicked" << std::endl;
-	}*/
 
-	if (_peraRenderer->LinearWipe())
+	if (_button->IsActive())
 	{
-		SceneFinal();
-		_controller.ChangeScene(new GameScene(_controller));
+		if (_peraRenderer->WipeEnd()) {
+			_button->SetInActive();
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+		}
 	}
 }
 

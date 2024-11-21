@@ -85,23 +85,13 @@ bool PeraRenderer::IsStart()
 }
 
 
-bool PeraRenderer::LinearWipe()
+bool PeraRenderer::WipeEnd()
 {
-	if (Application::GetButtonID() == (HMENU)1) {
-		Application::SetButtonID(nullptr);
-		isWipe = true;
-	}
-	if (isWipe)
-	{
+	
 		_wipeBuffData->_endWipeDown += 20;
 		if (_wipeBuffData->_endWipeDown < Application::GetWindowSize().cy) return false;
 		_wipeBuffData->_endWipeRight++;
 		if (_wipeBuffData->_endWipeRight > 64.0f) return true;
-	}
-	else
-	{
-	
-	}
 	
 	return false;
 }

@@ -36,7 +36,7 @@ bool Pera::HeapInit()
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	
 	heapDesc.NodeMask = 0;
-	heapDesc.NumDescriptors = 11;
+	heapDesc.NumDescriptors = srvBuffs.size() + cbvBuffs.size();
 
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&heapDesc,
@@ -58,6 +58,7 @@ void Pera::SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer)
 
 void Pera::SetViews()
 {
+	if (!HeapInit()) return;
 	for (int i = 0; i < cbvBuffs.size(); ++i)
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
@@ -88,7 +89,7 @@ Pera::Pera(std::shared_ptr<Wrapper> dx) : _dx(dx)
 bool Pera::Init()
 {
 	if (!VertexInit()) return false;
-	if (!HeapInit()) return false;
+	
 	return true;
 }
 
