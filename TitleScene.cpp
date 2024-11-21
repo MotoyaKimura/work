@@ -76,7 +76,6 @@ bool TitleScene::SceneInit()
 	int dy = Application::GetWindowSize().cy;
 	_button->Create(_T("Title"), (int)(dx * 0.45), (int)(dy * 0.9), (int)(dx * 0.1), (int)(dy * 0.1), (HMENU)1);
 
-	
 	return true;
 }
 

@@ -1,11 +1,12 @@
 #pragma once
 #include "Scene.h"
 #include <d3dx12.h>
+#include <stack>
 
 class Scene;
 class SceneManager {
 private:
-	std::shared_ptr<Scene> _scene;
+	std::stack<std::shared_ptr<Scene>> _scene;
 public:
 
 	// シーン管理の初期化
@@ -21,6 +22,10 @@ public:
 
 	// シーンの遷移
 	void ChangeScene(Scene* scene);
+
+	void PushScene(Scene* scene);
+
+	void PopScene(void);
 
 	// シーン名の取得
 	const char* GetSceneName(void);
