@@ -76,9 +76,12 @@ bool GameScene::SceneInit()
 
 void GameScene::SceneUpdate(void)
 {
-	
-	_rsm->Update();
-	_modelRenderer->Update();
+	if (_peraRenderer->Update())
+	{}
+	else {
+		_rsm->Update();
+		_modelRenderer->Update();
+	}
 }
 
 void GameScene::SceneRender(void)
