@@ -104,6 +104,8 @@ void TitleScene::SceneRender(void)
 
 	if (_button->IsActive())
 	{
+		_button->SetInActive();
+		_button->Hide();
 		_controller.PushScene(new MenuScene(_controller));
 		return;
 		if (_peraRenderer->WipeEnd()) {

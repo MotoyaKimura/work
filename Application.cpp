@@ -65,10 +65,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if(msg == WM_COMMAND)
 	{
-		if (LOWORD(wParam) == 1)
-		{
-			ButtonID = (HMENU)1;
-		}
+		ButtonID = (HMENU)LOWORD(wParam);
 	}
 
 	if(msg == WM_CREATE || msg == WM_EXITSIZEMOVE)

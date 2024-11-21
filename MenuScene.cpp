@@ -97,11 +97,16 @@ void MenuScene::SceneRender(void)
 	//_rsm->Draw();
 	//_modelRenderer->Draw();
 	//_ssao->Draw();
-	_peraRenderer->Draw();
 
+	_peraRenderer->Draw();
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
-
+	while (ShowCursor(true) < 0);
+	if(_button->IsClicked())
+	{
+		_controller.PopScene();
+		return;
+	}
 	//if (_button->IsActive())
 	//{
 	//	if (_peraRenderer->WipeEnd()) {
