@@ -418,6 +418,10 @@ bool Model::Init()
 	if (!MTransHeapInit()) return false;
 	if (!CreateMTransView()) return false;
 	if (!MaterialBuffInit()) return false;
+	world =
+		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
+		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
+	*mTransMatrix = world;
 	return true;
 }
 
@@ -425,7 +429,6 @@ bool Model::Init()
 
 void Model::Update()
 {
-	angle = 0.001f;
 	world =
 		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		

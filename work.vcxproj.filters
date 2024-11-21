@@ -63,6 +63,12 @@
     <ClCompile Include="Camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
@@ -71,6 +77,8 @@
     <FxCompile Include="PeraPixelShader.hlsl" />
     <FxCompile Include="SSAOPixelShader.hlsl" />
     <FxCompile Include="SSAOVertexShader.hlsl" />
+    <FxCompile Include="TitlePeraVertexShader.hlsl" />
+    <FxCompile Include="TitlePeraPixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -118,10 +126,17 @@
     <ClInclude Include="Camera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderHeader.hlsli" />
     <None Include="PeraShaderHeader.hlsli" />
     <None Include="SSAOShaderHeader.hlsli" />
+    <None Include="TitlePeraHeader.hlsli" />
   </ItemGroup>
 </Project>

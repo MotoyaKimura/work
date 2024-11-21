@@ -30,6 +30,7 @@ private:
 	static bool fullscreenMode;
 	static HWND hwnd;
 	static bool isPause;
+	static HMENU ButtonID;
 
 protected:
 public:
@@ -41,7 +42,10 @@ public:
 	static void DebugOutputFormatString(const char* format, ...);
 	static POINT GetCenter() { return center; }
 	static HWND GetHwnd() { return hwnd; }
-	static bool GetPause() { return isPause; }	
+	static WNDCLASSEX GetW() { return w; }
+	static bool GetPause() { return isPause; }
+	static HMENU GetButtonID() { return ButtonID; }
+	static void SetButtonID(HMENU id) { ButtonID = id; }
 	//‰Šú‰»
 	bool Init();
 	//ƒ‹[ƒv‹N“®

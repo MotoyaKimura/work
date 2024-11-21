@@ -13,6 +13,8 @@ class ModelRenderer;
 class SSAO;
 class PeraRenderer;
 class Camera;
+class Texture;
+class Button;
 class GameScene : public Scene
 {
 private:
@@ -27,6 +29,8 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	UINT modelNum = 0;
 	std::shared_ptr<Keyboard> _keyboard;
+	std::shared_ptr<Texture> _texture;
+	std::shared_ptr<Button> _button;
 
 	void SceneUpdate(void) override;
 	bool SceneInit(void) override;

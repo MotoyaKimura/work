@@ -15,11 +15,17 @@ private:
 
 public:
 	bool Init() override;
-	bool RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint) override;
+	bool RendererInit(
+		std::wstring VShlslFile, 
+		std::string VSEntryPoint,
+		std::wstring PShlslFile,
+		std::string PSEntryPoint
+	) override;
 	void Draw() override;
-	void SetRootSigParam() override;
-	void SetDepthBuffToHeap( Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs);
-	
+	void SetDepthBuffToHeap(
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap,
+		UINT numDescs
+	);
 	RSM(std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera,
 		std::shared_ptr<Keyboard> _keyboard,

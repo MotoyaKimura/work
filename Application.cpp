@@ -3,6 +3,7 @@
 #include "SceneManager.h"
 #include <Windows.h>
 #include <tchar.h>
+#include <Windowsx.h>
 
 #ifdef _DEBUG
 #include <iostream>
@@ -15,6 +16,7 @@ bool Application::fullscreenMode = false;
 bool Application::isPause = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
+HMENU Application::ButtonID = nullptr;
 POINT Application::center;
 UINT Application::window_width = GetSystemMetrics(SM_CXSCREEN);
 UINT Application::window_height = GetSystemMetrics(SM_CYSCREEN);
@@ -55,8 +57,6 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if(msg == WM_CREATE)
 	{
-		HWND hBTN = CreateWindowEx(0, _T("BUTTON"), _T("ボタン"), 
-			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 10, 10, 100, 50, hwnd, (HMENU)100, ((LPCREATESTRUCT)lParam)->hInstance, nullptr);
 		GetWindowRect(hwnd, wrc);
 		center = { (wrc->left + wrc->right) / 2,
 			(wrc->top + wrc->bottom) / 2 };
@@ -65,9 +65,9 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if(msg == WM_COMMAND)
 	{
-		if (LOWORD(wParam) == 100)
+		if (LOWORD(wParam) == 1)
 		{
-			MessageBox(hwnd, _T("ボタンが押されました"), _T("ボタン"), MB_OK);
+			ButtonID = (HMENU)1;
 		}
 	}
 
@@ -78,7 +78,6 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			(wrc->top + wrc->bottom) / 2 };
 		return 0;
 	}
-
 
 	
 	if(msg == WM_MOUSEMOVE)

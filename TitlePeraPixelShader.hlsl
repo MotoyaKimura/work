@@ -1,4 +1,4 @@
-#include "PeraShaderHeader.hlsli"
+#include "TitlePeraHeader.hlsli"
 
 float random(float2 uv)
 {
@@ -72,9 +72,9 @@ float4 PS(Output input) : SV_TARGET
     float t = dot(input.uv, normalize(dir));
     float step = fmod(input.svpos.x, 64);
     float PauseCol = 1.0f;
-    if(isPause)
+    if (isPause)
         PauseCol = 0.5f;
-    if(step < 2)
+    if (step < 2)
         if ((input.svpos.y - endWipeDown) < 0)
             return float4(1.0f, 0.5f, 0.5f, 1.0f);
 
@@ -83,7 +83,7 @@ float4 PS(Output input) : SV_TARGET
     if ((step - endWipeRight) < 0)
         return float4(1.0f, 0.5f, 0.5f, 1.0f);
  
-	if(input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
+    if (input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     {
         float dep = pow(depthTex.Sample(smp, input.uv * 5), 10);
         dep = 1 - dep;
@@ -122,8 +122,15 @@ float4 PS(Output input) : SV_TARGET
 
         float ssao = ssaoTex.Sample(smp, (input.uv));
         float4 texColor = tex.Sample(smp, input.uv);
-      //  float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
-        //startTexColor.rgb *= startTexColor.a;
-        return float4((texColor * ssao + indLight) * PauseCol, texColor.a);
+        float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
+        startTexColor.rgb *= startTexColor.a;
+        if (input.uv.x > 0.45 && input.uv.x < 0.55 && input.uv.y > 0.9 && input.uv.y < 1.0)
+        {
+			return float4((texColor * ssao + indLight + startTexColor) * PauseCol, texColor.a);
+        }
+        else
+        {
+            return float4((texColor * ssao + indLight) * PauseCol, texColor.a);
+        }
     }
 }

@@ -8,7 +8,7 @@ Texture2D<float4> normalTex : register(t5);
 Texture2D<float> depthTex : register(t6);
 
 Texture2D<float> ssaoTex : register(t7);
-//Texture2D<float4> startTex : register(t8);
+Texture2D<float4> startTex : register(t8);
 cbuffer cbuff0 : register(b0)
 {
     matrix view;
@@ -22,7 +22,8 @@ cbuffer cbuff0 : register(b0)
     float3 eye;
 };
 
-cbuffer cbuff1 : register(b1){
+cbuffer cbuff1 : register(b1)
+{
     float startWipeRight;
     float endWipeRight;
     float endWipeDown;
@@ -30,7 +31,6 @@ cbuffer cbuff1 : register(b1){
 }
 
 SamplerState smp : register(s0);
-SamplerComparisonState shadowSmp : register(s1);
 
 
 struct Output

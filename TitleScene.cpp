@@ -10,7 +10,9 @@
 #include "SSAO.h"
 #include "PeraRenderer.h"
 #include "Camera.h"
-
+#include "Texture.h"
+#include "Button.h"
+#include <tchar.h>
 
 bool TitleScene::SceneInit()
 {
@@ -60,10 +62,19 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_rsm->RendererInit(L"VertexShader.hlsl", "shadeVS", L"PixelShader.hlsl", "RSMPS");
+	_texture.reset(new Texture(Application::_dx, _pera));
+	_texture->Init(L"texture/start.png");
+
+	_rsm->RendererInit(L"VertexShader.hlsl", "rsmVS", L"PixelShader.hlsl", "rsmPS");
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
-	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
+	_peraRenderer->RendererInit(L"TitlePeraVertexShader.hlsl", "VS", L"TitlePeraPixelShader.hlsl", "PS");
+
+
+	_button.reset(new Button());
+	int dx = Application::GetWindowSize().cx;
+	int dy = Application::GetWindowSize().cy;
+	_button->Create(_T("Title"), (int)(dx * 0.45), (int)(dy * 0.9), (int)(dx * 0.1), (int)(dy * 0.1), (HMENU)1);
 
 	
 	return true;
@@ -71,6 +82,7 @@ bool TitleScene::SceneInit()
 
 void TitleScene::SceneUpdate(void)
 {
+	_button->Update();
 	if(_peraRenderer->Update())
 	{}
 	else {
@@ -90,19 +102,24 @@ void TitleScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	if (_peraRenderer->LinearWipe())
+	if (_button->IsActive())
 	{
-		SceneFinal();
-		_controller.ChangeScene(new GameScene(_controller));
+		if (_peraRenderer->WipeEnd()) {
+			_button->SetInActive();
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+		}
 	}
 }
 
 void TitleScene::SceneFinal(void)
 {
+	_button->Destroy();
 	_renderer.reset();
 	_pera.reset();
 	_keyboard.reset();
 	_models.clear();
+	
 }
 
 void TitleScene::SceneResize(void)

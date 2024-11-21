@@ -102,7 +102,6 @@ private:
 
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX* mTransMatrix;
-	float angle = 0.0f;
 
 	DirectX::XMFLOAT3 _pos;
 	DirectX::XMFLOAT3 _rotater;

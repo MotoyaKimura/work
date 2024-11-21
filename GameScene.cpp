@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "GameScene.h"
+#include <tchar.h>
 #include "Wrapper.h"
 #include "Pera.h"
 #include "Model.h"
@@ -9,6 +10,8 @@
 #include "SSAO.h"
 #include "PeraRenderer.h"
 #include "Camera.h"
+#include "Texture.h"
+#include  "Button.h"
 
 
 bool GameScene::SceneInit()
@@ -57,19 +60,28 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_rsm->RendererInit(L"VertexShader.hlsl", "shadeVS", L"PixelShader.hlsl", "RSMPS");
+	/*_texture.reset(new Texture(Application::_dx, _pera));
+	_texture->Init(L"texture/start.png");*/
+
+	_rsm->RendererInit(L"VertexShader.hlsl", "rsmVS", L"PixelShader.hlsl", "rsmPS");
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
+
+	_button.reset(new Button());
+	_button->Create(_T("GameScene"), 10, 10, 100, 50, (HMENU)2);
 
 	return true;
 }
 
 void GameScene::SceneUpdate(void)
 {
-	
-	_rsm->Update();
-	_modelRenderer->Update();
+	if (_peraRenderer->Update())
+	{}
+	else {
+		_rsm->Update();
+		_modelRenderer->Update();
+	}
 }
 
 void GameScene::SceneRender(void)
@@ -83,10 +95,12 @@ void GameScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	if (_peraRenderer->LinearWipe())
+	if (_button->IsActive())
 	{
-		SceneFinal();
-		_controller.ChangeScene(new GameScene(_controller));
+		if (_peraRenderer->WipeEnd()) {
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+		}
 	}
 }
 

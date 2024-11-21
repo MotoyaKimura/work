@@ -22,7 +22,7 @@ PixelOutput PS(Output input) : SV_TARGET
     return output;
 }
 
-RSMOutput RSMPS(Output input) : SV_TARGET
+RSMOutput rsmPS(Output input) : SV_TARGET
 {
     RSMOutput output;
     float lambert = saturate(dot(normalize(lightVec), input.normal.xyz));
