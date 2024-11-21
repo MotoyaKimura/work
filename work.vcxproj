@@ -153,6 +153,7 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuScene.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="Pera.cpp" />
@@ -167,6 +168,26 @@
     <ClCompile Include="Wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="MenuPeraPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="MenuPeraVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="PeraPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -254,6 +275,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="MenuScene.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="Pera.h" />
@@ -268,6 +290,7 @@
     <ClInclude Include="Wrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MenuPeraHeader.hlsli" />
     <None Include="PeraShaderHeader.hlsli" />
     <None Include="ShaderHeader.hlsli" />
     <None Include="SSAOShaderHeader.hlsli" />

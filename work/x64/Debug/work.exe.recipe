@@ -7,6 +7,12 @@
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
+      <FullPath>C:\Users\motoy\source\repos\work\MenuPeraPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\motoy\source\repos\work\MenuPeraVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\motoy\source\repos\work\PeraPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
