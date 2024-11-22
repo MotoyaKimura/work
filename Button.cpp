@@ -58,6 +58,7 @@ bool Button::IsClicked()
 
 void Button::Update()
 {
+	Show();
 	if(IsClicked())
 	{
 		isActive = !isActive;

@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include  "Button.h"
+#include "MenuScene.h"
 
 
 bool GameScene::SceneInit()
@@ -95,8 +96,17 @@ void GameScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
+	if(Application::GetMenu())
+	{
+		_controller.PushScene(new MenuScene(_controller));
+		return;
+	}
+
 	if (_button->IsActive())
 	{
+		_button->SetInActive();
+		_button->Hide();
+		
 		if (_peraRenderer->WipeEnd()) {
 			SceneFinal();
 			_controller.ChangeScene(new GameScene(_controller));

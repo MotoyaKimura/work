@@ -12,7 +12,7 @@ float3 calcRSM(float2 uv)
     float3 resposDivW = respos.xyz / respos.w;
     float4 rpos = mul(projection, mul(view, float4(resposDivW, 1.0f)));
     rpos.xyz = rpos.xyz / rpos.w;
-        
+
     float2 lightUVpos = (rpos.xy + float2(1.0f, -1.0f)) * float2(0.5f, -0.5f);
     float w, h, miplevels;
     lightDepthTex.GetDimensions(0, w, h, miplevels);
@@ -77,7 +77,7 @@ float4 PS(Output input) : SV_TARGET
     if (step < 2)
         if ((input.svpos.y - endWipeDown) < 0)
             return float4(1.0f, 0.5f, 0.5f, 1.0f);
-
+    
     if (((width - input.svpos.x) - startWipeRight) < 0)
         return float4(0.5f, 0.5f, 1.0f, 1.0f);
     if ((step - endWipeRight) < 0)

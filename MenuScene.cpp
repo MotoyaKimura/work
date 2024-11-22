@@ -63,10 +63,15 @@ void MenuScene::SceneRender(void)
 	_peraRenderer->Draw();
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
-	while (ShowCursor(true) < 0);
-	if(_button->IsClicked())
+
+	
+	
+	if(_button->IsClicked() || Application::GetMenu())
 	{
+		_button->Hide();
+		_button->Destroy();
 		SceneFinal();
+		SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
 		_controller.PopScene();
 		return;
 	}
