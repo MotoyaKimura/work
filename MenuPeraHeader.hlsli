@@ -1,7 +1,8 @@
 Texture2D<float4> startTex : register(t0);
 Texture2D <float4> restartTex : register(t1);
 Texture2D<float4> titleTex : register(t2);
-Texture2D<float4> menuTex : register(t3);
+Texture2D<float4> backGroundTex : register(t3);
+Texture2D<float4> menuTex : register(t4);
 
 
 cbuffer cbuff0 : register(b0)

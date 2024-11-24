@@ -38,6 +38,8 @@ bool MenuScene::SceneInit()
 	_restartTex->Init(L"texture/restart.png");
 	_titleTex.reset(new Texture(Application::_dx, _pera));
 	_titleTex->Init(L"texture/BackToTitle.png");
+	_backGroundTex.reset(new Texture(Application::_dx, _pera));
+	_backGroundTex->Init(L"texture/backGround.png");
 	_menuTex.reset(new Texture(Application::_dx, _pera));
 	_menuTex->Init(L"texture/menu.png");
 
