@@ -71,23 +71,22 @@ bool TitleScene::SceneInit()
 	_peraRenderer->RendererInit(L"TitlePeraVertexShader.hlsl", "VS", L"TitlePeraPixelShader.hlsl", "PS");
 
 
-	_button.reset(new Button());
+	_StartButton.reset(new Button());
 	int dx = Application::GetWindowSize().cx;
 	int dy = Application::GetWindowSize().cy;
-	_button->Create(_T("Title"), (int)(dx * 0.45), (int)(dy * 0.9), (int)(dx * 0.1), (int)(dy * 0.1), (HMENU)1);
+	_StartButton->Create(_T("Start"), (int)(dx * 0.45), (int)(dy * 0.9), (int)(dx * 0.1), (int)(dy * 0.1), (HMENU)1);
 
-	
 	return true;
 }
 
 void TitleScene::SceneUpdate(void)
 {
-	_button->Update();
+	_StartButton->Update();
 	if(_peraRenderer->Update())
 	{}
 	else {
-		_rsm->Update();
-		_modelRenderer->Update();
+	/*	_rsm->Update();
+		_modelRenderer->Update();*/
 	}
 }
 
@@ -102,10 +101,11 @@ void TitleScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	if (_button->IsActive())
+	if (_StartButton->IsActive())
 	{
+	
 		if (_peraRenderer->WipeEnd()) {
-			_button->SetInActive();
+			_StartButton->SetInActive();
 			SceneFinal();
 			_controller.ChangeScene(new GameScene(_controller));
 		}
@@ -114,7 +114,9 @@ void TitleScene::SceneRender(void)
 
 void TitleScene::SceneFinal(void)
 {
-	_button->Destroy();
+	_StartButton->Hide();
+	_StartButton->Destroy();
+	
 	_renderer.reset();
 	_pera.reset();
 	_keyboard.reset();

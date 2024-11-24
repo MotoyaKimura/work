@@ -78,8 +78,8 @@ float4 PS(Output input) : SV_TARGET
         if ((input.svpos.y - endWipeDown) < 0)
             return float4(1.0f, 0.5f, 0.5f, 1.0f);
 
-    if (((width - input.svpos.x) - startWipeRight) < 0)
-        return float4(0.5f, 0.5f, 1.0f, 1.0f);
+    //if (((width - input.svpos.x) - startWipeRight) < 0)
+    //    return float4(0.5f, 0.5f, 1.0f, 1.0f);
     if ((step - endWipeRight) < 0)
         return float4(1.0f, 0.5f, 0.5f, 1.0f);
  
@@ -124,6 +124,6 @@ float4 PS(Output input) : SV_TARGET
         float4 texColor = tex.Sample(smp, input.uv);
       //  float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
         //startTexColor.rgb *= startTexColor.a;
-        return float4((texColor * ssao + indLight) * PauseCol, texColor.a);
+        return float4((texColor * ssao + indLight) * PauseCol * fade, texColor.a);
     }
 }

@@ -14,6 +14,7 @@ std::shared_ptr<Wrapper> Application::_dx = nullptr;
 HWND Application::hwnd = nullptr;
 bool Application::fullscreenMode = false;
 bool Application::isPause = false;
+bool Application::isMenu = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
 HMENU Application::ButtonID = nullptr;
@@ -44,7 +45,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 
 	if (msg == WM_KEYDOWN)
 	{
-		if ((wParam == VK_ESCAPE) & !(lParam >> 30))
+		if ((wParam == VK_PAUSE) & !(lParam >> 30))
 		{
 			isPause = !isPause;
 			if (isPause == false)
@@ -53,36 +54,43 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			}
 			return 0;
 		}
+
+		if ((wParam == VK_ESCAPE) & !(lParam >> 30))
+		{
+			isMenu = !isMenu;
+			return 0;
+		}
 	}
 
-	if(msg == WM_CREATE)
-	{
-		GetWindowRect(hwnd, wrc);
-		center = { (wrc->left + wrc->right) / 2,
-			(wrc->top + wrc->bottom) / 2 };
-		return 0;
-	}
+	
 
 	if(msg == WM_COMMAND)
 	{
-		if (LOWORD(wParam) == 1)
-		{
-			ButtonID = (HMENU)1;
-		}
+		ButtonID = (HMENU)LOWORD(wParam);
 	}
 
 	if(msg == WM_CREATE || msg == WM_EXITSIZEMOVE)
 	{
+		//while (ShowCursor(true) < 0);
 		GetWindowRect(hwnd, wrc);
 		center = { (wrc->left + wrc->right) / 2,
 			(wrc->top + wrc->bottom) / 2 };
+		SetCursorPos(center.x,center.y);
 		return 0;
 	}
 
 	
 	if(msg == WM_MOUSEMOVE)
 	{
-		while (ShowCursor(false) >= 0);
+		if(_sceneManager->GetSceneName() == "GameScene")
+		{
+			while (ShowCursor(false) >= 0);
+		}
+		else
+		{
+			while (ShowCursor(true) < 0);
+		}
+		
 		return 0;
 	}
 
@@ -128,6 +136,7 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 	w.cbSize = sizeof(WNDCLASSEX);
 	w.lpfnWndProc = (WNDPROC)WindowProcedure;
 	w.lpszClassName = _T("work");
+	w.hCursor = LoadCursor(NULL, IDC_ARROW);
 	w.hInstance = GetModuleHandle(nullptr);
 
 	RegisterClassEx(&w);
@@ -195,6 +204,8 @@ void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4>
 	}
 	fullscreenMode = !fullscreenMode;
 }
+
+
 
 SIZE Application::GetWindowSize()
 {

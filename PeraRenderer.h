@@ -18,9 +18,14 @@ private:
 		float _startWipeRight;
 		float _endWipeRight;
 		float _endWipeDown;
+		float _endWipeCenter;
+		float _fade;
+		float ScreenWidth;
+		float ScreenHeight;
 		bool _isPause;
 	};
 	wipeBuffData* _wipeBuffData = {};
+	int cnt = 0;
 	bool isWipe = false;
 	bool wipeBuffInit();
 	
@@ -32,10 +37,12 @@ public:
 		std::wstring PShlslFile,
 		std::string PSEntryPoint
 	) override;
+	void DataReset();
 	void Draw() override;
 	bool Update();
 	bool IsPause();
 	bool IsStart();
+	bool FadeOut();
 	bool WipeEnd();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,

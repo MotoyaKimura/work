@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include <cassert>
 #include "TitleScene.h"
 #include "GameScene.h"
 
@@ -6,49 +7,62 @@
 // シーン管理の初期化
 bool SceneManager::InitializeSceneManager(void)
 {
-	_scene->SceneInit();
+	_scene.top()->SceneInit();
 	return true;
 }
 
 // シーン管理の解放
 void SceneManager::FinalizeSceneManager(void)
 {
-	_scene->SceneFinal();
+	_scene.top()->SceneFinal();
 }
 
 // シーンの更新
 void SceneManager::UpdateSceneManager(void)
 {
-	_scene->SceneUpdate();
+	_scene.top()->SceneUpdate();
 }
 
 // シーンの描画
 void SceneManager::RenderSceneManager(void)
 {
-	_scene->SceneRender();
+	_scene.top()->SceneRender();
 }
 
 void SceneManager::ResizeSceneManager(void)
 {
-	_scene->SceneResize();
+	_scene.top()->SceneResize();
 }
 
 // シーンの遷移
 void SceneManager::ChangeScene(Scene* scene)
 {
-	_scene.reset(scene);
+	_scene.pop();
+	_scene.emplace(scene);
 	InitializeSceneManager();
 }
 
 // シーン名の取得
 const char* SceneManager::GetSceneName(void)
 {
-	return _scene->GetSceneName();
+	return _scene.top()->GetSceneName();
+}
+
+void SceneManager::PushScene(Scene* scene)
+{
+	_scene.emplace(scene);
+	InitializeSceneManager();
+}
+
+void SceneManager::PopScene(void)
+{
+	_scene.pop();
+	assert(!_scene.empty());
 }
 
 SceneManager::SceneManager()
 {
-	_scene.reset(new TitleScene(*this));
+	_scene.emplace(new TitleScene(*this));
 }
 
 SceneManager::~SceneManager()

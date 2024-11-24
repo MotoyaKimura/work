@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include  "Button.h"
+#include "MenuScene.h"
 
 
 bool GameScene::SceneInit()
@@ -68,8 +69,8 @@ bool GameScene::SceneInit()
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
 
-	_button.reset(new Button());
-	_button->Create(_T("GameScene"), 10, 10, 100, 50, (HMENU)2);
+	//_button.reset(new Button());
+	//_button->Create(_T("GameScene"), 10, 10, 100, 50, (HMENU)2);
 
 	return true;
 }
@@ -95,13 +96,23 @@ void GameScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	if (_button->IsActive())
+	if(Application::GetMenu())
 	{
+		//_peraRenderer->DataReset();
+		_controller.PushScene(new MenuScene(_controller));
+		return;
+	}
+
+	/*if (_button->IsActive())
+	{
+		_button->SetInActive();
+		_button->Hide();
+		
 		if (_peraRenderer->WipeEnd()) {
 			SceneFinal();
 			_controller.ChangeScene(new GameScene(_controller));
 		}
-	}
+	}*/
 }
 
 void GameScene::SceneFinal(void)
