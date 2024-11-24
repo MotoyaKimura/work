@@ -65,6 +65,8 @@ void PeraRenderer::DataReset()
 	_wipeBuffData->_endWipeRight = 0.0f;
 	_wipeBuffData->_endWipeDown = 0.0f;
 	_wipeBuffData->_endWipeCenter = Application::GetWindowSize().cy / 10;
+	_wipeBuffData->ScreenWidth = Application::GetWindowSize().cx;
+	_wipeBuffData->ScreenHeight = Application::GetWindowSize().cy;
 	_wipeBuffData->_fade = 0.0f;
 	_wipeBuffData->_isPause = Application::GetPause();
 }

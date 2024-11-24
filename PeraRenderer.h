@@ -20,6 +20,8 @@ private:
 		float _endWipeDown;
 		float _endWipeCenter;
 		float _fade;
+		float ScreenWidth;
+		float ScreenHeight;
 		bool _isPause;
 	};
 	wipeBuffData* _wipeBuffData = {};
