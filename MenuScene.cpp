@@ -32,8 +32,14 @@ bool MenuScene::SceneInit()
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer->Init();
 
-	_texture.reset(new Texture(Application::_dx, _pera));
-	_texture->Init(L"texture/start.png");
+	_startTex.reset(new Texture(Application::_dx, _pera));
+	_startTex->Init(L"texture/start.png");
+	_restartTex.reset(new Texture(Application::_dx, _pera));
+	_restartTex->Init(L"texture/restart.png");
+	_titleTex.reset(new Texture(Application::_dx, _pera));
+	_titleTex->Init(L"texture/BackToTitle.png");
+	_menuTex.reset(new Texture(Application::_dx, _pera));
+	_menuTex->Init(L"texture/menu.png");
 
 	_peraRenderer->RendererInit(
 		L"MenuPeraVertexShader.hlsl", "VS", 
