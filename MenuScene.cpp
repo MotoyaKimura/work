@@ -42,6 +42,8 @@ bool MenuScene::SceneInit()
 	_backGroundTex->Init(L"texture/backGround.png");
 	_menuTex.reset(new Texture(Application::_dx, _pera));
 	_menuTex->Init(L"texture/menu.png");
+	_backTex.reset(new Texture(Application::_dx, _pera));
+	_backTex->Init(L"texture/back.png");
 
 	_peraRenderer->RendererInit(
 		L"MenuPeraVertexShader.hlsl", "VS", 
