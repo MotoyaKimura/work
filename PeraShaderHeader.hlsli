@@ -26,6 +26,8 @@ cbuffer cbuff1 : register(b1){
     float startWipeRight;
     float endWipeRight;
     float endWipeDown;
+    float endWipeCenter;
+    float fade;
     bool isPause;
 }
 

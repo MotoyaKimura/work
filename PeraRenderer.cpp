@@ -55,11 +55,18 @@ bool PeraRenderer::wipeBuffInit()
 	);
 	auto result = _wipeBuff->Map(0, nullptr, (void**)&_wipeBuffData);
 	if (FAILED(result)) return false;
+	DataReset();
+	return true;
+}
+
+void PeraRenderer::DataReset()
+{
 	_wipeBuffData->_startWipeRight = Application::GetWindowSize().cx;
 	_wipeBuffData->_endWipeRight = 0.0f;
 	_wipeBuffData->_endWipeDown = 0.0f;
+	_wipeBuffData->_endWipeCenter = Application::GetWindowSize().cy / 10;
+	_wipeBuffData->_fade = 0.0f;
 	_wipeBuffData->_isPause = Application::GetPause();
-	return true;
 }
 
 bool PeraRenderer::Update()
@@ -79,20 +86,32 @@ bool PeraRenderer::IsPause()
 
 bool PeraRenderer::IsStart()
 {
-	if (_wipeBuffData->_startWipeRight <= 0) return false;
-	_wipeBuffData->_startWipeRight -= 30;
+	if (_wipeBuffData->_fade >= 1.0f) return false;
+	_wipeBuffData->_fade += 0.05f;
+	/*if (_wipeBuffData->_startWipeRight <= 0) return false;
+	_wipeBuffData->_startWipeRight -= 30;*/
 	return true;
 }
+
+bool PeraRenderer::FadeOut()
+{
+	if (_wipeBuffData->_fade <= 0.0f) return true;
+	_wipeBuffData->_fade -= 0.1f;
+	return false;
+}
+
 
 
 bool PeraRenderer::WipeEnd()
 {
 	
-		_wipeBuffData->_endWipeDown += 20;
+	/*	_wipeBuffData->_endWipeDown += 20;
 		if (_wipeBuffData->_endWipeDown < Application::GetWindowSize().cy) return false;
 		_wipeBuffData->_endWipeRight++;
-		if (_wipeBuffData->_endWipeRight > 64.0f) return true;
-	
+		if (_wipeBuffData->_endWipeRight > 64.0f) return true;*/
+		if (_wipeBuffData->_endWipeCenter > Application::GetWindowSize().cy / 2)
+			return true;
+		_wipeBuffData->_endWipeCenter += pow(cnt++, 2) * 0.001;
 	return false;
 }
 

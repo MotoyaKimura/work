@@ -2,5 +2,5 @@
 
 float4 PS(Output input) : SV_TARGET
 {
-   return startTex.Sample(smp, input.uv);
+    return startTex.Sample(smp, input.uv) * fade;
 }

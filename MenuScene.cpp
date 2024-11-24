@@ -10,6 +10,7 @@
 #include "Texture.h"
 #include "Button.h"
 #include <tchar.h>
+#include "TitleScene.h"
 
 bool MenuScene::SceneInit()
 {
@@ -40,14 +41,30 @@ bool MenuScene::SceneInit()
 	);
 
 
-	_button.reset(new Button());
 	int dx = Application::GetWindowSize().cx;
 	int dy = Application::GetWindowSize().cy;
-	_button->Create(
-		_T("Menu"), 
-		(int)(dx * 0.45), (int)(dy * 0.9), 
+	_backButton.reset(new Button());
+	_backButton->Create(
+		_T("©"), 
+		(int)(dx * 0.0f), (int)(dy * 0.0f), 
 		(int)(dx * 0.1), (int)(dy * 0.1), 
+		(HMENU)2
+	);
+
+	_restartButton.reset(new Button());
+	_restartButton->Create(
+		_T("Restart"),
+		(int)(dx * 0.45), (int)(dy * 0.4),
+		(int)(dx * 0.1), (int)(dy * 0.1),
 		(HMENU)3
+	);
+
+	_titleButton.reset(new Button());
+	_titleButton->Create(
+		_T("Back to Title"),
+		(int)(dx * 0.45), (int)(dy * 0.6),
+		(int)(dx * 0.1), (int)(dy * 0.1),
+		(HMENU)4
 	);
 
 	return true;
@@ -55,6 +72,7 @@ bool MenuScene::SceneInit()
 
 void MenuScene::SceneUpdate(void)
 {
+	_peraRenderer->Update();
 }
 
 void MenuScene::SceneRender(void)
@@ -64,22 +82,44 @@ void MenuScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	
-	
-	if(_button->IsClicked() || Application::GetMenu())
+	if(_backButton->IsClicked() || !Application::GetMenu())
 	{
-		_button->Hide();
-		_button->Destroy();
-		SceneFinal();
-		SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
-		_controller.PopScene();
-		return;
+		if(_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+			_controller.PopScene();
+			return;
+		}
+	}
+
+	if (_restartButton->IsClicked())
+	{
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+			return;
+		}
+	}
+
+	if (_titleButton->IsClicked())
+	{
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			_controller.ChangeScene(new TitleScene(_controller));
+			return;
+		}
 	}
 
 }
 
 void MenuScene::SceneFinal(void)
 {
+	_backButton->Destroy();
+	_restartButton->Destroy();
+	_titleButton->Destroy();
 }
 
 void MenuScene::SceneResize(void)

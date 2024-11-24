@@ -29,7 +29,9 @@ private:
 	UINT modelNum = 0;
 	std::shared_ptr<Keyboard> _keyboard;
 	std::shared_ptr<Texture> _texture;
-	std::shared_ptr<Button> _button;
+	std::shared_ptr<Button> _backButton;
+	std::shared_ptr<Button> _restartButton;
+	std::shared_ptr<Button> _titleButton;
 
 	void SceneUpdate(void) override;
 	bool SceneInit(void) override;
