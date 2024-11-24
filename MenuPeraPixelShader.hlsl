@@ -12,12 +12,12 @@ float4 PS(Output input) : SV_TARGET
 
     if (input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.4 && input.uv.y < 0.5)
     {
-        return float4((menu + restart * fade).rgb, menu.a);
+        return float4((menu + restart).rgb * fade, menu.a);
     }
 
     if (input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.6 && input.uv.y < 0.7)
     {
-        return float4((menu + title * fade).rgb, menu.a);
+        return float4((menu + title).rgb * fade, menu.a);
     }
-    return menu;
+    return float4((menu * fade).rgb, menu.a);
 }
