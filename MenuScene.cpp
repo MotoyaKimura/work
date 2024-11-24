@@ -72,6 +72,9 @@ bool MenuScene::SceneInit()
 
 void MenuScene::SceneUpdate(void)
 {
+	_backButton->Update();
+	_restartButton->Update();
+	_titleButton->Update();
 	_peraRenderer->Update();
 }
 
@@ -82,7 +85,7 @@ void MenuScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	if(_backButton->IsClicked() || !Application::GetMenu())
+	if(_backButton->IsActive() || !Application::GetMenu())
 	{
 		if(_peraRenderer->FadeOut())
 		{
@@ -93,7 +96,7 @@ void MenuScene::SceneRender(void)
 		}
 	}
 
-	if (_restartButton->IsClicked())
+	if (_restartButton->IsActive())
 	{
 		if (_peraRenderer->FadeOut())
 		{
@@ -103,7 +106,7 @@ void MenuScene::SceneRender(void)
 		}
 	}
 
-	if (_titleButton->IsClicked())
+	if (_titleButton->IsActive())
 	{
 		if (_peraRenderer->FadeOut())
 		{
@@ -117,6 +120,10 @@ void MenuScene::SceneRender(void)
 
 void MenuScene::SceneFinal(void)
 {
+	Application::SetMenu();
+	_backButton->Hide();
+	_restartButton->Hide();
+	_titleButton->Hide();
 	_backButton->Destroy();
 	_restartButton->Destroy();
 	_titleButton->Destroy();

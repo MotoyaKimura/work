@@ -114,7 +114,9 @@ void TitleScene::SceneRender(void)
 
 void TitleScene::SceneFinal(void)
 {
+	_StartButton->Hide();
 	_StartButton->Destroy();
+	
 	_renderer.reset();
 	_pera.reset();
 	_keyboard.reset();

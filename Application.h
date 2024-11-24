@@ -45,7 +45,8 @@ public:
 	static HWND GetHwnd() { return hwnd; }
 	static WNDCLASSEX GetW() { return w; }
 	static bool GetPause() { return isPause; }
-	static bool GetMenu();
+	static bool GetMenu() { return isMenu; }
+	static void SetMenu() { isMenu = false; }
 	static HMENU GetButtonID() { return ButtonID; }
 	static void SetButtonID(HMENU id) { ButtonID = id; }
 	//‰Šú‰»

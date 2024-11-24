@@ -205,16 +205,7 @@ void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4>
 	fullscreenMode = !fullscreenMode;
 }
 
-bool Application::GetMenu()
-{
-	/*if (isMenu)
-	{
-		isMenu = false;
-		return true;
-	}
-	return false;*/
-	return isMenu;
-}
+
 
 SIZE Application::GetWindowSize()
 {
