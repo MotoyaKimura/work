@@ -103,7 +103,7 @@ void TitleScene::SceneRender(void)
 
 	if (_StartButton->IsActive())
 	{
-	
+		_peraRenderer->FadeOut();
 		if (_peraRenderer->WipeEnd()) {
 			_StartButton->SetInActive();
 			SceneFinal();

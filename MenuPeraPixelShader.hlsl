@@ -14,11 +14,11 @@ float4 PS(Output input) : SV_TARGET
     float4 back = backTex.Sample(smp, float2((input.uv.x) * 10 * screenWidth / screenHeight, (input.uv.y) * 10));
     back.rgb *= back.a;
 
-    if (input.uv.x > 0.0 && input.uv.x < 0.1 * screenHeight / screenWidth && input.uv.x > 0.0 && input.uv.y < 0.1)
+    if (input.uv.x > 0.0 && input.uv.x < 0.1 * screenHeight / screenWidth && input.uv.y > 0.0 && input.uv.y < 0.1)
     {
         return float4((backGround + back).rgb * fade, backGround.a);
     }
-    if(input.uv.x > 0.1 && input.uv.x < 0.2 && input.uv.x > 0.0 && input.uv.y < 0.1)
+    if(input.uv.x > 0.1 && input.uv.x < 0.2 && input.uv.y > 0.0 && input.uv.y < 0.1)
     {
 	    return float4((backGround + menu).rgb * fade, backGround.a);
     }

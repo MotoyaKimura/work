@@ -94,7 +94,7 @@ float4 PS(Output input) : SV_TARGET
 
     if (input.uv.x > 0.45 && input.uv.x < 0.55 && input.uv.y > 0.9 && input.uv.y < 1.0)
     {
-        return startTexColor + backGround;
+        return float4((startTexColor * fade + backGround).rgb, backGround.a);
     }
 
     if ((input.svpos.y - endWipeClose) <= 0 || input.svpos.y + endWipeClose >= height)
@@ -137,12 +137,7 @@ float4 PS(Output input) : SV_TARGET
         //}
        
   
-    if (input.uv.x > 0.45 && input.uv.x < 0.55 && input.uv.y > 0.9 && input.uv.y < 1.0)
-    {
-        return float4((texColor * ssao + indLight + startTexColor) * PauseCol * fade, texColor.a);
-    }
-    else
-    {
-        return float4((texColor * ssao + indLight) * PauseCol * fade, texColor.a);
-    }
+    
+	return float4((texColor * ssao + indLight) * PauseCol, texColor.a);
+    
 }

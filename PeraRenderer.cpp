@@ -87,14 +87,14 @@ bool PeraRenderer::IsPause()
 bool PeraRenderer::FadeIn()
 {
 	if (_wipeBuffData->_fade >= 1.0f) return false;
-	_wipeBuffData->_fade += 0.05f;
+	_wipeBuffData->_fade += 0.1f;
 	return true;
 }
 
 bool PeraRenderer::FadeOut()
 {
 	if (_wipeBuffData->_fade <= 0.0f) return true;
-	_wipeBuffData->_fade -= 0.1f;
+	_wipeBuffData->_fade -= 0.2f;
 	return false;
 }
 

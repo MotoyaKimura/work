@@ -100,9 +100,12 @@ void GameScene::SceneRender(void)
 
 	if(Application::GetMenu())
 	{
-		//_peraRenderer->DataReset();
-		_controller.PushScene(new MenuScene(_controller));
-		return;
+		if (_peraRenderer->FadeOut())
+		{
+			//_peraRenderer->DataReset();
+			_controller.PushScene(new MenuScene(_controller));
+			return;
+		}
 	}
 
 	/*if (_button->IsActive())
