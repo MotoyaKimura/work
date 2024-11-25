@@ -71,7 +71,7 @@ bool TitleScene::SceneInit()
 	_peraRenderer->RendererInit(L"TitlePeraVertexShader.hlsl", "VS", L"TitlePeraPixelShader.hlsl", "PS");
 
 
-	_StartButton.reset(new Button());
+	_StartButton.reset(new Button("Start"));
 	int dx = Application::GetWindowSize().cx;
 	int dy = Application::GetWindowSize().cy;
 	_StartButton->Create(_T("Start"), (int)(dx * 0.45), (int)(dy * 0.9), (int)(dx * 0.1), (int)(dy * 0.1), (HMENU)1);
@@ -81,6 +81,14 @@ bool TitleScene::SceneInit()
 
 void TitleScene::SceneUpdate(void)
 {
+	if(_StartButton->IsHover())
+	{
+		_peraRenderer->HoverButton(_StartButton->GetName());
+	}
+	else
+	{
+		_peraRenderer->HoverCntReset();
+	}
 	_StartButton->Update();
 	if(_peraRenderer->Update())
 	{}

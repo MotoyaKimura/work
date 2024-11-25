@@ -24,12 +24,12 @@ float4 PS(Output input) : SV_TARGET
     }
     if (input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.4 && input.uv.y < 0.5)
     {
-        return float4((backGround + restart).rgb * fade, backGround.a);
+        return float4((backGround + restart * restartHoverCnt).rgb * fade, backGround.a);
     }
 
     if (input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.6 && input.uv.y < 0.7)
     {
-        return float4((backGround + title).rgb * fade, backGround.a);
+        return float4((backGround + title * titleHoverCnt).rgb * fade, backGround.a);
     }
     return float4((backGround * fade).rgb, backGround.a);
 }

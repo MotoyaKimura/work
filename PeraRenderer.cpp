@@ -67,6 +67,9 @@ void PeraRenderer::DataReset()
 	_wipeBuffData->_monochromeRate = 0.0f;
 	_wipeBuffData->ScreenWidth = Application::GetWindowSize().cx;
 	_wipeBuffData->ScreenHeight = Application::GetWindowSize().cy;
+	_wipeBuffData->_startHoverCnt = 1.0f;
+	_wipeBuffData->_restartHoverCnt = 1.0f;
+	_wipeBuffData->_titleHoverCnt = 1.0f;
 	_wipeBuffData->_isPause = Application::GetPause();
 }
 
@@ -75,6 +78,36 @@ bool PeraRenderer::Update()
 	if (IsPause()) return true;
 	if (FadeIn()) return true;
 }
+
+void PeraRenderer::HoverButton(std::string buttonName)
+{
+	if (buttonName == "Start")
+	{
+		_wipeBuffData->_startHoverCnt = sin(hoverCnt + DirectX::XM_PIDIV2) * 0.5 + 1;
+	}
+	else if (buttonName == "Restart")
+	{
+		_wipeBuffData->_restartHoverCnt = sin(hoverCnt + DirectX::XM_PIDIV2) * 0.5 + 1;
+	}
+	else if (buttonName == "Title")
+	{
+		_wipeBuffData->_titleHoverCnt = sin(hoverCnt + DirectX::XM_PIDIV2) * 0.5 + 1;
+	}
+	hoverCnt += 0.05f;
+}
+
+void PeraRenderer::HoverCntReset()
+{
+	hoverCnt = 0.0f;
+	if (_wipeBuffData->_startHoverCnt < 1.0f)
+		_wipeBuffData->_startHoverCnt += 0.1;
+	if (_wipeBuffData->_restartHoverCnt < 1.0f)
+		_wipeBuffData->_restartHoverCnt += 0.1;
+	if (_wipeBuffData->_titleHoverCnt < 1.0f)
+		_wipeBuffData->_titleHoverCnt += 0.1;
+}
+
+
 
 bool PeraRenderer::IsPause()
 {

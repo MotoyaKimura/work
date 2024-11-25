@@ -27,6 +27,9 @@ cbuffer cbuff1 : register(b1)
     float monochromeRate;
     float screenWidth;
     float screenHeight;
+    float startHoverCnt;
+    float restartHoverCnt;
+    float titleHoverCnt;
     bool isPause;
 }
 

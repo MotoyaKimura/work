@@ -53,7 +53,7 @@ bool MenuScene::SceneInit()
 
 	int dx = Application::GetWindowSize().cx;
 	int dy = Application::GetWindowSize().cy;
-	_backButton.reset(new Button());
+	_backButton.reset(new Button("Back"));
 	_backButton->Create(
 		_T("©"), 
 		(int)(dx * 0.0f), (int)(dy * 0.0f), 
@@ -61,7 +61,7 @@ bool MenuScene::SceneInit()
 		(HMENU)2
 	);
 
-	_restartButton.reset(new Button());
+	_restartButton.reset(new Button("Restart"));
 	_restartButton->Create(
 		_T("Restart"),
 		(int)(dx * 0.45), (int)(dy * 0.4),
@@ -69,7 +69,7 @@ bool MenuScene::SceneInit()
 		(HMENU)3
 	);
 
-	_titleButton.reset(new Button());
+	_titleButton.reset(new Button("Title"));
 	_titleButton->Create(
 		_T("Back to Title"),
 		(int)(dx * 0.45), (int)(dy * 0.6),
@@ -82,6 +82,22 @@ bool MenuScene::SceneInit()
 
 void MenuScene::SceneUpdate(void)
 {
+	if (_backButton->IsHover())
+	{
+		_peraRenderer->HoverButton(_backButton->GetName());
+	}
+	else if(_restartButton->IsHover())
+	{
+		_peraRenderer->HoverButton(_restartButton->GetName());
+	}
+	else if (_titleButton->IsHover())
+	{
+		_peraRenderer->HoverButton(_titleButton->GetName());
+	}
+	else
+	{
+		_peraRenderer->HoverCntReset();
+	}
 	_backButton->Update();
 	_restartButton->Update();
 	_titleButton->Update();

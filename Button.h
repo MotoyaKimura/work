@@ -9,6 +9,7 @@ private:
 	POINT cursorPos;
 	LPRECT rect = new RECT();
 	HMENU _id;
+	std::string _name;
 	bool isActive = false;
 public:
 	void Create(
@@ -29,6 +30,7 @@ public:
 	void SetInActive() { isActive = false; }
 	HWND GetHwnd() { return hBTN; }
 	HMENU GetID() { return _id; }
-	Button();
+	std::string GetName() { return _name; }
+	Button(std::string name);
 	~Button();
 };

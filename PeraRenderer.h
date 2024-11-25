@@ -21,16 +21,21 @@ private:
 		float _monochromeRate;
 		float ScreenWidth;
 		float ScreenHeight;
+		float _startHoverCnt;
+		float _restartHoverCnt;
+		float _titleHoverCnt;
 		bool _isPause;
 	};
 	wipeBuffData* _wipeBuffData = {};
 	int wipeOpenCnt = 0;
 	int wipeCloseCnt = 0;
+	float hoverCnt = 0.0f;
 	float monochromeCnt = 0.0f;
 	bool isWipe = false;
 	bool wipeBuffInit();
-	
 public:
+	void HoverButton(std::string buttonName);
+	void HoverCntReset();
 	bool Init() override;
 	bool RendererInit(
 		std::wstring VShlslFile, 
