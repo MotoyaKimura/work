@@ -26,6 +26,7 @@ private:
 	wipeBuffData* _wipeBuffData = {};
 	int wipeOpenCnt = 0;
 	int wipeCloseCnt = 0;
+	float monochromeCnt = 0.0f;
 	bool isWipe = false;
 	bool wipeBuffInit();
 	

@@ -117,7 +117,8 @@ bool PeraRenderer::WipeEnd()
 bool PeraRenderer::MonochromeToColor()
 {
 	if (_wipeBuffData->_monochromeRate >= 1.0f) return true;
-	_wipeBuffData->_monochromeRate += 0.01f;
+	_wipeBuffData->_monochromeRate += pow(monochromeCnt, 2);
+	monochromeCnt += 0.001f;
 	return false;
 }
 
