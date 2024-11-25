@@ -5,6 +5,25 @@ float random(float2 uv)
     return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
 }
 
+float hash(float n)
+{
+    return frac(sin(n)*43758.5453);
+}
+
+float SimplexNoise(float3 x)
+{
+    float3 p = floor(x);
+    float3 f = frac(x);
+
+    f = f * f * (3.0 - 2.0 * f);
+    float n = p.x + p.y * 57.0 + 113.0 * p.z;
+
+    return lerp(lerp(lerp(hash(n + 0.0), hash(n + 1.0), f.x),
+                     lerp(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
+                 lerp(lerp(hash(n + 113.0), hash(n + 114.0), f.x),
+                     lerp(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
+}
+
 float3 calcRSM(float2 uv)
 {
     float dp = depthTex.Sample(smp, uv);
@@ -124,8 +143,14 @@ float4 PS(Output input) : SV_TARGET
     {
         float3 indLight = calcRSM(input.uv);
 
+        float t = SimplexNoise(input.svpos.xyz);
+        t = (t - 0.5f) * 2.0f;
+        float2 noise = input.uv + t * 0.05f * (1 - monochromeRate);
+        //float4 noiseCol = tex.Sample(smp, noise);
+      
+
         float ssao = ssaoTex.Sample(smp, (input.uv));
-        float4 texColor = tex.Sample(smp, input.uv);
+        float4 texColor = tex.Sample(smp, noise);
       //  float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
         //startTexColor.rgb *= startTexColor.a;
         float4 color = float4(texColor * ssao + indLight, texColor.a);
