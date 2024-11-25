@@ -74,14 +74,18 @@ float4 PS(Output input) : SV_TARGET
     float PauseCol = 1.0f;
     if(isPause)
         PauseCol = 0.5f;
-    if(step < 2)
-        if ((input.svpos.y - endWipeDown) < 0)
-            return float4(1.0f, 0.5f, 0.5f, 1.0f);
+    //if(step < 2)
+    //    if ((input.svpos.y - endWipeDown) < 0)
+    //        return float4(1.0f, 0.5f, 0.5f, 1.0f);
 
     //if (((width - input.svpos.x) - startWipeRight) < 0)
     //    return float4(0.5f, 0.5f, 1.0f, 1.0f);
-    if ((step - endWipeRight) < 0)
-        return float4(1.0f, 0.5f, 0.5f, 1.0f);
+    //if ((step - endWipeRight) < 0)
+    //    return float4(1.0f, 0.5f, 0.5f, 1.0f);
+    if ((input.svpos.y - startWipeOpen) <= 0 || input.svpos.y + startWipeOpen >= height)
+    {
+        return float4(0.2f, 0.2f, 0.2f, 1.0f);
+    }
  
 	if(input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     {
@@ -124,6 +128,10 @@ float4 PS(Output input) : SV_TARGET
         float4 texColor = tex.Sample(smp, input.uv);
       //  float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
         //startTexColor.rgb *= startTexColor.a;
-        return float4((texColor * ssao + indLight) * PauseCol * fade, texColor.a);
+        float4 color = float4(texColor * ssao + indLight, texColor.a);
+        float Y = 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
+        float3 monochromeColor = float3(Y, Y, Y);
+        color.xyz = lerp(monochromeColor, color, monochromeColor);
+        return float4(color.xyz * PauseCol * fade, color.a);
     }
 }

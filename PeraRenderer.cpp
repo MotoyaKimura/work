@@ -61,21 +61,19 @@ bool PeraRenderer::wipeBuffInit()
 
 void PeraRenderer::DataReset()
 {
-	_wipeBuffData->_startWipeRight = Application::GetWindowSize().cx;
-	_wipeBuffData->_endWipeRight = 0.0f;
-	_wipeBuffData->_endWipeDown = 0.0f;
-	_wipeBuffData->_endWipeCenter = Application::GetWindowSize().cy / 10;
+	_wipeBuffData->_startWipeOpen = Application::GetWindowSize().cy / 2;
+	_wipeBuffData->_endWipeClose = Application::GetWindowSize().cy / 10;
+	_wipeBuffData->_fade = 0.0f;
+	_wipeBuffData->_monochromeRate = 0.0f;
 	_wipeBuffData->ScreenWidth = Application::GetWindowSize().cx;
 	_wipeBuffData->ScreenHeight = Application::GetWindowSize().cy;
-	_wipeBuffData->_fade = 0.0f;
 	_wipeBuffData->_isPause = Application::GetPause();
 }
 
 bool PeraRenderer::Update()
 {
 	if (IsPause()) return true;
-	if (IsStart()) return true;
-
+	if (FadeIn()) return true;
 }
 
 bool PeraRenderer::IsPause()
@@ -86,12 +84,10 @@ bool PeraRenderer::IsPause()
 	return _wipeBuffData->_isPause;
 }
 
-bool PeraRenderer::IsStart()
+bool PeraRenderer::FadeIn()
 {
 	if (_wipeBuffData->_fade >= 1.0f) return false;
 	_wipeBuffData->_fade += 0.05f;
-	/*if (_wipeBuffData->_startWipeRight <= 0) return false;
-	_wipeBuffData->_startWipeRight -= 30;*/
 	return true;
 }
 
@@ -102,18 +98,26 @@ bool PeraRenderer::FadeOut()
 	return false;
 }
 
-
+bool PeraRenderer::WipeStart()
+{
+	if (_wipeBuffData->_startWipeOpen < 0)
+		return true;
+	_wipeBuffData->_startWipeOpen -= pow(wipeOpenCnt++, 2) * 0.001;
+	return false;
+}
 
 bool PeraRenderer::WipeEnd()
 {
-	
-	/*	_wipeBuffData->_endWipeDown += 20;
-		if (_wipeBuffData->_endWipeDown < Application::GetWindowSize().cy) return false;
-		_wipeBuffData->_endWipeRight++;
-		if (_wipeBuffData->_endWipeRight > 64.0f) return true;*/
-		if (_wipeBuffData->_endWipeCenter > Application::GetWindowSize().cy / 2)
+		if (_wipeBuffData->_endWipeClose > Application::GetWindowSize().cy / 2)
 			return true;
-		_wipeBuffData->_endWipeCenter += pow(cnt++, 2) * 0.001;
+		_wipeBuffData->_endWipeClose += pow(wipeCloseCnt++, 2) * 0.001;
+	return false;
+}
+
+bool PeraRenderer::MonochromeToColor()
+{
+	if (_wipeBuffData->_monochromeRate >= 1.0f) return true;
+	_wipeBuffData->_monochromeRate += 0.01f;
 	return false;
 }
 

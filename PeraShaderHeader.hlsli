@@ -23,11 +23,10 @@ cbuffer cbuff0 : register(b0)
 };
 
 cbuffer cbuff1 : register(b1){
-    float startWipeRight;
-    float endWipeRight;
-    float endWipeDown;
-    float endWipeCenter;
+    float startWipeOpen;
+    float endWipeClose;
     float fade;
+    float monochromeRate;
     float screenWidth;
     float screenHeight;
     bool isPause;
