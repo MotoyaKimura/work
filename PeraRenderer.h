@@ -15,17 +15,18 @@ private:
 	
 	Microsoft::WRL::ComPtr<ID3D12Resource> _wipeBuff = nullptr;
 	struct wipeBuffData {
-		float _startWipeRight;
-		float _endWipeRight;
-		float _endWipeDown;
-		float _endWipeCenter;
+		float _startWipeOpen;
+		float _endWipeClose;
 		float _fade;
+		float _monochromeRate;
 		float ScreenWidth;
 		float ScreenHeight;
 		bool _isPause;
 	};
 	wipeBuffData* _wipeBuffData = {};
-	int cnt = 0;
+	int wipeOpenCnt = 0;
+	int wipeCloseCnt = 0;
+	float monochromeCnt = 0.0f;
 	bool isWipe = false;
 	bool wipeBuffInit();
 	
@@ -41,9 +42,11 @@ public:
 	void Draw() override;
 	bool Update();
 	bool IsPause();
-	bool IsStart();
+	bool FadeIn();
 	bool FadeOut();
+	bool WipeStart();
 	bool WipeEnd();
+	bool MonochromeToColor();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera, 

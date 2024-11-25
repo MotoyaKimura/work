@@ -77,6 +77,8 @@ bool GameScene::SceneInit()
 
 void GameScene::SceneUpdate(void)
 {
+	_peraRenderer->WipeStart();
+	_peraRenderer->MonochromeToColor();
 	if (_peraRenderer->Update())
 	{}
 	else {

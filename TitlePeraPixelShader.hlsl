@@ -97,7 +97,7 @@ float4 PS(Output input) : SV_TARGET
         return startTexColor + backGround;
     }
 
-    if ((input.svpos.y - endWipeCenter) <= 0 || input.svpos.y + endWipeCenter >= height)
+    if ((input.svpos.y - endWipeClose) <= 0 || input.svpos.y + endWipeClose >= height)
     {
 	    return float4(0.2f, 0.2f, 0.2f, 1.0f);
     }
