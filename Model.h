@@ -513,6 +513,8 @@ private:
 	//‚±‚±‚Ü‚Å
 	
 	bool Load(std::string filePath);
+	bool LoadByAssimp(std::string filePath);
+	bool LoadPMX(std::string filePath);
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
 	bool VertexInit();

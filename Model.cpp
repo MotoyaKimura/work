@@ -39,6 +39,27 @@ bool Model::Load(std::string filePath)
 {
 	if (filePath == "") return false;
 
+	std::string ext = filePath.substr(filePath.find_last_of('.') + 1);
+	if(ext == "pmx")
+	{
+		LoadPMX(filePath);
+	}
+	else
+	{
+		LoadByAssimp(filePath);
+	}
+
+	return true;
+}
+
+bool Model::LoadPMX(std::string filePath)
+{
+	return true;
+}
+
+
+bool Model::LoadByAssimp(std::string filePath)
+{
 	Assimp::Importer importer;
 	int flag = 0;
 	flag |= aiProcess_Triangulate;
@@ -59,8 +80,8 @@ bool Model::Load(std::string filePath)
 	auto numMeshes = node->mNumMeshes;
 	Meshes.clear();
 	Meshes.resize(pScene->mNumMeshes);
-	
-	for(size_t i = 0; i < Meshes.size(); ++i)
+
+	for (size_t i = 0; i < Meshes.size(); ++i)
 	{
 		const auto pMesh = pScene->mMeshes[i];
 		ParseMesh(Meshes[i], pMesh);
@@ -78,9 +99,9 @@ bool Model::Load(std::string filePath)
 
 	pScene = nullptr;
 
-	
 	return true;
 }
+
 
 void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 {
