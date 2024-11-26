@@ -83,9 +83,9 @@ private:
 
 	struct PMXModelInfo
 	{
-		std::string modelName;
+		std::wstring modelName;
 		std::string englishModelName;
-		std::string comment;
+		std::wstring comment;
 		std::string englishComment;
 	};
 
@@ -516,6 +516,10 @@ private:
 	bool Load(std::string filePath);
 	bool LoadByAssimp(std::string filePath);
 	bool LoadPMX(std::string filePath);
+	bool ReadHeader(PMXFileData& data, std::ifstream& file);
+	bool GetPMXStringUTF16(std::ifstream& _file, std::wstring& output);
+	bool GetPMXStringUTF8(std::ifstream& _file, std::string& output);
+	bool ReadModelInfo(PMXFileData& data, std::ifstream& file);
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
 	bool VertexInit();

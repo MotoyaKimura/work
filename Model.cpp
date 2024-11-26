@@ -56,33 +56,70 @@ bool Model::Load(std::string filePath)
 bool Model::LoadPMX(std::string filePath)
 {
 	std::ifstream pmxFile{ filePath, (std::ios::binary | std::ios::in) };
-	if(pmxFile.fail())
-	{
-		pmxFile.close();
-		return false;
-	}
-
-	constexpr std::array<unsigned char, 4> PMX_MAGIC_NUMBER = { 0x50, 0x4d, 0x58, 0x20 };
-	pmxFile.read(reinterpret_cast<char*>(pmxData.header.magic.data()), pmxData.header.magic.size());
-	if (pmxData.header.magic != PMX_MAGIC_NUMBER)
-	{
-		pmxFile.close();
-		return false;
-	}
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.version), sizeof(pmxData.header.version));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.dataLength), sizeof(pmxData.header.dataLength));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.textEncoding), sizeof(pmxData.header.textEncoding));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.addUVNum), sizeof(pmxData.header.addUVNum));
-
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.vertexIndexSize), sizeof(pmxData.header.vertexIndexSize));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.textureIndexSize), sizeof(pmxData.header.textureIndexSize));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.materialIndexSize), sizeof(pmxData.header.materialIndexSize));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.boneIndexSize), sizeof(pmxData.header.boneIndexSize));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.morphIndexSize), sizeof(pmxData.header.morphIndexSize));
-	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.rigidBodyIndexSize), sizeof(pmxData.header.rigidBodyIndexSize));
+	if(pmxFile.fail()) return false;
+	if (!ReadHeader(pmxData, pmxFile)) return false;
+	if (!ReadModelInfo(pmxData, pmxFile)) return false;
 
 	return true;
 }
+
+bool Model::ReadHeader(PMXFileData& data, std::ifstream& file)
+{
+	constexpr std::array<unsigned char, 4> PMX_MAGIC_NUMBER = { 0x50, 0x4d, 0x58, 0x20 };
+	file.read(reinterpret_cast<char*>(data.header.magic.data()), data.header.magic.size());
+	if (data.header.magic != PMX_MAGIC_NUMBER)
+	{
+		file.close();
+		return false;
+	}
+	file.read(reinterpret_cast<char*>(&data.header.version), sizeof(data.header.version));
+	file.read(reinterpret_cast<char*>(&data.header.dataLength), sizeof(data.header.dataLength));
+	file.read(reinterpret_cast<char*>(&data.header.textEncoding), sizeof(data.header.textEncoding));
+	file.read(reinterpret_cast<char*>(&data.header.addUVNum), sizeof(data.header.addUVNum));
+
+	file.read(reinterpret_cast<char*>(&data.header.vertexIndexSize), sizeof(	data.header.vertexIndexSize));
+	file.read(reinterpret_cast<char*>(&data.header.textureIndexSize), sizeof(data.header.textureIndexSize));
+	file.read(reinterpret_cast<char*>(&data.header.materialIndexSize), sizeof(data.header.materialIndexSize));
+	file.read(reinterpret_cast<char*>(&data.header.boneIndexSize), sizeof(data.header.boneIndexSize));
+	file.read(reinterpret_cast<char*>(&data.header.morphIndexSize), sizeof(	data.header.morphIndexSize));
+	file.read(reinterpret_cast<char*>(&data.header.rigidBodyIndexSize), sizeof(data.header.rigidBodyIndexSize));
+	return true;
+}
+
+bool Model::GetPMXStringUTF16(std::ifstream& _file, std::wstring& output)
+{
+	std::array<wchar_t, 1024> wBuffer{};
+	int textSize;
+
+	_file.read(reinterpret_cast<char*>(&textSize), 4);
+	_file.read(reinterpret_cast<char*>(&wBuffer), textSize);
+	output = std::wstring(&wBuffer[0], &wBuffer[0] + textSize / 2);
+
+	return true;
+}
+
+bool Model::GetPMXStringUTF8(std::ifstream& _file, std::string& output)
+{
+	std::array<char, 1024> wBuffer{};
+	int textSize;
+
+	_file.read(reinterpret_cast<char*>(&textSize), 4);
+	_file.read(reinterpret_cast<char*>(&wBuffer), textSize);
+	output = std::string(&wBuffer[0], &wBuffer[0] + textSize);
+
+	return true;
+}
+
+
+bool Model::ReadModelInfo(PMXFileData& data, std::ifstream& file)
+{
+	GetPMXStringUTF16(file, data.modelInfo.modelName);
+	GetPMXStringUTF8(file, data.modelInfo.englishModelName);
+	GetPMXStringUTF16(file, data.modelInfo.comment);
+	GetPMXStringUTF8(file, data.modelInfo.englishComment);
+	return true;
+}
+
 
 
 bool Model::LoadByAssimp(std::string filePath)
