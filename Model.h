@@ -510,6 +510,7 @@ private:
 		std::vector<PMXSoftBody> softBodies;
 	};
 
+	PMXFileData pmxData;
 	//‚±‚±‚Ü‚Å
 	
 	bool Load(std::string filePath);

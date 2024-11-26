@@ -1,5 +1,6 @@
 #include "Model.h"
 #include <iostream>
+#include <fstream>
 #include "Camera.h"
 #include "Wrapper.h"
 #include <assimp/Importer.hpp>
@@ -54,6 +55,32 @@ bool Model::Load(std::string filePath)
 
 bool Model::LoadPMX(std::string filePath)
 {
+	std::ifstream pmxFile{ filePath, (std::ios::binary | std::ios::in) };
+	if(pmxFile.fail())
+	{
+		pmxFile.close();
+		return false;
+	}
+
+	constexpr std::array<unsigned char, 4> PMX_MAGIC_NUMBER = { 0x50, 0x4d, 0x58, 0x20 };
+	pmxFile.read(reinterpret_cast<char*>(pmxData.header.magic.data()), pmxData.header.magic.size());
+	if (pmxData.header.magic != PMX_MAGIC_NUMBER)
+	{
+		pmxFile.close();
+		return false;
+	}
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.version), sizeof(pmxData.header.version));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.dataLength), sizeof(pmxData.header.dataLength));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.textEncoding), sizeof(pmxData.header.textEncoding));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.addUVNum), sizeof(pmxData.header.addUVNum));
+
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.vertexIndexSize), sizeof(pmxData.header.vertexIndexSize));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.textureIndexSize), sizeof(pmxData.header.textureIndexSize));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.materialIndexSize), sizeof(pmxData.header.materialIndexSize));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.boneIndexSize), sizeof(pmxData.header.boneIndexSize));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.morphIndexSize), sizeof(pmxData.header.morphIndexSize));
+	pmxFile.read(reinterpret_cast<char*>(&pmxData.header.rigidBodyIndexSize), sizeof(pmxData.header.rigidBodyIndexSize));
+
 	return true;
 }
 
