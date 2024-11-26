@@ -64,7 +64,7 @@ void Button::Update()
 	}
 }
 
-Button::Button()
+Button::Button(std::string name) : _name(name)
 {
 }
 
