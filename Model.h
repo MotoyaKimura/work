@@ -521,6 +521,7 @@ private:
 	bool GetPMXStringUTF8(std::ifstream& _file, std::string& output);
 	bool ReadModelInfo(PMXFileData& data, std::ifstream& file);
 	bool ReadVertex(PMXFileData& data, std::ifstream& file);
+	bool ReadFace(PMXFileData& data, std::ifstream& file);
 
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);

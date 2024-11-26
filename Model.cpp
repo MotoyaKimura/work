@@ -60,6 +60,7 @@ bool Model::LoadPMX(std::string filePath)
 	if (!ReadHeader(pmxData, pmxFile)) return false;
 	if (!ReadModelInfo(pmxData, pmxFile)) return false;
 	if (!ReadVertex(pmxData, pmxFile)) return false;
+	if (!ReadFace(pmxData, pmxFile)) return false;
 	return true;
 }
 
@@ -177,6 +178,58 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 	}
 	return true;
 }
+
+bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
+{
+	int faceCount;
+	file.read(reinterpret_cast<char*>(&faceCount), 4);
+
+	faceCount /= 3;
+	data.faces.resize(faceCount);
+	switch (data.header.vertexIndexSize)
+	{
+		case 1:
+		{
+			std::vector<uint8_t> vertices(faceCount * 3);
+			file.read(reinterpret_cast<char*>(vertices.data()), sizeof(uint8_t) * vertices.size());
+			for (int32_t faceIdx = 0; faceIdx < faceCount; faceIdx++)
+			{
+				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
+				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
+				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+			}
+		}
+		break;
+		case 2:
+		{
+			std::vector<uint16_t> vertices(faceCount * 3);
+			file.read(reinterpret_cast<char*>(vertices.data()), sizeof(uint16_t) * vertices.size());
+			for (int32_t faceIdx = 0; faceIdx < faceCount; faceIdx++)
+			{
+				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
+				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
+				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+			}
+		}
+		break;
+		case 4:
+		{
+			std::vector<uint32_t> vertices(faceCount * 3);
+			file.read(reinterpret_cast<char*>(vertices.data()), sizeof(uint32_t) * vertices.size());
+			for (int32_t faceIdx = 0; faceIdx < faceCount; faceIdx++)
+			{
+				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
+				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
+				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+			}
+		}
+		break;
+		default:
+			return false;
+	}
+	return true;
+}
+
 
 bool Model::LoadByAssimp(std::string filePath)
 {
