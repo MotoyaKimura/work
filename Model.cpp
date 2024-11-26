@@ -61,6 +61,8 @@ bool Model::LoadPMX(std::string filePath)
 	if (!ReadModelInfo(pmxData, pmxFile)) return false;
 	if (!ReadVertex(pmxData, pmxFile)) return false;
 	if (!ReadFace(pmxData, pmxFile)) return false;
+	if (!ReadTexture(pmxData, pmxFile)) return false;
+	if (!ReadMaterial(pmxData, pmxFile)) return false;
 	return true;
 }
 
@@ -229,6 +231,62 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 	}
 	return true;
 }
+
+bool Model::ReadTexture(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int numOfTexture = 0;
+	file.read(reinterpret_cast<char*>(&numOfTexture), 4);
+	data.textures.resize(numOfTexture);
+	for (auto& texture : data.textures)
+	{
+		GetPMXStringUTF16(file, texture.textureName);
+	}
+	return true;
+}
+
+bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
+{
+	int numOfMaterial = 0;
+	file.read(reinterpret_cast<char*>(&numOfMaterial), 4);
+
+	data.materials.resize(numOfMaterial);
+	for(auto& mat : data.materials)
+	{
+		GetPMXStringUTF16(file, mat.name);
+		GetPMXStringUTF8(file, mat.englishName);
+		file.read(reinterpret_cast<char*>(&mat.diffuse), 16);
+		file.read(reinterpret_cast<char*>(&mat.specular), 12);
+		file.read(reinterpret_cast<char*>(&mat.specularPower), 4);
+		file.read(reinterpret_cast<char*>(&mat.ambient), 12);
+
+		file.read(reinterpret_cast<char*>(&mat.drawMode), 1);
+
+		file.read(reinterpret_cast<char*>(&mat.edgeColor), 16);
+		file.read(reinterpret_cast<char*>(&mat.edgeSize), 4);
+
+		file.read(reinterpret_cast<char*>(&mat.textureIndex), data.header.textureIndexSize);
+		file.read(reinterpret_cast<char*>(&mat.sphereTextureIndex), data.header.textureIndexSize);
+		file.read(reinterpret_cast<char*>(&mat.sphereMode), 1);
+
+		file.read(reinterpret_cast<char*>(&mat.toonMode), 1);
+		if(mat.toonMode == PMXToonMode::Separate)
+		{
+			file.read(reinterpret_cast<char*>(&mat.toonTextureIndex), data.header.textureIndexSize);
+		}
+		else if (mat.toonMode == PMXToonMode::Common)
+		{
+			file.read(reinterpret_cast<char*>(&mat.toonTextureIndex), 1);
+		}
+		else
+		{
+			return false;
+		}
+		GetPMXStringUTF16(file, mat.memo);
+		file.read(reinterpret_cast<char*>(&mat.numFaceVertices), 4);
+	}
+	return true;
+}
+
 
 
 bool Model::LoadByAssimp(std::string filePath)
