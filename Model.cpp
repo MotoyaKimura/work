@@ -59,7 +59,7 @@ bool Model::LoadPMX(std::string filePath)
 	if(pmxFile.fail()) return false;
 	if (!ReadHeader(pmxData, pmxFile)) return false;
 	if (!ReadModelInfo(pmxData, pmxFile)) return false;
-
+	if (!ReadVertex(pmxData, pmxFile)) return false;
 	return true;
 }
 
@@ -120,7 +120,63 @@ bool Model::ReadModelInfo(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int vertexCount;
+	file.read(reinterpret_cast<char*>(&vertexCount), 4);
+	data.vertices.resize(vertexCount);
 
+	for(auto& vertex : data.vertices)
+	{
+		file.read(reinterpret_cast<char*>(&vertex.position), 12);
+		file.read(reinterpret_cast<char*>(&vertex.normal), 12);
+		file.read(reinterpret_cast<char*>(&vertex.uv), 8);
+
+		for (int i = 0; i < data.header.addUVNum; i++)
+		{
+			file.read(reinterpret_cast<char*>(&vertex.additionalUV[i]), 16);
+		}
+
+		file.read(reinterpret_cast<char*>(&vertex.weightType), 1);
+
+		const unsigned char boneIndexSize = data.header.boneIndexSize;
+
+		switch (vertex.weightType)
+		{
+		case PMXVertexWeight::BDEF1:
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[0]), boneIndexSize);
+			break;
+		case PMXVertexWeight::BDEF2:
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[0]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[1]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneWeights[0]), 4);
+			break;
+		case PMXVertexWeight::BDEF4:
+		case PMXVertexWeight::QDEF:
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[0]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[1]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[2]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[3]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneWeights[0]), 4);
+			file.read(reinterpret_cast<char*>(&vertex.boneWeights[1]), 4);
+			file.read(reinterpret_cast<char*>(&vertex.boneWeights[2]), 4);
+			file.read(reinterpret_cast<char*>(&vertex.boneWeights[3]), 4);
+			break;
+		case PMXVertexWeight::SDEF:
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[0]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneIndices[1]), boneIndexSize);
+			file.read(reinterpret_cast<char*>(&vertex.boneWeights[0]), 4);
+			file.read(reinterpret_cast<char*>(&vertex.sdefC), 12);
+			file.read(reinterpret_cast<char*>(&vertex.sdefR0), 12);
+			file.read(reinterpret_cast<char*>(&vertex.sdefR1), 12);
+			break;
+		default:
+			return false;
+		}
+		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
+	}
+	return true;
+}
 
 bool Model::LoadByAssimp(std::string filePath)
 {

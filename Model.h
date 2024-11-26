@@ -105,7 +105,6 @@ private:
 		DirectX::XMFLOAT3 normal;
 		DirectX::XMFLOAT2 uv;
 		DirectX::XMFLOAT4 additionalUV[4];
-
 		PMXVertexWeight weightType;
 		int boneIndices[4];
 		float boneWeights[4];
@@ -515,11 +514,14 @@ private:
 	
 	bool Load(std::string filePath);
 	bool LoadByAssimp(std::string filePath);
+
 	bool LoadPMX(std::string filePath);
 	bool ReadHeader(PMXFileData& data, std::ifstream& file);
 	bool GetPMXStringUTF16(std::ifstream& _file, std::wstring& output);
 	bool GetPMXStringUTF8(std::ifstream& _file, std::string& output);
 	bool ReadModelInfo(PMXFileData& data, std::ifstream& file);
+	bool ReadVertex(PMXFileData& data, std::ifstream& file);
+
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
 	bool VertexInit();
