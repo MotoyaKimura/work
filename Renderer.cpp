@@ -174,17 +174,7 @@ void Renderer::Update()
 	_camera->CalcSceneTrans();
 }
 
-void Renderer::ResizeBuffers()
-{
-	for (auto& _models : _models) {
-		_models->MTransBuffInit();
-		_models->CreateMTransView();
-	}
-}
-
-
 void Renderer::DrawModel() const
-
 {
 	for (auto& _models : _models) {
 		_models->Draw();

@@ -61,16 +61,16 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	/*_texture.reset(new Texture(Application::_dx, _pera));
-	_texture->Init(L"texture/start.png");*/
+	for (auto model : _models)
+	{
+		model->RendererInit();
+	}
 
 	_rsm->RendererInit(L"VertexShader.hlsl", "rsmVS", L"PixelShader.hlsl", "rsmPS");
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
 
-	//_button.reset(new Button());
-	//_button->Create(_T("GameScene"), 10, 10, 100, 50, (HMENU)2);
 
 	return true;
 }
@@ -108,16 +108,6 @@ void GameScene::SceneRender(void)
 		}
 	}
 
-	/*if (_button->IsActive())
-	{
-		_button->SetInActive();
-		_button->Hide();
-		
-		if (_peraRenderer->WipeEnd()) {
-			SceneFinal();
-			_controller.ChangeScene(new GameScene(_controller));
-		}
-	}*/
 }
 
 void GameScene::SceneFinal(void)

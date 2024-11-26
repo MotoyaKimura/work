@@ -12,8 +12,8 @@ bool RSM::Init()
 	SetClearValue(0.5, 0.5, 0.5, 1.0);
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
-	for (auto model : _models) 
-		SetDepthBuffToHeap(model->GetHeap(), 3);
+	for (auto model : _models)
+		model->SetSRV(GetDepthBuffer(), DXGI_FORMAT_R32_FLOAT);
 	for (auto RTBuff : GetBuffers())
 		_pera->SetSRV(RTBuff, GetFormat());
 	_pera->SetSRV(GetDepthBuffer(), DXGI_FORMAT_R32_FLOAT);
@@ -24,7 +24,7 @@ bool RSM::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::w
 {
 	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(PShlslFile, PSEntryPoint, "ps_5_0", psBlob))) return false;
-	SetRootSigParam(3, 1);
+	SetRootSigParam(_models[0]->GetCbvDescs(), _models[0]->GetSrvDescs());
 	if (!RootSignatureInit()) return false;
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);

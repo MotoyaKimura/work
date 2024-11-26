@@ -1,6 +1,7 @@
 #include "ModelRenderer.h"
 #include "Application.h"
 #include "Wrapper.h"
+#include "Model.h"
 #include "Pera.h"
 
 
@@ -23,7 +24,7 @@ bool ModelRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoi
 {
 	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(PShlslFile, PSEntryPoint, "ps_5_0", psBlob))) return false;
-	SetRootSigParam(3, 1);
+	SetRootSigParam(_models[0]->GetCbvDescs(), _models[0]->GetSrvDescs());
 	if (!RootSignatureInit()) return false;
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);

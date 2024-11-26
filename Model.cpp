@@ -35,18 +35,6 @@ std::wstring GetWideStringFromString(const std::string& str)
 	return wstr;
 }
 
-template<class T>
-void Model::LoadIndexBuffer(std::vector<T>& indices, int numIndex, FILE* fp)
-{
-	indices.resize(numIndex);
-	for (int indexNo = 0; indexNo < numIndex; indexNo++) {
-		T index;
-		fread(&index, sizeof(index), 1, fp);
-		indices[indexNo] = index - 1;	//todo maxのインデックスは1から開始しているので、-1する。
-		//todo エクスポーターで減らすようにしましょう。
-	}
-}
-
 bool Model::Load(std::string filePath)
 {
 	if (filePath == "") return false;
@@ -309,103 +297,116 @@ bool Model::IndexInit()
 	return true;
 }
 
-
-bool Model::MTransBuffInit()
+Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(UINT64 width)
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(world) + 0xff) & ~0xff);
-
-	_dx->GetDevice()->CreateCommittedResource(
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((width + 0xff) & ~0xff);
+	Microsoft::WRL::ComPtr<ID3D12Resource> buffer = nullptr;
+	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(_mTransBuff.ReleaseAndGetAddressOf())
+		IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf())
 	);
-	
-	auto result = _mTransBuff->Map(0, nullptr, (void**)&mTransMatrix);
+	return buffer.Get();
+}
+
+bool Model::WorldBuffInit()
+{
+	_worldBuff = CreateBuffer(sizeof(world));
+	auto result = _worldBuff->Map(
+		0, 
+		nullptr, 
+		(void**)&worldMatrix
+	);
 	if (FAILED(result)) return false;
 	world = XMMatrixIdentity();
-	*mTransMatrix = world;
-
+	*worldMatrix = world;
+	SetCBV(_camera->GetSceneTransBuff());
+	SetCBV(_worldBuff);
 	return true;
 }
 
-bool Model::MTransHeapInit()
+bool Model::ModelHeapInit()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 4;
+	descHeapDesc.NumDescriptors = GetCbvDescs() + GetSrvDescs();
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&descHeapDesc,
-		IID_PPV_ARGS(_mTransHeap.ReleaseAndGetAddressOf()));
+		IID_PPV_ARGS(_modelHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-
-	_mTransMap["_sceneTransBuff"] = mTransHeapNum++;
-	_mTransMap["_mTransBuff"] = mTransHeapNum++;
-	
-	
-
-	return true;
-}
-
-bool Model::CreateMTransView()
-{
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = _camera->GetSceneTransBuff()->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_camera->GetSceneTransBuff()->GetDesc().Width);
-	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_sceneTransBuff"];
-	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
-
-	cbvDesc.BufferLocation = _mTransBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_mTransBuff->GetDesc().Width);
-	handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_mTransBuff"];
-	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 	return true;
 }
 
 
 bool Model::MaterialBuffInit()
 {
-	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(Materials[0]) + 0xff) & ~0xff);
-
-	_dx->GetDevice()->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(_materialBuff.ReleaseAndGetAddressOf())
-	);
-
-	_mTransMap["_materialBuff"] = mTransHeapNum++;
-
+	_materialBuff = CreateBuffer(sizeof(Materials[0]));
 	Material* materialMap = nullptr;
-	auto result = _materialBuff->Map(0, nullptr, (void**)&materialMap);
+	auto result = _materialBuff->Map(
+		0, 
+		nullptr, 
+		(void**)&materialMap
+	);
 	if (FAILED(result)) return false;
-	
-	std::copy(std::begin(Materials), std::end(Materials), materialMap);
-
-
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = _materialBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_materialBuff->GetDesc().Width);
-	auto handle = _mTransHeap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * _mTransMap["_materialBuff"];
-	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
-
+	std::copy(
+		std::begin(Materials), 
+		std::end(Materials),
+		materialMap
+	);
+	SetCBV(_materialBuff);
 	return true;
 }
 
 
 
-Model::Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath) : _dx(dx), _camera(camera), _pos(0, 0, 0), _rotater(0, 0, 0)
+void Model::SetSRV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer, DXGI_FORMAT format)
+{
+	std::pair< Microsoft::WRL::ComPtr<ID3D12Resource>, DXGI_FORMAT> srvBuff = { buffer, format };
+	srvBuffs.emplace_back(srvBuff);
+}
+
+void Model::SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer)
+{
+	cbvBuffs.emplace_back(buffer);
+}
+
+void Model::SetViews()
+{
+	if (!ModelHeapInit()) return;
+	for (int i = 0; i < cbvBuffs.size(); ++i)
+	{
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = cbvBuffs[i]->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i]->GetDesc().Width);
+		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * i;
+		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+	}
+	for (int i = 0; i < srvBuffs.size(); ++i)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = srvBuffs[i].second;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + cbvBuffs.size());
+		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i].first.Get(), &srvDesc, handle);
+	}
+}
+
+
+Model::Model(
+	std::shared_ptr<Wrapper> dx, 
+	std::shared_ptr<Camera> camera,
+	std::string filePath
+) : _dx(dx), _camera(camera), _pos(0, 0, 0), _rotater(0, 0, 0)
 {
 	Load(filePath);
 }
@@ -414,27 +415,29 @@ bool Model::Init()
 {
 	if (!VertexInit()) return false;
 	if (!IndexInit()) return false;
-	if (!MTransBuffInit()) return false;
-	if (!MTransHeapInit()) return false;
-	if (!CreateMTransView()) return false;
+	if (!WorldBuffInit()) return false;
 	if (!MaterialBuffInit()) return false;
 	world =
 		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
-	*mTransMatrix = world;
+	*worldMatrix = world;
 	return true;
 }
 
-
+bool Model::RendererInit()
+{
+	ModelHeapInit();
+	SetViews();
+	return true;
+}
 
 void Model::Update()
 {
 	world =
 		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
-		
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 	
-	*mTransMatrix = world;
+	*worldMatrix = world;
 	
 }
 
@@ -444,16 +447,20 @@ void Model::Draw()
 	_dx->GetCommandList() ->IASetVertexBuffers(0, 1, &vbView);
 	_dx->GetCommandList()->IASetIndexBuffer(&ibView);
 
-	ID3D12DescriptorHeap* heaps[] = { _mTransHeap.Get() };
+	ID3D12DescriptorHeap* heaps[] = { _modelHeap.Get() };
 
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
-		_mTransHeap->GetGPUDescriptorHandleForHeapStart());
+		_modelHeap->GetGPUDescriptorHandleForHeapStart());
 	
-	_dx->GetCommandList()->DrawIndexedInstanced(numIndex, 1, 0, 0, 0);
-	
-	
+	_dx->GetCommandList()->DrawIndexedInstanced(
+		numIndex,
+		1, 
+		0, 
+		0, 
+		0
+	);
 }
 
 void Model::Move(float x, float y, float z)
@@ -469,18 +476,6 @@ void Model::Rotate(float x, float y, float z)
 	_rotater.y += y;
 	_rotater.z += z;
 }
-
-DirectX::XMFLOAT3* Model::GetPos()
-{
-	return &_pos;
-}
-
-
-DirectX::XMFLOAT3* Model::GetRotate()
-{
-	return &_rotater;
-}
-
 
 Model::~Model()
 {
