@@ -63,6 +63,7 @@ bool Model::LoadPMX(std::string filePath)
 	if (!ReadFace(pmxData, pmxFile)) return false;
 	if (!ReadTexture(pmxData, pmxFile)) return false;
 	if (!ReadMaterial(pmxData, pmxFile)) return false;
+	if (!ReadBone(pmxData, pmxFile)) return false;
 	return true;
 }
 
@@ -287,6 +288,79 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+bool Model::ReadBone(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int numOfBone;
+	file.read(reinterpret_cast<char*>(&numOfBone), 4);
+
+	data.bones.resize(numOfBone);
+
+	for (auto& bone : data.bones)
+	{
+		GetPMXStringUTF16(file, bone.name);
+		GetPMXStringUTF8(file, bone.englishName);
+
+		file.read(reinterpret_cast<char*>(&bone.position), 12);
+		file.read(reinterpret_cast<char*>(&bone.parentBoneIndex), data.header.boneIndexSize);
+		file.read(reinterpret_cast<char*>(&bone.deformDepth), 4);
+
+		file.read(reinterpret_cast<char*>(&bone.boneFlag), 2);
+
+		if (((uint16_t)bone.boneFlag & (uint16_t)PMXBoneFlags::TargetShowMode) == 0)
+		{
+			file.read(reinterpret_cast<char*>(&bone.positionOffset), 12);
+		}
+		else
+		{
+			file.read(reinterpret_cast<char*>(&bone.linkBoneIndex), data.header.boneIndexSize);
+		}
+		
+		if (((uint16_t)bone.boneFlag & (uint16_t)PMXBoneFlags::AppendRotate) ||
+			((uint16_t)bone.boneFlag & (uint16_t)PMXBoneFlags::AppendTranslate))
+		{
+			file.read(reinterpret_cast<char*>(&bone.appendBoneIndex), data.header.boneIndexSize);
+			file.read(reinterpret_cast<char*>(&bone.appendWeight), 4);
+		}
+
+		if ((uint16_t)bone.boneFlag & (uint16_t)PMXBoneFlags::FixedAxis)
+		{
+			file.read(reinterpret_cast<char*>(&bone.fixedAxis), 12);
+		}
+
+		if ((uint16_t)bone.boneFlag & (uint16_t)PMXBoneFlags::LocalAxis)
+		{
+			file.read(reinterpret_cast<char*>(&bone.localXAxis), 12);
+			file.read(reinterpret_cast<char*>(&bone.localZAxis), 12);
+		}
+
+		if ((uint16_t)bone.boneFlag & (uint16_t)PMXBoneFlags::DeformOuterParent)
+		{
+			file.read(reinterpret_cast<char*>(&bone.keyValue), 4);
+		}
+
+		if ((uint16_t)bone.boneFlag & (uint16_t)PMXBoneFlags::IK)
+		{
+			file.read(reinterpret_cast<char*>(&bone.ikTargetBoneIndex), data.header.boneIndexSize);
+			file.read(reinterpret_cast<char*>(&bone.ikIterationCount), 4);
+			file.read(reinterpret_cast<char*>(&bone.ikLimit), 4);
+			unsigned int linkCount = 0;
+			file.read(reinterpret_cast<char*>(&linkCount), 4);
+
+			bone.ikLinks.resize(linkCount);
+			for (auto& ikLink : bone.ikLinks)
+			{
+				file.read(reinterpret_cast<char*>(&ikLink.ikBoneIndex), data.header.boneIndexSize);
+				file.read(reinterpret_cast<char*>(&ikLink.enableLimit), 1);
+				if (ikLink.enableLimit != 0)
+				{
+					file.read(reinterpret_cast<char*>(&ikLink.LimitMin), 12);
+					file.read(reinterpret_cast<char*>(&ikLink.LimitMax), 12);
+				}
+			}
+		}
+	}
+	return true;
+}
 
 
 bool Model::LoadByAssimp(std::string filePath)
