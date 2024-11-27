@@ -36,6 +36,35 @@ std::wstring GetWideStringFromString(const std::string& str)
 	return wstr;
 }
 
+std::string GetStringFromWideString(const std::wstring& wstr)
+{
+	auto num1 = WideCharToMultiByte(
+		CP_ACP,
+		0,
+		wstr.c_str(),
+		-1,
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
+
+	std::string str;
+	str.resize(num1);
+
+	auto num2 = WideCharToMultiByte(
+		CP_ACP,
+		0,
+		wstr.c_str(),
+		-1,
+		&str[0],
+		num1,
+		nullptr,
+		nullptr);
+
+	assert(num1 == num2);
+	return str;
+}
+
 bool Model::Load(std::string filePath)
 {
 	if (filePath == "") return false;
@@ -276,6 +305,10 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 	int numOfMaterial = 0;
 	file.read(reinterpret_cast<char*>(&numOfMaterial), 4);
 
+	Materials.resize(numOfMaterial);
+	mLoadedMaterial.resize(numOfMaterial);
+	int materialIndex = 0;
+
 	data.materials.resize(numOfMaterial);
 	for(auto& mat : data.materials)
 	{
@@ -310,6 +343,20 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		}
 		GetPMXStringUTF16(file, mat.memo);
 		file.read(reinterpret_cast<char*>(&mat.numFaceVertices), 4);
+
+		mLoadedMaterial[materialIndex].visible = true;
+		mLoadedMaterial[materialIndex].name = GetStringFromWideString(mat.name);
+		mLoadedMaterial[materialIndex].diffuse = mat.diffuse;
+		mLoadedMaterial[materialIndex].specular = mat.specular;
+		mLoadedMaterial[materialIndex].specularPower = mat.specularPower;
+		mLoadedMaterial[materialIndex].ambient = mat.ambient;
+		mLoadedMaterial[materialIndex].isTransparent = false;
+
+		Materials[materialIndex].diffuse = mat.diffuse;
+		Materials[materialIndex].specular = mat.specular;
+		Materials[materialIndex].specularPower = mat.specularPower;
+		Materials[materialIndex].ambient = mat.ambient;
+		materialIndex++;
 	}
 	return true;
 }
@@ -753,15 +800,15 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 {
 	{
-		aiColor3D color(0.0f, 0.0f, 0.0f);
+		aiColor4D color(0.0f, 0.0f, 0.0f, 0.0f);
 
 		if (pSrcMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
 		{
-			dstMaterial.diffuse = XMFLOAT3(color.r, color.g, color.b);
+			dstMaterial.diffuse = XMFLOAT4(color.r, color.g, color.b, color.a);
 		}
 		else
 		{
-			dstMaterial.diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
+			dstMaterial.diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 		}
 		/*SetConsoleOutputCP(CP_UTF8);
 		SetConsoleCP(CP_UTF8);

@@ -58,7 +58,7 @@ private:
 
 	struct Material
 	{
-		DirectX::XMFLOAT3 diffuse;
+		DirectX::XMFLOAT4 diffuse;
 		DirectX::XMFLOAT3 specular;
 		float specularPower;
 		DirectX::XMFLOAT3 ambient;
@@ -174,6 +174,19 @@ private:
 
 		unsigned int numFaceVertices;
 	};
+
+	struct PMXLoadedMaterial
+	{
+		bool visible;
+		std::string name;
+		DirectX::XMFLOAT4 diffuse;
+		DirectX::XMFLOAT3 specular;
+		float specularPower;
+		DirectX::XMFLOAT3 ambient;
+		bool isTransparent;
+	};
+
+std::vector< PMXLoadedMaterial >mLoadedMaterial;
 
 	enum class PMXBoneFlags : uint16_t
 	{
