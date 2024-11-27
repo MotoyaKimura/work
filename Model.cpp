@@ -39,7 +39,7 @@ std::wstring GetWideStringFromString(const std::string& str)
 std::string GetStringFromWideString(const std::wstring& wstr)
 {
 	auto num1 = WideCharToMultiByte(
-		CP_ACP,
+		CP_UTF8,
 		0,
 		wstr.c_str(),
 		-1,
@@ -52,7 +52,7 @@ std::string GetStringFromWideString(const std::wstring& wstr)
 	str.resize(num1);
 
 	auto num2 = WideCharToMultiByte(
-		CP_ACP,
+		CP_UTF8,
 		0,
 		wstr.c_str(),
 		-1,
