@@ -1042,7 +1042,9 @@ void Model::SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer)
 void Model::SetViews()
 {
 	if (!ModelHeapInit()) return;
-	for (int i = 0; i < cbvBuffs.size(); ++i)
+
+	//最初の３つのディスクリプタはカメラ、ワールド、ライト深度
+	for (int i = 0; i < 2; ++i)
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 		cbvDesc.BufferLocation = cbvBuffs[i]->GetGPUVirtualAddress();
@@ -1051,7 +1053,7 @@ void Model::SetViews()
 		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * i;
 		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 	}
-	for (int i = 0; i < srvBuffs.size(); ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -1059,8 +1061,28 @@ void Model::SetViews()
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + cbvBuffs.size());
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 2);
 		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i].first.Get(), &srvDesc, handle);
+	}
+	for (int i = 0; i < cbvBuffs.size() - 2; ++i)
+	{
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = cbvBuffs[i + 2]->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i + 2]->GetDesc().Width);
+		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 3);
+		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+	}
+	for (int i = 0; i < srvBuffs.size() - 1; ++i)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = srvBuffs[i + 1].second;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + cbvBuffs.size() + 1);
+		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i + 1].first.Get(), &srvDesc, handle);
 	}
 }
 
@@ -1113,9 +1135,14 @@ void Model::Draw()
 	ID3D12DescriptorHeap* heaps[] = { _modelHeap.Get() };
 
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	auto handle = _modelHeap->GetGPUDescriptorHandleForHeapStart();
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
-		_modelHeap->GetGPUDescriptorHandleForHeapStart());
+		handle);
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		1,
+		handle);
 	
 	_dx->GetCommandList()->DrawIndexedInstanced(
 		numIndex,

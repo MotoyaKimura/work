@@ -16,7 +16,7 @@ bool PeraRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoin
 {
 	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(PShlslFile, PSEntryPoint, "ps_5_0", psBlob))) return false;
-	SetRootSigParam(_pera->GetCbvDescs(), _pera->GetSrvDescs());
+	SetRootSigParamForPera(_pera->GetCbvDescs(), _pera->GetSrvDescs());
 	if (!RootSignatureInit()) return false;
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);

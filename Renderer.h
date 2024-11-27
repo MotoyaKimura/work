@@ -28,7 +28,8 @@ protected:
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	std::vector<D3D12_INPUT_ELEMENT_DESC> inputElements;
 	std::vector< CD3DX12_DESCRIPTOR_RANGE> ranges;
-	CD3DX12_ROOT_PARAMETER rootParam;
+	std::vector<CD3DX12_ROOT_PARAMETER> rootParams;
+	
 	std::vector<CD3DX12_STATIC_SAMPLER_DESC> samplers;
 	int modelID  = 0;
 	float clsClr[4];
@@ -57,7 +58,8 @@ protected:
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, bool isBackBuffer);
 	void SetVPAndSR(UINT windowWidth, UINT windowHeight);
 	void SetSRVDesc(DXGI_FORMAT format);
-	void SetRootSigParam(size_t cbvDescs, size_t srvDescs);
+	void SetRootSigParamForPera(size_t cbvDescs, size_t srvDescs);
+	void SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs);
 public:
 	
 	bool CreateBuffers();

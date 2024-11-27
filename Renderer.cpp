@@ -59,8 +59,8 @@ bool Renderer::RootSignatureInit()
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.Init(
-		1,
-		&rootParam,
+		rootParams.size(),
+		rootParams.data(),
 		samplers.size(),
 		samplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
@@ -85,7 +85,7 @@ bool Renderer::RootSignatureInit()
 	return true;
 }
 
-void Renderer::SetRootSigParam(size_t cbvDescs, size_t srvDescs)
+void Renderer::SetRootSigParamForPera(size_t cbvDescs, size_t srvDescs)
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
 	//ペラポリゴン用テクスチャ、視点深度テクスチャ
@@ -93,8 +93,45 @@ void Renderer::SetRootSigParam(size_t cbvDescs, size_t srvDescs)
 	ranges.emplace_back(descTblRange);
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, srvDescs, 0);
 	ranges.emplace_back(descTblRange);
-
+	CD3DX12_ROOT_PARAMETER rootParam;
 	rootParam.InitAsDescriptorTable(ranges.size(), ranges.data());
+	rootParams.emplace_back(rootParam);
+	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Init(0);
+	samplers.emplace_back(samplerDesc);
+
+	samplerDesc.Init(
+		1,
+		D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	);
+	samplers.emplace_back(samplerDesc);
+}
+
+void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
+{
+	CD3DX12_DESCRIPTOR_RANGE descTblRange;
+	//カメラ、ワールド
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0);
+	ranges.emplace_back(descTblRange);
+	//ライト深度
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	ranges.emplace_back(descTblRange);
+	//マテリアル
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, cbvDescs - 2, 2);
+	ranges.emplace_back(descTblRange);
+	//マテリアルテクスチャ
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, srvDescs - 1, 1);
+	ranges.emplace_back(descTblRange);
+
+	CD3DX12_ROOT_PARAMETER rootParam;
+	rootParam.InitAsDescriptorTable(2, ranges.data());
+	rootParams.emplace_back(rootParam);
+	rootParam.InitAsDescriptorTable(1, &ranges[2]);
+	rootParams.emplace_back(rootParam);
+
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Init(0);
 	samplers.emplace_back(samplerDesc);
