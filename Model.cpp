@@ -64,6 +64,8 @@ bool Model::LoadPMX(std::string filePath)
 	if (!ReadTexture(pmxData, pmxFile)) return false;
 	if (!ReadMaterial(pmxData, pmxFile)) return false;
 	if (!ReadBone(pmxData, pmxFile)) return false;
+	if (!ReadMorph(pmxData, pmxFile)) return false;
+	if (!ReadDisplayFrame(pmxData, pmxFile)) return false;
 	return true;
 }
 
@@ -361,6 +363,150 @@ bool Model::ReadBone(PMXFileData& data, std::ifstream& file)
 	}
 	return true;
 }
+
+bool Model::ReadMorph(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int numOfMorph = 0;
+	file.read(reinterpret_cast<char*>(&numOfMorph), 4);
+
+	data.morphs.resize(numOfMorph);
+
+	for(auto& morph : data.morphs)
+	{
+		GetPMXStringUTF16(file, morph.name);
+		GetPMXStringUTF8(file, morph.englishName);
+
+		file.read(reinterpret_cast<char*>(&morph.controlPanel), 1);
+		file.read(reinterpret_cast<char*>(&morph.morphType), 1);
+
+		unsigned int dataCount;
+		file.read(reinterpret_cast<char*>(&dataCount), 4);
+
+		if(morph.morphType == PMXMorphType::Position)
+		{
+			morph.positionMorph.resize(dataCount);
+			for (auto& morphData : morph.positionMorph)
+			{
+				file.read(reinterpret_cast<char*>(&morphData.vertexIndex), data.header.vertexIndexSize);
+				file.read(reinterpret_cast<char*>(&morphData.position), 12);
+			}
+		}
+		else if(morph.morphType == PMXMorphType::UV ||
+			morph.morphType == PMXMorphType::AddUV1 || 
+			morph.morphType == PMXMorphType::AddUV2 ||
+			morph.morphType == PMXMorphType::AddUV3 ||
+			morph.morphType == PMXMorphType::AddUV4)
+		{
+			morph.uvMorph.resize(dataCount);
+			for (auto& morphData : morph.uvMorph)
+			{
+				file.read(reinterpret_cast<char*>(&morphData.vertexIndex), data.header.vertexIndexSize);
+				file.read(reinterpret_cast<char*>(&morphData.uv), 16);
+			}
+		}
+		else if(morph.morphType == PMXMorphType::Bone)
+		{
+			morph.boneMorph.resize(dataCount);
+			for (auto& morphData : morph.boneMorph)
+			{
+				file.read(reinterpret_cast<char*>(&morphData.boneIndex), data.header.boneIndexSize);
+				file.read(reinterpret_cast<char*>(&morphData.position), 12);
+				file.read(reinterpret_cast<char*>(&morphData.quaternion), 16);
+			}
+		}
+		else if(morph.morphType == PMXMorphType::Material)
+		{
+			morph.materialMorph.resize(dataCount);
+			for(auto& morphData : morph.materialMorph)
+			{
+				file.read(reinterpret_cast<char*>(&morphData.materialIndex), data.header.materialIndexSize);
+				file.read(reinterpret_cast<char*>(&morphData.opType), 1);
+				file.read(reinterpret_cast<char*>(&morphData.diffuse), 16);
+				file.read(reinterpret_cast<char*>(&morphData.specular), 12);
+				file.read(reinterpret_cast<char*>(&morphData.specularPower), 4);
+				file.read(reinterpret_cast<char*>(&morphData.ambient), 12);
+				file.read(reinterpret_cast<char*>(&morphData.edgeColor), 16);
+				file.read(reinterpret_cast<char*>(&morphData.edgeSize), 4);
+				file.read(reinterpret_cast<char*>(&morphData.textureFactor), 16);
+				file.read(reinterpret_cast<char*>(&morphData.sphereTextureFactor), 16);
+				file.read(reinterpret_cast<char*>(&morphData.toonTextureFactor), 16);
+			}
+		}
+		else if(morph.morphType == PMXMorphType::Group)
+		{
+			morph.groupMorph.resize(dataCount);
+			for (auto& morphData : morph.groupMorph)
+			{
+				file.read(reinterpret_cast<char*>(&morphData.morphIndex), data.header.morphIndexSize);
+				file.read(reinterpret_cast<char*>(&morphData.weight), 4);
+			}
+		}
+		else if(morph.morphType == PMXMorphType::Flip)
+		{
+			morph.flipMorph.resize(dataCount);
+			for (auto& morphData : morph.flipMorph)
+			{
+				file.read(reinterpret_cast<char*>(&morphData.morphIndex), data.header.morphIndexSize);
+				file.read(reinterpret_cast<char*>(&morphData.weight), 4);
+			}
+		}
+		else if (morph.morphType == PMXMorphType::Impulse)
+		{
+			morph.impulseMorph.resize(dataCount);
+			for (auto& morphData : morph.impulseMorph)
+			{
+				file.read(reinterpret_cast<char*>(&morphData.rigidBodyIndex), data.header.rigidBodyIndexSize);
+				file.read(reinterpret_cast<char*>(&morphData.localFlag), 1);
+				file.read(reinterpret_cast<char*>(&morphData.translateVelocity), 12);
+				file.read(reinterpret_cast<char*>(&morphData.rotateTorque), 12);
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Model::ReadDisplayFrame(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int numOfDisplayFrame = 0;
+	file.read(reinterpret_cast<char*>(&numOfDisplayFrame), 4);
+
+	data.displayFrames.resize(numOfDisplayFrame);
+
+	for(auto& displayFlame : data.displayFrames)
+	{
+		GetPMXStringUTF16(file, displayFlame.name);
+		GetPMXStringUTF8(file, displayFlame.englishName);
+
+		file.read(reinterpret_cast<char*>(&displayFlame.flag), 1);
+
+		unsigned int targetCount = 0;
+		file.read(reinterpret_cast<char*>(&targetCount), 4);
+
+		displayFlame.targets.resize(targetCount);
+		for (auto& target : displayFlame.targets)
+		{
+			file.read(reinterpret_cast<char*>(&target.type), 1);
+			if (target.type == PMXDisplayFrame::TargetType::BoneIndex)
+			{
+				file.read(reinterpret_cast<char*>(&target.index), data.header.boneIndexSize);
+			}
+			else if (target.type == PMXDisplayFrame::TargetType::MorphIndex)
+			{
+				file.read(reinterpret_cast<char*>(&target.index), data.header.morphIndexSize);
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 
 
 bool Model::LoadByAssimp(std::string filePath)

@@ -525,6 +525,8 @@ private:
 	bool ReadTexture(PMXFileData& data, std::ifstream& file);
 	bool ReadMaterial(PMXFileData& data, std::ifstream& file);
 	bool ReadBone(PMXFileData& data, std::ifstream& file);
+	bool ReadMorph(PMXFileData& data, std::ifstream& file);
+	bool ReadDisplayFrame(PMXFileData& data, std::ifstream& file);
 
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
