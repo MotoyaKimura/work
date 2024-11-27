@@ -43,14 +43,6 @@ bool GameScene::SceneInit()
 
 	_models[4] = std::make_shared<Model>(Application::_dx, _camera, "modelData/nico/nico.pmx");
 
-	for (auto model : _models)
-	{
-		if (!model->Init())
-		{
-			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
-			return false;
-		}
-	}
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 	_keyboard->Init();
@@ -64,6 +56,14 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
+	for (auto model : _models)
+	{
+		if (!model->Init())
+		{
+			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
+			return false;
+		}
+	}
 	for (auto model : _models)
 	{
 		model->RendererInit();

@@ -2,26 +2,94 @@
 #include "Pera.h"
 #include "Wrapper.h"
 
-bool Texture::Init(std::wstring fileName)
+std::wstring Texture::GetWideStringFromString(const std::string& str)
 {
-	if (!LoadTexture(fileName)) return false;
-	if (!UploadBufferInit()) return false;
-	if (!TexBufferInit()) return false;
-	if (!CopyBuffer()) return false;
+	auto num1 = MultiByteToWideChar(
+		CP_ACP,
+		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
+		str.c_str(),
+		-1,
+		nullptr,
+		0);
+
+	std::wstring wstr;
+	wstr.resize(num1);
+
+	auto num2 = MultiByteToWideChar(
+		CP_ACP,
+		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
+		str.c_str(),
+		-1,
+		&wstr[0],
+		num1);
+
+	assert(num1 == num2);
+	return wstr;
+}
+
+std::string Texture::GetExtension(const std::string& path)
+{
+	return path.substr(path.find_last_of('.') + 1);
+}
+
+void Texture::DefineLambda()
+{
+	loadLambdaTable["sph"]
+		= loadLambdaTable["bmp"]
+		= loadLambdaTable["png"]
+		= loadLambdaTable["jpg"]
+		= [](const std::wstring& path, DirectX::TexMetadata* metadata, DirectX::ScratchImage& scratchImg)
+		-> HRESULT
+	{
+		return DirectX::LoadFromWICFile(path.c_str(), DirectX::WIC_FLAGS_NONE, metadata, scratchImg);
+	};
+
+	loadLambdaTable["tga"]
+		= [](const std::wstring& path, DirectX::TexMetadata* metadata, DirectX::ScratchImage& scratchImg)
+		-> HRESULT
+		{
+			return DirectX::LoadFromTGAFile(path.c_str(), metadata, scratchImg);
+		};
+
+	loadLambdaTable["dds"]
+		= [](const std::wstring& path, DirectX::TexMetadata* metadata, DirectX::ScratchImage& scratchImg)
+		-> HRESULT
+		{
+			return DirectX::LoadFromDDSFile(path.c_str(), DirectX::DDS_FLAGS_NONE, metadata, scratchImg);
+		};
+}
+
+bool Texture::Init(std::string fileName)
+{
+	DefineLambda();
+	auto wtexpath = GetWideStringFromString(fileName);
+	_texBuff = _dx->GetTextureByPath(wtexpath);
+	if (_texBuff == nullptr) {
+		if (!LoadTexture(fileName)) return false;
+		if (!UploadBufferInit()) return false;
+		if (!TexBufferInit()) return false;
+		if (!CopyBuffer()) return false;
+		_dx->GetResourceTable()[wtexpath] = _texBuff;
+	}
 	ChangeBarrier();
 	_dx->ExecuteCommand();
-	_pera->SetSRV(_texBuff, metadata.format);
 	return true;
 }
 
-bool Texture::LoadTexture(std::wstring fileName)
+void Texture::SetSRV()
 {
-	auto result = LoadFromWICFile(
-		fileName.c_str(), DirectX::WIC_FLAGS_NONE,
-		&metadata, scratchImg);
+	_pera->SetSRV(_texBuff, metadata.format);
+}
+
+bool Texture::LoadTexture(std::string fileName)
+{
+	auto wtexpath = GetWideStringFromString(fileName);
+	auto ext = GetExtension(fileName);
+	auto result = loadLambdaTable[ext](wtexpath, &metadata, scratchImg);
+	
 
 	if (FAILED(result)) {
-		printf("WICテクスチャがロードできません\n");
+		printf("テクスチャがロードできません\n");
 		return false;
 	}
 
@@ -53,6 +121,7 @@ bool Texture::UploadBufferInit()
 
 bool Texture::TexBufferInit()
 {
+
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		metadata.format,
@@ -106,6 +175,7 @@ bool Texture::CopyBuffer()
 	dst.SubresourceIndex = 0;
 
 	_dx->GetCommandList()->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+	
 	return true;
 }
 

@@ -40,14 +40,7 @@ bool TitleScene::SceneInit()
 	_models[1]->Move(2.5, 2.5, 0);
 	_models[2] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[2]->Move(0, 2.5, 2.5);
-	for (auto model : _models)
-	{
-		if (!model->Init())
-		{
-			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
-			return false;
-		}
-	}
+
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 	
@@ -63,7 +56,17 @@ bool TitleScene::SceneInit()
 	_peraRenderer->Init();
 
 	_texture.reset(new Texture(Application::_dx, _pera));
-	_texture->Init(L"texture/start.png");
+	_texture->Init("texture/start.png");
+	_texture->SetSRV();
+
+	for (auto model : _models)
+	{
+		if (!model->Init())
+		{
+			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
+			return false;
+		}
+	}
 
 	for (auto model : _models)
 	{

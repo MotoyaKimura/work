@@ -24,7 +24,7 @@ bool RSM::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::w
 {
 	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
 	if (FAILED(!CompileShaderFile(PShlslFile, PSEntryPoint, "ps_5_0", psBlob))) return false;
-	SetRootSigParam(_models[0]->GetCbvDescs(), _models[0]->GetSrvDescs());
+	SetRootSigParamForModel(_models[0]->GetCbvDescs(), _models[0]->GetSrvDescs());
 	if (!RootSignatureInit()) return false;
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);

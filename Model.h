@@ -13,6 +13,7 @@ class Model
 private:
 	unsigned int vertexNum = 0;
 	unsigned int numIndex = 0;
+	std::string _ext;
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Camera> _camera;
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;
@@ -52,16 +53,15 @@ private:
 	{
 		std::vector<MeshVertex> Vertices;
 		std::vector<uint32_t> Indices;
-		uint32_t MaterialId;
 	};
-	std::vector<Mesh> Meshes;
+	Mesh mesh;
 
 	struct Material
 	{
-		DirectX::XMFLOAT3 Diffuse;
-		DirectX::XMFLOAT3 Specular;
-		float Alpha;
-		float Shininess;
+		DirectX::XMFLOAT4 diffuse;
+		DirectX::XMFLOAT3 specular;
+		float specularPower;
+		DirectX::XMFLOAT3 ambient;
 	};
 	std::vector<Material> Materials;
 
@@ -174,6 +174,19 @@ private:
 
 		unsigned int numFaceVertices;
 	};
+
+	struct PMXLoadedMaterial
+	{
+		bool visible;
+		std::string name;
+		DirectX::XMFLOAT4 diffuse;
+		DirectX::XMFLOAT3 specular;
+		float specularPower;
+		DirectX::XMFLOAT3 ambient;
+		bool isTransparent;
+	};
+
+std::vector< PMXLoadedMaterial >mLoadedMaterial;
 
 	enum class PMXBoneFlags : uint16_t
 	{

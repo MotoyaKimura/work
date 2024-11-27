@@ -36,12 +36,41 @@ std::wstring GetWideStringFromString(const std::string& str)
 	return wstr;
 }
 
+std::string GetStringFromWideString(const std::wstring& wstr)
+{
+	auto num1 = WideCharToMultiByte(
+		CP_UTF8,
+		0,
+		wstr.c_str(),
+		-1,
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
+
+	std::string str;
+	str.resize(num1);
+
+	auto num2 = WideCharToMultiByte(
+		CP_UTF8,
+		0,
+		wstr.c_str(),
+		-1,
+		&str[0],
+		num1,
+		nullptr,
+		nullptr);
+
+	assert(num1 == num2);
+	return str;
+}
+
 bool Model::Load(std::string filePath)
 {
 	if (filePath == "") return false;
 
-	std::string ext = filePath.substr(filePath.find_last_of('.') + 1);
-	if(ext == "pmx")
+	_ext = filePath.substr(filePath.find_last_of('.') + 1);
+	if(_ext == "pmx")
 	{
 		LoadPMX(filePath);
 	}
@@ -55,6 +84,7 @@ bool Model::Load(std::string filePath)
 
 bool Model::LoadPMX(std::string filePath)
 {
+
 	if (filePath.empty()) return false;
 	std::ifstream pmxFile{ filePath, (std::ios::binary | std::ios::in) };
 	if(pmxFile.fail()) return false;
@@ -135,8 +165,10 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int vertexCount;
 	file.read(reinterpret_cast<char*>(&vertexCount), 4);
+	vertexNum = vertexCount;
 	data.vertices.resize(vertexCount);
-
+	mesh.Vertices.resize(vertexCount);
+	int i = 0;
 	for(auto& vertex : data.vertices)
 	{
 		file.read(reinterpret_cast<char*>(&vertex.position), 12);
@@ -185,7 +217,12 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
+		mesh.Vertices[i].Position = DirectX::XMFLOAT3(vertex.position.x * 0.1, vertex.position.y * 0.1, vertex.position.z * 0.1);
+		mesh.Vertices[i].Normal = vertex.normal;
+		mesh.Vertices[i].TexCoord = vertex.uv;
+		i++;
 	}
+
 	return true;
 }
 
@@ -196,6 +233,8 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 
 	faceCount /= 3;
 	data.faces.resize(faceCount);
+	mesh.Indices.resize(faceCount * 3);
+	numIndex = faceCount * 3;
 	switch (data.header.vertexIndexSize)
 	{
 		case 1:
@@ -207,6 +246,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+				mesh.Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				mesh.Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				mesh.Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -219,6 +261,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+				mesh.Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				mesh.Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				mesh.Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -231,6 +276,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+				mesh.Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				mesh.Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				mesh.Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -256,6 +304,10 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 {
 	int numOfMaterial = 0;
 	file.read(reinterpret_cast<char*>(&numOfMaterial), 4);
+
+	Materials.resize(numOfMaterial);
+	mLoadedMaterial.resize(numOfMaterial);
+	int materialIndex = 0;
 
 	data.materials.resize(numOfMaterial);
 	for(auto& mat : data.materials)
@@ -291,6 +343,20 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		}
 		GetPMXStringUTF16(file, mat.memo);
 		file.read(reinterpret_cast<char*>(&mat.numFaceVertices), 4);
+
+		mLoadedMaterial[materialIndex].visible = true;
+		mLoadedMaterial[materialIndex].name = GetStringFromWideString(mat.name);
+		mLoadedMaterial[materialIndex].diffuse = mat.diffuse;
+		mLoadedMaterial[materialIndex].specular = mat.specular;
+		mLoadedMaterial[materialIndex].specularPower = mat.specularPower;
+		mLoadedMaterial[materialIndex].ambient = mat.ambient;
+		mLoadedMaterial[materialIndex].isTransparent = false;
+
+		Materials[materialIndex].diffuse = mat.diffuse;
+		Materials[materialIndex].specular = mat.specular;
+		Materials[materialIndex].specularPower = mat.specularPower;
+		Materials[materialIndex].ambient = mat.ambient;
+		materialIndex++;
 	}
 	return true;
 }
@@ -671,14 +737,11 @@ bool Model::LoadByAssimp(std::string filePath)
 
 	auto node = pScene->mRootNode;
 	auto numMeshes = node->mNumMeshes;
-	Meshes.clear();
-	Meshes.resize(pScene->mNumMeshes);
 
-	for (size_t i = 0; i < Meshes.size(); ++i)
-	{
-		const auto pMesh = pScene->mMeshes[i];
-		ParseMesh(Meshes[i], pMesh);
-	}
+	
+	const auto pMesh = pScene->mMeshes[0];
+	ParseMesh(mesh, pMesh);
+	
 
 
 	Materials.clear();
@@ -698,7 +761,6 @@ bool Model::LoadByAssimp(std::string filePath)
 
 void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 {
-	dstMesh.MaterialId = pSrcMesh->mMaterialIndex;
 	/*aiVector3D aabbMax = pSrcMesh->mAABB.mMax;
 	aiVector3D aabbMin = pSrcMesh->mAABB.mMin;
 	std::cout << "aabbMax.x = " << aabbMax.x << ", aabbMax.y = " << aabbMax.y << ", aabbMax.z = " << aabbMax.z << "\n" << std::endl;*/
@@ -738,15 +800,15 @@ void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 {
 	{
-		aiColor3D color(0.0f, 0.0f, 0.0f);
+		aiColor4D color(0.0f, 0.0f, 0.0f, 0.0f);
 
 		if (pSrcMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
 		{
-			dstMaterial.Diffuse = XMFLOAT3(color.r, color.g, color.b);
+			dstMaterial.diffuse = XMFLOAT4(color.r, color.g, color.b, color.a);
 		}
 		else
 		{
-			dstMaterial.Diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
+			dstMaterial.diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 		}
 		/*SetConsoleOutputCP(CP_UTF8);
 		SetConsoleCP(CP_UTF8);
@@ -784,36 +846,36 @@ void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 		aiColor3D color(0.0f, 0.0f, 0.0f);
 		if (pSrcMaterial->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
 		{
-			dstMaterial.Specular = XMFLOAT3(color.r, color.g, color.b);
+			dstMaterial.specular = XMFLOAT3(color.r, color.g, color.b);
 		}
 		else
 		{
-			dstMaterial.Specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			dstMaterial.specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		}
 	}
-
+	
 	{
 		float shininess;
 		if (pSrcMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
 		{
-			dstMaterial.Shininess = shininess;
+			dstMaterial.specularPower = shininess;
 		}
 		else
 		{
-			dstMaterial.Shininess = 0.0f;
+			dstMaterial.specularPower = 0.0f;
 		}
 	}
 
 	{
-		/*aiString path;
-		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
+		aiColor3D ambient(0.0f, 0.0f, 0.0f);
+		if (pSrcMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambient) == AI_SUCCESS)
 		{
-			dstMaterial.DiffuseMap = path.C_Str();
+			dstMaterial.ambient = XMFLOAT3(ambient.r, ambient.g, ambient.b);
 		}
 		else
 		{
-			dstMaterial.DiffuseMap.clear();
-		}*/
+			dstMaterial.ambient = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		}
 	}
 }
 
@@ -845,16 +907,11 @@ bool Model::VertexInit()
 	MeshVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
-
-	size_t idx = 0;
-	for(size_t i = 0; i < Meshes.size(); ++i)
-	{
-		for (size_t j = 0; j < Meshes[i].Vertices.size(); ++j)
-		{
-			vertMap[idx + j] = Meshes[i].Vertices[j];
-		}
-		idx += Meshes[i].Vertices.size();
-	}
+	
+	
+	std::copy(std::begin(mesh.Vertices), std::end(mesh.Vertices), vertMap);
+	
+	
 	//std::copy(std::begin(Meshes[0].Vertices), std::end(Meshes[0].Vertices), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
@@ -892,17 +949,9 @@ bool Model::IndexInit()
 	uint32_t* indexMap = nullptr;
 	result = indexBuffer->Map(0, nullptr, (void**)&indexMap);
 	if (FAILED(result)) return false;
+	
+	std::copy(std::begin(mesh.Indices), std::end(mesh.Indices), indexMap);
 
-	size_t idx = 0;
-	for (size_t i = 0; i < Meshes.size(); ++i)
-	{
-		for (size_t j = 0; j < Meshes[i].Indices.size(); ++j)
-		{
-			indexMap[idx + j] = Meshes[i].Indices[j];
-		}
-		idx += Meshes[i].Indices.size();
-	}
-	//std::copy(std::begin(Meshes[0].Indices), std::end(Meshes[0].Indices), indexMap);
 	indexBuffer->Unmap(0, nullptr);
 	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	ibView.Format = DXGI_FORMAT_R32_UINT;
@@ -993,7 +1042,9 @@ void Model::SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer)
 void Model::SetViews()
 {
 	if (!ModelHeapInit()) return;
-	for (int i = 0; i < cbvBuffs.size(); ++i)
+
+	//最初の３つのディスクリプタはカメラ、ワールド、ライト深度
+	for (int i = 0; i < 2; ++i)
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 		cbvDesc.BufferLocation = cbvBuffs[i]->GetGPUVirtualAddress();
@@ -1002,7 +1053,7 @@ void Model::SetViews()
 		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * i;
 		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 	}
-	for (int i = 0; i < srvBuffs.size(); ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -1010,8 +1061,28 @@ void Model::SetViews()
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + cbvBuffs.size());
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 2);
 		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i].first.Get(), &srvDesc, handle);
+	}
+	for (int i = 0; i < cbvBuffs.size() - 2; ++i)
+	{
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = cbvBuffs[i + 2]->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i + 2]->GetDesc().Width);
+		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 3);
+		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+	}
+	for (int i = 0; i < srvBuffs.size() - 1; ++i)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = srvBuffs[i + 1].second;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + cbvBuffs.size() + 1);
+		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i + 1].first.Get(), &srvDesc, handle);
 	}
 }
 
@@ -1064,9 +1135,14 @@ void Model::Draw()
 	ID3D12DescriptorHeap* heaps[] = { _modelHeap.Get() };
 
 	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	auto handle = _modelHeap->GetGPUDescriptorHandleForHeapStart();
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
-		_modelHeap->GetGPUDescriptorHandleForHeapStart());
+		handle);
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		1,
+		handle);
 	
 	_dx->GetCommandList()->DrawIndexedInstanced(
 		numIndex,
