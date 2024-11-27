@@ -24,6 +24,7 @@ private:
 	void ChangeBarrier();
 	std::wstring GetWideStringFromString(const std::string& str);
 	std::string GetExtension(const std::string& path);
+
 	using LoadLambda_t = std::function<HRESULT(const std::wstring& path, DirectX::TexMetadata*, DirectX::ScratchImage&)>;
 	std::map<std::string, LoadLambda_t> loadLambdaTable;
 	void DefineLambda();

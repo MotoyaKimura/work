@@ -3,6 +3,8 @@
 #include <d3dx12.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
+
+#include <map>
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "DirectXTex.lib")
@@ -28,7 +30,7 @@ private:
 
 	std::vector< Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeaps = nullptr;
-
+	std::map<std::wstring, Microsoft::WRL::ComPtr<ID3D12Resource>> mResourceTableW;
 
 
 	bool DXGIInit();
@@ -45,13 +47,14 @@ public:
 	void Draw();
 	void Flip();
 	void ResizeBackBuffers();
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetTextureByPath(const std::wstring& path);
 
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const {return _dev.Get();}
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const {return  _cmdList.Get();}
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> GetSwapChain() const { return _swapchain.Get();}
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetBackBuff() const { return backBuffers[_swapchain->GetCurrentBackBufferIndex()].Get(); }
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetRTVHeap() const { return rtvHeaps.Get(); }
-
+	std::map<std::wstring, Microsoft::WRL::ComPtr<ID3D12Resource>> GetResourceTable() const { return mResourceTableW; }
 	
 	
 

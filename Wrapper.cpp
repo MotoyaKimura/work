@@ -252,6 +252,16 @@ void Wrapper::Flip()
 	_swapchain->Present(1, 0);
 }
 
+ComPtr <ID3D12Resource> Wrapper::GetTextureByPath(const std::wstring& path)
+{
+	auto it = mResourceTableW.find(path);
+	if (it != mResourceTableW.end()) {
+		return mResourceTableW[path];
+	}
+	else {
+		return nullptr;
+	}
+}
 
 Wrapper::~Wrapper()
 {

@@ -29,8 +29,7 @@ std::wstring Texture::GetWideStringFromString(const std::string& str)
 
 std::string Texture::GetExtension(const std::string& path)
 {
-	auto _ext = path.substr(path.find_last_of('.') + 1);
-	return _ext;
+	return path.substr(path.find_last_of('.') + 1);
 }
 
 void Texture::DefineLambda()
@@ -63,10 +62,15 @@ void Texture::DefineLambda()
 bool Texture::Init(std::string fileName)
 {
 	DefineLambda();
-	if (!LoadTexture(fileName)) return false;
-	if (!UploadBufferInit()) return false;
-	if (!TexBufferInit()) return false;
-	if (!CopyBuffer()) return false;
+	auto wtexpath = GetWideStringFromString(fileName);
+	_texBuff = _dx->GetTextureByPath(wtexpath);
+	if (_texBuff == nullptr) {
+		if (!LoadTexture(fileName)) return false;
+		if (!UploadBufferInit()) return false;
+		if (!TexBufferInit()) return false;
+		if (!CopyBuffer()) return false;
+		_dx->GetResourceTable()[wtexpath] = _texBuff;
+	}
 	ChangeBarrier();
 	_dx->ExecuteCommand();
 	return true;
@@ -117,6 +121,7 @@ bool Texture::UploadBufferInit()
 
 bool Texture::TexBufferInit()
 {
+
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		metadata.format,
@@ -170,6 +175,7 @@ bool Texture::CopyBuffer()
 	dst.SubresourceIndex = 0;
 
 	_dx->GetCommandList()->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
+	
 	return true;
 }
 
