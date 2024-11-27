@@ -490,6 +490,8 @@ private:
 			unsigned char nearMode;
 		};
 		std::vector<AnchorRigidBody> anchorRigidBodies;
+
+		std::vector<unsigned int> pinVertexIndices;
 	};
 
 	struct PMXFileData
@@ -527,6 +529,9 @@ private:
 	bool ReadBone(PMXFileData& data, std::ifstream& file);
 	bool ReadMorph(PMXFileData& data, std::ifstream& file);
 	bool ReadDisplayFrame(PMXFileData& data, std::ifstream& file);
+	bool ReadRigidBody(PMXFileData& data, std::ifstream& file);
+	bool ReadJoint(PMXFileData& data, std::ifstream& file);
+	bool ReadSoftBody(PMXFileData& data, std::ifstream& file);
 
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);

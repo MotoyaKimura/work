@@ -66,6 +66,9 @@ bool Model::LoadPMX(std::string filePath)
 	if (!ReadBone(pmxData, pmxFile)) return false;
 	if (!ReadMorph(pmxData, pmxFile)) return false;
 	if (!ReadDisplayFrame(pmxData, pmxFile)) return false;
+	if (!ReadRigidBody(pmxData, pmxFile)) return false;
+	if (!ReadJoint(pmxData, pmxFile)) return false;
+	if (!ReadSoftBody(pmxData, pmxFile)) return false;
 	return true;
 }
 
@@ -507,7 +510,144 @@ bool Model::ReadDisplayFrame(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+bool Model::ReadRigidBody(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int numOfRigidBody = 0;
+	file.read(reinterpret_cast<char*>(&numOfRigidBody), 4);
 
+	data.rigidBodies.resize(numOfRigidBody);
+
+	for (auto& rigidBody : data.rigidBodies)
+	{
+		GetPMXStringUTF16(file, rigidBody.name);
+		GetPMXStringUTF8(file, rigidBody.englishName);
+
+		file.read(reinterpret_cast<char*>(&rigidBody.boneIndex), data.header.boneIndexSize);
+		file.read(reinterpret_cast<char*>(&rigidBody.group), 1);
+		file.read(reinterpret_cast<char*>(&rigidBody.collisionGroup), 2);
+		file.read(reinterpret_cast<char*>(&rigidBody.shape), 1);
+		file.read(reinterpret_cast<char*>(&rigidBody.shapeSize), 12);
+		file.read(reinterpret_cast<char*>(&rigidBody.translate), 12);
+		file.read(reinterpret_cast<char*>(&rigidBody.rotate), 12);
+		file.read(reinterpret_cast<char*>(&rigidBody.mass), 4);
+		file.read(reinterpret_cast<char*>(&rigidBody.translateDimmer), 4);
+		file.read(reinterpret_cast<char*>(&rigidBody.rotateDimmer), 4);
+		file.read(reinterpret_cast<char*>(&rigidBody.repulsion), 4);
+		file.read(reinterpret_cast<char*>(&rigidBody.friction), 4);
+		file.read(reinterpret_cast<char*>(&rigidBody.op), 1);
+	}
+	return true;
+}
+
+bool Model::ReadJoint(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int numOfJoint = 0;
+	file.read(reinterpret_cast<char*>(&numOfJoint), 4);
+
+	data.joints.resize(numOfJoint);
+
+	for(auto& joint : data.joints)
+	{
+		GetPMXStringUTF16(file, joint.name);
+		GetPMXStringUTF8(file, joint.englishName);
+
+		file.read(reinterpret_cast<char*>(&joint.type), 1);
+		file.read(reinterpret_cast<char*>(&joint.rigidBodyAIndex), data.header.rigidBodyIndexSize);
+		file.read(reinterpret_cast<char*>(&joint.rigidBodyBIndex), data.header.rigidBodyIndexSize);
+
+		file.read(reinterpret_cast<char*>(&joint.translate), 12);
+		file.read(reinterpret_cast<char*>(&joint.rotate), 12);
+
+		file.read(reinterpret_cast<char*>(&joint.translateLowerLimit), 12);
+		file.read(reinterpret_cast<char*>(&joint.translateUpperLimit), 12);
+		file.read(reinterpret_cast<char*>(&joint.rotateLowerLimit), 12);
+		file.read(reinterpret_cast<char*>(&joint.rotateUpperLimit), 12);
+
+		file.read(reinterpret_cast<char*>(&joint.springTranslateFactor), 12);
+		file.read(reinterpret_cast<char*>(&joint.springRotateFactor), 12);
+	}
+	return true;
+}
+
+bool Model::ReadSoftBody(PMXFileData& data, std::ifstream& file)
+{
+	unsigned int numOfSoftBody = 0;
+	file.read(reinterpret_cast<char*>(&numOfSoftBody), 4);
+
+	data.softBodies.resize(numOfSoftBody);
+
+	for(auto& softBody : data.softBodies)
+	{
+		GetPMXStringUTF16(file, softBody.name);
+		GetPMXStringUTF8(file, softBody.englishName);
+
+		file.read(reinterpret_cast<char*>(&softBody.type), 1);
+
+		file.read(reinterpret_cast<char*>(&softBody.materialIndex), data.header.materialIndexSize);
+		file.read(reinterpret_cast<char*>(&softBody.group), 1);
+		file.read(reinterpret_cast<char*>(&softBody.collisionGroup), 2);
+
+		file.read(reinterpret_cast<char*>( & softBody.flag), 1);
+
+		file.read(reinterpret_cast<char*>(&softBody.bLinkLength), 4);
+		file.read(reinterpret_cast<char*>(&softBody.numClusters), 4);
+
+		file.read(reinterpret_cast<char*>(&softBody.totalMass), 4);
+		file.read(reinterpret_cast<char*>(&softBody.collisionMargin), 4);
+
+		file.read(reinterpret_cast<char*>(&softBody.aeroModel), 4);
+
+		file.read(reinterpret_cast<char*>(&softBody.vcf), 4);
+		file.read(reinterpret_cast<char*>(&softBody.dp), 4);
+		file.read(reinterpret_cast<char*>(&softBody.dg), 4);
+		file.read(reinterpret_cast<char*>(&softBody.lf), 4);
+		file.read(reinterpret_cast<char*>(&softBody.pr), 4);
+		file.read(reinterpret_cast<char*>(&softBody.vc), 4);
+		file.read(reinterpret_cast<char*>(&softBody.df), 4);
+		file.read(reinterpret_cast<char*>(&softBody.mt), 4);
+		file.read(reinterpret_cast<char*>(&softBody.chr), 4);
+		file.read(reinterpret_cast<char*>(&softBody.khr), 4);
+		file.read(reinterpret_cast<char*>(&softBody.shr), 4);
+		file.read(reinterpret_cast<char*>(&softBody.ahr), 4);
+
+		file.read(reinterpret_cast<char*>(&softBody.srhr_cl), 4);
+		file.read(reinterpret_cast<char*>(&softBody.skhr_cl), 4);
+		file.read(reinterpret_cast<char*>(&softBody.sshr_cl), 4);
+		file.read(reinterpret_cast<char*>(&softBody.sr_splt_cl), 4);
+		file.read(reinterpret_cast<char*>(&softBody.sk_splt_cl), 4);
+		file.read(reinterpret_cast<char*>(&softBody.ss_splt_cl), 4);
+
+		file.read(reinterpret_cast<char*>(&softBody.v_it), 4);
+		file.read(reinterpret_cast<char*>(&softBody.p_it), 4);
+		file.read(reinterpret_cast<char*>(&softBody.d_it), 4);
+		file.read(reinterpret_cast<char*>(&softBody.c_it), 4);
+
+		file.read(reinterpret_cast<char*>(&softBody.lst), 4);
+		file.read(reinterpret_cast<char*>(&softBody.ast), 4);
+		file.read(reinterpret_cast<char*>(&softBody.vst), 4);
+
+		unsigned int anchorCount = 0;
+		file.read(reinterpret_cast<char*>(&anchorCount), 4);
+
+		softBody.anchorRigidBodies.resize(anchorCount);
+		for (auto& anchor : softBody.anchorRigidBodies)
+		{
+			file.read(reinterpret_cast<char*>(&anchor.rigidBodyIndex), data.header.rigidBodyIndexSize);
+			file.read(reinterpret_cast<char*>(&anchor.vertexIndex), data.header.vertexIndexSize);
+			file.read(reinterpret_cast<char*>(&anchor.nearMode), 1);
+		}
+
+		unsigned int pinVertexCount = 0;
+		file.read(reinterpret_cast<char*>(&pinVertexCount), 4);
+
+		softBody.pinVertexIndices.resize(pinVertexCount);
+		for (auto& pinVertex : softBody.pinVertexIndices)
+		{
+			file.read(reinterpret_cast<char*>(&pinVertex), data.header.vertexIndexSize);
+		}
+	}
+	return true;
+}
 
 bool Model::LoadByAssimp(std::string filePath)
 {
