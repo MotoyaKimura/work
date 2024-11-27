@@ -55,6 +55,7 @@ bool Model::Load(std::string filePath)
 
 bool Model::LoadPMX(std::string filePath)
 {
+	if (filePath.empty()) return false;
 	std::ifstream pmxFile{ filePath, (std::ios::binary | std::ios::in) };
 	if(pmxFile.fail()) return false;
 	if (!ReadHeader(pmxData, pmxFile)) return false;
@@ -69,6 +70,7 @@ bool Model::LoadPMX(std::string filePath)
 	if (!ReadRigidBody(pmxData, pmxFile)) return false;
 	if (!ReadJoint(pmxData, pmxFile)) return false;
 	if (!ReadSoftBody(pmxData, pmxFile)) return false;
+	pmxFile.close();
 	return true;
 }
 
