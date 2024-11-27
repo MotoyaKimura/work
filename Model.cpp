@@ -217,7 +217,7 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
-		mesh.Vertices[i].Position = vertex.position;
+		mesh.Vertices[i].Position = DirectX::XMFLOAT3(vertex.position.x * 0.1, vertex.position.y * 0.1, vertex.position.z * 0.1);
 		mesh.Vertices[i].Normal = vertex.normal;
 		mesh.Vertices[i].TexCoord = vertex.uv;
 		i++;
