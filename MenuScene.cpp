@@ -33,17 +33,23 @@ bool MenuScene::SceneInit()
 	_peraRenderer->Init();
 
 	_startTex.reset(new Texture(Application::_dx, _pera));
-	_startTex->Init(L"texture/start.png");
+	_startTex->Init("texture/start.png");
+	_startTex->SetSRV();
 	_restartTex.reset(new Texture(Application::_dx, _pera));
-	_restartTex->Init(L"texture/restart.png");
+	_restartTex->Init("texture/restart.png");
+	_restartTex->SetSRV();
 	_titleTex.reset(new Texture(Application::_dx, _pera));
-	_titleTex->Init(L"texture/BackToTitle.png");
+	_titleTex->Init("texture/BackToTitle.png");
+	_titleTex->SetSRV();
 	_backGroundTex.reset(new Texture(Application::_dx, _pera));
-	_backGroundTex->Init(L"texture/backGround.png");
+	_backGroundTex->Init("texture/backGround.png");
+	_backGroundTex->SetSRV();
 	_menuTex.reset(new Texture(Application::_dx, _pera));
-	_menuTex->Init(L"texture/menu.png");
+	_menuTex->Init("texture/menu.png");
+	_menuTex->SetSRV();
 	_backTex.reset(new Texture(Application::_dx, _pera));
-	_backTex->Init(L"texture/back.png");
+	_backTex->Init("texture/back.png");
+	_backTex->SetSRV();
 
 	_peraRenderer->RendererInit(
 		L"MenuPeraVertexShader.hlsl", "VS", 
