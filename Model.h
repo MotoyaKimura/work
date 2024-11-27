@@ -53,7 +53,6 @@ private:
 	{
 		std::vector<MeshVertex> Vertices;
 		std::vector<uint32_t> Indices;
-		uint32_t MaterialId;
 	};
 	std::vector<Mesh> Meshes;
 

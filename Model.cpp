@@ -189,9 +189,10 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
-		Meshes[0].Vertices[i++].Position = vertex.position;
-		Meshes[0].Vertices[i++].Normal = vertex.normal;
-		Meshes[0].Vertices[i++].TexCoord = vertex.uv;
+		Meshes[0].Vertices[i].Position = vertex.position;
+		Meshes[0].Vertices[i].Normal = vertex.normal;
+		Meshes[0].Vertices[i].TexCoord = vertex.uv;
+		i++;
 	}
 
 	return true;
@@ -204,6 +205,8 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 
 	faceCount /= 3;
 	data.faces.resize(faceCount);
+	Meshes[0].Indices.resize(faceCount * 3);
+	numIndex = faceCount * 3;
 	switch (data.header.vertexIndexSize)
 	{
 		case 1:
@@ -215,6 +218,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+				Meshes[0].Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				Meshes[0].Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				Meshes[0].Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -227,6 +233,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+				Meshes[0].Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				Meshes[0].Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				Meshes[0].Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -239,6 +248,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
+				Meshes[0].Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				Meshes[0].Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				Meshes[0].Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -706,7 +718,6 @@ bool Model::LoadByAssimp(std::string filePath)
 
 void Model::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 {
-	dstMesh.MaterialId = pSrcMesh->mMaterialIndex;
 	/*aiVector3D aabbMax = pSrcMesh->mAABB.mMax;
 	aiVector3D aabbMin = pSrcMesh->mAABB.mMin;
 	std::cout << "aabbMax.x = " << aabbMax.x << ", aabbMax.y = " << aabbMax.y << ", aabbMax.z = " << aabbMax.z << "\n" << std::endl;*/
