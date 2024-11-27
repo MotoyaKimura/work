@@ -13,6 +13,7 @@ class Model
 private:
 	unsigned int vertexNum = 0;
 	unsigned int numIndex = 0;
+	std::string _ext;
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Camera> _camera;
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer = nullptr;

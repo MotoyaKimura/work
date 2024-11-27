@@ -32,7 +32,7 @@ bool GameScene::SceneInit()
 		return false;
 	}
 	//modelNum = 4;
-	modelNum = 5;
+	modelNum = 4;
 	_models.resize(modelNum);
 	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
 	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj");
@@ -41,7 +41,7 @@ bool GameScene::SceneInit()
 	_models[3] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[3]->Move(0, 2.5, 2.5);
 
-	_models[4] = std::make_shared<Model>(Application::_dx, _camera, "modelData/nico/nico.pmx");
+	//_models[4] = std::make_shared<Model>(Application::_dx, _camera, "modelData/nico/nico.pmx");
 
 	for (auto model : _models)
 	{

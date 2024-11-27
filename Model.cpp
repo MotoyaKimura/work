@@ -40,8 +40,8 @@ bool Model::Load(std::string filePath)
 {
 	if (filePath == "") return false;
 
-	std::string ext = filePath.substr(filePath.find_last_of('.') + 1);
-	if(ext == "pmx")
+	_ext = filePath.substr(filePath.find_last_of('.') + 1);
+	if(_ext == "pmx")
 	{
 		LoadPMX(filePath);
 	}
@@ -55,6 +55,8 @@ bool Model::Load(std::string filePath)
 
 bool Model::LoadPMX(std::string filePath)
 {
+	Meshes.resize(1);
+
 	if (filePath.empty()) return false;
 	std::ifstream pmxFile{ filePath, (std::ios::binary | std::ios::in) };
 	if(pmxFile.fail()) return false;
@@ -135,8 +137,10 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int vertexCount;
 	file.read(reinterpret_cast<char*>(&vertexCount), 4);
+	vertexNum = vertexCount;
 	data.vertices.resize(vertexCount);
-
+	Meshes[0].Vertices.resize(vertexCount);
+	int i = 0;
 	for(auto& vertex : data.vertices)
 	{
 		file.read(reinterpret_cast<char*>(&vertex.position), 12);
@@ -185,7 +189,11 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
+		Meshes[0].Vertices[i++].Position = vertex.position;
+		Meshes[0].Vertices[i++].Normal = vertex.normal;
+		Meshes[0].Vertices[i++].TexCoord = vertex.uv;
 	}
+
 	return true;
 }
 
@@ -845,9 +853,9 @@ bool Model::VertexInit()
 	MeshVertex* vertMap = nullptr;
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
-
+	
 	size_t idx = 0;
-	for(size_t i = 0; i < Meshes.size(); ++i)
+	for (size_t i = 0; i < Meshes.size(); ++i)
 	{
 		for (size_t j = 0; j < Meshes[i].Vertices.size(); ++j)
 		{
@@ -855,6 +863,7 @@ bool Model::VertexInit()
 		}
 		idx += Meshes[i].Vertices.size();
 	}
+	
 	//std::copy(std::begin(Meshes[0].Vertices), std::end(Meshes[0].Vertices), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
 	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
