@@ -21,8 +21,8 @@ cbuffer cbuff2 : register(b2)
 {
     float3 diffuse;
     float3 specular;
-    float alpha;
-    float shininess;
+    float specularPower;
+    float3 ambient;
 };
 
 

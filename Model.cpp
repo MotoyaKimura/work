@@ -55,7 +55,6 @@ bool Model::Load(std::string filePath)
 
 bool Model::LoadPMX(std::string filePath)
 {
-	Meshes.resize(1);
 
 	if (filePath.empty()) return false;
 	std::ifstream pmxFile{ filePath, (std::ios::binary | std::ios::in) };
@@ -139,7 +138,7 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 	file.read(reinterpret_cast<char*>(&vertexCount), 4);
 	vertexNum = vertexCount;
 	data.vertices.resize(vertexCount);
-	Meshes[0].Vertices.resize(vertexCount);
+	mesh.Vertices.resize(vertexCount);
 	int i = 0;
 	for(auto& vertex : data.vertices)
 	{
@@ -189,9 +188,9 @@ bool Model::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
-		Meshes[0].Vertices[i].Position = vertex.position;
-		Meshes[0].Vertices[i].Normal = vertex.normal;
-		Meshes[0].Vertices[i].TexCoord = vertex.uv;
+		mesh.Vertices[i].Position = vertex.position;
+		mesh.Vertices[i].Normal = vertex.normal;
+		mesh.Vertices[i].TexCoord = vertex.uv;
 		i++;
 	}
 
@@ -205,7 +204,7 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 
 	faceCount /= 3;
 	data.faces.resize(faceCount);
-	Meshes[0].Indices.resize(faceCount * 3);
+	mesh.Indices.resize(faceCount * 3);
 	numIndex = faceCount * 3;
 	switch (data.header.vertexIndexSize)
 	{
@@ -218,9 +217,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
-				Meshes[0].Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
-				Meshes[0].Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
-				Meshes[0].Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
+				mesh.Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				mesh.Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				mesh.Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -233,9 +232,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
-				Meshes[0].Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
-				Meshes[0].Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
-				Meshes[0].Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
+				mesh.Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				mesh.Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				mesh.Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -248,9 +247,9 @@ bool Model::ReadFace(PMXFileData& data, std::ifstream& file)
 				data.faces[faceIdx].vertices[0] = vertices[faceIdx * 3 + 0];
 				data.faces[faceIdx].vertices[1] = vertices[faceIdx * 3 + 1];
 				data.faces[faceIdx].vertices[2] = vertices[faceIdx * 3 + 2];
-				Meshes[0].Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
-				Meshes[0].Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
-				Meshes[0].Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
+				mesh.Indices[faceIdx * 3 + 0] = vertices[faceIdx * 3 + 0];
+				mesh.Indices[faceIdx * 3 + 1] = vertices[faceIdx * 3 + 1];
+				mesh.Indices[faceIdx * 3 + 2] = vertices[faceIdx * 3 + 2];
 			}
 		}
 		break;
@@ -691,14 +690,11 @@ bool Model::LoadByAssimp(std::string filePath)
 
 	auto node = pScene->mRootNode;
 	auto numMeshes = node->mNumMeshes;
-	Meshes.clear();
-	Meshes.resize(pScene->mNumMeshes);
 
-	for (size_t i = 0; i < Meshes.size(); ++i)
-	{
-		const auto pMesh = pScene->mMeshes[i];
-		ParseMesh(Meshes[i], pMesh);
-	}
+	
+	const auto pMesh = pScene->mMeshes[0];
+	ParseMesh(mesh, pMesh);
+	
 
 
 	Materials.clear();
@@ -761,11 +757,11 @@ void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 
 		if (pSrcMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
 		{
-			dstMaterial.Diffuse = XMFLOAT3(color.r, color.g, color.b);
+			dstMaterial.diffuse = XMFLOAT3(color.r, color.g, color.b);
 		}
 		else
 		{
-			dstMaterial.Diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
+			dstMaterial.diffuse = XMFLOAT3(0.5f, 0.5f, 0.5f);
 		}
 		/*SetConsoleOutputCP(CP_UTF8);
 		SetConsoleCP(CP_UTF8);
@@ -803,36 +799,36 @@ void Model::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial)
 		aiColor3D color(0.0f, 0.0f, 0.0f);
 		if (pSrcMaterial->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
 		{
-			dstMaterial.Specular = XMFLOAT3(color.r, color.g, color.b);
+			dstMaterial.specular = XMFLOAT3(color.r, color.g, color.b);
 		}
 		else
 		{
-			dstMaterial.Specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			dstMaterial.specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		}
 	}
-
+	
 	{
 		float shininess;
 		if (pSrcMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
 		{
-			dstMaterial.Shininess = shininess;
+			dstMaterial.specularPower = shininess;
 		}
 		else
 		{
-			dstMaterial.Shininess = 0.0f;
+			dstMaterial.specularPower = 0.0f;
 		}
 	}
 
 	{
-		/*aiString path;
-		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
+		aiColor3D ambient(0.0f, 0.0f, 0.0f);
+		if (pSrcMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambient) == AI_SUCCESS)
 		{
-			dstMaterial.DiffuseMap = path.C_Str();
+			dstMaterial.ambient = XMFLOAT3(ambient.r, ambient.g, ambient.b);
 		}
 		else
 		{
-			dstMaterial.DiffuseMap.clear();
-		}*/
+			dstMaterial.ambient = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		}
 	}
 }
 
@@ -865,15 +861,9 @@ bool Model::VertexInit()
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
 	
-	size_t idx = 0;
-	for (size_t i = 0; i < Meshes.size(); ++i)
-	{
-		for (size_t j = 0; j < Meshes[i].Vertices.size(); ++j)
-		{
-			vertMap[idx + j] = Meshes[i].Vertices[j];
-		}
-		idx += Meshes[i].Vertices.size();
-	}
+	
+	std::copy(std::begin(mesh.Vertices), std::end(mesh.Vertices), vertMap);
+	
 	
 	//std::copy(std::begin(Meshes[0].Vertices), std::end(Meshes[0].Vertices), vertMap);
 	vertexBuffer->Unmap(0, nullptr);
@@ -912,17 +902,9 @@ bool Model::IndexInit()
 	uint32_t* indexMap = nullptr;
 	result = indexBuffer->Map(0, nullptr, (void**)&indexMap);
 	if (FAILED(result)) return false;
+	
+	std::copy(std::begin(mesh.Indices), std::end(mesh.Indices), indexMap);
 
-	size_t idx = 0;
-	for (size_t i = 0; i < Meshes.size(); ++i)
-	{
-		for (size_t j = 0; j < Meshes[i].Indices.size(); ++j)
-		{
-			indexMap[idx + j] = Meshes[i].Indices[j];
-		}
-		idx += Meshes[i].Indices.size();
-	}
-	//std::copy(std::begin(Meshes[0].Indices), std::end(Meshes[0].Indices), indexMap);
 	indexBuffer->Unmap(0, nullptr);
 	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	ibView.Format = DXGI_FORMAT_R32_UINT;

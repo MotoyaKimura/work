@@ -54,14 +54,14 @@ private:
 		std::vector<MeshVertex> Vertices;
 		std::vector<uint32_t> Indices;
 	};
-	std::vector<Mesh> Meshes;
+	Mesh mesh;
 
 	struct Material
 	{
-		DirectX::XMFLOAT3 Diffuse;
-		DirectX::XMFLOAT3 Specular;
-		float Alpha;
-		float Shininess;
+		DirectX::XMFLOAT3 diffuse;
+		DirectX::XMFLOAT3 specular;
+		float specularPower;
+		DirectX::XMFLOAT3 ambient;
 	};
 	std::vector<Material> Materials;
 
