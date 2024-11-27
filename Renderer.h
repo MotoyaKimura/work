@@ -80,6 +80,5 @@ public:
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> GetBuffers() const { return _buffers; }
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetDepthBuffer() const { return _depthBuffer; }
 	DXGI_FORMAT GetFormat() const { return _format; }
-	void ResizeBuffers();
 	virtual ~Renderer();
 };

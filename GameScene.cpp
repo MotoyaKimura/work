@@ -31,8 +31,8 @@ bool GameScene::SceneInit()
 		Application::DebugOutputFormatString("ƒJƒƒ‰‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;
 	}
-
-	modelNum = 4;
+	//modelNum = 4;
+	modelNum = 5;
 	_models.resize(modelNum);
 	_models[0].reset(new Model(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
 	_models[1] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj");
@@ -40,6 +40,9 @@ bool GameScene::SceneInit()
 	_models[2]->Move(2.5, 2.5, 0);
 	_models[3] = std::make_shared<Model>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[3]->Move(0, 2.5, 2.5);
+
+	_models[4] = std::make_shared<Model>(Application::_dx, _camera, "modelData/nico/nico.pmx");
+
 	for (auto model : _models)
 	{
 		if (!model->Init())
@@ -61,16 +64,16 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	/*_texture.reset(new Texture(Application::_dx, _pera));
-	_texture->Init(L"texture/start.png");*/
+	for (auto model : _models)
+	{
+		model->RendererInit();
+	}
 
 	_rsm->RendererInit(L"VertexShader.hlsl", "rsmVS", L"PixelShader.hlsl", "rsmPS");
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
 
-	//_button.reset(new Button());
-	//_button->Create(_T("GameScene"), 10, 10, 100, 50, (HMENU)2);
 
 	return true;
 }
@@ -108,16 +111,6 @@ void GameScene::SceneRender(void)
 		}
 	}
 
-	/*if (_button->IsActive())
-	{
-		_button->SetInActive();
-		_button->Hide();
-		
-		if (_peraRenderer->WipeEnd()) {
-			SceneFinal();
-			_controller.ChangeScene(new GameScene(_controller));
-		}
-	}*/
 }
 
 void GameScene::SceneFinal(void)
