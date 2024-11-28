@@ -1144,7 +1144,7 @@ bool Model::MaterialBuffInit()
 		{
 			std::shared_ptr<Texture> sphereTex;
 			sphereTex.reset(new Texture(_dx));
-			sphereTex->WhileTextureInit();
+			sphereTex->BlackTextureInit();
 			SetSRV(sphereTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}
 		else
