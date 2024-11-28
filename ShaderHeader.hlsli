@@ -19,7 +19,7 @@ cbuffer cbuff1 : register(b1)
 
 cbuffer cbuff2 : register(b2)
 {
-    float3 diffuse;
+    float4 diffuse;
     float3 specular;
     float specularPower;
     float3 ambient;

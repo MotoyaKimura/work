@@ -1085,7 +1085,7 @@ bool Model::ModelHeapInit()
 
 bool Model::MaterialBuffInit()
 {
-	_materialBuff = CreateBuffer(sizeof(Materials[0]), Materials.size());
+	_materialBuff = CreateBuffer(sizeof(Material), Materials.size());
 	Material* materialMap = nullptr;
 	auto result = _materialBuff->Map(
 		0, 
@@ -1093,6 +1093,7 @@ bool Model::MaterialBuffInit()
 		(void**)&materialMap
 	);
 	if (FAILED(result)) return false;
+	
 	std::copy(
 		std::begin(Materials), 
 		std::end(Materials),
@@ -1111,19 +1112,19 @@ bool Model::MaterialBuffInit()
 		}
 		else
 		{
-			SetSRV(mTextureResources[i], mTextureResources[i]->GetDesc().Format);
+			SetSRV(mTextureResources[i].Get(), mTextureResources[i]->GetDesc().Format);
 		}
 
 		if (mToonResources[i] == nullptr)
 		{
 			std::shared_ptr<Texture> gradTex;
 			gradTex.reset(new Texture(_dx));
-			gradTex->GradTextureInit();
+			gradTex->WhileTextureInit();
 			SetSRV(gradTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}
 		else
 		{
-			SetSRV(mToonResources[i], mToonResources[i]->GetDesc().Format);
+			SetSRV(mToonResources[i].Get(), mToonResources[i]->GetDesc().Format);
 		}
 
 		if (mSphereTextureResources[i] == nullptr)
@@ -1135,7 +1136,7 @@ bool Model::MaterialBuffInit()
 		}
 		else
 		{
-			SetSRV(mSphereTextureResources[i], mSphereTextureResources[i]->GetDesc().Format);
+			SetSRV(mSphereTextureResources[i].Get(), mSphereTextureResources[i]->GetDesc().Format);
 		}
 	}
 
@@ -1217,20 +1218,6 @@ void Model::SetViews()
 			_dx->GetDevice()->CreateShaderResourceView(srvBuffs[1 + 3 * i + 2].first.Get(), &srvDesc, matDescHeapH);
 			matDescHeapH.ptr += incSize;
 		}
-	
-	/*else
-	{
-		for (int i = 0; i < cbvBuffs.size() - 2; ++i)
-		{
-			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-			cbvDesc.BufferLocation = cbvBuffs[i + 2]->GetGPUVirtualAddress();
-			cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i + 2]->GetDesc().Width);
-			auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
-			handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 3);
-			_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
-		}
-	}*/
-
 }
 
 
@@ -1286,18 +1273,34 @@ void Model::Draw()
 	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
 		0,
 		handle);
+
+	auto incSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
 	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
-	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
-		1,
-		handle);
+	unsigned int idxOffset = 0;
+
+	for(int i = 0 ; i < Materials.size(); i++)
+	{
+		unsigned int numVertex = 0;
+		if (_ext == "pmx")
+			numVertex = pmxData.materials[i].numFaceVertices;
+		else
+			numVertex = numIndex;
+
+		_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+			1,
+			handle);
+
+		_dx->GetCommandList()->DrawIndexedInstanced(
+			numVertex,
+			1,
+			idxOffset,
+			0,
+			0
+		);
 	
-	_dx->GetCommandList()->DrawIndexedInstanced(
-		numIndex,
-		1, 
-		0, 
-		0, 
-		0
-	);
+		handle.ptr += incSize;
+		idxOffset += numVertex;
+	}
 }
 
 void Model::Move(float x, float y, float z)

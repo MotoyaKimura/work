@@ -16,7 +16,7 @@ PixelOutput PS(Output input) : SV_TARGET
         return output;
     }
     float brightness = saturate(dot(normalize(lightVec), input.normal.xyz));
-    output.col = max(saturate(float4(diffuse.xyz * brightness * shadowWeight * texColor.Sample(smp, input.uv).xyz, 1.0f)), saturate(float4(diffuse.xyz * 0.2, 1.0f)));
+    output.col = max(saturate(float4(diffuse.xyz * brightness * shadowWeight * texColor.Sample(smp, input.uv).rgb, 1.0f)), saturate(float4(diffuse.xyz * 0.2, 1.0f)));
     output.normal.rgb = float3((input.normal.xyz + 1.0f) / 2.0f);
     output.normal.a = 1.0f;
     return output;
