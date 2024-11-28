@@ -13,6 +13,7 @@ class Model
 private:
 	unsigned int vertexNum = 0;
 	unsigned int numIndex = 0;
+	std::string _PMXFilePath;
 	std::string _ext;
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Camera> _camera;
@@ -558,6 +559,7 @@ std::vector< PMXLoadedMaterial >mLoadedMaterial;
 	bool MaterialBuffInit();
 	bool ModelHeapInit();
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( UINT64 width);
+	std::wstring GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW);
 public:
 	bool Init();
 	bool RendererInit();

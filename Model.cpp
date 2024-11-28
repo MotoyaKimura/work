@@ -6,6 +6,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+#include "Texture.h"
 #pragma  comment(lib, "DirectXTex.lib")
 #pragma  comment(lib, "assimp-vc143-mtd.lib")
 
@@ -64,6 +66,19 @@ std::string GetStringFromWideString(const std::wstring& wstr)
 	assert(num1 == num2);
 	return str;
 }
+
+std::wstring Model::GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW)
+{
+	int pathIndex1 = modelPath.rfind('/');
+	int pathIndex2 = modelPath.rfind('\\');
+	auto pathIndex = max(pathIndex1, pathIndex2);
+	auto modelDir = modelPath.substr(0, pathIndex + 1);
+	auto modelDirW = GetWideStringFromString(modelDir);
+	modelDirW.pop_back();
+	return modelDirW + texPathW;
+
+}
+
 
 bool Model::Load(std::string filePath)
 {
@@ -365,6 +380,16 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		{
 			mTextureResources[materialIndex] = nullptr;
 		}
+		else
+		{
+			std::shared_ptr<Texture> texture;
+			texture.reset(new Texture(_dx));
+			std::wstring texPath = GetTexturePathFromModelAndTexPath(_PMXFilePath, data.textures[mat.textureIndex].textureName.c_str());
+			texture->Init(texPath);
+			mTextureResources[materialIndex] = texture->GetTexBuff();
+		}
+
+
 		materialIndex++;
 	}
 	return true;
@@ -1100,7 +1125,7 @@ Model::Model(
 	std::shared_ptr<Wrapper> dx, 
 	std::shared_ptr<Camera> camera,
 	std::string filePath
-) : _dx(dx), _camera(camera), _pos(0, 0, 0), _rotater(0, 0, 0)
+) : _dx(dx), _camera(camera), _pos(0, 0, 0), _rotater(0, 0, 0), _PMXFilePath(filePath)
 {
 	Load(filePath);
 }
