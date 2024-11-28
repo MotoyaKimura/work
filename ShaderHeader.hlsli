@@ -34,6 +34,7 @@ Texture2D<float4> sphere : register(t3);
 
 SamplerState smp : register(s0);
 SamplerComparisonState shadowSmp : register(s1);
+SamplerState smpToon : register(s2);
 
 struct Output
 {
