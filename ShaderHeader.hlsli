@@ -27,6 +27,10 @@ cbuffer cbuff2 : register(b2)
 
 
 Texture2D<float>lightDepthTex : register(t0);
+Texture2D<float4>texColor : register(t1);
+Texture2D<float4>toon : register(t2);
+Texture2D<float4> sphere : register(t3);
+
 
 SamplerState smp : register(s0);
 SamplerComparisonState shadowSmp : register(s1);

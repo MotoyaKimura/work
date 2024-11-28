@@ -817,7 +817,9 @@ bool Model::LoadByAssimp(std::string filePath)
 
 	Materials.clear();
 	Materials.resize(pScene->mNumMaterials);
-
+	mTextureResources.resize(pScene->mNumMaterials);
+	mToonResources.resize(pScene->mNumMaterials);
+	mSphereTextureResources.resize(pScene->mNumMaterials);
 	for (size_t i = 0; i < Materials.size(); ++i)
 	{
 		const auto pMaterial = pScene->mMaterials[i];
@@ -1098,7 +1100,7 @@ bool Model::MaterialBuffInit()
 	);
 	SetCBV(_materialBuff);
 
-	for(int i = 0; i < pmxData.materials.size(); ++i)
+	for(int i = 0; i < Materials.size(); ++i)
 	{
 		if(mTextureResources[i] == nullptr)
 		{
@@ -1195,8 +1197,8 @@ void Model::SetViews()
 	auto matDescHeapH = _modelHeap->GetCPUDescriptorHandleForHeapStart();
 	matDescHeapH.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
 	auto incSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	if (GetExt() == "pmx") {
-		for (int i = 0; i < pmxData.materials.size(); ++i)
+
+		for (int i = 0; i < Materials.size(); ++i)
 		{
 			_dx->GetDevice()->CreateConstantBufferView(&matCBVDesc, matDescHeapH);
 
@@ -1215,8 +1217,8 @@ void Model::SetViews()
 			_dx->GetDevice()->CreateShaderResourceView(srvBuffs[1 + 3 * i + 2].first.Get(), &srvDesc, matDescHeapH);
 			matDescHeapH.ptr += incSize;
 		}
-	}
-	else
+	
+	/*else
 	{
 		for (int i = 0; i < cbvBuffs.size() - 2; ++i)
 		{
@@ -1227,7 +1229,7 @@ void Model::SetViews()
 			handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 3);
 			_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
 		}
-	}
+	}*/
 
 }
 
