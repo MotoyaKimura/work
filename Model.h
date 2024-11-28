@@ -558,7 +558,7 @@ std::vector< PMXLoadedMaterial >mLoadedMaterial;
 	bool WorldBuffInit();
 	bool MaterialBuffInit();
 	bool ModelHeapInit();
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( UINT64 width, size_t num);
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width, size_t num);
 	std::wstring GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW);
 public:
 	bool Init();

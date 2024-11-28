@@ -1033,7 +1033,7 @@ bool Model::IndexInit()
 	return true;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(UINT64 width, size_t num)
+Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width, size_t num)
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(((width + 0xff) & ~0xff) * num);
@@ -1085,20 +1085,33 @@ bool Model::ModelHeapInit()
 
 bool Model::MaterialBuffInit()
 {
-	_materialBuff = CreateBuffer(sizeof(Material), Materials.size());
-	Material* materialMap = nullptr;
+	int materialBuffSize = sizeof(Material);
+	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
+	_materialBuff = CreateBuffer(materialBuffSize, Materials.size());
+	//Material* materialMap = nullptr;
+	char* materialMap = nullptr;
 	auto result = _materialBuff->Map(
 		0, 
 		nullptr, 
 		(void**)&materialMap
 	);
 	if (FAILED(result)) return false;
-	
-	std::copy(
+
+	for (auto& material : Materials)
+	{
+		Material* uploadMat = reinterpret_cast<Material*>(materialMap);
+		uploadMat->diffuse = material.diffuse;
+		uploadMat->specular = material.specular;
+		uploadMat->specularPower = material.specularPower;
+		uploadMat->ambient = material.ambient;
+		materialMap += materialBuffSize;
+	}
+	_materialBuff->Unmap(0, nullptr);
+	/*std::copy(
 		std::begin(Materials), 
 		std::end(Materials),
 		materialMap
-	);
+	);*/
 	SetCBV(_materialBuff);
 
 	for(int i = 0; i < Materials.size(); ++i)
