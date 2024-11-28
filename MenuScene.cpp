@@ -32,24 +32,24 @@ bool MenuScene::SceneInit()
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer->Init();
 
-	_startTex.reset(new Texture(Application::_dx, _pera));
+	_startTex.reset(new Texture(Application::_dx));
 	_startTex->Init(L"texture/start.png");
-	_startTex->SetSRV();
-	_restartTex.reset(new Texture(Application::_dx, _pera));
+	_pera->SetSRV(_startTex->GetTexBuff(), _startTex->GetMetadata().format);
+	_restartTex.reset(new Texture(Application::_dx));
 	_restartTex->Init(L"texture/restart.png");
-	_restartTex->SetSRV();
-	_titleTex.reset(new Texture(Application::_dx, _pera));
+	_pera->SetSRV(_restartTex->GetTexBuff(), _restartTex->GetMetadata().format);
+	_titleTex.reset(new Texture(Application::_dx));
 	_titleTex->Init(L"texture/BackToTitle.png");
-	_titleTex->SetSRV();
-	_backGroundTex.reset(new Texture(Application::_dx, _pera));
+	_pera->SetSRV(_titleTex->GetTexBuff(), _titleTex->GetMetadata().format);
+	_backGroundTex.reset(new Texture(Application::_dx));
 	_backGroundTex->Init(L"texture/backGround.png");
-	_backGroundTex->SetSRV();
-	_menuTex.reset(new Texture(Application::_dx, _pera));
+	_pera->SetSRV(_backGroundTex->GetTexBuff(), _backGroundTex->GetMetadata().format);
+	_menuTex.reset(new Texture(Application::_dx));
 	_menuTex->Init(L"texture/menu.png");
-	_menuTex->SetSRV();
-	_backTex.reset(new Texture(Application::_dx, _pera));
+	_pera->SetSRV(_menuTex->GetTexBuff(), _menuTex->GetMetadata().format);
+	_backTex.reset(new Texture(Application::_dx));
 	_backTex->Init(L"texture/back.png");
-	_backTex->SetSRV();
+	_pera->SetSRV(_backTex->GetTexBuff(), _backTex->GetMetadata().format);
 
 	_peraRenderer->RendererInit(
 		L"MenuPeraVertexShader.hlsl", "VS", 

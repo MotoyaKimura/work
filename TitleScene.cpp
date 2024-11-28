@@ -55,9 +55,9 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_texture.reset(new Texture(Application::_dx, _pera));
+	_texture.reset(new Texture(Application::_dx));
 	_texture->Init(L"texture/start.png");
-	_texture->SetSRV();
+	_pera->SetSRV(_texture->GetTexBuff(), _texture->GetMetadata().format);
 
 	for (auto model : _models)
 	{

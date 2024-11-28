@@ -106,10 +106,7 @@ bool Texture::Init(std::wstring fileName)
 	return true;
 }
 
-void Texture::SetSRV()
-{
-	_pera->SetSRV(_texBuff, metadata.format);
-}
+
 
 bool Texture::LoadTexture(std::wstring fileName)
 {
@@ -219,7 +216,7 @@ void Texture::ChangeBarrier()
 }
 
 
-Texture::Texture(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera) : _dx(dx), _pera(pera)
+Texture::Texture(std::shared_ptr<Wrapper> dx) : _dx(dx)
 {}
 
 Texture ::~Texture()
