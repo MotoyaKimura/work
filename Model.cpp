@@ -1030,10 +1030,10 @@ bool Model::IndexInit()
 	return true;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(UINT64 width)
+Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(UINT64 width, size_t num)
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((width + 0xff) & ~0xff);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(((width + 0xff) & ~0xff) * num);
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer = nullptr;
 	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
@@ -1048,7 +1048,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(UINT64 width)
 
 bool Model::WorldBuffInit()
 {
-	_worldBuff = CreateBuffer(sizeof(world));
+	_worldBuff = CreateBuffer(sizeof(world), 1);
 	auto result = _worldBuff->Map(
 		0, 
 		nullptr, 
@@ -1079,7 +1079,7 @@ bool Model::ModelHeapInit()
 
 bool Model::MaterialBuffInit()
 {
-	_materialBuff = CreateBuffer(sizeof(Materials[0]));
+	_materialBuff = CreateBuffer(sizeof(Materials[0]), Materials.size());
 	Material* materialMap = nullptr;
 	auto result = _materialBuff->Map(
 		0, 
