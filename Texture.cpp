@@ -108,6 +108,7 @@ bool Texture::Init(std::wstring fileName)
 
 
 
+
 bool Texture::LoadTexture(std::wstring fileName)
 {
 	auto extW = fileName.substr(fileName.find_last_of(L'.') + 1);
@@ -213,6 +214,74 @@ void Texture::ChangeBarrier()
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 	);
 	_dx->GetCommandList()->ResourceBarrier(1, &barrier);
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> Texture::CreateDefaultTexture(size_t width, size_t height)
+{
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		width,
+		height,
+		1,
+		1
+	);
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> buff;
+	auto result = _dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		nullptr,
+		IID_PPV_ARGS(buff.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(result)) return nullptr;
+
+	return buff;
+}
+
+bool Texture::WhileTextureInit()
+{
+	_texBuff = CreateDefaultTexture(4, 4);
+	std::vector<unsigned char> data(4 * 4 * 4);
+	std::fill(data.begin(), data.end(), 0xff);
+
+	auto result = _texBuff->WriteToSubresource(
+		0, 
+		nullptr, 
+		data.data(), 
+		4 * 4, 
+		data.size()
+	);
+
+	assert(SUCCEEDED(result));
+	return true;
+}
+
+bool Texture::GrayTextureInit()
+{
+	_texBuff = CreateDefaultTexture(4, 256);
+	std::vector<unsigned char> data(4 * 256);
+	auto it = data.begin();
+	unsigned int c = 0xff;
+	for (; it != data.end(); it += 4)
+	{
+		auto col = (c << 0xff) | (c << 16) | (c << 8) | c;
+		std::fill(it, it + 4, col);
+		--c;
+	}
+
+	auto result = _texBuff->WriteToSubresource(
+		0,
+		nullptr,
+		data.data(),
+		4 * sizeof(unsigned int),
+		data.size() * sizeof(unsigned int)
+	);
+
+	assert(SUCCEEDED(result));
+	return true;
 }
 
 

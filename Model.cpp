@@ -390,6 +390,7 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 					data.textures[mat.textureIndex].textureName
 				);
 			texture->Init(texPath);
+			
 			mTextureResources[materialIndex] = texture->GetTexBuff();
 		}
 
@@ -1093,6 +1094,8 @@ bool Model::MaterialBuffInit()
 		materialMap
 	);
 	SetCBV(_materialBuff);
+
+
 	return true;
 }
 

@@ -31,6 +31,10 @@ private:
 	void DefineLambda();
 public:
 	bool Init(std::wstring fileName);
+	bool WhileTextureInit();
+	bool GrayTextureInit();
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultTexture(size_t width, size_t height);
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTexBuff() { return _texBuff.Get(); }
 	DirectX::TexMetadata GetMetadata() { return metadata; }
 	Texture(std::shared_ptr<Wrapper> dx);
