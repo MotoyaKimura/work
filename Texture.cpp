@@ -27,9 +27,39 @@ std::wstring Texture::GetWideStringFromString(const std::string& str)
 	return wstr;
 }
 
-std::string Texture::GetExtension(const std::string& path)
+std::string Texture::GetStringFromWideString(const std::wstring& wstr)
 {
-	return path.substr(path.find_last_of('.') + 1);
+	auto num1 = WideCharToMultiByte(
+		CP_ACP,
+		0,
+		wstr.c_str(),
+		-1,
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
+
+	std::string str;
+	str.resize(num1);
+
+	auto num2 = WideCharToMultiByte(
+		CP_ACP,
+		0,
+		wstr.c_str(),
+		-1,
+		&str[0],
+		num1,
+		nullptr,
+		nullptr);
+
+	assert(num1 == num2);
+	return str;
+}
+
+std::string Texture::GetExtension(const std::wstring& path)
+{
+	auto str = GetStringFromWideString(path);
+	return str.substr(str.find_last_of('.') + 1);
 }
 
 void Texture::DefineLambda()
@@ -59,17 +89,17 @@ void Texture::DefineLambda()
 		};
 }
 
-bool Texture::Init(std::string fileName)
+bool Texture::Init(std::wstring fileName)
 {
 	DefineLambda();
-	auto wtexpath = GetWideStringFromString(fileName);
-	_texBuff = _dx->GetTextureByPath(wtexpath);
+	
+	_texBuff = _dx->GetTextureByPath(fileName);
 	if (_texBuff == nullptr) {
 		if (!LoadTexture(fileName)) return false;
 		if (!UploadBufferInit()) return false;
 		if (!TexBufferInit()) return false;
 		if (!CopyBuffer()) return false;
-		_dx->GetResourceTable()[wtexpath] = _texBuff;
+		_dx->GetResourceTable()[fileName] = _texBuff;
 	}
 	ChangeBarrier();
 	_dx->ExecuteCommand();
@@ -81,12 +111,11 @@ void Texture::SetSRV()
 	_pera->SetSRV(_texBuff, metadata.format);
 }
 
-bool Texture::LoadTexture(std::string fileName)
+bool Texture::LoadTexture(std::wstring fileName)
 {
-	auto wtexpath = GetWideStringFromString(fileName);
-	auto ext = GetExtension(fileName);
-	auto result = loadLambdaTable[ext](wtexpath, &metadata, scratchImg);
-	
+	auto extW = fileName.substr(fileName.find_last_of(L'.') + 1);
+	std::string ext(extW.begin(), extW.end());
+	auto result = loadLambdaTable[ext](fileName, &metadata, scratchImg);
 
 	if (FAILED(result)) {
 		printf("テクスチャがロードできません\n");
