@@ -259,7 +259,26 @@ bool Texture::WhileTextureInit()
 	return true;
 }
 
-bool Texture::GrayTextureInit()
+bool Texture::BlackTextureInit()
+{
+	_texBuff = CreateDefaultTexture(4, 4);
+	std::vector<unsigned char> data(4 * 4 * 4);
+	std::fill(data.begin(), data.end(), 0x0);
+
+	auto result = _texBuff->WriteToSubresource(
+		0,
+		nullptr,
+		data.data(),
+		4 * 4,
+		data.size()
+	);
+
+	assert(SUCCEEDED(result));
+	return true;
+}
+
+
+bool Texture::GradTextureInit()
 {
 	_texBuff = CreateDefaultTexture(4, 256);
 	std::vector<unsigned char> data(4 * 256);

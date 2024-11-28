@@ -120,16 +120,16 @@ void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 	ranges.emplace_back(descTblRange);
 	//マテリアル
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, cbvDescs - 2, 2);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
 	ranges.emplace_back(descTblRange);
 	//マテリアルテクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, srvDescs - 1, 1);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1);
 	ranges.emplace_back(descTblRange);
 
 	CD3DX12_ROOT_PARAMETER rootParam;
 	rootParam.InitAsDescriptorTable(2, ranges.data());
 	rootParams.emplace_back(rootParam);
-	rootParam.InitAsDescriptorTable(1, &ranges[2]);
+	rootParam.InitAsDescriptorTable(2, &ranges[2]);
 	rootParams.emplace_back(rootParam);
 
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};

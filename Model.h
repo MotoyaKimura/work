@@ -574,6 +574,7 @@ public:
 	DirectX::XMFLOAT3* GetRotate() { return &_rotater; }
 	size_t GetSrvDescs() const { return srvBuffs.size(); }
 	size_t GetCbvDescs() const { return cbvBuffs.size(); }
+	std::string GetExt() const { return _ext; }
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const { return _modelHeap; }
 	Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath);
 	~Model();

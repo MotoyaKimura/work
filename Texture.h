@@ -32,7 +32,8 @@ private:
 public:
 	bool Init(std::wstring fileName);
 	bool WhileTextureInit();
-	bool GrayTextureInit();
+	bool BlackTextureInit();
+	bool GradTextureInit();
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultTexture(size_t width, size_t height);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTexBuff() { return _texBuff.Get(); }

@@ -1068,7 +1068,10 @@ bool Model::ModelHeapInit()
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = GetCbvDescs() + GetSrvDescs();
+	if(GetExt() == "pmx")
+		descHeapDesc.NumDescriptors = 3 + pmxData.materials.size() * 4;
+	else
+		descHeapDesc.NumDescriptors = GetCbvDescs() + GetSrvDescs();
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
 		&descHeapDesc,
@@ -1095,6 +1098,44 @@ bool Model::MaterialBuffInit()
 	);
 	SetCBV(_materialBuff);
 
+	for(int i = 0; i < pmxData.materials.size(); ++i)
+	{
+		if(mTextureResources[i] == nullptr)
+		{
+			std::shared_ptr<Texture> whiteTex;
+			whiteTex.reset(new Texture(_dx));
+			whiteTex->WhileTextureInit();
+			SetSRV(whiteTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
+		}
+		else
+		{
+			SetSRV(mTextureResources[i], mTextureResources[i]->GetDesc().Format);
+		}
+
+		if (mToonResources[i] == nullptr)
+		{
+			std::shared_ptr<Texture> gradTex;
+			gradTex.reset(new Texture(_dx));
+			gradTex->GradTextureInit();
+			SetSRV(gradTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
+		}
+		else
+		{
+			SetSRV(mToonResources[i], mToonResources[i]->GetDesc().Format);
+		}
+
+		if (mSphereTextureResources[i] == nullptr)
+		{
+			std::shared_ptr<Texture> sphereTex;
+			sphereTex.reset(new Texture(_dx));
+			sphereTex->WhileTextureInit();
+			SetSRV(sphereTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
+		}
+		else
+		{
+			SetSRV(mSphereTextureResources[i], mSphereTextureResources[i]->GetDesc().Format);
+		}
+	}
 
 	return true;
 }
@@ -1137,26 +1178,57 @@ void Model::SetViews()
 		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 2);
 		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i].first.Get(), &srvDesc, handle);
 	}
-	for (int i = 0; i < cbvBuffs.size() - 2; ++i)
-	{
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-		cbvDesc.BufferLocation = cbvBuffs[i + 2]->GetGPUVirtualAddress();
-		cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i + 2]->GetDesc().Width);
-		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 3);
-		_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+
+	//‚±‚±‚©‚ç‚Íƒ}ƒeƒŠƒAƒ‹î•ñ
+	auto materialBuffSize = sizeof(Material);
+	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC matCBVDesc = {};
+	matCBVDesc.BufferLocation = cbvBuffs[2]->GetGPUVirtualAddress();
+	matCBVDesc.SizeInBytes = materialBuffSize;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	auto matDescHeapH = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+	matDescHeapH.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	auto incSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	if (GetExt() == "pmx") {
+		for (int i = 0; i < pmxData.materials.size(); ++i)
+		{
+			_dx->GetDevice()->CreateConstantBufferView(&matCBVDesc, matDescHeapH);
+
+			matDescHeapH.ptr += incSize;
+			matCBVDesc.BufferLocation += materialBuffSize;
+
+			srvDesc.Format = srvBuffs[1 + 3 * i + 0].second;
+			_dx->GetDevice()->CreateShaderResourceView(srvBuffs[1 + 3 * i + 0].first.Get(), &srvDesc, matDescHeapH);
+			matDescHeapH.ptr += incSize;
+
+			srvDesc.Format = srvBuffs[1 + 3 * i + 1].second;
+			_dx->GetDevice()->CreateShaderResourceView(srvBuffs[1 + 3 * i + 1].first.Get(), &srvDesc, matDescHeapH);
+			matDescHeapH.ptr += incSize;
+
+			srvDesc.Format = srvBuffs[1 + 3 * i + 2].second;
+			_dx->GetDevice()->CreateShaderResourceView(srvBuffs[1 + 3 * i + 2].first.Get(), &srvDesc, matDescHeapH);
+			matDescHeapH.ptr += incSize;
+		}
 	}
-	for (int i = 0; i < srvBuffs.size() - 1; ++i)
+	else
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Format = srvBuffs[i + 1].second;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels = 1;
-		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + cbvBuffs.size() + 1);
-		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i + 1].first.Get(), &srvDesc, handle);
+		for (int i = 0; i < cbvBuffs.size() - 2; ++i)
+		{
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+			cbvDesc.BufferLocation = cbvBuffs[i + 2]->GetGPUVirtualAddress();
+			cbvDesc.SizeInBytes = static_cast<UINT>(cbvBuffs[i + 2]->GetDesc().Width);
+			auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
+			handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 3);
+			_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
+		}
 	}
+
 }
 
 
@@ -1184,7 +1256,7 @@ bool Model::Init()
 
 bool Model::RendererInit()
 {
-	ModelHeapInit();
+	
 	SetViews();
 	return true;
 }
