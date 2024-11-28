@@ -306,6 +306,10 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 	file.read(reinterpret_cast<char*>(&numOfMaterial), 4);
 
 	Materials.resize(numOfMaterial);
+	mTextureResources.resize(numOfMaterial);
+	mToonResources.resize(numOfMaterial);
+	mSphereTextureResources.resize(numOfMaterial);
+
 	mLoadedMaterial.resize(numOfMaterial);
 	int materialIndex = 0;
 
@@ -356,6 +360,11 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		Materials[materialIndex].specular = mat.specular;
 		Materials[materialIndex].specularPower = mat.specularPower;
 		Materials[materialIndex].ambient = mat.ambient;
+
+		if (mat.textureIndex == 0xff)
+		{
+			mTextureResources[materialIndex] = nullptr;
+		}
 		materialIndex++;
 	}
 	return true;

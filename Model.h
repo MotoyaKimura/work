@@ -175,6 +175,10 @@ private:
 		unsigned int numFaceVertices;
 	};
 
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> mTextureResources;
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> mToonResources;
+	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> mSphereTextureResources;
+
 	struct PMXLoadedMaterial
 	{
 		bool visible;
