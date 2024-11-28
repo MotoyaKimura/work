@@ -384,12 +384,48 @@ bool Model::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		{
 			std::shared_ptr<Texture> texture;
 			texture.reset(new Texture(_dx));
-			std::wstring texPath = GetTexturePathFromModelAndTexPath(_PMXFilePath, data.textures[mat.textureIndex].textureName.c_str());
+			std::wstring texPath =
+				GetTexturePathFromModelAndTexPath(
+					_PMXFilePath, 
+					data.textures[mat.textureIndex].textureName
+				);
 			texture->Init(texPath);
 			mTextureResources[materialIndex] = texture->GetTexBuff();
 		}
 
+		if(mat.toonTextureIndex == 0xff)
+		{
+			mToonResources[materialIndex] = nullptr;
+		}
+		else
+		{
+			std::shared_ptr<Texture> toonTexture;
+			toonTexture.reset(new Texture(_dx));
+			std::wstring toonPath = 
+				GetTexturePathFromModelAndTexPath(
+					_PMXFilePath,
+					data.textures[mat.toonTextureIndex].textureName
+				);
+			toonTexture->Init(toonPath);
+			mToonResources[materialIndex] = toonTexture->GetTexBuff();
+		}
 
+		if (mat.sphereTextureIndex == 0xff)
+		{
+			mSphereTextureResources[materialIndex] = nullptr;
+		}
+		else
+		{
+			std::shared_ptr<Texture> sphereTexture;
+			sphereTexture.reset(new Texture(_dx));
+			std::wstring spherePath = 
+				GetTexturePathFromModelAndTexPath(
+					_PMXFilePath, 
+					data.textures[mat.sphereTextureIndex].textureName
+				);
+			sphereTexture->Init(spherePath);
+			mSphereTextureResources[materialIndex] = sphereTexture->GetTexBuff();
+		}
 		materialIndex++;
 	}
 	return true;
