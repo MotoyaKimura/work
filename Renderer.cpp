@@ -166,7 +166,7 @@ bool Renderer::PipelineStateInit()
 	gpipelineDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	gpipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	gpipelineDesc.BlendState.AlphaToCoverageEnable = true;
+	gpipelineDesc.BlendState.AlphaToCoverageEnable = false;
 	gpipelineDesc.BlendState.IndependentBlendEnable = false;
 	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
 		false, false,
@@ -175,9 +175,9 @@ bool Renderer::PipelineStateInit()
 		D3D12_LOGIC_OP_NOOP,
 		D3D12_COLOR_WRITE_ENABLE_ALL
 	};
-	gpipelineDesc.BlendState.RenderTarget[0].BlendEnable = true;
-	gpipelineDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	gpipelineDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	gpipelineDesc.BlendState.RenderTarget[0].BlendEnable = false;
+	//gpipelineDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	//gpipelineDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 	gpipelineDesc.InputLayout.pInputElementDescs = inputElements.data();
 	gpipelineDesc.InputLayout.NumElements = inputElements.size();
 	gpipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
@@ -186,7 +186,7 @@ bool Renderer::PipelineStateInit()
 	for (int i = 0; i < _numBuffers; i++)
 	{
 		gpipelineDesc.RTVFormats[i] = _format;
-		gpipelineDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
+		//gpipelineDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
 	}
 	if (_depthBuffer)
 	{

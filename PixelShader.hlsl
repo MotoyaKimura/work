@@ -21,7 +21,15 @@ PixelOutput PS(Output input) : SV_TARGET
     float4 toonDif = toon.Sample(smpToon, float2(0, 1.0 - diffuseB));
     float2 normalUV = (input.normal.xy + float2(1, -1)) * float2(0.5, -0.5);
     float4 spa = sphere.Sample(smp, normalUV);
-    output.col = max(saturate(float4(diffuse.xyz * brightness * shadowWeight * texCol * toonDif + spa, 1.0f)), saturate(float4(diffuse.xyz * 0.2, 1.0f)));
+
+    //spa = saturate(spa);
+    //spa.rgb *= spa.a;
+    //output.col.xyz = (spa.xyz);
+    //output.col.a = 1.0f;
+    output.col = max(saturate(diffuse * texCol * brightness * shadowWeight * toonDif + spa * texCol), float4(ambient * texCol, 1.0f));
+    //max(saturate(float4(diffuse.xyz * brightness * shadowWeight * texCol * toonDif 
+    //+ saturate(spa * texCol), 1.0f)),
+    //saturate(float4(diffuse.xyz * 0.2, 1.0f)));
     output.normal.rgb = float3((input.normal.xyz + 1.0f) / 2.0f);
     output.normal.a = 1.0f;
     return output;
