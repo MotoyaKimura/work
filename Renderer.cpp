@@ -168,9 +168,16 @@ bool Renderer::PipelineStateInit()
 	gpipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	gpipelineDesc.BlendState.AlphaToCoverageEnable = false;
 	gpipelineDesc.BlendState.IndependentBlendEnable = false;
-	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
+	/*const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
 		false, false,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_LOGIC_OP_NOOP,
+		D3D12_COLOR_WRITE_ENABLE_ALL
+	};*/
+	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
+		true, false,
+		D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA, D3D12_BLEND_OP_ADD,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_LOGIC_OP_NOOP,
 		D3D12_COLOR_WRITE_ENABLE_ALL
@@ -186,11 +193,12 @@ bool Renderer::PipelineStateInit()
 	for (int i = 0; i < _numBuffers; i++)
 	{
 		gpipelineDesc.RTVFormats[i] = _format;
-		//gpipelineDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
 	}
 	if (_depthBuffer)
 	{
+		gpipelineDesc.BlendState.RenderTarget[0] = defaultRenderTargetBlendDesc;
 		gpipelineDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		//gpipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 		gpipelineDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	}
 	gpipelineDesc.SampleDesc.Count = 1;

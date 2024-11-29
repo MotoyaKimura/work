@@ -20,6 +20,7 @@ uint instNo : SV_InstanceID
     normal.w = 0;
     output.tpos = mul(lightCamera, output.pos);
     output.normal = mul(world, normal);
+    output.vnormal = mul(view, output.normal);
 	output.uv = uv;
     output.instNo = instNo;
 	return output;

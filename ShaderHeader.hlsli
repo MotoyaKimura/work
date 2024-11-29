@@ -41,6 +41,7 @@ struct Output
     float4 pos : POSITION;
 	float4 svpos : SV_POSITION;
 	float4 normal : NORMAL;
+    float4 vnormal : NORMAL1;
 	float2 uv : TEXCOORD;
     float4 tpos : TPOS;
     uint instNo : SV_InstanceID;
