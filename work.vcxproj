@@ -167,6 +167,7 @@
     <ClCompile Include="SSAO.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TitleScene.cpp" />
+    <ClCompile Include="VMD.cpp" />
     <ClCompile Include="Wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -291,6 +292,7 @@
     <ClInclude Include="SSAO.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="VMD.h" />
     <ClInclude Include="Wrapper.h" />
   </ItemGroup>
   <ItemGroup>

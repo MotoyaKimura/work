@@ -1,6 +1,6 @@
 #include "Model.h"
 #include <iostream>
-#include <fstream>
+
 #include "Camera.h"
 #include "Wrapper.h"
 #include <assimp/Importer.hpp>
@@ -13,32 +13,11 @@
 
 using namespace DirectX;
 
-
-
-
 bool Model::Load(std::string filePath)
 {
 	
 	return true;
 }
-
-bool Model::LoadVMD(std::string filePath)
-{
-	if (filePath.empty()) return false;
-	std::ifstream vmdFile{ filePath, (std::ios::binary | std::ios::in) };
-	if (vmdFile.fail()) return false;
-
-
-
-	vmdFile.close();
-	return true;
-}
-
-
-
-
-
-
 
 bool Model::VertexInit()
 {
