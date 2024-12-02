@@ -1,4 +1,5 @@
 C:\Users\motoy\source\repos\work\Application.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Application.obj
+C:\Users\motoy\source\repos\work\AssimpModel.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\AssimpModel.obj
 C:\Users\motoy\source\repos\work\Button.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Button.obj
 C:\Users\motoy\source\repos\work\Camera.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Camera.obj
 C:\Users\motoy\source\repos\work\GameScene.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\GameScene.obj
@@ -9,6 +10,7 @@ C:\Users\motoy\source\repos\work\Model.cpp;C:\Users\motoy\source\repos\work\work
 C:\Users\motoy\source\repos\work\ModelRenderer.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\ModelRenderer.obj
 C:\Users\motoy\source\repos\work\Pera.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Pera.obj
 C:\Users\motoy\source\repos\work\PeraRenderer.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\PeraRenderer.obj
+C:\Users\motoy\source\repos\work\PmxModel.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\PmxModel.obj
 C:\Users\motoy\source\repos\work\Renderer.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Renderer.obj
 C:\Users\motoy\source\repos\work\RSM.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\RSM.obj
 C:\Users\motoy\source\repos\work\Scene.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Scene.obj

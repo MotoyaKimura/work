@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GameScene.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="Pera.cpp" />
     <ClCompile Include="PeraRenderer.cpp" />
+    <ClCompile Include="PmxModel.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RSM.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -271,6 +273,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GameScene.h" />
@@ -280,6 +283,7 @@
     <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="Pera.h" />
     <ClInclude Include="PeraRenderer.h" />
+    <ClInclude Include="PmxModel.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RSM.h" />
     <ClInclude Include="Scene.h" />
