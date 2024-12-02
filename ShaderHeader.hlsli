@@ -19,7 +19,7 @@ cbuffer cbuff1 : register(b1)
 
 cbuffer cbuff2 : register(b2)
 {
-    float3 diffuse;
+    float4 diffuse;
     float3 specular;
     float specularPower;
     float3 ambient;
@@ -27,17 +27,24 @@ cbuffer cbuff2 : register(b2)
 
 
 Texture2D<float>lightDepthTex : register(t0);
+Texture2D<float4>texColor : register(t1);
+Texture2D<float4>toon : register(t2);
+Texture2D<float4> sphere : register(t3);
+
 
 SamplerState smp : register(s0);
 SamplerComparisonState shadowSmp : register(s1);
+SamplerState smpToon : register(s2);
 
 struct Output
 {
     float4 pos : POSITION;
 	float4 svpos : SV_POSITION;
 	float4 normal : NORMAL;
+    float4 vnormal : NORMAL1;
 	float2 uv : TEXCOORD;
     float4 tpos : TPOS;
+    float3 ray : VECTOR;
     uint instNo : SV_InstanceID;
 };
 

@@ -120,16 +120,16 @@ void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 	ranges.emplace_back(descTblRange);
 	//マテリアル
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, cbvDescs - 2, 2);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
 	ranges.emplace_back(descTblRange);
 	//マテリアルテクスチャ
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, srvDescs - 1, 1);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1);
 	ranges.emplace_back(descTblRange);
 
 	CD3DX12_ROOT_PARAMETER rootParam;
 	rootParam.InitAsDescriptorTable(2, ranges.data());
 	rootParams.emplace_back(rootParam);
-	rootParam.InitAsDescriptorTable(1, &ranges[2]);
+	rootParam.InitAsDescriptorTable(2, &ranges[2]);
 	rootParams.emplace_back(rootParam);
 
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc = {};
@@ -144,6 +144,16 @@ void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
 		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
 	);
 	samplers.emplace_back(samplerDesc);
+
+	samplerDesc.Init(
+		2,
+		D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	);
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	samplers.emplace_back(samplerDesc);
 }
 
 
@@ -156,18 +166,25 @@ bool Renderer::PipelineStateInit()
 	gpipelineDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	gpipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	gpipelineDesc.BlendState.AlphaToCoverageEnable = true;
+	gpipelineDesc.BlendState.AlphaToCoverageEnable = false;
 	gpipelineDesc.BlendState.IndependentBlendEnable = false;
-	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
+	/*const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
 		false, false,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
 		D3D12_LOGIC_OP_NOOP,
 		D3D12_COLOR_WRITE_ENABLE_ALL
+	};*/
+	const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc = {
+		true, false,
+		D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA, D3D12_BLEND_OP_ADD,
+		D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
+		D3D12_LOGIC_OP_NOOP,
+		D3D12_COLOR_WRITE_ENABLE_ALL
 	};
-	gpipelineDesc.BlendState.RenderTarget[0].BlendEnable = true;
-	gpipelineDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	gpipelineDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	gpipelineDesc.BlendState.RenderTarget[0].BlendEnable = false;
+	//gpipelineDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	//gpipelineDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 	gpipelineDesc.InputLayout.pInputElementDescs = inputElements.data();
 	gpipelineDesc.InputLayout.NumElements = inputElements.size();
 	gpipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
@@ -176,11 +193,12 @@ bool Renderer::PipelineStateInit()
 	for (int i = 0; i < _numBuffers; i++)
 	{
 		gpipelineDesc.RTVFormats[i] = _format;
-		gpipelineDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
 	}
 	if (_depthBuffer)
 	{
+		gpipelineDesc.BlendState.RenderTarget[0] = defaultRenderTargetBlendDesc;
 		gpipelineDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		//gpipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 		gpipelineDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	}
 	gpipelineDesc.SampleDesc.Count = 1;

@@ -2,34 +2,40 @@
 #include "Pera.h"
 #include "Wrapper.h"
 
-std::wstring Texture::GetWideStringFromString(const std::string& str)
+
+std::string Texture::GetStringFromWideString(const std::wstring& wstr)
 {
-	auto num1 = MultiByteToWideChar(
+	auto num1 = WideCharToMultiByte(
 		CP_ACP,
-		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
-		str.c_str(),
+		0,
+		wstr.c_str(),
 		-1,
 		nullptr,
-		0);
+		0,
+		nullptr,
+		nullptr);
 
-	std::wstring wstr;
-	wstr.resize(num1);
+	std::string str;
+	str.resize(num1);
 
-	auto num2 = MultiByteToWideChar(
+	auto num2 = WideCharToMultiByte(
 		CP_ACP,
-		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
-		str.c_str(),
+		0,
+		wstr.c_str(),
 		-1,
-		&wstr[0],
-		num1);
+		&str[0],
+		num1,
+		nullptr,
+		nullptr);
 
 	assert(num1 == num2);
-	return wstr;
+	return str;
 }
 
-std::string Texture::GetExtension(const std::string& path)
+std::string Texture::GetExtension(const std::wstring& path)
 {
-	return path.substr(path.find_last_of('.') + 1);
+	auto str = GetStringFromWideString(path);
+	return str.substr(str.find_last_of('.') + 1);
 }
 
 void Texture::DefineLambda()
@@ -59,34 +65,31 @@ void Texture::DefineLambda()
 		};
 }
 
-bool Texture::Init(std::string fileName)
+bool Texture::Init(std::wstring fileName)
 {
 	DefineLambda();
-	auto wtexpath = GetWideStringFromString(fileName);
-	_texBuff = _dx->GetTextureByPath(wtexpath);
+	
+	_texBuff = _dx->GetTextureByPath(fileName);
 	if (_texBuff == nullptr) {
 		if (!LoadTexture(fileName)) return false;
 		if (!UploadBufferInit()) return false;
 		if (!TexBufferInit()) return false;
 		if (!CopyBuffer()) return false;
-		_dx->GetResourceTable()[wtexpath] = _texBuff;
+		_dx->GetResourceTable()[fileName] = _texBuff;
 	}
 	ChangeBarrier();
 	_dx->ExecuteCommand();
 	return true;
 }
 
-void Texture::SetSRV()
-{
-	_pera->SetSRV(_texBuff, metadata.format);
-}
 
-bool Texture::LoadTexture(std::string fileName)
+
+
+bool Texture::LoadTexture(std::wstring fileName)
 {
-	auto wtexpath = GetWideStringFromString(fileName);
-	auto ext = GetExtension(fileName);
-	auto result = loadLambdaTable[ext](wtexpath, &metadata, scratchImg);
-	
+	auto extW = fileName.substr(fileName.find_last_of(L'.') + 1);
+	std::string ext(extW.begin(), extW.end());
+	auto result = loadLambdaTable[ext](fileName, &metadata, scratchImg);
 
 	if (FAILED(result)) {
 		printf("テクスチャがロードできません\n");
@@ -189,8 +192,95 @@ void Texture::ChangeBarrier()
 	_dx->GetCommandList()->ResourceBarrier(1, &barrier);
 }
 
+Microsoft::WRL::ComPtr<ID3D12Resource> Texture::CreateDefaultTexture(size_t width, size_t height)
+{
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		width,
+		height,
+		1,
+		1
+	);
 
-Texture::Texture(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera) : _dx(dx), _pera(pera)
+	Microsoft::WRL::ComPtr<ID3D12Resource> buff;
+	auto result = _dx->GetDevice()->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		nullptr,
+		IID_PPV_ARGS(buff.ReleaseAndGetAddressOf())
+	);
+	if (FAILED(result)) return nullptr;
+
+	return buff;
+}
+
+bool Texture::WhileTextureInit()
+{
+	_texBuff = CreateDefaultTexture(4, 4);
+	std::vector<unsigned char> data(4 * 4 * 4);
+	std::fill(data.begin(), data.end(), 0xff);
+
+	auto result = _texBuff->WriteToSubresource(
+		0, 
+		nullptr, 
+		data.data(), 
+		4 * 4, 
+		data.size()
+	);
+
+	assert(SUCCEEDED(result));
+	return true;
+}
+
+bool Texture::BlackTextureInit()
+{
+	_texBuff = CreateDefaultTexture(4, 4);
+	std::vector<unsigned char> data(4 * 4 * 4);
+	std::fill(data.begin(), data.end(), 0x0);
+
+	auto result = _texBuff->WriteToSubresource(
+		0,
+		nullptr,
+		data.data(),
+		4 * 4,
+		data.size()
+	);
+
+	assert(SUCCEEDED(result));
+	return true;
+}
+
+
+bool Texture::GradTextureInit()
+{
+	_texBuff = CreateDefaultTexture(4, 256);
+	std::vector<unsigned char> data(4 * 256);
+	auto it = data.begin();
+	unsigned int c = 0xff;
+	for (; it != data.end(); it += 4)
+	{
+		auto col = (c << 0xff) | (c << 16) | (c << 8) | c;
+		std::fill(it, it + 4, col);
+		--c;
+	}
+
+	auto result = _texBuff->WriteToSubresource(
+		0,
+		nullptr,
+		data.data(),
+		4 * sizeof(unsigned int),
+		data.size() * sizeof(unsigned int)
+	);
+
+	assert(SUCCEEDED(result));
+	return true;
+}
+
+
+Texture::Texture(std::shared_ptr<Wrapper> dx) : _dx(dx)
 {}
 
 Texture ::~Texture()
