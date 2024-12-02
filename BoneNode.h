@@ -110,7 +110,7 @@ private:
 		DirectX::XMFLOAT2 p1;
 		DirectX::XMFLOAT2 p2;
 
-		VMDKey(unsigned int frameNo, DirectX::XMVECTOR& quaternion, DirectX::XMFLOAT3& offset, DirectX::XMFLOAT2& p1, DirectX::XMFLOAT2& p2) :
+		VMDKey(unsigned int frameNo, const DirectX::XMVECTOR& quaternion, DirectX::XMFLOAT3& offset, DirectX::XMFLOAT2& p1, DirectX::XMFLOAT2& p2) :
 			frameNo(frameNo),
 			quaternion(quaternion),
 			offset(offset),
