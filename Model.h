@@ -607,10 +607,8 @@ std::vector< PMXLoadedMaterial >mLoadedMaterial;
 	//‚±‚±‚Ü‚Å
 	
 	bool Load(std::string filePath);
-	bool LoadByAssimp(std::string filePath);
 
 	bool LoadPMX(std::string filePath);
-	bool LoadVMD(std::string filePath);
 	bool ReadHeader(PMXFileData& data, std::ifstream& file);
 	bool GetPMXStringUTF16(std::ifstream& _file, std::wstring& output);
 	bool GetPMXStringUTF8(std::ifstream& _file, std::string& output);
@@ -626,8 +624,12 @@ std::vector< PMXLoadedMaterial >mLoadedMaterial;
 	bool ReadJoint(PMXFileData& data, std::ifstream& file);
 	bool ReadSoftBody(PMXFileData& data, std::ifstream& file);
 
+	bool LoadByAssimp(std::string filePath);
 	void ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh);
 	void ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMaterial);
+
+	bool LoadVMD(std::string filePath);
+
 	bool VertexInit();
 	bool IndexInit();
 	bool WorldBuffInit();
