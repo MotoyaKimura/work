@@ -44,6 +44,7 @@ struct Output
     float4 vnormal : NORMAL1;
 	float2 uv : TEXCOORD;
     float4 tpos : TPOS;
+    float3 ray : VECTOR;
     uint instNo : SV_InstanceID;
 };
 
