@@ -119,6 +119,19 @@ bool Model::LoadPMX(std::string filePath)
 	return true;
 }
 
+bool Model::LoadVMD(std::string filePath)
+{
+	if (filePath.empty()) return false;
+	std::ifstream vmdFile{ filePath, (std::ios::binary | std::ios::in) };
+	if (vmdFile.fail()) return false;
+
+
+
+	vmdFile.close();
+	return true;
+}
+
+
 bool Model::ReadHeader(PMXFileData& data, std::ifstream& file)
 {
 	constexpr std::array<unsigned char, 4> PMX_MAGIC_NUMBER = { 0x50, 0x4d, 0x58, 0x20 };
