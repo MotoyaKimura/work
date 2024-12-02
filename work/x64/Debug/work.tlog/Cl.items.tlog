@@ -1,5 +1,6 @@
 C:\Users\motoy\source\repos\work\Application.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Application.obj
 C:\Users\motoy\source\repos\work\AssimpModel.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\AssimpModel.obj
+C:\Users\motoy\source\repos\work\BoneNode.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\BoneNode.obj
 C:\Users\motoy\source\repos\work\Button.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Button.obj
 C:\Users\motoy\source\repos\work\Camera.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Camera.obj
 C:\Users\motoy\source\repos\work\GameScene.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\GameScene.obj
@@ -18,4 +19,5 @@ C:\Users\motoy\source\repos\work\SceneManager.cpp;C:\Users\motoy\source\repos\wo
 C:\Users\motoy\source\repos\work\SSAO.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\SSAO.obj
 C:\Users\motoy\source\repos\work\Texture.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Texture.obj
 C:\Users\motoy\source\repos\work\TitleScene.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\TitleScene.obj
+C:\Users\motoy\source\repos\work\VMD.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\VMD.obj
 C:\Users\motoy\source\repos\work\Wrapper.cpp;C:\Users\motoy\source\repos\work\work\x64\Debug\Wrapper.obj

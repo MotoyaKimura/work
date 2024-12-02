@@ -22,7 +22,7 @@ private:
 	bool TexBufferInit();
 	bool CopyBuffer();
 	void ChangeBarrier();
-	std::wstring GetWideStringFromString(const std::string& str);
+
 	std::string GetStringFromWideString(const std::wstring& wstr);
 	std::string GetExtension(const std::wstring& path);
 

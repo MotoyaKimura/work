@@ -90,7 +90,7 @@ private:
 	bool ReadIK(VMDFileData& data, std::ifstream& file);
 
 	void ReadJISToWString(std::ifstream& _file, std::wstring& output, size_t length);
-
+	std::wstring GetWideStringFromString(const std::string& str);
 public:
 	VMD();
 	~VMD();

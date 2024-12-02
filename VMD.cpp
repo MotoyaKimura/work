@@ -1,7 +1,7 @@
 #include "VMD.h"
 #include <fstream>
 
-std::wstring GetWideStringFromString(const std::string& str)
+std::wstring VMD::GetWideStringFromString(const std::string& str)
 {
 	auto num1 = MultiByteToWideChar(
 		CP_ACP,

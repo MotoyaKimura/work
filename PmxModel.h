@@ -1,6 +1,108 @@
 #pragma once
 #include "Model.h"
 
+enum class PMXVertexWeight : unsigned char
+{
+	BDEF1,
+	BDEF2,
+	BDEF4,
+	QDEF,//‚à‚µ‚©‚µ‚½‚çSDEF‚Æ‹t‚©‚à’m‚ê‚È‚¢
+	SDEF,
+};
+
+enum class PMXDrawModeFlags : unsigned char
+{
+	DoubleSided = 0x01,
+	GroundShadow = 0x02,
+	SelfShadowMap = 0x04,
+	SelfShadow = 0x08,
+	Edge = 0x10,
+};
+
+enum class PMXSphereMode : unsigned char
+{
+	None,
+	Mul,
+	Add,
+	SubTexture,
+};
+
+enum class PMXToonMode : unsigned char
+{
+	Separate,
+	Common,
+};
+
+enum class PMXBoneFlags : uint16_t
+{
+	TargetShowMode = 0x0001,
+	AllowRotate = 0x0002,
+	AllowTranslate = 0x0004,
+	Visible = 0x0008,
+	AllowControl = 0x0010,
+	IK = 0x0020,
+	AppendLocal = 0x0080,
+	AppendRotate = 0x0100,
+	AppendTranslate = 0x0200,
+	FixedAxis = 0x0400,
+	LocalAxis = 0x0800,
+	DeformAfterPhysics = 0x1000,
+	DeformOuterParent = 0x2000,
+};
+
+enum class PMXMorphType : uint8_t
+{
+	Group,
+	Position,
+	Bone,
+	UV,
+	AddUV1,
+	AddUV2,
+	AddUV3,
+	AddUV4,
+	Material,
+	Flip,
+	Impulse,
+};
+
+struct PMXIKLink
+{
+	unsigned int ikBoneIndex;
+	unsigned char enableLimit;
+	DirectX::XMFLOAT3 LimitMin;
+	DirectX::XMFLOAT3 LimitMax;
+};
+
+struct PMXBone
+{
+	std::wstring name;
+	std::string englishName;
+
+	DirectX::XMFLOAT3 position;
+	unsigned int parentBoneIndex;
+	unsigned int deformDepth;
+
+	PMXBoneFlags boneFlag;
+
+	DirectX::XMFLOAT3 positionOffset;
+	unsigned int linkBoneIndex;
+
+	unsigned int appendBoneIndex;
+	float appendWeight;
+
+	DirectX::XMFLOAT3 fixedAxis;
+	DirectX::XMFLOAT3 localXAxis;
+	DirectX::XMFLOAT3 localZAxis;
+
+	unsigned int keyValue;
+
+	unsigned int ikTargetBoneIndex;
+	unsigned int ikIterationCount;
+	float ikLimit;
+
+	std::vector<PMXIKLink> ikLinks;
+};
+
 class Wrapper;
 class Camera;
 class PmxModel : public Model
@@ -34,16 +136,6 @@ private:
 		std::string englishComment;
 	};
 
-
-	enum class PMXVertexWeight : unsigned char
-	{
-		BDEF1,
-		BDEF2,
-		BDEF4,
-		QDEF,//‚à‚µ‚©‚µ‚½‚çSDEF‚Æ‹t‚©‚à’m‚ê‚È‚¢
-		SDEF,
-	};
-
 	struct PMXVertex
 	{
 		DirectX::XMFLOAT3 position;
@@ -70,28 +162,6 @@ private:
 		std::wstring textureName;
 	};
 
-	enum class PMXDrawModeFlags : unsigned char
-	{
-		DoubleSided = 0x01,
-		GroundShadow = 0x02,
-		SelfShadowMap = 0x04,
-		SelfShadow = 0x08,
-		Edge = 0x10,
-	};
-
-	enum class PMXSphereMode : unsigned char
-	{
-		None,
-		Mul,
-		Add,
-		SubTexture,
-	};
-
-	enum class PMXToonMode : unsigned char
-	{
-		Separate,
-		Common,
-	};
 
 	struct  PMXMaterial
 	{
@@ -135,75 +205,13 @@ private:
 
 	std::vector< PMXLoadedMaterial >mLoadedMaterial;
 
-	enum class PMXBoneFlags : uint16_t
-	{
-		TargetShowMode = 0x0001,
-		AllowRotate = 0x0002,
-		AllowTranslate = 0x0004,
-		Visible = 0x0008,
-		AllowControl = 0x0010,
-		IK = 0x0020,
-		AppendLocal = 0x0080,
-		AppendRotate = 0x0100,
-		AppendTranslate = 0x0200,
-		FixedAxis = 0x0400,
-		LocalAxis = 0x0800,
-		DeformAfterPhysics = 0x1000,
-		DeformOuterParent = 0x2000,
-	};
+	
 
-	struct PMXIKLink
-	{
-		unsigned int ikBoneIndex;
-		unsigned char enableLimit;
-		DirectX::XMFLOAT3 LimitMin;
-		DirectX::XMFLOAT3 LimitMax;
-	};
+	
 
-	struct PMXBone
-	{
-		std::wstring name;
-		std::string englishName;
+	
 
-		DirectX::XMFLOAT3 position;
-		unsigned int parentBoneIndex;
-		unsigned int deformDepth;
-
-		PMXBoneFlags boneFlag;
-
-		DirectX::XMFLOAT3 positionOffset;
-		unsigned int linkBoneIndex;
-
-		unsigned int appendBoneIndex;
-		float appendWeight;
-
-		DirectX::XMFLOAT3 fixedAxis;
-		DirectX::XMFLOAT3 localXAxis;
-		DirectX::XMFLOAT3 localZAxis;
-
-		unsigned int keyValue;
-
-		unsigned int ikTargetBoneIndex;
-		unsigned int ikIterationCount;
-		float ikLimit;
-
-		std::vector<PMXIKLink> ikLinks;
-	};
-
-	enum class PMXMorphType : uint8_t
-	{
-		Group,
-		Position,
-		Bone,
-		UV,
-		AddUV1,
-		AddUV2,
-		AddUV3,
-		AddUV4,
-		Material,
-		Flip,
-		Impulse,
-	};
+	
 
 	struct PMXMorph
 	{
@@ -496,6 +504,8 @@ private:
 	void Draw() override;
 
 
+	
+
 public:
 
 	PmxModel(std::shared_ptr<Wrapper> dx
@@ -504,3 +514,5 @@ public:
 	);
 	~PmxModel() override;
 };
+
+

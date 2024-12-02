@@ -4,31 +4,6 @@
 #include "Texture.h"
 #include "Wrapper.h"
 
-std::wstring GetWideStringFromString(const std::string& str)
-{
-	auto num1 = MultiByteToWideChar(
-		CP_ACP,
-		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
-		str.c_str(),
-		-1,
-		nullptr,
-		0);
-
-	std::wstring wstr;
-	wstr.resize(num1);
-
-	auto num2 = MultiByteToWideChar(
-		CP_ACP,
-		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
-		str.c_str(),
-		-1,
-		&wstr[0],
-		num1);
-
-	assert(num1 == num2);
-	return wstr;
-}
-
 
 
 std::wstring PmxModel::GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW)
@@ -37,7 +12,7 @@ std::wstring PmxModel::GetTexturePathFromModelAndTexPath(const std::string& mode
 	int pathIndex2 = modelPath.rfind('\\');
 	auto pathIndex = max(pathIndex1, pathIndex2);
 	auto modelDir = modelPath.substr(0, pathIndex + 1);
-	auto modelDirW = GetWideStringFromString(modelDir);
+	auto modelDirW = _dx->GetWideStringFromString(modelDir);
 	modelDirW.pop_back();
 	return modelDirW + texPathW;
 

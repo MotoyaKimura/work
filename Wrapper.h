@@ -47,6 +47,7 @@ public:
 	void Draw();
 	void Flip();
 	void ResizeBackBuffers();
+	std::wstring GetWideStringFromString(const std::string& str);
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTextureByPath(const std::wstring& path);
 
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const {return _dev.Get();}
