@@ -3,11 +3,16 @@
 #include <iostream>
 #include "Texture.h"
 #include "Wrapper.h"
+#include "BoneNode.h"
+#include "NodeManager.h"
 
+#pragma comment(lib, "winmm.lib");
 
+using namespace DirectX;
 
 std::wstring PmxModel::GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW)
 {
+	
 	int pathIndex1 = modelPath.rfind('/');
 	int pathIndex2 = modelPath.rfind('\\');
 	auto pathIndex = max(pathIndex1, pathIndex2);
@@ -36,6 +41,15 @@ bool PmxModel::Load(std::string filePath)
 	if (!ReadJoint(pmxData, pmxFile)) return false;
 	if (!ReadSoftBody(pmxData, pmxFile)) return false;
 	pmxFile.close();
+
+	_nodeManager.reset(new NodeManager());
+	_nodeManager->Init(pmxData.bones);
+
+	std::shared_ptr<VMD> vmd;
+	vmd.reset(new VMD());
+	auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
+	if (!result) return false;
+	InitAnimation(vmd->vmdData);
 	return true;
 }
 
@@ -709,6 +723,160 @@ bool PmxModel::ReadSoftBody(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+void PmxModel::InitAnimation(VMDFileData& vmdData)
+{
+	for (auto& motion : vmdData.motions)
+	{
+		auto boneNode = _nodeManager->GetBoneNodeByName(motion.boneName);
+		if(boneNode == nullptr)
+		{
+			continue;
+		}
+		boneNode->AddMotionKey(motion.frame,
+			motion.quaternion,
+			motion.translate,
+			XMFLOAT2(static_cast<float>(motion.interpolation[3]) / 127.0f, static_cast<float>(motion.interpolation[7]) / 127.0f),
+			XMFLOAT2(static_cast<float>(motion.interpolation[11]) / 127.0f, static_cast<float>(motion.interpolation[15]) / 127.0f));
+	}
+
+	_nodeManager->SortKey();
+
+
+	PlayAnimation();
+}
+
+void PmxModel::UpdateAnimation()
+{
+	if(_startTime <= 0)
+	{
+		_startTime = timeGetTime();
+	}
+
+	DWORD elapsedTime = timeGetTime() - _startTime;
+	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
+
+	if(frameNo > _nodeManager->_duration)
+	{
+		_startTime = timeGetTime();
+		frameNo = 0;
+	}
+
+	_nodeManager->UpdateAnimation(frameNo);
+
+	VertexSkinning();
+
+	std::copy(mesh.Vertices.begin(), mesh.Vertices.end(), vertMap);
+}
+
+void PmxModel::PlayAnimation()
+{
+	_startTime = timeGetTime();
+}
+
+
+void PmxModel::VertexSkinning()
+{
+	for(unsigned int i = 0; i < pmxData.vertices.size(); ++i)
+	{
+		const PMXVertex& currentVertexData = pmxData.vertices[i];
+		XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
+
+		switch (currentVertexData.weightType)
+		{
+		case PMXVertexWeight::BDEF1:
+		{
+			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
+			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			position = XMVector3Transform(position, m0);
+			break;
+		}
+		case PMXVertexWeight::BDEF2:
+		{
+			float weight0 = currentVertexData.boneWeights[0];
+			float weight1 = 1.0f - weight0;
+
+			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
+			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
+
+			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
+
+			XMMATRIX mat = m0 * weight0 + m1 * weight1;
+			position = XMVector3Transform(position, mat);
+			break;
+		}
+		case PMXVertexWeight::BDEF4:
+			{
+			float weight0 = currentVertexData.boneWeights[0];
+			float weight1 = currentVertexData.boneWeights[1];
+			float weight2 = currentVertexData.boneWeights[2];
+			float weight3 = currentVertexData.boneWeights[3];
+
+			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
+			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
+			BoneNode* bone2 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[2]);
+			BoneNode* bone3 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[3]);
+
+			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
+			XMMATRIX m2 = XMMatrixMultiply(bone2->GetInitInverseTransform(), bone2->GetGlobalTransform());
+			XMMATRIX m3 = XMMatrixMultiply(bone3->GetInitInverseTransform(), bone3->GetGlobalTransform());
+
+			XMMATRIX mat = m0 * weight0 + m1 * weight1 + m2 * weight2 + m3 * weight3;
+			position = XMVector3Transform(position, mat);
+			break;
+		}
+		case PMXVertexWeight::SDEF:
+		{
+			float w0 = currentVertexData.boneWeights[0];
+			float w1 = 1.0f - w0;
+
+			XMVECTOR sdefc = XMLoadFloat3(&currentVertexData.sdefC);
+			XMVECTOR sdefr0 = XMLoadFloat3(&currentVertexData.sdefR0);
+			XMVECTOR sdefr1 = XMLoadFloat3(&currentVertexData.sdefR1);
+
+			XMVECTOR rw = sdefr0 * w0 + sdefr1 * w1;
+			XMVECTOR r0 = sdefc + sdefr0 - rw;
+			XMVECTOR r1 = sdefc + sdefr1 - rw;
+
+			XMVECTOR cr0 = (sdefc + r0) * 0.5f;
+			XMVECTOR cr1 = (sdefc + r1) * 0.5f;
+
+			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
+			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
+
+			XMVECTOR q0 = XMQuaternionRotationMatrix(bone0->GetGlobalTransform());
+			XMVECTOR q1 = XMQuaternionRotationMatrix(bone1->GetGlobalTransform());
+
+			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
+
+			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionSlerp(q0, q1, w1));
+
+			position = XMVector3Transform(position - sdefc, rotation) + XMVector3Transform(cr0, m0) * w0 + XMVector3Transform(cr1, m1) * w1;
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
+			break;
+		}
+		case PMXVertexWeight::QDEF:
+			{
+			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
+			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+
+			position = XMVector3Transform(position, m0);
+
+			break;
+			}
+			default:
+				break;
+		}
+		XMStoreFloat3(&mesh.Vertices[i].Position, position);
+	}
+}
+
+
+
 bool PmxModel::ModelHeapInit()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
@@ -723,6 +891,17 @@ bool PmxModel::ModelHeapInit()
 	if (FAILED(result)) return false;
 	return true;
 }
+
+void PmxModel::Update()
+{
+	world =
+		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
+		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
+
+	*worldMatrix = world;
+	UpdateAnimation();
+}
+
 
 void PmxModel::Draw()
 {

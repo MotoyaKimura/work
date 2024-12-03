@@ -1,6 +1,8 @@
 #pragma once
 #include "Model.h"
 
+#include "VMD.h"
+
 enum class PMXVertexWeight : unsigned char
 {
 	BDEF1,
@@ -105,6 +107,7 @@ struct PMXBone
 
 class Wrapper;
 class Camera;
+class NodeManager;
 class PmxModel : public Model
 {
 private:
@@ -481,6 +484,7 @@ private:
 
 	PMXFileData pmxData;
 	//‚±‚±‚Ü‚Å
+	std::shared_ptr<NodeManager> _nodeManager;
 
 	bool Load(std::string filePath) override;
 	bool ReadHeader(PMXFileData& data, std::ifstream& file);
@@ -500,8 +504,16 @@ private:
 
 	std::wstring GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW);
 
+	unsigned int _duration = 0;
+	DWORD _startTime;
+	void InitAnimation(VMDFileData& vmdData);
+	void PlayAnimation();
+	void UpdateAnimation();
+	void VertexSkinning();
+
 	bool ModelHeapInit() override;
 	void Draw() override;
+	void Update() override;
 
 
 	

@@ -24,7 +24,7 @@ _appendRotation(XMMatrixIdentity())
 {
 }
 
-void BoneNode::AddMotionKey(unsigned int& frameNo, XMFLOAT4& quaternion, XMFLOAT3& offset, XMFLOAT2& p1, XMFLOAT2& p2)
+void BoneNode::AddMotionKey(unsigned int& frameNo, XMFLOAT4& quaternion, XMFLOAT3& offset, const XMFLOAT2& p1, const XMFLOAT2& p2)
 {
 	_motionKeys.emplace_back(frameNo, XMLoadFloat4(&quaternion), offset, p1, p2);
 }
@@ -132,4 +132,14 @@ void BoneNode::UpdateGlobalTransform()
 	{
 		child->UpdateGlobalTransform();
 	}
+}
+
+unsigned int BoneNode::GetMaxFrameNo() const 
+{
+	if (_motionKeys.size() <= 0)
+	{
+		return 0;
+	}
+
+	return _motionKeys.back().frameNo;
 }

@@ -1,4 +1,5 @@
 #include "NodeManager.h"
+#include "BoneNode.h"
 
 using namespace DirectX;
 
@@ -11,7 +12,7 @@ void NodeManager::Init(const std::vector<PMXBone>& bones)
 	{
 		const PMXBone& currentBoneData = bones[index];
 		_boneNodeByIdx[index] = new BoneNode(index, currentBoneData);
-		_boneNodeByName[_boneNodeByIdx[index]->GetName()] = _boneNodeByIdx[index];
+		_boneNodeByName[_boneNodeByIdx[index]->GetName() + L'\0'] = _boneNodeByIdx[index];
 		_sortedNodes[index] = _boneNodeByIdx[index];
 	}
 
@@ -72,6 +73,24 @@ void NodeManager::UpdateAnimation(unsigned int frameNo)
 	if(_boneNodeByIdx.size() > 0)
 	{
 		_boneNodeByIdx[0]->UpdateGlobalTransform();
+	}
+}
+
+BoneNode* NodeManager::GetBoneNodeByName(std::wstring& name) const
+{
+	auto index = _boneNodeByName.find(name);
+	if (index != _boneNodeByName.end())
+	{
+		return index->second;
+	}
+	return nullptr;
+}
+
+void NodeManager::Dispose()
+{
+	for (BoneNode* curNode : _boneNodeByIdx)
+	{
+		delete curNode;
 	}
 }
 
