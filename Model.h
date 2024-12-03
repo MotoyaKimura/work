@@ -58,6 +58,8 @@ protected:
 	};
 	Mesh mesh;
 
+	MeshVertex* vertMap = nullptr;
+
 	struct Material
 	{
 		DirectX::XMFLOAT4 diffuse;
@@ -88,7 +90,7 @@ protected:
 public:
 	bool Init();
 	bool RendererInit();
-	void Update();
+	virtual void Update() = 0;
 	virtual void Draw() = 0;
 	void SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer);
 	void SetSRV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer, DXGI_FORMAT format);

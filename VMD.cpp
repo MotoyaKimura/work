@@ -1,5 +1,6 @@
 #include "VMD.h"
 #include <fstream>
+#include <iostream>
 
 std::wstring VMD::GetWideStringFromString(const std::string& str)
 {
@@ -35,7 +36,7 @@ void VMD::ReadJISToWString(std::ifstream& _file, std::wstring& output, size_t le
 	delete[] charStr;
 }
 
-bool VMD::LoadVMD(std::string filePath)
+bool VMD::LoadVMD(std::wstring filePath)
 {
 	if (filePath.empty()) return false;
 	std::ifstream vmdFile{ filePath, (std::ios::binary | std::ios::in) };
@@ -63,6 +64,7 @@ bool VMD::ReadHeader(VMDFileData& data, std::ifstream& file)
 	{
 		return false;
 	}
+	file.read(reinterpret_cast<char*>(&data.header.modelName), 20);
 	return true;
 }
 
@@ -70,6 +72,8 @@ bool VMD::ReadMotion(VMDFileData& data, std::ifstream& file)
 {
 	unsigned int count = 0;
 	file.read(reinterpret_cast<char*>(&count), sizeof(unsigned int));
+
+
 	data.motions.resize(count);
 
 	for (auto& motion : data.motions)

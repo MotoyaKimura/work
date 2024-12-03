@@ -186,6 +186,15 @@ bool AssimpModel::ModelHeapInit()
 	return true;
 }
 
+void AssimpModel::Update()
+{
+	world =
+		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
+		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
+
+	*worldMatrix = world;
+}
+
 void AssimpModel::Draw()
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include "PmxModel.h"
 
-
+class PmxModel;
 class BoneNode
 {
 public:
@@ -43,7 +43,7 @@ public:
 	void SetMorphPosition(const DirectX::XMFLOAT3& position) { _morphPosition = position; }
 	void SetMorphRotation(const DirectX::XMMATRIX& rotation) { _morphRotation = rotation; }
 
-	void AddMotionKey(unsigned int& frameNo, DirectX::XMFLOAT4& quaternion, DirectX::XMFLOAT3& offset, DirectX::XMFLOAT2& p1, DirectX::XMFLOAT2& p2);
+	void AddMotionKey(unsigned int& frameNo, DirectX::XMFLOAT4& quaternion, DirectX::XMFLOAT3& offset, const DirectX::XMFLOAT2& p1, const DirectX::XMFLOAT2& p2);
 	void SortAllKeys();
 
 	void SetEnableAppendRotate(bool enable) { _isAppendRotate = enable; }
@@ -110,7 +110,7 @@ private:
 		DirectX::XMFLOAT2 p1;
 		DirectX::XMFLOAT2 p2;
 
-		VMDKey(unsigned int frameNo, const DirectX::XMVECTOR& quaternion, DirectX::XMFLOAT3& offset, DirectX::XMFLOAT2& p1, DirectX::XMFLOAT2& p2) :
+		VMDKey(unsigned int frameNo, const DirectX::XMVECTOR& quaternion, DirectX::XMFLOAT3& offset, const DirectX::XMFLOAT2& p1, const DirectX::XMFLOAT2& p2) :
 			frameNo(frameNo),
 			quaternion(quaternion),
 			offset(offset),

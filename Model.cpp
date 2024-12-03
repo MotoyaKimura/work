@@ -43,7 +43,7 @@ bool Model::VertexInit()
 		nullptr,
 		IID_PPV_ARGS(vertexBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-	MeshVertex* vertMap = nullptr;
+	
 	result = vertexBuffer->Map(0, nullptr, (void**)&vertMap);
 	if (FAILED(result)) return false;
 	
@@ -313,15 +313,7 @@ bool Model::RendererInit()
 	return true;
 }
 
-void Model::Update()
-{
-	world =
-		 XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
-		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
-	
-	*worldMatrix = world;
-	
-}
+
 
 
 
