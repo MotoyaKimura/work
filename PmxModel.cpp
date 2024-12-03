@@ -48,6 +48,7 @@ bool PmxModel::Load(std::string filePath)
 	std::shared_ptr<VMD> vmd;
 	vmd.reset(new VMD());
 	auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
+	//auto result = vmd->LoadVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
 	if (!result) return false;
 	InitAnimation(vmd->vmdData);
 	return true;
