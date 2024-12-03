@@ -54,6 +54,10 @@ void BoneNode::AnimateMotion(unsigned int frameNo)
 			return key.frameNo <= frameNo;
 		});
 
+	if (rit == _motionKeys.rend())
+	{
+		return;
+	}
 	XMVECTOR animatePosition = XMLoadFloat3(&rit->offset);
 
 	auto iterator = rit.base();
@@ -110,7 +114,7 @@ void BoneNode::UpdateLocalTransform()
 
 	XMMATRIX rotation = _animateRotation;
 
-	XMVECTOR t = XMLoadFloat3(&_animatePosition); +XMLoadFloat3(&_position);
+	XMVECTOR t = XMLoadFloat3(&_animatePosition) + XMLoadFloat3(&_position);
 
 	XMMATRIX translate = XMMatrixTranslationFromVector(t);
 

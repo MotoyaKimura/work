@@ -860,16 +860,16 @@ void PmxModel::VertexSkinning()
 			break;
 		}
 		case PMXVertexWeight::QDEF:
-			{
+		{
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
 
 			position = XMVector3Transform(position, m0);
 
 			break;
-			}
-			default:
-				break;
+		}
+		default:
+			break;
 		}
 		XMStoreFloat3(&mesh.Vertices[i].Position, position);
 	}

@@ -1,5 +1,6 @@
 #include "NodeManager.h"
 #include "BoneNode.h"
+#include <iostream>
 
 using namespace DirectX;
 
@@ -64,6 +65,7 @@ void NodeManager::SortKey()
 
 void NodeManager::UpdateAnimation(unsigned int frameNo)
 {
+	
 	for(BoneNode* curNode : _boneNodeByIdx)
 	{
 		curNode->AnimateMotion(frameNo);
