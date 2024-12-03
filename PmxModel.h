@@ -1,6 +1,6 @@
 #pragma once
+#include <future>
 #include "Model.h"
-
 #include "VMD.h"
 
 enum class PMXVertexWeight : unsigned char
@@ -486,6 +486,14 @@ private:
 	//‚±‚±‚Ü‚Å
 	std::shared_ptr<NodeManager> _nodeManager;
 
+	struct SkinningRange
+	{
+		unsigned int startIndex;
+		unsigned int vertexCount;
+	};
+
+	
+
 	bool Load(std::string filePath) override;
 	bool ReadHeader(PMXFileData& data, std::ifstream& file);
 	bool GetPMXStringUTF16(std::ifstream& _file, std::wstring& output);
@@ -515,8 +523,10 @@ private:
 	void Draw() override;
 	void Update() override;
 
-
-	
+	std::vector<SkinningRange> _skinningRanges;
+	std::vector<std::future<void>> _parallelUpdateFutures;
+	void InitParallelVertexSkinningSetting();
+	void VertexSkinningByRange(const SkinningRange& range);
 
 public:
 
