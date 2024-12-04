@@ -44,6 +44,7 @@ public:
 	void SetMorphRotation(const DirectX::XMMATRIX& rotation) { _morphRotation = rotation; }
 
 	void AddMotionKey(unsigned int& frameNo, DirectX::XMFLOAT4& quaternion, DirectX::XMFLOAT3& offset, const DirectX::XMFLOAT2& p1, const DirectX::XMFLOAT2& p2);
+	void AddIKKey(unsigned int& frameNo, bool& enable);
 	void SortAllKeys();
 
 	void SetEnableAppendRotate(bool enable) { _isAppendRotate = enable; }
@@ -121,4 +122,16 @@ private:
 
 	std::vector<VMDKey> _motionKeys;
 
+	struct VMDIKkey
+	{
+		unsigned int frameNo;
+		bool enable;
+
+		VMDIKkey(unsigned int frameNo, bool enable) :
+			frameNo(frameNo),
+			enable(enable)
+		{}
+	};
+
+	std::vector<VMDIKkey> _ikKeys;
 };

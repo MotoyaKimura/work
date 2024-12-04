@@ -29,6 +29,12 @@ void BoneNode::AddMotionKey(unsigned int& frameNo, XMFLOAT4& quaternion, XMFLOAT
 	_motionKeys.emplace_back(frameNo, XMLoadFloat4(&quaternion), offset, p1, p2);
 }
 
+void BoneNode::AddIKKey(unsigned int& frameNo, bool& enable)
+{
+	_ikKeys.emplace_back(frameNo, enable);
+}
+
+
 void BoneNode::SortAllKeys()
 {
 	std::sort(_motionKeys.begin(), _motionKeys.end(), 

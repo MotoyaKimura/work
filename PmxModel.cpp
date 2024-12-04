@@ -740,6 +740,20 @@ void PmxModel::InitAnimation(VMDFileData& vmdData)
 			XMFLOAT2(static_cast<float>(motion.interpolation[11]) / 127.0f, static_cast<float>(motion.interpolation[15]) / 127.0f));
 	}
 
+	for(VMDIK& ik : vmdData.iks)
+	{
+		for (VMDIKInfo& ikInfo : ik.ikInfos)
+		{
+			auto boneNode = _nodeManager->GetBoneNodeByName(ikInfo.name);
+			if (boneNode == nullptr)
+			{
+				continue;
+			}
+			bool enable = ikInfo.enable;
+			boneNode->AddIKKey(ik.frame, enable);
+		}
+	}
+
 	_nodeManager->SortKey();
 	//InitParallelVertexSkinningSetting();
 
