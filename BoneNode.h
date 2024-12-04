@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "PmxModel.h"
 
+class IKSolver;
 class PmxModel;
 class BoneNode
 {
@@ -63,6 +64,15 @@ public:
 	void UpdateGlobalTransform();
 
 	void AnimateMotion(unsigned int frameNo);
+
+	
+	IKSolver* GetIKSolver() const { return _ikSolver; }
+	void SetIKSolver(IKSolver* solver) { _ikSolver = solver; }
+	void SetIKEnable(bool enable) { _enableIK = enable; }
+	void AnimateIK(unsigned int frameNo);
+
+	void UpdateAppendTransform();
+	bool GetIKEnable() const { return _enableIK; }
 
 private:
 	float GetYFromXOnBezier(float x, DirectX::XMFLOAT2& a, DirectX::XMFLOAT2& b, uint8_t n);
@@ -134,4 +144,6 @@ private:
 	};
 
 	std::vector<VMDIKkey> _ikKeys;
+
+	IKSolver* _ikSolver = nullptr;
 };

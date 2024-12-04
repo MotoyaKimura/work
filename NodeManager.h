@@ -2,7 +2,7 @@
 #include <d3dx12.h>
 #include "PmxModel.h"
 #include <unordered_map>
-
+#include "IKSolver.h"
 
 
 class BoneNode;
@@ -33,4 +33,5 @@ private:
 	std::vector<BoneNode*> _boneNodeByIdx;
 	std::vector<BoneNode*> _sortedNodes;
 
+	std::vector<IKSolver*> _ikSolvers;
 };

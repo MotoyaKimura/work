@@ -26,6 +26,59 @@ void NodeManager::Init(const std::vector<PMXBone>& bones)
 		{
 			currentBoneNode->SetParentBoneNode(_boneNodeByIdx[currentBoneNode->GetParentBoneIndex()]);
 		}
+
+		const PMXBone& currentPmxBone = bones[index];
+
+		bool appendRotate = ((uint16_t)currentPmxBone.boneFlag & (uint16_t)PMXBoneFlags::AppendRotate);
+		bool appendTranslate = ((uint16_t)currentPmxBone.boneFlag & (uint16_t)PMXBoneFlags::AppendTranslate);
+		currentBoneNode->SetEnableAppendRotate(appendRotate);
+		currentBoneNode->SetEnableAppendTranslate(appendTranslate);
+		if ((appendRotate || appendTranslate) && currentPmxBone.appendBoneIndex < _boneNodeByIdx.size())
+		{
+			if(index > currentPmxBone.appendBoneIndex)
+			{
+				bool appendLocal = (uint16_t)currentPmxBone.boneFlag & (uint16_t)PMXBoneFlags::AppendLocal;
+				BoneNode* appendBoneNode = _boneNodeByIdx[currentPmxBone.appendBoneIndex];
+				currentBoneNode->SetEnableAppendLocal(appendLocal);
+				currentBoneNode->SetAppendBoneNode(appendBoneNode);
+				currentBoneNode->SetAppendWeight(currentPmxBone.appendWeight);
+			}
+		}
+
+		if(((uint16_t)currentPmxBone.boneFlag & (uint16_t)PMXBoneFlags::IK) && currentPmxBone.ikTargetBoneIndex < _boneNodeByIdx.size())
+		{
+			BoneNode* targetNode = _boneNodeByIdx[currentPmxBone.ikTargetBoneIndex];
+			unsigned int iterationCount = currentPmxBone.ikIterationCount;
+			float limitAngle = currentPmxBone.ikLimit;
+
+			_ikSolvers.push_back(new IKSolver(currentBoneNode, targetNode, iterationCount, limitAngle));
+
+			IKSolver* solver = _ikSolvers[_ikSolvers.size() - 1];
+
+			for(const PMXIKLink& ikLink : currentPmxBone.ikLinks)
+			{
+				if (ikLink.ikBoneIndex < 0 || ikLink.ikBoneIndex >= _boneNodeByIdx.size())
+				{
+					continue;
+				}
+
+				BoneNode* linkNode = _boneNodeByIdx[ikLink.ikBoneIndex];
+				if(ikLink.enableLimit == true)
+				{
+					solver->AddIKChain(linkNode, ikLink.enableLimit, ikLink.LimitMin, ikLink.LimitMax);
+				}
+				else
+				{
+					solver->AddIKChain(
+						linkNode, 
+						ikLink.enableLimit, 
+						XMFLOAT3(0.5f, 0.0f, 0.0f), 
+						XMFLOAT3(180.0f, 0.0f, 0.0f));
+				}
+				linkNode->SetIKEnable(true);
+			}
+			currentBoneNode->SetIKSolver(solver);
+		}
 	}
 
 	for (int index = 0; index < _boneNodeByIdx.size(); index++)
@@ -69,12 +122,28 @@ void NodeManager::UpdateAnimation(unsigned int frameNo)
 	for(BoneNode* curNode : _boneNodeByIdx)
 	{
 		curNode->AnimateMotion(frameNo);
+		curNode->AnimateIK(frameNo);
 		curNode->UpdateLocalTransform();
 	}
 
 	if(_boneNodeByIdx.size() > 0)
 	{
 		_boneNodeByIdx[0]->UpdateGlobalTransform();
+	}
+
+	for(BoneNode* curNode : _sortedNodes)
+	{
+		if (curNode->GetAppendBoneNode() != nullptr)
+		{
+			curNode->UpdateAppendTransform();
+			curNode->UpdateGlobalTransform();
+		}
+		IKSolver* curSolver = curNode->GetIKSolver();
+		if(curSolver != nullptr)
+		{
+			curSolver->Solve();
+			curNode->UpdateGlobalTransform();
+		}
 	}
 }
 

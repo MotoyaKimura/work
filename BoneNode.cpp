@@ -1,4 +1,5 @@
 #include "BoneNode.h"
+#include "IKSolver.h"
 
 using namespace DirectX;
 
@@ -119,8 +120,21 @@ void BoneNode::UpdateLocalTransform()
 	XMMATRIX scale = XMMatrixIdentity();
 
 	XMMATRIX rotation = _animateRotation;
+	if(_enableIK == true)
+	{
+		rotation = rotation * _ikRotation;
+	}
+
+	if (_isAppendRotate == true)
+	{
+		rotation = rotation * _appendRotation;
+	}
 
 	XMVECTOR t = XMLoadFloat3(&_animatePosition) + XMLoadFloat3(&_position);
+	if (_isAppendTranslate == true)
+	{
+		t += XMLoadFloat3(&_appendTranslate);
+	}
 
 	XMMATRIX translate = XMMatrixTranslationFromVector(t);
 
@@ -144,6 +158,69 @@ void BoneNode::UpdateGlobalTransform()
 	}
 }
 
+void BoneNode::UpdateAppendTransform()
+{
+	if(_appendBoneNode == nullptr)
+	{
+		return;
+	}
+
+	XMMATRIX appendRotation;
+	if(_isAppendRotate == true)
+	{
+		if(_isAppendLocal == true)
+		{
+			appendRotation = _appendBoneNode->GetAnimateRotation();
+		}
+		else
+		{
+			if (_appendBoneNode->GetAppendBoneNode() == nullptr)
+			{
+				appendRotation = _appendBoneNode->GetAnimateRotation();
+			}
+			else
+			{
+				appendRotation = _appendBoneNode->GetAppendRotation();
+			}
+		}
+
+		if(_appendBoneNode->GetIKEnable() == true)
+		{
+			appendRotation = appendRotation * _appendBoneNode->GetIKRotation();
+		}
+
+		XMVECTOR appendRotationQuaternion = XMQuaternionRotationMatrix(appendRotation);
+		appendRotationQuaternion = XMQuaternionSlerp(XMQuaternionIdentity(), appendRotationQuaternion, _appendWeight);
+
+		_appendRotation = XMMatrixRotationQuaternion(appendRotationQuaternion);
+	}
+
+	XMVECTOR appendTranslate = XMVectorZero();
+	if (_isAppendTranslate == true)
+	{
+		if (_isAppendLocal == true)
+		{
+			appendTranslate = XMLoadFloat3(&_appendBoneNode->GetAnimatePosition());
+		}
+		else
+		{
+			if (_appendBoneNode->GetAppendBoneNode() == nullptr)
+			{
+				appendTranslate = XMLoadFloat3(&_appendBoneNode->GetAnimatePosition());
+			}
+			else
+			{
+				appendTranslate = XMLoadFloat3(&_appendBoneNode->GetAppendTranslate());
+			}
+		}
+
+		XMStoreFloat3(&_appendTranslate, appendTranslate);
+	}
+
+	UpdateLocalTransform();
+}
+
+
 unsigned int BoneNode::GetMaxFrameNo() const 
 {
 	if (_motionKeys.size() <= 0)
@@ -152,4 +229,25 @@ unsigned int BoneNode::GetMaxFrameNo() const
 	}
 
 	return _motionKeys.back().frameNo;
+}
+
+void BoneNode::AnimateIK(unsigned int frameNo)
+{
+	if (_motionKeys.size() <= 0 || _ikSolver == nullptr)
+	{
+		return;
+	}
+
+	auto rit = std::find_if(_ikKeys.rbegin(), _ikKeys.rend(),
+		[frameNo](const VMDIKkey& key)
+		{
+			return key.frameNo <= frameNo;
+		});
+
+	if (rit == _ikKeys.rend())
+	{
+		return;
+	}
+
+	_ikSolver->SetEnable(rit->enable);
 }

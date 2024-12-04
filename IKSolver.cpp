@@ -138,13 +138,19 @@ void IKSolver::SolveCore(unsigned int iteration)
 		{
 			XMFLOAT3 rotXYZ = Decompose(chainRotation, chain.prevAngle);
 
-			XMFLOAT3 clampXYZ = std::clamp(rotXYZ, chain.limitMin, chain.limitMax);
+			XMFLOAT3 clampXYZ
+			= XMFLOAT3(std::clamp(rotXYZ.x, chain.limitMin.x, chain.limitMax.x),
+				std::clamp(rotXYZ.y, chain.limitMin.y, chain.limitMax.y),
+				std::clamp(rotXYZ.z, chain.limitMin.z, chain.limitMax.z));
 			float invLimitAngle = -_ikLimitAngle;
 			XMVECTOR vecSub = XMVectorSubtract(XMLoadFloat3(&clampXYZ), XMLoadFloat3(&chain.prevAngle));
 			XMFLOAT3 fSub;
 			XMStoreFloat3(&fSub, vecSub);
-			clampXYZ = std::clamp(fSub, XMFLOAT3(invLimitAngle, invLimitAngle, invLimitAngle), 
-				XMFLOAT3(_ikLimitAngle, _ikLimitAngle, _ikLimitAngle));
+			clampXYZ
+			= XMFLOAT3(std::clamp(fSub.x, invLimitAngle, _ikLimitAngle),
+				std::clamp(fSub.y, invLimitAngle, _ikLimitAngle),
+				std::clamp(fSub.z, invLimitAngle, _ikLimitAngle));
+				 
 			XMVECTOR vecAdd = XMVectorAdd(XMLoadFloat3(&clampXYZ), XMLoadFloat3(&chain.prevAngle));
 			XMFLOAT3 fAdd;
 			XMStoreFloat3(&fAdd, vecAdd);
@@ -163,4 +169,205 @@ void IKSolver::SolveCore(unsigned int iteration)
 		chain.boneNode->UpdateLocalTransform();
 		chain.boneNode->UpdateGlobalTransform();
 	}
+}
+
+DirectX::XMFLOAT3 IKSolver::Decompose(const DirectX::XMMATRIX& m, const DirectX::XMFLOAT3& before)
+{
+	XMFLOAT3 r;
+	float sy = -m.r[0].m128_f32[2];
+	const float e = 1.0e-6;
+
+	if((1.0f - std::abs(sy)) < e)
+	{
+		r.y = std::asin(sy);
+		float sx = std::sin(before.x);
+		float sz = std::sin(before.z);
+		if(std::abs(sx) < std::abs(sz))
+		{
+			float cx = std::cos(before.x);
+			if(cx > 0)
+			{
+				r.x = 0;
+				r.z = std::asin(-m.r[1].m128_f32[0]);
+			}
+			else
+			{
+				r.x = XM_PI;
+				r.z = std::asin(m.r[1].m128_f32[0]);
+			}
+		}
+		else
+		{
+			float cz = std::cos(before.z);
+			if (cz > 0)
+			{
+				r.z = 0;
+				r.x = std::asin(m.r[2].m128_f32[1]);
+			}
+			else
+			{
+				r.z = XM_PI;
+				r.x = std::asin(-m.r[2].m128_f32[1]);
+			}
+		}
+	}
+	else
+	{
+		r.x = std::atan2(m.r[1].m128_f32[2], m.r[2].m128_f32[2]);
+		r.y = std::asin(-m.r[0].m128_f32[2]);
+		r.z = std::atan2(m.r[0].m128_f32[1], m.r[0].m128_f32[0]);
+	}
+
+	const float pi = XM_PI;
+	XMFLOAT3 tests[] =
+	{
+		{r.x + pi, pi - r.y, r.z + pi},
+		{r.x + pi, pi - r.y, r.z - pi},
+		{r.x + pi, -pi - r.y, r.z + pi},
+		{r.x + pi, -pi - r.y, r.z - pi},
+		{r.x - pi, pi - r.y, r.z + pi},
+		{r.x - pi, pi - r.y, r.z - pi},
+		{r.x - pi, -pi - r.y, r.z + pi},
+		{r.x - pi, -pi - r.y, r.z - pi},
+	};
+
+	float errX = std::abs(DiffAngle(r.x, before.x));
+	float errY = std::abs(DiffAngle(r.y, before.y));
+	float errZ = std::abs(DiffAngle(r.z, before.z));
+	float minErr = errX + errY + errZ;
+	for(const auto test : tests)
+	{
+		float err = std::abs(DiffAngle(test.x, before.x))
+		+ std::abs(DiffAngle(test.y, before.y))
+		+ std::abs(DiffAngle(test.z, before.z));
+		if (err < minErr)
+		{
+			minErr = err;
+			r = test;
+		}
+	}
+	return r;
+}
+
+float IKSolver::NormalizeAngle(float angle)
+{
+	float ret = angle;
+	while (ret >= XM_2PI)
+	{
+		ret -= XM_2PI;
+	}
+	while (ret < 0)
+	{
+		ret += XM_2PI;
+	}
+	return ret;
+}
+
+float IKSolver::DiffAngle(float a, float b)
+{
+	float diff = NormalizeAngle(a) - NormalizeAngle(b);
+	if (diff > XM_PI)
+	{
+		return diff - XM_2PI;
+	}
+	else if (diff < -XM_PI)
+	{
+		return diff + XM_2PI;
+	}
+	return diff;
+}
+
+void IKSolver::SolvePlane(unsigned int iteration, unsigned int chainIndex, SolveAxis solveAxis)
+{
+	XMFLOAT3 rotateAxis;
+	float limitMinAngle;
+	float limitMaxAngle;
+
+	IKChain& chain = _ikChains[chainIndex];
+
+	switch (solveAxis)
+	{
+	case SolveAxis::X:
+		limitMinAngle = chain.limitMin.x;
+		limitMaxAngle = chain.limitMax.x;
+		rotateAxis = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		break;
+	case SolveAxis::Y:
+		limitMinAngle = chain.limitMin.y;
+		limitMaxAngle = chain.limitMax.y;
+		rotateAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		break;
+	case SolveAxis::Z:
+		limitMinAngle = chain.limitMin.z;
+		limitMaxAngle = chain.limitMax.z;
+		rotateAxis = XMFLOAT3(0.0f, 0.0f, 1.0f);
+		break;
+	}
+	XMVECTOR ikPosition = _ikNode->GetGlobalTransform().r[3];
+	XMVECTOR targetPosition = _targetNode->GetGlobalTransform().r[3];
+
+	XMVECTOR det = XMMatrixDeterminant(chain.boneNode->GetGlobalTransform());
+	XMMATRIX inverseChain = XMMatrixInverse(&det, chain.boneNode->GetGlobalTransform());
+
+	XMVECTOR chainIKPosition = XMVector3Transform(ikPosition, inverseChain);
+	XMVECTOR chainTargetPosition = XMVector3Transform(targetPosition, inverseChain);
+
+	XMVECTOR chainIKVector = XMVector3Normalize(chainIKPosition);
+	XMVECTOR chainTargetVector = XMVector3Normalize(chainTargetPosition);
+
+	float dot = XMVector3Dot(chainTargetVector, chainIKVector).m128_f32[0];
+	dot = std::clamp(dot, -1.0f, 1.0f);
+
+	float angle = acos(dot);
+	angle = std::clamp(angle, -_ikLimitAngle, _ikLimitAngle);
+
+	XMVECTOR rotation1 = XMQuaternionRotationAxis(XMLoadFloat3(&rotateAxis), angle);
+	XMVECTOR targetVector1 = XMVector3Rotate(chainTargetVector, rotation1);
+	float dot1 = XMVector3Dot(targetVector1, chainIKVector).m128_f32[0];
+
+	XMVECTOR rotation2 = XMQuaternionRotationAxis(XMLoadFloat3(&rotateAxis), -angle);
+	XMVECTOR targetVector2 = XMVector3Rotate(chainTargetVector, rotation2);
+	float dot2 = XMVector3Dot(targetVector2, chainIKVector).m128_f32[0];
+
+	float newAngle = chain.planeModeAngle;
+	if (dot1 > dot2)
+	{
+		newAngle += angle;
+	}
+	else
+	{
+		newAngle -= angle;
+	}
+
+	if(iteration == 0)
+	{
+		if (newAngle < limitMinAngle || newAngle > limitMaxAngle)
+		{
+			if (-newAngle > limitMinAngle && -newAngle < limitMaxAngle)
+			{
+				newAngle *= -1;
+			}
+			else
+			{
+				float halfRadian = (limitMinAngle + limitMaxAngle) * 0.5f;
+				if(abs(halfRadian - newAngle) > abs(halfRadian + newAngle))
+				{
+					newAngle *= -1;
+				}
+			}
+		}
+	}
+
+	newAngle = std::clamp(newAngle, limitMinAngle, limitMaxAngle);
+	chain.planeModeAngle = newAngle;
+
+	XMVECTOR det1 = XMMatrixDeterminant(chain.boneNode->GetAnimateRotation());
+	XMMATRIX inverseAnimate = XMMatrixInverse(&det1, chain.boneNode->GetAnimateRotation());
+
+	XMMATRIX ikRotation = inverseAnimate * XMMatrixRotationAxis(XMLoadFloat3(&rotateAxis), newAngle);
+
+	chain.boneNode->SetIKRotation(ikRotation);
+
+	chain.boneNode->UpdateLocalTransform();
+	chain.boneNode->UpdateGlobalTransform();
 }
