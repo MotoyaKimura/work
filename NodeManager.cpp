@@ -104,6 +104,7 @@ void NodeManager::Init(const std::vector<PMXBone>& bones)
 		{
 			return left->GetDeformDepth() < right->GetDeformDepth();
 		});
+
 }
 
 void NodeManager::SortKey()
@@ -113,6 +114,15 @@ void NodeManager::SortKey()
 		BoneNode* currentBoneNode = _boneNodeByIdx[index];
 		currentBoneNode->SortAllKeys();
 		_duration = std::max<unsigned int>(_duration, currentBoneNode->GetMaxFrameNo());
+	}
+}
+
+void NodeManager::BeforeUpdateAnimation()
+{
+	for (BoneNode* curNode : _boneNodeByIdx)
+	{
+		curNode->SetMorphPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		curNode->SetMorphRotation(XMMatrixIdentity());
 	}
 }
 

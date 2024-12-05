@@ -30,6 +30,7 @@ protected:
 	DirectX::XMMATRIX* worldMatrix;
 	DirectX::XMFLOAT3 _pos;
 	DirectX::XMFLOAT3 _rotater;
+	char* materialMap = nullptr;
 
 	struct MeshVertex
 	{

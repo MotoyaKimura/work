@@ -50,3 +50,11 @@ void Morph::SetGroupMorph(std::vector<PMXMorph::GroupMorph> pmxGroupMorphs)
 	}
 }
 
+Morph::Morph()
+{
+}
+
+Morph::~Morph()
+{
+}
+

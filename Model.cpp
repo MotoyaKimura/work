@@ -139,7 +139,7 @@ bool Model::MaterialBuffInit()
 	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
 	_materialBuff = CreateBuffer(materialBuffSize, Materials.size());
 	//Material* materialMap = nullptr;
-	char* materialMap = nullptr;
+	
 	auto result = _materialBuff->Map(
 		0, 
 		nullptr, 
@@ -156,7 +156,7 @@ bool Model::MaterialBuffInit()
 		uploadMat->ambient = material.ambient;
 		materialMap += materialBuffSize;
 	}
-	_materialBuff->Unmap(0, nullptr);
+	//_materialBuff->Unmap(0, nullptr);
 	/*std::copy(
 		std::begin(Materials), 
 		std::end(Materials),

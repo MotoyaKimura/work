@@ -64,7 +64,7 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 		}
 		break;
 		}
-		_morphByName[currentMorph.GetName()] = &currentMorph;
+		_morphByName[currentMorph.GetName() + L'\0'] = &currentMorph;
 	}
 
 	_morphKeys.resize(vmdMorphs.size());

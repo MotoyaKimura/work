@@ -185,6 +185,7 @@ struct PMXBone
 class Wrapper;
 class Camera;
 class NodeManager;
+class MorphManager;
 class PmxModel : public Model
 {
 private:
@@ -521,6 +522,10 @@ private:
 	std::vector<std::future<void>> _parallelUpdateFutures;
 	void InitParallelVertexSkinningSetting();
 	void VertexSkinningByRange(const SkinningRange& range);
+
+	std::shared_ptr<MorphManager> _morphManager;
+	void MorphMaterial();
+	void MorphBone();
 
 public:
 
