@@ -202,12 +202,12 @@ DirectX::XMFLOAT3 IKSolver::Decompose(const DirectX::XMMATRIX& m, const DirectX:
 			if (cz > 0)
 			{
 				r.z = 0;
-				r.x = std::asin(m.r[2].m128_f32[1]);
+				r.x = std::asin(-m.r[2].m128_f32[1]);
 			}
 			else
 			{
 				r.z = XM_PI;
-				r.x = std::asin(-m.r[2].m128_f32[1]);
+				r.x = std::asin(m.r[2].m128_f32[1]);
 			}
 		}
 	}

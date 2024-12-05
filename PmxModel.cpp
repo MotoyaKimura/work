@@ -47,8 +47,8 @@ bool PmxModel::Load(std::string filePath)
 
 	std::shared_ptr<VMD> vmd;
 	vmd.reset(new VMD());
-	//auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
-	auto result = vmd->LoadVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+	auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
+	//auto result = vmd->LoadVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
 	if (!result) return false;
 	InitAnimation(vmd->vmdData);
 	return true;
@@ -803,6 +803,14 @@ void PmxModel::VertexSkinning()
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
 			position = XMVector3Transform(position, m0);
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				m0.r[0].m128_f32[0], m0.r[0].m128_f32[1], m0.r[0].m128_f32[2], 0.0f,
+				m0.r[1].m128_f32[0], m0.r[1].m128_f32[1], m0.r[1].m128_f32[2], 0.0f,
+				m0.r[2].m128_f32[0], m0.r[2].m128_f32[1], m0.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::BDEF2:
@@ -818,6 +826,14 @@ void PmxModel::VertexSkinning()
 
 			XMMATRIX mat = m0 * weight0 + m1 * weight1;
 			position = XMVector3Transform(position, mat);
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
+				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
+				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::BDEF4:
@@ -839,6 +855,14 @@ void PmxModel::VertexSkinning()
 
 			XMMATRIX mat = m0 * weight0 + m1 * weight1 + m2 * weight2 + m3 * weight3;
 			position = XMVector3Transform(position, mat);
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
+				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
+				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::SDEF:
@@ -886,7 +910,7 @@ void PmxModel::VertexSkinning()
 		default:
 			break;
 		}
-		XMStoreFloat3(&mesh.Vertices[i].Position, position);
+		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.1));
 	}
 }
 
