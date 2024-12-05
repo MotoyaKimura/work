@@ -83,7 +83,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>DirectXTex-main\DirectXTex;DirectXTex-main\Common;assimp\include</AdditionalIncludeDirectories>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -118,7 +118,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>DirectXTex-main\DirectXTex;DirectXTex-main\Common;assimp\include</AdditionalIncludeDirectories>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -153,11 +153,14 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="IKSolver.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuScene.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelRenderer.cpp" />
+    <ClCompile Include="Morph.cpp" />
+    <ClCompile Include="MorphManager.cpp" />
     <ClCompile Include="NodeManager.cpp" />
     <ClCompile Include="Pera.cpp" />
     <ClCompile Include="PeraRenderer.cpp" />
@@ -281,10 +284,13 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="IKSolver.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="MenuScene.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelRenderer.h" />
+    <ClInclude Include="Morph.h" />
+    <ClInclude Include="MorphManager.h" />
     <ClInclude Include="NodeManager.h" />
     <ClInclude Include="Pera.h" />
     <ClInclude Include="PeraRenderer.h" />

@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "PmxModel.h"
 
+class IKSolver;
 class PmxModel;
 class BoneNode
 {
@@ -44,6 +45,7 @@ public:
 	void SetMorphRotation(const DirectX::XMMATRIX& rotation) { _morphRotation = rotation; }
 
 	void AddMotionKey(unsigned int& frameNo, DirectX::XMFLOAT4& quaternion, DirectX::XMFLOAT3& offset, const DirectX::XMFLOAT2& p1, const DirectX::XMFLOAT2& p2);
+	void AddIKKey(unsigned int& frameNo, bool& enable);
 	void SortAllKeys();
 
 	void SetEnableAppendRotate(bool enable) { _isAppendRotate = enable; }
@@ -62,6 +64,15 @@ public:
 	void UpdateGlobalTransform();
 
 	void AnimateMotion(unsigned int frameNo);
+
+	
+	IKSolver* GetIKSolver() const { return _ikSolver; }
+	void SetIKSolver(IKSolver* solver) { _ikSolver = solver; }
+	void SetIKEnable(bool enable) { _enableIK = enable; }
+	void AnimateIK(unsigned int frameNo);
+
+	void UpdateAppendTransform();
+	bool GetIKEnable() const { return _enableIK; }
 
 private:
 	float GetYFromXOnBezier(float x, DirectX::XMFLOAT2& a, DirectX::XMFLOAT2& b, uint8_t n);
@@ -121,4 +132,18 @@ private:
 
 	std::vector<VMDKey> _motionKeys;
 
+	struct VMDIKkey
+	{
+		unsigned int frameNo;
+		bool enable;
+
+		VMDIKkey(unsigned int frameNo, bool enable) :
+			frameNo(frameNo),
+			enable(enable)
+		{}
+	};
+
+	std::vector<VMDIKkey> _ikKeys;
+
+	IKSolver* _ikSolver = nullptr;
 };
