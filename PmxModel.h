@@ -67,6 +67,83 @@ enum class PMXMorphType : uint8_t
 	Impulse,
 };
 
+struct PMXMorph
+{
+	std::wstring name;
+	std::string englishName;
+
+	unsigned char controlPanel;
+	PMXMorphType morphType;
+
+	struct PositionMorph
+	{
+		unsigned int vertexIndex;
+		DirectX::XMFLOAT3 position;
+	};
+
+	struct UVMorph
+	{
+		unsigned int vertexIndex;
+		DirectX::XMFLOAT4 uv;
+	};
+
+	struct BoneMorph
+	{
+		unsigned int boneIndex;
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT4 quaternion;
+	};
+
+	struct  MaterialMorph
+	{
+		enum class OpType : uint8_t
+		{
+			Mul,
+			Add,
+		};
+
+		unsigned int materialIndex;
+		OpType opType;
+		DirectX::XMFLOAT4 diffuse;
+		DirectX::XMFLOAT3 specular;
+		float specularPower;
+		DirectX::XMFLOAT3 ambient;
+		DirectX::XMFLOAT4 edgeColor;
+		float edgeSize;
+		DirectX::XMFLOAT4 textureFactor;
+		DirectX::XMFLOAT4 sphereTextureFactor;
+		DirectX::XMFLOAT4 toonTextureFactor;
+	};
+
+	struct GroupMorph
+	{
+		unsigned int morphIndex;
+		float weight;
+	};
+
+	struct FlipMorph
+	{
+		unsigned int morphIndex;
+		float weight;
+	};
+
+	struct ImpulseMorph
+	{
+		unsigned int rigidBodyIndex;
+		unsigned char localFlag;
+		DirectX::XMFLOAT3 translateVelocity;
+		DirectX::XMFLOAT3 rotateTorque;
+	};
+
+	std::vector<PositionMorph> positionMorph;
+	std::vector<UVMorph> uvMorph;
+	std::vector<BoneMorph> boneMorph;
+	std::vector<MaterialMorph> materialMorph;
+	std::vector<GroupMorph> groupMorph;
+	std::vector<FlipMorph> flipMorph;
+	std::vector<ImpulseMorph> impulseMorph;
+};
+
 struct PMXIKLink
 {
 	unsigned int ikBoneIndex;
@@ -208,90 +285,7 @@ private:
 
 	std::vector< PMXLoadedMaterial >mLoadedMaterial;
 
-	
 
-	
-
-	
-
-	
-
-	struct PMXMorph
-	{
-		std::wstring name;
-		std::string englishName;
-
-		unsigned char controlPanel;
-		PMXMorphType morphType;
-
-		struct PositionMorph
-		{
-			unsigned int vertexIndex;
-			DirectX::XMFLOAT3 position;
-		};
-
-		struct UVMorph
-		{
-			unsigned int vertexIndex;
-			DirectX::XMFLOAT4 uv;
-		};
-
-		struct BoneMorph
-		{
-			unsigned int boneIndex;
-			DirectX::XMFLOAT3 position;
-			DirectX::XMFLOAT4 quaternion;
-		};
-
-		struct  MaterialMorph
-		{
-			enum class OpType : uint8_t
-			{
-				Mul,
-				Add,
-			};
-
-			unsigned int materialIndex;
-			OpType opType;
-			DirectX::XMFLOAT4 diffuse;
-			DirectX::XMFLOAT3 specular;
-			float specularPower;
-			DirectX::XMFLOAT3 ambient;
-			DirectX::XMFLOAT4 edgeColor;
-			float edgeSize;
-			DirectX::XMFLOAT4 textureFactor;
-			DirectX::XMFLOAT4 sphereTextureFactor;
-			DirectX::XMFLOAT4 toonTextureFactor;
-		};
-
-		struct GroupMorph
-		{
-			unsigned int morphIndex;
-			float weight;
-		};
-
-		struct FlipMorph
-		{
-			unsigned int morphIndex;
-			float weight;
-		};
-
-		struct ImpulseMorph
-		{
-			unsigned int rigidBodyIndex;
-			unsigned char localFlag;
-			DirectX::XMFLOAT3 translateVelocity;
-			DirectX::XMFLOAT3 rotateTorque;
-		};
-
-		std::vector<PositionMorph> positionMorph;
-		std::vector<UVMorph> uvMorph;
-		std::vector<BoneMorph> boneMorph;
-		std::vector<MaterialMorph> materialMorph;
-		std::vector<GroupMorph> groupMorph;
-		std::vector<FlipMorph> flipMorph;
-		std::vector<ImpulseMorph> impulseMorph;
-	};
 
 	struct PMXDisplayFrame
 	{
