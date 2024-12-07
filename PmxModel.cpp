@@ -6,6 +6,7 @@
 #include "BoneNode.h"
 #include "MorphManager.h"
 #include "NodeManager.h"
+#include "Application.h"
 
 #pragma comment(lib, "winmm.lib");
 
@@ -786,22 +787,53 @@ void PmxModel::UpdateAnimation()
 
 	BYTE key[256];
 	GetKeyboardState(key);
-	if ((key['W'] & 0x80) || (key['A'] & 0x80) || (key['S'] & 0x80) || (key['D'] & 0x80))
-	{
-		std::shared_ptr<VMD> vmd;
-		vmd.reset(new VMD());
-		auto result = vmd->LoadVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
-		if (!result) return;
-		InitAnimation(vmd->vmdData);
-		_morphManager->SetMorphKey(vmd->vmdData.morphs);
-	}
-	else
-	{
-		_startTime = timeGetTime();
-	}
 
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
+
+
+
+	if(Application::GetIsMoveKeyUp())
+	{
+		motionCountDown = 0;
+		Application::SetIsMoveKeyDown(false);
+		if (frameNo > _nodeManager->_duration && motionCountUp == 0)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\4.止る_滑り_(25f_前移動30).vmd");
+			motionCountUp++;
+		}
+		if (frameNo > _nodeManager->_duration && motionCountUp == 1)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
+			motionCountUp = 0;
+			Application::SetIsMoveKeyUp(false);
+		}
+	}
+
+	if (Application::GetIsMoveKeyDown())
+	{
+		motionCountUp = 0;
+		Application::SetIsMoveKeyUp(false);
+		if (motionCountDown == 0)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\1.走り出し_(15f_前移動20).vmd");
+			motionCountDown++;
+		}
+		if (frameNo > _nodeManager->_duration && motionCountDown == 1)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+			motionCountDown++;
+
+		}
+	}
 
 	if(frameNo > _nodeManager->_duration)
 	{
@@ -821,6 +853,18 @@ void PmxModel::UpdateAnimation()
 
 	std::copy(mesh.Vertices.begin(), mesh.Vertices.end(), vertMap);
 }
+
+void PmxModel::ChangeVMD(std::wstring vmdFile)
+{
+	std::shared_ptr<VMD> vmd;
+	vmd.reset(new VMD());
+	auto result = vmd->LoadVMD(vmdFile);
+	if (!result) return;
+	_nodeManager->_duration = 0;
+	InitAnimation(vmd->vmdData);
+	_morphManager->SetMorphKey(vmd->vmdData.morphs);
+}
+
 
 void PmxModel::PlayAnimation()
 {

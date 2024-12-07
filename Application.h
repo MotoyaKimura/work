@@ -32,6 +32,8 @@ private:
 	static bool isPause;
 	static bool isMenu;
 	static HMENU ButtonID;
+	static bool isMoveKeyDown;
+	static bool isMoveKeyUp;
 
 protected:
 public:
@@ -49,6 +51,12 @@ public:
 	static void SetMenu() { isMenu = false; }
 	static HMENU GetButtonID() { return ButtonID; }
 	static void SetButtonID(HMENU id) { ButtonID = id; }
+	static void SetIsMoveKeyDown(bool flag) { isMoveKeyDown = flag; }
+	static void SetIsMoveKeyUp(bool flag) { isMoveKeyUp = flag; }
+
+	static bool GetIsMoveKeyDown() { return isMoveKeyDown; }
+	static bool GetIsMoveKeyUp() { return isMoveKeyUp; }
+	
 	//èâä˙âª
 	bool Init();
 	//ÉãÅ[ÉvãNìÆ
