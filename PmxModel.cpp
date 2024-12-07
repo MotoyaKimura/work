@@ -829,7 +829,8 @@ void PmxModel::UpdateAnimation()
 		{
 			_startTime = timeGetTime();
 			frameNo = 0;
-			ChangeVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+			//ChangeVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+			ChangeVMD(L"vmdData\\2.走り75L_ダッシュ_(16f_前移動60).vmd");
 			motionCountDown++;
 
 		}

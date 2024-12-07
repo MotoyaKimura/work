@@ -115,19 +115,19 @@ void Keyboard::SetDir(XMVECTOR dir)
 	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
 	float dot = XMVector3Dot(_models[modelID]->GetEye(), dir).m128_f32[0];
 	dot = std::clamp(dot, -1.0f, 1.0f);
-	if (dot < 1.0)
+	if (dot < 0.99)
 	{
 		XMVECTOR cross = XMVector3Normalize(XMVector3Cross(_models[modelID]->GetEye(), dir));
 		XMMATRIX rotation;
 		if (cross.m128_f32[1] > 0)
 		{
-			_rotate->y += 0.05f;
-			rotation = XMMatrixRotationAxis(yAxis, 0.05f);
+			_rotate->y += 0.1f;
+			rotation = XMMatrixRotationAxis(yAxis, 0.1f);
 		}
 		else
 		{
-			_rotate->y -= 0.05f;
-			rotation = XMMatrixRotationAxis(yAxis, -0.05f);
+			_rotate->y -= 0.1f;
+			rotation = XMMatrixRotationAxis(yAxis, -0.1f);
 		}
 		_models[modelID]->SetEye(XMVector3Transform(_models[modelID]->GetEye(), rotation));
 	}
@@ -173,32 +173,113 @@ bool Keyboard::isGetKeyState()
 	bool isMove = false;
 	GetKeyboardState(keycode);
 	
-	if (keycode['W'] & 0x80) {
-		SetDir(vFront);
-		pos = XMVectorAdd(pos, vFront * 0.1);
-		eyePos = XMVectorAdd(eyePos, vFront * 0.1);
+	if ((keycode['W'] & 0x80) && (keycode['D'] & 0x80)) {
+		keyCount++;
+		if(keyCount > 3)
+		{
+			XMVECTOR v = XMVector3Normalize(vRight + vFront);
+			SetDir(v);
+			pos = XMVectorAdd(pos, v * 0.1);
+			eyePos = XMVectorAdd(eyePos, v * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
+	}
+	if ((keycode['W'] & 0x80) && (keycode['A'] & 0x80))
+	{
+		keyCount++;
+		if(keyCount > 3)
+		{
+			XMVECTOR v = XMVector3Normalize(vLeft + vFront);
+			SetDir(v);
+			pos = XMVectorAdd(pos, v * 0.1);
+			eyePos = XMVectorAdd(eyePos, v * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
+	}
+	if ((keycode['W'] & 0x80) && (keycode['S'] & 0x80))
+	{
 		isMove = true;
+		return isMove;
+	}
+	if ((keycode['A'] & 0x80) && (keycode['S'] & 0x80))
+	{
+		keyCount++;
+		if (keyCount > 3)
+		{
+			XMVECTOR v = XMVector3Normalize(vLeft + vBack);
+			SetDir(v);
+			pos = XMVectorAdd(pos, v * 0.1);
+			eyePos = XMVectorAdd(eyePos, v * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
+	}
+	if ((keycode['D'] & 0x80) && (keycode['S'] & 0x80))
+	{
+		keyCount++;
+		if (keyCount > 3)
+		{
+			XMVECTOR v = XMVector3Normalize(vRight + vBack);
+			SetDir(v);
+			pos = XMVectorAdd(pos, v * 0.1);
+			eyePos = XMVectorAdd(eyePos, v * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
+	}
+	if (keycode['W'] & 0x80) {
+		keyCount++;
+		if (keyCount > 3)
+		{
+			SetDir(vFront);
+			pos = XMVectorAdd(pos, vFront * 0.1);
+			eyePos = XMVectorAdd(eyePos, vFront * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
 	}
 	if (keycode['A'] & 0x80) {
-		SetDir(vLeft);
-
-		pos = XMVectorAdd(pos, vLeft * 0.1);
-		eyePos = XMVectorAdd(eyePos, vLeft * 0.1);
-		isMove = true;
+		keyCount++;
+		if (keyCount > 3)
+		{
+			SetDir(vLeft);
+			pos = XMVectorAdd(pos, vLeft * 0.1);
+			eyePos = XMVectorAdd(eyePos, vLeft * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
 	}
 	if (keycode['S'] & 0x80) {
-		SetDir(vBack);
-
-		pos = XMVectorAdd(pos, vBack * 0.1);
-		eyePos = XMVectorAdd(eyePos, vBack * 0.1);
-		isMove = true;
+		keyCount++;
+		if (keyCount > 3)
+		{
+			SetDir(vBack);
+			pos = XMVectorAdd(pos, vBack * 0.1);
+			eyePos = XMVectorAdd(eyePos, vBack * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
 	}
 	if (keycode['D'] & 0x80) {
-		SetDir(vRight);
-
-		pos = XMVectorAdd(pos, vRight * 0.1);
-		eyePos = XMVectorAdd(eyePos, vRight * 0.1);
-		isMove = true;
+		keyCount++;
+		if (keyCount > 3)
+		{
+			SetDir(vRight);
+			pos = XMVectorAdd(pos, vRight * 0.1);
+			eyePos = XMVectorAdd(eyePos, vRight * 0.1);
+			isMove = true;
+			keyCount = 0;
+		}
+		return isMove;
 	}
 	if (keycode[VK_SPACE] & 0x80)
 	{
@@ -220,14 +301,16 @@ bool Keyboard::isGetKeyState()
 	}
 	if (keycode['R'] & 0x80)
 	{
-		_rotate->y += 0.05f;
+		_rotate->y += 0.1f;
 		isMove = true;
 	}
 	if (keycode['L'] & 0x80)
 	{
-		_rotate->y -= 0.05f;
+		_rotate->y -= 0.1f;
 		isMove = true;
 	}
+
+	keyCount = 0;
 	return isMove;
 }
 

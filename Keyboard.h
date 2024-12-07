@@ -35,6 +35,8 @@ private:
 												
 	DirectX::XMVECTOR pos;
 	DirectX::XMVECTOR eyePos;
+
+	unsigned int keyCount = 0;
 public:
 	void Init();
 	Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models);
