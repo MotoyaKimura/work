@@ -6,6 +6,16 @@
 #include <assimp/scene.h>
 #include <array>
 
+struct aabb
+{
+	float _xMin;
+	float _xMax;
+	float _yMin;
+	float _yMax;
+	float _zMin;
+	float _zMax;
+};
+
 class Camera;
 class Wrapper;
 class Model
@@ -85,15 +95,7 @@ protected:
 	virtual bool ModelHeapInit() = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width, size_t num);
 
-	struct aabb
-	{
-		float _xMin;
-		float _xMax;
-		float _yMin;
-		float _yMax;
-		float _zMin;
-		float _zMax;
-	};
+	
 	aabb _aabb;
 public:
 	bool Init();
@@ -112,6 +114,7 @@ public:
 	std::string GetExt() const { return _ext; }
 	DirectX::XMVECTOR GetEye() const { return _eye; }
 	void SetEye(DirectX::XMVECTOR eye) { _eye = eye; }
+	aabb* GetAABB()  { return &_aabb; }
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const { return _modelHeap; }
 	Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath);
 	virtual ~Model();

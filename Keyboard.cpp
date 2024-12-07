@@ -172,7 +172,6 @@ bool Keyboard::isGetKeyState()
 {
 	bool isMove = false;
 	GetKeyboardState(keycode);
-	
 	if ((keycode['W'] & 0x80) && (keycode['D'] & 0x80)) {
 		keyCount++;
 		if(keyCount > 3)
@@ -183,6 +182,11 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, v * 0.1);
 			isMove = true;
 			keyCount = 0;
+			
+			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
 		}
 		return isMove;
 	}
@@ -197,6 +201,10 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, v * 0.1);
 			isMove = true;
 			keyCount = 0;
+			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
 		}
 		return isMove;
 	}
@@ -216,6 +224,10 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, v * 0.1);
 			isMove = true;
 			keyCount = 0;
+			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
 		}
 		return isMove;
 	}
@@ -230,6 +242,10 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, v * 0.1);
 			isMove = true;
 			keyCount = 0;
+			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
 		}
 		return isMove;
 	}
@@ -242,6 +258,11 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, vFront * 0.1);
 			isMove = true;
 			keyCount = 0;
+			_models[modelID]->GetAABB()->_xMax += (vFront * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (vFront * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (vFront * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (vFront * 0.1).m128_f32[2];
+
 		}
 		return isMove;
 	}
@@ -254,6 +275,10 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, vLeft * 0.1);
 			isMove = true;
 			keyCount = 0;
+			_models[modelID]->GetAABB()->_xMax += (vLeft * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (vLeft * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (vLeft * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (vLeft * 0.1).m128_f32[2];
 		}
 		return isMove;
 	}
@@ -266,6 +291,10 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, vBack * 0.1);
 			isMove = true;
 			keyCount = 0;
+			_models[modelID]->GetAABB()->_xMax += (vBack * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (vBack * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (vBack * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (vBack * 0.1).m128_f32[2];
 		}
 		return isMove;
 	}
@@ -278,6 +307,10 @@ bool Keyboard::isGetKeyState()
 			eyePos = XMVectorAdd(eyePos, vRight * 0.1);
 			isMove = true;
 			keyCount = 0;
+			_models[modelID]->GetAABB()->_xMax += (vRight * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin += (vRight * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax += (vRight * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin += (vRight * 0.1).m128_f32[2];
 		}
 		return isMove;
 	}
