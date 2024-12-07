@@ -74,6 +74,8 @@ public:
 	void UpdateAppendTransform();
 	bool GetIKEnable() const { return _enableIK; }
 
+	void ClearKey();
+
 private:
 	float GetYFromXOnBezier(float x, DirectX::XMFLOAT2& a, DirectX::XMFLOAT2& b, uint8_t n);
 

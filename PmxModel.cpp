@@ -737,6 +737,12 @@ bool PmxModel::ReadSoftBody(PMXFileData& data, std::ifstream& file)
 
 void PmxModel::InitAnimation(VMDFileData& vmdData)
 {
+	const std::vector<BoneNode*>& allNodes = _nodeManager->GetAllNodes();
+	for (auto& node : allNodes)
+	{
+		node->ClearKey();
+	}
+
 	for (auto& motion : vmdData.motions)
 	{
 		auto boneNode = _nodeManager->GetBoneNodeByName(motion.boneName);
@@ -938,7 +944,7 @@ void PmxModel::VertexSkinning()
 		default:
 			break;
 		}
-		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.1));
+		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
 
 		const XMFLOAT4& morphUV = _morphManager->GetMorphUV(i);
 		const XMFLOAT2& originalUV = mesh.Vertices[i].TexCoord;
@@ -1186,7 +1192,7 @@ void PmxModel::Update()
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 
 	*worldMatrix = world;
-	UpdateAnimation();
+	//UpdateAnimation();
 }
 
 

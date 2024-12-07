@@ -110,6 +110,29 @@ void Keyboard::SetPos()
 	_eyePos->z = XMVectorGetZ(eyePos);
 }
 
+void Keyboard::SetDir(XMVECTOR dir)
+{
+	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
+	float dot = XMVector3Dot(_models[modelID]->GetEye(), dir).m128_f32[0];
+	dot = std::clamp(dot, -1.0f, 1.0f);
+	if (dot < 1.0)
+	{
+		XMVECTOR cross = XMVector3Normalize(XMVector3Cross(_models[modelID]->GetEye(), dir));
+		XMMATRIX rotation;
+		if (cross.m128_f32[1] > 0)
+		{
+			_rotate->y += 0.05f;
+			rotation = XMMatrixRotationAxis(yAxis, 0.05f);
+		}
+		else
+		{
+			_rotate->y -= 0.05f;
+			rotation = XMMatrixRotationAxis(yAxis, -0.05f);
+		}
+		_models[modelID]->SetEye(XMVector3Transform(_models[modelID]->GetEye(), rotation));
+	}
+}
+
 
 void Keyboard::CalcMoveDir()
 {
@@ -149,22 +172,30 @@ bool Keyboard::isGetKeyState()
 {
 	bool isMove = false;
 	GetKeyboardState(keycode);
+	
 	if (keycode['W'] & 0x80) {
+		SetDir(vFront);
 		pos = XMVectorAdd(pos, vFront * 0.1);
 		eyePos = XMVectorAdd(eyePos, vFront * 0.1);
 		isMove = true;
 	}
 	if (keycode['A'] & 0x80) {
+		SetDir(vLeft);
+
 		pos = XMVectorAdd(pos, vLeft * 0.1);
 		eyePos = XMVectorAdd(eyePos, vLeft * 0.1);
 		isMove = true;
 	}
 	if (keycode['S'] & 0x80) {
+		SetDir(vBack);
+
 		pos = XMVectorAdd(pos, vBack * 0.1);
 		eyePos = XMVectorAdd(eyePos, vBack * 0.1);
 		isMove = true;
 	}
 	if (keycode['D'] & 0x80) {
+		SetDir(vRight);
+
 		pos = XMVectorAdd(pos, vRight * 0.1);
 		eyePos = XMVectorAdd(eyePos, vRight * 0.1);
 		isMove = true;

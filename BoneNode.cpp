@@ -36,6 +36,12 @@ void BoneNode::AddIKKey(unsigned int& frameNo, bool& enable)
 	_ikKeys.emplace_back(frameNo, enable);
 }
 
+void BoneNode::ClearKey()
+{
+	_motionKeys.clear();
+	_ikKeys.clear();
+}
+
 
 void BoneNode::SortAllKeys()
 {

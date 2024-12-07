@@ -46,6 +46,7 @@ public:
 	bool isMoveMouse();
 	void CalcMoveDir();
 	void SetPos();
+	void SetDir(DirectX::XMVECTOR dir);
 	void RotateCameraAroundModel();
 	~Keyboard();
 };

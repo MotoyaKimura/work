@@ -74,13 +74,9 @@ protected:
 	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> mToonResources;
 	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> mSphereTextureResources;
 
-	
+	DirectX::XMVECTOR _eye = DirectX::XMVectorSet(0.0f,0.0f,-1.0f,0.0f);
 	
 	virtual bool Load(std::string filePath) = 0;
-
-	
-
-
 
 	bool VertexInit();
 	bool IndexInit();
@@ -103,6 +99,8 @@ public:
 	size_t GetSrvDescs() const { return srvBuffs.size(); }
 	size_t GetCbvDescs() const { return cbvBuffs.size(); }
 	std::string GetExt() const { return _ext; }
+	DirectX::XMVECTOR GetEye() const { return _eye; }
+	void SetEye(DirectX::XMVECTOR eye) { _eye = eye; }
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const { return _modelHeap; }
 	Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath);
 	virtual ~Model();
