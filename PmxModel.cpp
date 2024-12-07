@@ -49,8 +49,8 @@ bool PmxModel::Load(std::string filePath)
 
 	std::shared_ptr<VMD> vmd;
 	vmd.reset(new VMD());
-	auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
-	//auto result = vmd->LoadVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+	//auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
+	auto result = vmd->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
 	if (!result) return false;
 	InitAnimation(vmd->vmdData);
 
@@ -774,12 +774,28 @@ void PmxModel::InitAnimation(VMDFileData& vmdData)
 	_nodeManager->SortKey();
 	//InitParallelVertexSkinningSetting();
 
-	PlayAnimation();
+	//PlayAnimation();
 }
 
 void PmxModel::UpdateAnimation()
 {
 	if(_startTime <= 0)
+	{
+		_startTime = timeGetTime();
+	}
+
+	BYTE key[256];
+	GetKeyboardState(key);
+	if ((key['W'] & 0x80) || (key['A'] & 0x80) || (key['S'] & 0x80) || (key['D'] & 0x80))
+	{
+		std::shared_ptr<VMD> vmd;
+		vmd.reset(new VMD());
+		auto result = vmd->LoadVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+		if (!result) return;
+		InitAnimation(vmd->vmdData);
+		_morphManager->SetMorphKey(vmd->vmdData.morphs);
+	}
+	else
 	{
 		_startTime = timeGetTime();
 	}
@@ -1192,7 +1208,7 @@ void PmxModel::Update()
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 
 	*worldMatrix = world;
-	//UpdateAnimation();
+	UpdateAnimation();
 }
 
 

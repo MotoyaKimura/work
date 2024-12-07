@@ -44,6 +44,7 @@ public:
 	const DirectX::XMFLOAT4& GetMorphUV(unsigned int index) const { return _morphUV[index]; }
 	const MaterialMorphData& GetMorphMaterial(unsigned int index) const { return _morphMaterial[index]; }
 	const BoneMorphData& GetMorphBone(unsigned int index) const { return _morphBone[index]; }
+	void SetMorphKey(const std::vector<VMDMorph>& vmdMorphs);
 
 private:
 	void AnimateMorph(Morph& morph, float weight = 1.0f);
@@ -54,6 +55,7 @@ private:
 	void AnimateGroupMorph(Morph& morph, float weight);
 
 	void ResetMorphData();
+
 
 	std::vector<Morph> _morphs;
 	std::unordered_map<std::wstring, Morph*> _morphByName;

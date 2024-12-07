@@ -66,8 +66,8 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 		}
 		_morphByName[currentMorph.GetName() + L'\0'] = &currentMorph;
 	}
-
-	_morphKeys.resize(vmdMorphs.size());
+	SetMorphKey(vmdMorphs);
+	/*_morphKeys.resize(vmdMorphs.size());
 	for (int i = 0; i < vmdMorphs.size(); i++)
 	{
 		_morphKeys[i] = vmdMorphs[i];
@@ -98,12 +98,51 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 				}
 				return left->frame < right->frame;
 			});
-	}
+	}*/
 
 	_morphVertexPosition.resize(vertexCount);
 	_morphUV.resize(vertexCount);
 	_morphMaterial.resize(materialCount);
 	_morphBone.resize(boneCount);
+}
+
+void MorphManager::SetMorphKey(const std::vector<VMDMorph>& vmdMorphs)
+{
+	_morphKeys.clear();
+	_morphByName.clear();
+
+	_morphKeys.resize(vmdMorphs.size());
+	for (int i = 0; i < vmdMorphs.size(); i++)
+	{
+		_morphKeys[i] = vmdMorphs[i];
+
+		if (_morphByName.find(_morphKeys[i].blendShapeName) == _morphByName.end())
+		{
+			continue;
+		}
+
+		_morphKeyByName[_morphKeys[i].blendShapeName].push_back(&_morphKeys[i]);
+	}
+
+	for (auto& morphKey : _morphKeyByName)
+	{
+		std::vector<VMDMorph*>& morphKeys = morphKey.second;
+
+		if (morphKeys.size() <= 1)
+		{
+			continue;
+		}
+
+		std::sort(morphKeys.begin(), morphKeys.end(),
+			[](const VMDMorph* left, const VMDMorph* right)
+			{
+				if (left->frame == right->frame)
+				{
+					return false;
+				}
+				return left->frame < right->frame;
+			});
+	}
 }
 
 void MorphManager::ResetMorphData()
