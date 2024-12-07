@@ -131,9 +131,22 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 	data.vertices.resize(vertexCount);
 	mesh.Vertices.resize(vertexCount);
 	int i = 0;
+	float xMin = (std::numeric_limits<float>::max)();
+	float xMax = -(std::numeric_limits<float>::max)();
+	float yMin = (std::numeric_limits<float>::max)();
+	float yMax = -(std::numeric_limits<float>::max)();
+	float zMin = (std::numeric_limits<float>::max)();
+	float zMax = -(std::numeric_limits<float>::max)();
 	for (auto& vertex : data.vertices)
 	{
 		file.read(reinterpret_cast<char*>(&vertex.position), 12);
+		xMin = std::min(xMin, vertex.position.x);
+		yMin = std::min(yMin, vertex.position.y);
+		zMin = std::min(zMin, vertex.position.z);
+		xMax = (std::max)(xMax, vertex.position.x);
+		yMax = (std::max)(yMax, vertex.position.y);
+		zMax = (std::max)(zMax, vertex.position.z);
+
 		file.read(reinterpret_cast<char*>(&vertex.normal), 12);
 		file.read(reinterpret_cast<char*>(&vertex.uv), 8);
 
@@ -179,11 +192,17 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
-		mesh.Vertices[i].Position = DirectX::XMFLOAT3(vertex.position.x * 0.1, vertex.position.y * 0.1, vertex.position.z * 0.1);
+		mesh.Vertices[i].Position = DirectX::XMFLOAT3(vertex.position.x * 0.2, vertex.position.y * 0.2, vertex.position.z * 0.2);
 		mesh.Vertices[i].Normal = vertex.normal;
 		mesh.Vertices[i].TexCoord = vertex.uv;
 		i++;
 	}
+	_aabb._xMax = xMax;
+	_aabb._yMax = yMax;
+	_aabb._zMax = zMax;
+	_aabb._xMin = xMin;
+	_aabb._yMin = yMin;
+	_aabb._zMin = zMin;
 
 	return true;
 }

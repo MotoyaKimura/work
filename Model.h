@@ -84,6 +84,17 @@ protected:
 	bool MaterialBuffInit();
 	virtual bool ModelHeapInit() = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width, size_t num);
+
+	struct aabb
+	{
+		float _xMin;
+		float _xMax;
+		float _yMin;
+		float _yMax;
+		float _zMin;
+		float _zMax;
+	};
+	aabb _aabb;
 public:
 	bool Init();
 	bool RendererInit();
