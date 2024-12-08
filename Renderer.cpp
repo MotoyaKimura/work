@@ -222,11 +222,11 @@ void Renderer::AddModel(std::shared_ptr<Model> model)
 void Renderer::Update()
 {
 
-	_keyboard->Move();
+	//_keyboard->Move();
 	for (auto& _models : _models) {
 		_models->Update();
 	}
-	_camera->CalcSceneTrans();
+	//_camera->CalcSceneTrans();
 }
 
 void Renderer::DrawModel() const

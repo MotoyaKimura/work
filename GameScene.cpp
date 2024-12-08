@@ -92,9 +92,11 @@ void GameScene::SceneUpdate(void)
 	if (_peraRenderer->Update() || _peraRenderer->WipeStart())
 	{}
 	else {
-		_rsm->Update();
-		_modelRenderer->Update();
+		_keyboard->Move();
+		_camera->CalcSceneTrans();
 	}
+	_rsm->Update();
+	_modelRenderer->Update();
 }
 
 void GameScene::SceneRender(void)

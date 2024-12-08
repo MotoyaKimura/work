@@ -34,7 +34,7 @@ private:
 	static HMENU ButtonID;
 	static bool isMoveKeyDown;
 	static bool isMoveKeyUp;
-
+	static bool isKeyJump;
 protected:
 public:
 	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -53,9 +53,11 @@ public:
 	static void SetButtonID(HMENU id) { ButtonID = id; }
 	static void SetIsMoveKeyDown(bool flag) { isMoveKeyDown = flag; }
 	static void SetIsMoveKeyUp(bool flag) { isMoveKeyUp = flag; }
+	static void SetIsKeyJump(bool flag) { isKeyJump = flag; }
 
 	static bool GetIsMoveKeyDown() { return isMoveKeyDown; }
 	static bool GetIsMoveKeyUp() { return isMoveKeyUp; }
+	static bool GetIsKeyJump() { return isKeyJump; }
 	
 	//èâä˙âª
 	bool Init();

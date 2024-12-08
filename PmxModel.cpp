@@ -50,7 +50,6 @@ bool PmxModel::Load(std::string filePath)
 
 	std::shared_ptr<VMD> vmd;
 	vmd.reset(new VMD());
-	//auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
 	auto result = vmd->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
 	if (!result) return false;
 	InitAnimation(vmd->vmdData);
@@ -804,13 +803,8 @@ void PmxModel::UpdateAnimation()
 		_startTime = timeGetTime();
 	}
 
-	BYTE key[256];
-	GetKeyboardState(key);
-
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
-
-
 
 	if(Application::GetIsMoveKeyUp())
 	{
@@ -848,10 +842,44 @@ void PmxModel::UpdateAnimation()
 		{
 			_startTime = timeGetTime();
 			frameNo = 0;
-			//ChangeVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
 			ChangeVMD(L"vmdData\\2.走り75L_ダッシュ_(16f_前移動60).vmd");
 			motionCountDown++;
 
+		}
+	}
+
+	BYTE key[256];
+	GetKeyboardState(key);
+	if (Application::GetIsKeyJump())
+	{
+		if(motionCountJump == 0)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\1.予備動作_(7f_移動なし).vmd");
+			motionCountJump++;
+		}
+		if (frameNo > _nodeManager->_duration && motionCountJump == 1)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\2.ジャンプ_(11f_上移動3~10の間_前移動0~10の間).vmd");
+			motionCountJump++;
+		}
+		if (frameNo > _nodeManager->_duration && motionCountJump == 2)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\3.着地_(8f_移動なし).vmd");
+			motionCountJump++;
+		}
+		if (frameNo > _nodeManager->_duration && motionCountJump == 3)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
+			motionCountJump = 0;
+			Application::SetIsKeyJump(false);
 		}
 	}
 
@@ -1311,7 +1339,7 @@ void PmxModel::Update()
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 
 	*worldMatrix = world;
-	//UpdateAnimation();
+	UpdateAnimation();
 }
 
 
