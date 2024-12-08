@@ -290,26 +290,7 @@ void Keyboard::Collision(DirectX::XMVECTOR dir)
 		_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
 		_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
 		_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
-		if (isCollision() == "X")
-		{
-			v = XMVECTOR({ v.m128_f32[0], 0, 0 });
-			pos = XMVectorSubtract(pos, v * 0.1);
-			eyePos = XMVectorSubtract(eyePos, v * 0.1);
-			_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-		}
-		else if (isCollision() == "Z")
-		{
-			v = XMVECTOR({ 0, 0, v.m128_f32[2] });
-			pos = XMVectorSubtract(pos, v * 0.1);
-			eyePos = XMVectorSubtract(eyePos, v * 0.1);
-			_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-		}
+		isCollision(v);
 	}
 	
 }
@@ -337,7 +318,7 @@ bool Keyboard::CollisionY()
 	return false;
 }
 
-std::string Keyboard::isCollision()
+void Keyboard::isCollision(DirectX::XMVECTOR v)
 {
 	for (int i = 0; i < _models.size(); i++)
 	{
@@ -359,11 +340,26 @@ std::string Keyboard::isCollision()
 		float edgeZ2 = abs(_models[i]->GetAABB()->_zMax - _models[i]->GetAABB()->_zMin);
 
 		if (abs(abs(centerX1 - centerX2) - (edgeX1 + edgeX2) / 2) < abs(abs(centerZ1 - centerZ2) - (edgeZ1 + edgeZ2) / 2))
-		return "X";
-		else 
-			return "Z";
+		{
+			XMVECTOR vec = XMVECTOR({ v.m128_f32[0], 0, 0 });
+			pos = XMVectorSubtract(pos, vec * 0.1);
+			eyePos = XMVectorSubtract(eyePos, vec * 0.1);
+			_models[modelID]->GetAABB()->_xMax -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (vec * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (vec * 0.1).m128_f32[2];
+		}
+		else
+		{
+			XMVECTOR vec = XMVECTOR({ 0, 0, v.m128_f32[2] });
+			pos = XMVectorSubtract(pos, vec * 0.1);
+			eyePos = XMVectorSubtract(eyePos, vec * 0.1);
+			_models[modelID]->GetAABB()->_xMax -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (vec * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (vec * 0.1).m128_f32[2];
+		}
 	}
-	return "";
 }
 
 

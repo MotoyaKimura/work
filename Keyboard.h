@@ -56,6 +56,6 @@ public:
 	void RotateCameraAroundModel();
 	void Collision(DirectX::XMVECTOR dir);
 	bool CollisionY();
-	std::string isCollision();
+	void isCollision(DirectX::XMVECTOR dir);
 	~Keyboard();
 };
