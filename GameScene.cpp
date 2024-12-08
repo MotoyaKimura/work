@@ -83,8 +83,8 @@ bool GameScene::SceneInit()
 
 void GameScene::SceneUpdate(void)
 {
-	
-	if (_peraRenderer->Update() || _peraRenderer->WipeStart() || _peraRenderer->MonochromeToColor())
+	_peraRenderer->MonochromeToColor();
+	if (_peraRenderer->Update() || _peraRenderer->WipeStart())
 	{}
 	else {
 		_rsm->Update();

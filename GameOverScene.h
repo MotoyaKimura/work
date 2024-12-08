@@ -28,13 +28,11 @@ private:
 	std::vector<std::shared_ptr<Model>> _models = {};
 	UINT modelNum = 0;
 	std::shared_ptr<Keyboard> _keyboard;
-	std::shared_ptr<Texture> _startTex;
+	std::shared_ptr<Texture> _gameOverTex;
 	std::shared_ptr<Texture> _restartTex;
 	std::shared_ptr<Texture> _titleTex;
-	std::shared_ptr<Texture> _backGroundTex;
-	std::shared_ptr<Texture> _menuTex;
-	std::shared_ptr<Texture> _backTex;
-	std::shared_ptr<Button> _backButton;
+	
+	
 	std::shared_ptr<Button> _restartButton;
 	std::shared_ptr<Button> _titleButton;
 

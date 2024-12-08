@@ -111,6 +111,8 @@
     <FxCompile Include="TitlePeraPixelShader.hlsl" />
     <FxCompile Include="MenuPeraPixelShader.hlsl" />
     <FxCompile Include="MenuPeraVertexShader.hlsl" />
+    <FxCompile Include="GameOverPeraPixelShader.hlsl" />
+    <FxCompile Include="GameOverPeraVertexShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -201,5 +203,6 @@
     <None Include="SSAOShaderHeader.hlsli" />
     <None Include="TitlePeraHeader.hlsli" />
     <None Include="MenuPeraHeader.hlsli" />
+    <None Include="GameOverPeraHeader.hlsli" />
   </ItemGroup>
 </Project>
