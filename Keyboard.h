@@ -50,5 +50,6 @@ public:
 	void SetPos();
 	void SetDir(DirectX::XMVECTOR dir);
 	void RotateCameraAroundModel();
+	std::string isCollision();
 	~Keyboard();
 };

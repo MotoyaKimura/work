@@ -322,6 +322,12 @@ void Model::Move(float x, float y, float z)
 	_pos.x += x;
 	_pos.y += y;
 	_pos.z += z;
+	_aabb._xMax += x;
+	_aabb._xMin += x;
+	_aabb._yMax += y;
+	_aabb._yMin += y;
+	_aabb._zMax += z;
+	_aabb._zMin += z;
 }
 
 void Model::Rotate(float x, float y, float z)

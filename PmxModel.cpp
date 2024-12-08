@@ -140,12 +140,12 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 	for (auto& vertex : data.vertices)
 	{
 		file.read(reinterpret_cast<char*>(&vertex.position), 12);
-		xMin = std::min(xMin, vertex.position.x);
-		yMin = std::min(yMin, vertex.position.y);
-		zMin = std::min(zMin, vertex.position.z);
-		xMax = (std::max)(xMax, vertex.position.x);
-		yMax = (std::max)(yMax, vertex.position.y);
-		zMax = (std::max)(zMax, vertex.position.z);
+		xMin = std::min(xMin, vertex.position.x * 0.2f);
+		yMin = std::min(yMin, vertex.position.y * 0.2f);
+		zMin = std::min(zMin, vertex.position.z * 0.2f);
+		xMax = (std::max)(xMax, vertex.position.x * 0.2f);
+		yMax = (std::max)(yMax, vertex.position.y * 0.2f);
+		zMax = (std::max)(zMax, vertex.position.z * 0.2f);
 
 		file.read(reinterpret_cast<char*>(&vertex.normal), 12);
 		file.read(reinterpret_cast<char*>(&vertex.uv), 8);
@@ -1272,7 +1272,7 @@ void PmxModel::Update()
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 
 	*worldMatrix = world;
-	UpdateAnimation();
+	//UpdateAnimation();
 }
 
 
