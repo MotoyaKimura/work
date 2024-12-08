@@ -152,6 +152,7 @@
     <ClCompile Include="BoneNode.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="GameOverScene.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="IKSolver.cpp" />
     <ClCompile Include="Keyboard.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="BoneNode.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="GameOverScene.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="IKSolver.h" />
     <ClInclude Include="Keyboard.h" />

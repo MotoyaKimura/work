@@ -15,6 +15,7 @@
 #include "MenuScene.h"
 #include "AssimpModel.h"
 #include "PmxModel.h"
+#include  "GameOverScene.h"
 
 bool GameScene::SceneInit()
 {
@@ -102,6 +103,15 @@ void GameScene::SceneRender(void)
 
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+
+	if(_camera->GetEyePos()->y <= -100)
+	{
+		if (_peraRenderer->GameOverFadeOut())
+		{
+			_controller.ChangeScene(new GameOverScene(_controller));
+			return;
+		}
+	}
 
 	if(Application::GetMenu())
 	{

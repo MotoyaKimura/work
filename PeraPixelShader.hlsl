@@ -157,6 +157,6 @@ float4 PS(Output input) : SV_TARGET
         float Y = 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
         float3 monochromeColor = float3(Y, Y, Y);
         color.xyz = lerp(monochromeColor, color, monochromeRate);
-        return float4(color.xyz * PauseCol * fade, color.a);
+        return float4(color.xyz * PauseCol * fade * GameOverFade, color.a);
     }
 }
