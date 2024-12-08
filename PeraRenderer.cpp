@@ -142,9 +142,9 @@ bool PeraRenderer::GameOverFadeOut()
 bool PeraRenderer::WipeStart()
 {
 	if (_wipeBuffData->_startWipeOpen < 0)
-		return true;
+		return false;
 	_wipeBuffData->_startWipeOpen -= pow(wipeOpenCnt++, 2) * 0.001;
-	return false;
+	return true;
 }
 
 bool PeraRenderer::WipeEnd()
@@ -157,10 +157,10 @@ bool PeraRenderer::WipeEnd()
 
 bool PeraRenderer::MonochromeToColor()
 {
-	if (_wipeBuffData->_monochromeRate >= 1.0f) return true;
+	if (_wipeBuffData->_monochromeRate >= 1.0f) return false;
 	_wipeBuffData->_monochromeRate += pow(monochromeCnt, 2);
 	monochromeCnt += 0.001f;
-	return false;
+	return true;
 }
 
 PeraRenderer::PeraRenderer(std::shared_ptr<Wrapper> dx, 
