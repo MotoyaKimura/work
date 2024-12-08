@@ -527,6 +527,10 @@ private:
 	void MorphMaterial();
 	void MorphBone();
 
+	void ChangeVMD(std::wstring vmdFile);
+	int motionCountDown = 0;
+	int motionCountUp = 0;
+
 public:
 
 	PmxModel(std::shared_ptr<Wrapper> dx

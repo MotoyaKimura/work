@@ -53,9 +53,16 @@ bool AssimpModel::Load(std::string filePath)
 
 void AssimpModel::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 {
-	/*aiVector3D aabbMax = pSrcMesh->mAABB.mMax;
+	aiVector3D aabbMax = pSrcMesh->mAABB.mMax;
 	aiVector3D aabbMin = pSrcMesh->mAABB.mMin;
-	std::cout << "aabbMax.x = " << aabbMax.x << ", aabbMax.y = " << aabbMax.y << ", aabbMax.z = " << aabbMax.z << "\n" << std::endl;*/
+	//std::cout << "aabbMax.x = " << aabbMax.x << ", aabbMax.y = " << aabbMax.y << ", aabbMax.z = " << aabbMax.z << "\n" << std::endl;
+	_aabb._xMax = aabbMax.x;
+	_aabb._yMax = aabbMax.y;
+	_aabb._zMax = aabbMax.z;
+	_aabb._xMin = aabbMin.x;
+	_aabb._yMin = aabbMin.y;
+	_aabb._zMin = aabbMin.z;
+
 	aiVector3D zero3D(0.0f, 0.0f, 0.0f);
 
 	dstMesh.Vertices.resize(pSrcMesh->mNumVertices);

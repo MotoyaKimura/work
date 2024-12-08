@@ -34,6 +34,7 @@ void Keyboard::Init()
 	_eyePos->x = XMVectorGetX(eyePos);
 	_eyePos->y = XMVectorGetY(eyePos);
 	_eyePos->z = XMVectorGetZ(eyePos);
+
 }
 
 bool Keyboard::isActive()
@@ -110,6 +111,29 @@ void Keyboard::SetPos()
 	_eyePos->z = XMVectorGetZ(eyePos);
 }
 
+void Keyboard::SetDir(XMVECTOR dir)
+{
+	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
+	float dot = XMVector3Dot(_models[modelID]->GetEye(), dir).m128_f32[0];
+	dot = std::clamp(dot, -1.0f, 1.0f);
+	if (dot < 0.99)
+	{
+		XMVECTOR cross = XMVector3Normalize(XMVector3Cross(_models[modelID]->GetEye(), dir));
+		XMMATRIX rotation;
+		if (cross.m128_f32[1] > 0)
+		{
+			_rotate->y += 0.1f;
+			rotation = XMMatrixRotationAxis(yAxis, 0.1f);
+		}
+		else
+		{
+			_rotate->y -= 0.1f;
+			rotation = XMMatrixRotationAxis(yAxis, -0.1f);
+		}
+		_models[modelID]->SetEye(XMVector3Transform(_models[modelID]->GetEye(), rotation));
+	}
+}
+
 
 void Keyboard::CalcMoveDir()
 {
@@ -147,40 +171,94 @@ void Keyboard::RotateCameraAroundModel()
 
 bool Keyboard::isGetKeyState()
 {
-	bool isMove = false;
+	
 	GetKeyboardState(keycode);
-	if (keycode['W'] & 0x80) {
-		pos = XMVectorAdd(pos, vFront * 0.1);
-		eyePos = XMVectorAdd(eyePos, vFront * 0.1);
+	if ((keycode['W'] & 0x80) && (keycode['D'] & 0x80)) {
+		Collision(vRight + vFront);
+		return isMove;
+	}
+	if ((keycode['W'] & 0x80) && (keycode['A'] & 0x80))
+	{
+		Collision(vLeft + vFront);
+		return isMove;
+	}
+	if ((keycode['W'] & 0x80) && (keycode['S'] & 0x80))
+	{
 		isMove = true;
+		return isMove;
+	}
+	if ((keycode['A'] & 0x80) && (keycode['S'] & 0x80))
+	{
+		Collision(vLeft + vBack);
+		return isMove;
+	}
+	if ((keycode['D'] & 0x80) && (keycode['S'] & 0x80))
+	{
+		Collision(vRight + vBack);
+		return isMove;
+	}
+	if (keycode['W'] & 0x80) {
+		Collision(vFront);
+		return isMove;
 	}
 	if (keycode['A'] & 0x80) {
-		pos = XMVectorAdd(pos, vLeft * 0.1);
-		eyePos = XMVectorAdd(eyePos, vLeft * 0.1);
-		isMove = true;
+		Collision(vLeft);
+		return isMove;
 	}
 	if (keycode['S'] & 0x80) {
-		pos = XMVectorAdd(pos, vBack * 0.1);
-		eyePos = XMVectorAdd(eyePos, vBack * 0.1);
-		isMove = true;
+		Collision(vBack);
+		return isMove;
 	}
 	if (keycode['D'] & 0x80) {
-		pos = XMVectorAdd(pos, vRight * 0.1);
-		eyePos = XMVectorAdd(eyePos, vRight * 0.1);
-		isMove = true;
+		Collision(vRight);
+		return isMove;
 	}
 	if (keycode[VK_SPACE] & 0x80)
 	{
 		pos = XMVectorAdd(pos, vUp * 0.1);
 		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
+		_models[modelID]->GetAABB()->_yMax += (vUp * 0.1).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vUp * 0.1).m128_f32[1];
 		isMove = true;
 	}
 	if (keycode[VK_SHIFT] & 0x80)
 	{
 		pos = XMVectorAdd(pos, vDown * 0.1);
 		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
+		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
 		isMove = true;
 	}
+
+	if(_startTime <= 0)
+	{
+		_startTime = timeGetTime();
+	}
+
+	DWORD elapsedTime = timeGetTime() - _startTime;
+	unsigned int t = 30 * (elapsedTime / 1000.0f);
+	velocity = velocity + gravity * t;
+	float x = velocity * t + gravity * t * t * 0.5;
+	pos = XMVectorAdd(pos, vDown * x);
+	if(eyePos.m128_f32[1] > -100)
+	{
+		eyePos = XMVectorAdd(eyePos, vDown * x);
+	}
+	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
+	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
+	isMove = true;
+
+	if (CollisionY()) {
+		velocity = 0;
+		_startTime = timeGetTime();
+		pos = XMVectorSubtract(pos, vDown * x);
+		eyePos = XMVectorSubtract(eyePos, vDown * x);
+		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
+	}
+
+	
+
 	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
 	{
 	}
@@ -189,16 +267,107 @@ bool Keyboard::isGetKeyState()
 	}
 	if (keycode['R'] & 0x80)
 	{
-		_rotate->y += 0.05f;
+		_rotate->y += 0.1f;
 		isMove = true;
 	}
 	if (keycode['L'] & 0x80)
 	{
-		_rotate->y -= 0.05f;
+		_rotate->y -= 0.1f;
 		isMove = true;
 	}
+
+	keyCount = 0;
 	return isMove;
 }
+
+void Keyboard::Collision(DirectX::XMVECTOR dir)
+{
+	keyCount++;
+	if (keyCount > 3)
+	{
+		XMVECTOR v = XMVector3Normalize(dir);
+		SetDir(v);
+		pos = XMVectorAdd(pos, v * 0.1);
+		eyePos = XMVectorAdd(eyePos, v * 0.1);
+		isMove = true;
+		keyCount = 0;
+		_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
+		_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
+		_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
+		_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
+		isCollision(v);
+	}
+	
+}
+
+bool Keyboard::CollisionY()
+{
+	for (int i = 0; i < _models.size(); i++)
+	{
+		if (i == modelID) continue;
+		if (_models[modelID]->GetAABB()->_xMax <= _models[i]->GetAABB()->_xMin) continue;
+		if (_models[modelID]->GetAABB()->_xMin >= _models[i]->GetAABB()->_xMax) continue;
+		if (_models[modelID]->GetAABB()->_zMax <= _models[i]->GetAABB()->_zMin) continue;
+		if (_models[modelID]->GetAABB()->_zMin >= _models[i]->GetAABB()->_zMax) continue;
+		if (_models[modelID]->GetAABB()->_yMax <= _models[i]->GetAABB()->_yMin) continue;
+		if (_models[modelID]->GetAABB()->_yMin >= _models[i]->GetAABB()->_yMax) continue;
+		float centerY1 = (_models[modelID]->GetAABB()->_yMax + _models[modelID]->GetAABB()->_yMin) / 2;
+		float edgeY1 = abs(_models[modelID]->GetAABB()->_yMax - _models[modelID]->GetAABB()->_yMin);
+		float centerY2 = (_models[i]->GetAABB()->_yMax + _models[i]->GetAABB()->_yMin) / 2;
+		float edgeY2 = abs(_models[i]->GetAABB()->_yMax - _models[i]->GetAABB()->_yMin);
+		if (abs(centerY1 - centerY2) - (edgeY1 + edgeY2) / 2.0f < 0.0f)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void Keyboard::isCollision(DirectX::XMVECTOR v)
+{
+	for (int i = 0; i < _models.size(); i++)
+	{
+		//std::cout << "models[" << i << "] " << _models[i]->GetAABB()->_xMax << " " << _models[i]->GetAABB()->_xMin << " " << _models[i]->GetAABB()->_zMax << " " << _models[i]->GetAABB()->_zMin << std::endl;
+		if (i == modelID) continue;
+		if (_models[modelID]->GetAABB()->_xMax <= _models[i]->GetAABB()->_xMin) continue;
+		if (_models[modelID]->GetAABB()->_xMin >= _models[i]->GetAABB()->_xMax) continue;
+		if (_models[modelID]->GetAABB()->_zMax <= _models[i]->GetAABB()->_zMin) continue;
+		if (_models[modelID]->GetAABB()->_zMin >= _models[i]->GetAABB()->_zMax) continue;
+		if (_models[modelID]->GetAABB()->_yMax <= _models[i]->GetAABB()->_yMin) continue;
+		if (_models[modelID]->GetAABB()->_yMin >= _models[i]->GetAABB()->_yMax) continue;
+		float centerX1 = (_models[modelID]->GetAABB()->_xMax + _models[modelID]->GetAABB()->_xMin) / 2;
+		float centerZ1 = (_models[modelID]->GetAABB()->_zMax + _models[modelID]->GetAABB()->_zMin) / 2;
+		float edgeX1 = abs(_models[modelID]->GetAABB()->_xMax - _models[modelID]->GetAABB()->_xMin);
+		float edgeZ1 = abs(_models[modelID]->GetAABB()->_zMax - _models[modelID]->GetAABB()->_zMin);
+		float centerX2 = (_models[i]->GetAABB()->_xMax + _models[i]->GetAABB()->_xMin) / 2;
+		float centerZ2 = (_models[i]->GetAABB()->_zMax + _models[i]->GetAABB()->_zMin) / 2;
+		float edgeX2 = abs(_models[i]->GetAABB()->_xMax - _models[i]->GetAABB()->_xMin);
+		float edgeZ2 = abs(_models[i]->GetAABB()->_zMax - _models[i]->GetAABB()->_zMin);
+
+		if (abs(abs(centerX1 - centerX2) - (edgeX1 + edgeX2) / 2) < abs(abs(centerZ1 - centerZ2) - (edgeZ1 + edgeZ2) / 2))
+		{
+			XMVECTOR vec = XMVECTOR({ v.m128_f32[0], 0, 0 });
+			pos = XMVectorSubtract(pos, vec * 0.1);
+			eyePos = XMVectorSubtract(eyePos, vec * 0.1);
+			_models[modelID]->GetAABB()->_xMax -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (vec * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (vec * 0.1).m128_f32[2];
+		}
+		else
+		{
+			XMVECTOR vec = XMVECTOR({ 0, 0, v.m128_f32[2] });
+			pos = XMVectorSubtract(pos, vec * 0.1);
+			eyePos = XMVectorSubtract(eyePos, vec * 0.1);
+			_models[modelID]->GetAABB()->_xMax -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (vec * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (vec * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (vec * 0.1).m128_f32[2];
+		}
+	}
+}
+
+
 
 
 void Keyboard::ChangeTarget()

@@ -6,6 +6,7 @@
 #include "BoneNode.h"
 #include "MorphManager.h"
 #include "NodeManager.h"
+#include "Application.h"
 
 #pragma comment(lib, "winmm.lib");
 
@@ -49,8 +50,8 @@ bool PmxModel::Load(std::string filePath)
 
 	std::shared_ptr<VMD> vmd;
 	vmd.reset(new VMD());
-	auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
-	//auto result = vmd->LoadVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+	//auto result = vmd->LoadVMD(L"vmdData\\ラビットホール.vmd");
+	auto result = vmd->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
 	if (!result) return false;
 	InitAnimation(vmd->vmdData);
 
@@ -130,9 +131,22 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 	data.vertices.resize(vertexCount);
 	mesh.Vertices.resize(vertexCount);
 	int i = 0;
+	float xMin = (std::numeric_limits<float>::max)();
+	float xMax = -(std::numeric_limits<float>::max)();
+	float yMin = (std::numeric_limits<float>::max)();
+	float yMax = -(std::numeric_limits<float>::max)();
+	float zMin = (std::numeric_limits<float>::max)();
+	float zMax = -(std::numeric_limits<float>::max)();
 	for (auto& vertex : data.vertices)
 	{
 		file.read(reinterpret_cast<char*>(&vertex.position), 12);
+		xMin = std::min(xMin, vertex.position.x * 0.2f);
+		yMin = std::min(yMin, vertex.position.y * 0.2f);
+		zMin = std::min(zMin, vertex.position.z * 0.2f);
+		xMax = (std::max)(xMax, vertex.position.x * 0.2f);
+		yMax = (std::max)(yMax, vertex.position.y * 0.2f);
+		zMax = (std::max)(zMax, vertex.position.z * 0.2f);
+
 		file.read(reinterpret_cast<char*>(&vertex.normal), 12);
 		file.read(reinterpret_cast<char*>(&vertex.uv), 8);
 
@@ -178,11 +192,17 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
-		mesh.Vertices[i].Position = DirectX::XMFLOAT3(vertex.position.x * 0.1, vertex.position.y * 0.1, vertex.position.z * 0.1);
+		mesh.Vertices[i].Position = DirectX::XMFLOAT3(vertex.position.x * 0.2, vertex.position.y * 0.2, vertex.position.z * 0.2);
 		mesh.Vertices[i].Normal = vertex.normal;
 		mesh.Vertices[i].TexCoord = vertex.uv;
 		i++;
 	}
+	_aabb._xMax = xMax;
+	_aabb._yMax = yMax;
+	_aabb._zMax = zMax;
+	_aabb._xMin = xMin;
+	_aabb._yMin = yMin;
+	_aabb._zMin = zMin;
 
 	return true;
 }
@@ -737,6 +757,12 @@ bool PmxModel::ReadSoftBody(PMXFileData& data, std::ifstream& file)
 
 void PmxModel::InitAnimation(VMDFileData& vmdData)
 {
+	const std::vector<BoneNode*>& allNodes = _nodeManager->GetAllNodes();
+	for (auto& node : allNodes)
+	{
+		node->ClearKey();
+	}
+
 	for (auto& motion : vmdData.motions)
 	{
 		auto boneNode = _nodeManager->GetBoneNodeByName(motion.boneName);
@@ -768,7 +794,7 @@ void PmxModel::InitAnimation(VMDFileData& vmdData)
 	_nodeManager->SortKey();
 	//InitParallelVertexSkinningSetting();
 
-	PlayAnimation();
+	//PlayAnimation();
 }
 
 void PmxModel::UpdateAnimation()
@@ -778,8 +804,56 @@ void PmxModel::UpdateAnimation()
 		_startTime = timeGetTime();
 	}
 
+	BYTE key[256];
+	GetKeyboardState(key);
+
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
+
+
+
+	if(Application::GetIsMoveKeyUp())
+	{
+		motionCountDown = 0;
+		Application::SetIsMoveKeyDown(false);
+		if (frameNo > _nodeManager->_duration && motionCountUp == 0)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\4.止る_滑り_(25f_前移動30).vmd");
+			motionCountUp++;
+		}
+		if (frameNo > _nodeManager->_duration && motionCountUp == 1)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
+			motionCountUp = 0;
+			Application::SetIsMoveKeyUp(false);
+		}
+	}
+
+	if (Application::GetIsMoveKeyDown())
+	{
+		motionCountUp = 0;
+		Application::SetIsMoveKeyUp(false);
+		if (motionCountDown == 0)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			ChangeVMD(L"vmdData\\1.走り出し_(15f_前移動20).vmd");
+			motionCountDown++;
+		}
+		if (frameNo > _nodeManager->_duration && motionCountDown == 1)
+		{
+			_startTime = timeGetTime();
+			frameNo = 0;
+			//ChangeVMD(L"vmdData\\2.走り50L_ランニング_(20f_前移動50).vmd");
+			ChangeVMD(L"vmdData\\2.走り75L_ダッシュ_(16f_前移動60).vmd");
+			motionCountDown++;
+
+		}
+	}
 
 	if(frameNo > _nodeManager->_duration)
 	{
@@ -799,6 +873,18 @@ void PmxModel::UpdateAnimation()
 
 	std::copy(mesh.Vertices.begin(), mesh.Vertices.end(), vertMap);
 }
+
+void PmxModel::ChangeVMD(std::wstring vmdFile)
+{
+	std::shared_ptr<VMD> vmd;
+	vmd.reset(new VMD());
+	auto result = vmd->LoadVMD(vmdFile);
+	if (!result) return;
+	_nodeManager->_duration = 0;
+	InitAnimation(vmd->vmdData);
+	_morphManager->SetMorphKey(vmd->vmdData.morphs);
+}
+
 
 void PmxModel::PlayAnimation()
 {
@@ -938,7 +1024,7 @@ void PmxModel::VertexSkinning()
 		default:
 			break;
 		}
-		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.1));
+		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
 
 		const XMFLOAT4& morphUV = _morphManager->GetMorphUV(i);
 		const XMFLOAT2& originalUV = mesh.Vertices[i].TexCoord;
@@ -991,10 +1077,11 @@ void PmxModel::InitParallelVertexSkinningSetting()
 
 void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 {
-	for(unsigned int i = 0; i < pmxData.vertices.size(); ++i)
+	for (unsigned int i = 0; i < pmxData.vertices.size(); ++i)
 	{
 		const PMXVertex& currentVertexData = pmxData.vertices[i];
 		XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
+		XMVECTOR morphPosition = XMLoadFloat3(&_morphManager->GetMorphVertexPosition(i));
 
 		switch (currentVertexData.weightType)
 		{
@@ -1002,7 +1089,17 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 		{
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			position += morphPosition;
 			position = XMVector3Transform(position, m0);
+
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				m0.r[0].m128_f32[0], m0.r[0].m128_f32[1], m0.r[0].m128_f32[2], 0.0f,
+				m0.r[1].m128_f32[0], m0.r[1].m128_f32[1], m0.r[1].m128_f32[2], 0.0f,
+				m0.r[2].m128_f32[0], m0.r[2].m128_f32[1], m0.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::BDEF2:
@@ -1017,7 +1114,17 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
 
 			XMMATRIX mat = m0 * weight0 + m1 * weight1;
+			position += morphPosition;
 			position = XMVector3Transform(position, mat);
+
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
+				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
+				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::BDEF4:
@@ -1038,7 +1145,17 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 			XMMATRIX m3 = XMMatrixMultiply(bone3->GetInitInverseTransform(), bone3->GetGlobalTransform());
 
 			XMMATRIX mat = m0 * weight0 + m1 * weight1 + m2 * weight2 + m3 * weight3;
+			position += morphPosition;
 			position = XMVector3Transform(position, mat);
+
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
+				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
+				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::SDEF:
@@ -1068,8 +1185,11 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 
 			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionSlerp(q0, q1, w1));
 
+			position += morphPosition;
+
 			position = XMVector3Transform(position - sdefc, rotation) + XMVector3Transform(cr0, m0) * w0 + XMVector3Transform(cr1, m1) * w1;
 			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+
 			normal = XMVector3Transform(normal, rotation);
 			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
@@ -1079,6 +1199,7 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
 
+			position += morphPosition;
 			position = XMVector3Transform(position, m0);
 
 			break;
@@ -1086,7 +1207,11 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 		default:
 			break;
 		}
-		XMStoreFloat3(&mesh.Vertices[i].Position, position);
+		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
+
+		const XMFLOAT4& morphUV = _morphManager->GetMorphUV(i);
+		const XMFLOAT2& originalUV = mesh.Vertices[i].TexCoord;
+		mesh.Vertices[i].TexCoord = XMFLOAT2(originalUV.x + morphUV.x, originalUV.y + morphUV.y);
 	}
 }
 
@@ -1186,7 +1311,7 @@ void PmxModel::Update()
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 
 	*worldMatrix = world;
-	UpdateAnimation();
+	//UpdateAnimation();
 }
 
 

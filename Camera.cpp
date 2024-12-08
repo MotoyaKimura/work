@@ -48,7 +48,7 @@ void Camera::CalcSceneTrans()
 		XM_PIDIV4,
 		static_cast<float>(Application::GetWindowSize().cx) / static_cast<float>(Application::GetWindowSize().cy),
 		1.0f,
-		30.0f);
+		3000.0f);
 	XMVECTOR det;
 	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view * _sceneTransMatrix->projection);
 	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);

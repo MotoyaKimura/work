@@ -6,6 +6,16 @@
 #include <assimp/scene.h>
 #include <array>
 
+struct aabb
+{
+	float _xMin;
+	float _xMax;
+	float _yMin;
+	float _yMax;
+	float _zMin;
+	float _zMax;
+};
+
 class Camera;
 class Wrapper;
 class Model
@@ -74,13 +84,9 @@ protected:
 	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> mToonResources;
 	std::vector <Microsoft::WRL::ComPtr<ID3D12Resource>> mSphereTextureResources;
 
-	
+	DirectX::XMVECTOR _eye = DirectX::XMVectorSet(0.0f,0.0f,-1.0f,0.0f);
 	
 	virtual bool Load(std::string filePath) = 0;
-
-	
-
-
 
 	bool VertexInit();
 	bool IndexInit();
@@ -88,6 +94,9 @@ protected:
 	bool MaterialBuffInit();
 	virtual bool ModelHeapInit() = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width, size_t num);
+
+	
+	aabb _aabb;
 public:
 	bool Init();
 	bool RendererInit();
@@ -103,6 +112,9 @@ public:
 	size_t GetSrvDescs() const { return srvBuffs.size(); }
 	size_t GetCbvDescs() const { return cbvBuffs.size(); }
 	std::string GetExt() const { return _ext; }
+	DirectX::XMVECTOR GetEye() const { return _eye; }
+	void SetEye(DirectX::XMVECTOR eye) { _eye = eye; }
+	aabb* GetAABB()  { return &_aabb; }
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const { return _modelHeap; }
 	Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath);
 	virtual ~Model();

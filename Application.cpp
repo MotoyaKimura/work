@@ -15,6 +15,8 @@ HWND Application::hwnd = nullptr;
 bool Application::fullscreenMode = false;
 bool Application::isPause = false;
 bool Application::isMenu = false;
+bool Application::isMoveKeyDown = false;
+bool Application::isMoveKeyUp = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
 HMENU Application::ButtonID = nullptr;
@@ -60,9 +62,20 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 			isMenu = !isMenu;
 			return 0;
 		}
+
+		if (wParam == 'W' || wParam == 'S' || wParam == 'D' || wParam == 'A')
+		{
+			isMoveKeyDown = true;
+		}
 	}
 
-	
+	if (msg == WM_KEYUP)
+	{
+		if (wParam == 'W' || wParam == 'S' || wParam == 'D' || wParam == 'A')
+		{
+			isMoveKeyUp = true;
+		}
+	}
 
 	if(msg == WM_COMMAND)
 	{

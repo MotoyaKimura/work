@@ -35,6 +35,12 @@ private:
 												
 	DirectX::XMVECTOR pos;
 	DirectX::XMVECTOR eyePos;
+
+	unsigned int keyCount = 0;
+	bool isMove = false;
+	DWORD _startTime = 0;
+	float velocity = 0;
+	float gravity = 9.8f / 10000000.0f;
 public:
 	void Init();
 	Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models);
@@ -46,6 +52,10 @@ public:
 	bool isMoveMouse();
 	void CalcMoveDir();
 	void SetPos();
+	void SetDir(DirectX::XMVECTOR dir);
 	void RotateCameraAroundModel();
+	void Collision(DirectX::XMVECTOR dir);
+	bool CollisionY();
+	void isCollision(DirectX::XMVECTOR dir);
 	~Keyboard();
 };
