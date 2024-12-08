@@ -59,6 +59,10 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
+	_pauseTex.reset(new Texture(Application::_dx));
+	_pauseTex->Init(L"texture/pause.png");
+	_pera->SetSRV(_pauseTex->GetTexBuff(), _pauseTex->GetMetadata().format);
+
 	for (auto model : _models)
 	{
 		if (!model->Init())
@@ -67,6 +71,7 @@ bool GameScene::SceneInit()
 			return false;
 		}
 	}
+
 	for (auto model : _models)
 	{
 		model->RendererInit();

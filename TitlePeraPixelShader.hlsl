@@ -138,6 +138,6 @@ float4 PS(Output input) : SV_TARGET
        
   
     
-	return float4((texColor * ssao + indLight) * PauseCol, texColor.a);
+	return float4((texColor * ssao + indLight).rgb, texColor.a);
     
 }
