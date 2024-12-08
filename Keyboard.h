@@ -40,7 +40,7 @@ private:
 	bool isMove = false;
 	DWORD _startTime = 0;
 	float velocity = 0;
-	float gravity = 9.8f / 1000000.0f;
+	float gravity = 9.8f / 10000000.0f;
 public:
 	void Init();
 	Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models);
