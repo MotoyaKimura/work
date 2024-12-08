@@ -1077,10 +1077,11 @@ void PmxModel::InitParallelVertexSkinningSetting()
 
 void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 {
-	for(unsigned int i = 0; i < pmxData.vertices.size(); ++i)
+	for (unsigned int i = 0; i < pmxData.vertices.size(); ++i)
 	{
 		const PMXVertex& currentVertexData = pmxData.vertices[i];
 		XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
+		XMVECTOR morphPosition = XMLoadFloat3(&_morphManager->GetMorphVertexPosition(i));
 
 		switch (currentVertexData.weightType)
 		{
@@ -1088,7 +1089,17 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 		{
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			position += morphPosition;
 			position = XMVector3Transform(position, m0);
+
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				m0.r[0].m128_f32[0], m0.r[0].m128_f32[1], m0.r[0].m128_f32[2], 0.0f,
+				m0.r[1].m128_f32[0], m0.r[1].m128_f32[1], m0.r[1].m128_f32[2], 0.0f,
+				m0.r[2].m128_f32[0], m0.r[2].m128_f32[1], m0.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::BDEF2:
@@ -1103,7 +1114,17 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
 
 			XMMATRIX mat = m0 * weight0 + m1 * weight1;
+			position += morphPosition;
 			position = XMVector3Transform(position, mat);
+
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
+				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
+				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::BDEF4:
@@ -1124,7 +1145,17 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 			XMMATRIX m3 = XMMatrixMultiply(bone3->GetInitInverseTransform(), bone3->GetGlobalTransform());
 
 			XMMATRIX mat = m0 * weight0 + m1 * weight1 + m2 * weight2 + m3 * weight3;
+			position += morphPosition;
 			position = XMVector3Transform(position, mat);
+
+			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+			XMMATRIX rotation = XMMatrixSet(
+				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
+				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
+				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
+			normal = XMVector3Transform(normal, rotation);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
 		}
 		case PMXVertexWeight::SDEF:
@@ -1154,8 +1185,11 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 
 			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionSlerp(q0, q1, w1));
 
+			position += morphPosition;
+
 			position = XMVector3Transform(position - sdefc, rotation) + XMVector3Transform(cr0, m0) * w0 + XMVector3Transform(cr1, m1) * w1;
 			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
+
 			normal = XMVector3Transform(normal, rotation);
 			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
 			break;
@@ -1165,6 +1199,7 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
 
+			position += morphPosition;
 			position = XMVector3Transform(position, m0);
 
 			break;
@@ -1172,7 +1207,11 @@ void PmxModel::VertexSkinningByRange(const SkinningRange& range)
 		default:
 			break;
 		}
-		XMStoreFloat3(&mesh.Vertices[i].Position, position);
+		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
+
+		const XMFLOAT4& morphUV = _morphManager->GetMorphUV(i);
+		const XMFLOAT2& originalUV = mesh.Vertices[i].TexCoord;
+		mesh.Vertices[i].TexCoord = XMFLOAT2(originalUV.x + morphUV.x, originalUV.y + morphUV.y);
 	}
 }
 

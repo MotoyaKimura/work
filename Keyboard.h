@@ -38,6 +38,9 @@ private:
 
 	unsigned int keyCount = 0;
 	bool isMove = false;
+	DWORD _startTime = 0;
+	float velocity = 0;
+	float gravity = 9.8f / 1000000.0f;
 public:
 	void Init();
 	Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models);
@@ -52,6 +55,7 @@ public:
 	void SetDir(DirectX::XMVECTOR dir);
 	void RotateCameraAroundModel();
 	void Collision(DirectX::XMVECTOR dir);
+	bool CollisionY();
 	std::string isCollision();
 	~Keyboard();
 };

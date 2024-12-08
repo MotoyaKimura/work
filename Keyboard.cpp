@@ -34,6 +34,7 @@ void Keyboard::Init()
 	_eyePos->x = XMVectorGetX(eyePos);
 	_eyePos->y = XMVectorGetY(eyePos);
 	_eyePos->z = XMVectorGetZ(eyePos);
+
 }
 
 bool Keyboard::isActive()
@@ -216,14 +217,43 @@ bool Keyboard::isGetKeyState()
 	{
 		pos = XMVectorAdd(pos, vUp * 0.1);
 		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
+		_models[modelID]->GetAABB()->_yMax += (vUp * 0.1).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vUp * 0.1).m128_f32[1];
 		isMove = true;
 	}
 	if (keycode[VK_SHIFT] & 0x80)
 	{
 		pos = XMVectorAdd(pos, vDown * 0.1);
 		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
+		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
 		isMove = true;
 	}
+
+	if(_startTime <= 0)
+	{
+		_startTime = timeGetTime();
+	}
+
+	DWORD elapsedTime = timeGetTime() - _startTime;
+	unsigned int t = 30 * (elapsedTime / 1000.0f);
+	velocity = velocity + gravity * t;
+	float x = velocity * t + gravity * t * t * 0.5;
+	pos = XMVectorAdd(pos, vDown * x);
+	eyePos = XMVectorAdd(eyePos, vDown * x);
+	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
+	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
+	isMove = true;
+
+	if (CollisionY()) {
+		velocity = 0;
+		_startTime = timeGetTime();
+		pos = XMVectorSubtract(pos, vDown * x);
+		eyePos = XMVectorSubtract(eyePos, vDown * x);
+		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
+	}
+
 	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
 	{
 	}
@@ -248,7 +278,7 @@ bool Keyboard::isGetKeyState()
 void Keyboard::Collision(DirectX::XMVECTOR dir)
 {
 	keyCount++;
-	if (keyCount > 0)
+	if (keyCount > 3)
 	{
 		XMVECTOR v = XMVector3Normalize(dir);
 		SetDir(v);
@@ -284,6 +314,28 @@ void Keyboard::Collision(DirectX::XMVECTOR dir)
 	
 }
 
+bool Keyboard::CollisionY()
+{
+	for (int i = 0; i < _models.size(); i++)
+	{
+		if (i == modelID) continue;
+		if (_models[modelID]->GetAABB()->_xMax <= _models[i]->GetAABB()->_xMin) continue;
+		if (_models[modelID]->GetAABB()->_xMin >= _models[i]->GetAABB()->_xMax) continue;
+		if (_models[modelID]->GetAABB()->_zMax <= _models[i]->GetAABB()->_zMin) continue;
+		if (_models[modelID]->GetAABB()->_zMin >= _models[i]->GetAABB()->_zMax) continue;
+		if (_models[modelID]->GetAABB()->_yMax <= _models[i]->GetAABB()->_yMin) continue;
+		if (_models[modelID]->GetAABB()->_yMin >= _models[i]->GetAABB()->_yMax) continue;
+		float centerY1 = (_models[modelID]->GetAABB()->_yMax + _models[modelID]->GetAABB()->_yMin) / 2;
+		float edgeY1 = abs(_models[modelID]->GetAABB()->_yMax - _models[modelID]->GetAABB()->_yMin);
+		float centerY2 = (_models[i]->GetAABB()->_yMax + _models[i]->GetAABB()->_yMin) / 2;
+		float edgeY2 = abs(_models[i]->GetAABB()->_yMax - _models[i]->GetAABB()->_yMin);
+		if (abs(centerY1 - centerY2) - (edgeY1 + edgeY2) / 2.0f < 0.0f)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 std::string Keyboard::isCollision()
 {
