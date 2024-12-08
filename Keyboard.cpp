@@ -170,82 +170,15 @@ void Keyboard::RotateCameraAroundModel()
 
 bool Keyboard::isGetKeyState()
 {
-	bool isMove = false;
+	
 	GetKeyboardState(keycode);
 	if ((keycode['W'] & 0x80) && (keycode['D'] & 0x80)) {
-		keyCount++;
-		if(keyCount > 3)
-		{
-			XMVECTOR v = XMVector3Normalize(vRight + vFront);
-			SetDir(v);
-			pos = XMVectorAdd(pos, v * 0.1);
-			eyePos = XMVectorAdd(eyePos, v * 0.1);
-			isMove = true;
-			keyCount = 0;
-			
-			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				v = XMVECTOR({ v.m128_f32[0], 0, 0});
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				v = XMVECTOR({ 0, 0, v.m128_f32[2] });
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vRight + vFront);
 		return isMove;
 	}
 	if ((keycode['W'] & 0x80) && (keycode['A'] & 0x80))
 	{
-		keyCount++;
-		if(keyCount > 3)
-		{
-			XMVECTOR v = XMVector3Normalize(vLeft + vFront);
-			SetDir(v);
-			pos = XMVectorAdd(pos, v * 0.1);
-			eyePos = XMVectorAdd(eyePos, v * 0.1);
-			isMove = true;
-			keyCount = 0;
-			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				v = XMVECTOR({ v.m128_f32[0], 0, 0 });
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				v = XMVECTOR({ 0, 0, v.m128_f32[2] });
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vLeft + vFront);
 		return isMove;
 	}
 	if ((keycode['W'] & 0x80) && (keycode['S'] & 0x80))
@@ -255,222 +188,28 @@ bool Keyboard::isGetKeyState()
 	}
 	if ((keycode['A'] & 0x80) && (keycode['S'] & 0x80))
 	{
-		keyCount++;
-		if (keyCount > 3)
-		{
-			XMVECTOR v = XMVector3Normalize(vLeft + vBack);
-			SetDir(v);
-			pos = XMVectorAdd(pos, v * 0.1);
-			eyePos = XMVectorAdd(eyePos, v * 0.1);
-			isMove = true;
-			keyCount = 0;
-			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				v = XMVECTOR({ v.m128_f32[0], 0, 0 });
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				v = XMVECTOR({ 0, 0, v.m128_f32[2] });
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vLeft + vBack);
 		return isMove;
 	}
 	if ((keycode['D'] & 0x80) && (keycode['S'] & 0x80))
 	{
-		keyCount++;
-		if (keyCount > 3)
-		{
-			XMVECTOR v = XMVector3Normalize(vRight + vBack);
-			SetDir(v);
-			pos = XMVectorAdd(pos, v * 0.1);
-			eyePos = XMVectorAdd(eyePos, v * 0.1);
-			isMove = true;
-			keyCount = 0;
-			_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				v = XMVECTOR({ v.m128_f32[0], 0, 0 });
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				v = XMVECTOR({ 0, 0, v.m128_f32[2] });
-				pos = XMVectorSubtract(pos, v * 0.1);
-				eyePos = XMVectorSubtract(eyePos, v * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vRight + vBack);
 		return isMove;
 	}
 	if (keycode['W'] & 0x80) {
-		keyCount++;
-		if (keyCount > 3)
-		{
-			SetDir(vFront);
-			pos = XMVectorAdd(pos, vFront * 0.1);
-			eyePos = XMVectorAdd(eyePos, vFront * 0.1);
-			isMove = true;
-			keyCount = 0;
-			_models[modelID]->GetAABB()->_xMax += (vFront * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (vFront * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (vFront * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (vFront * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				vFront = XMVECTOR({ vFront.m128_f32[0], 0, 0 });
-				pos = XMVectorSubtract(pos, vFront * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vFront * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vFront * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vFront * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vFront * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vFront * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				vFront = XMVECTOR({ 0, 0, vFront.m128_f32[2] });
-				pos = XMVectorSubtract(pos, vFront * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vFront * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vFront * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vFront * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vFront * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vFront * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vFront);
 		return isMove;
 	}
 	if (keycode['A'] & 0x80) {
-		keyCount++;
-		if (keyCount > 3)
-		{
-			SetDir(vLeft);
-			pos = XMVectorAdd(pos, vLeft * 0.1);
-			eyePos = XMVectorAdd(eyePos, vLeft * 0.1);
-			isMove = true;
-			keyCount = 0;
-			_models[modelID]->GetAABB()->_xMax += (vLeft * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (vLeft * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (vLeft * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (vLeft * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				vLeft = XMVECTOR({ vLeft.m128_f32[0], 0, 0 });
-				pos = XMVectorSubtract(pos, vLeft * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vLeft * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vLeft * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vLeft * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vLeft * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vLeft * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				vLeft = XMVECTOR({ 0, 0, vLeft.m128_f32[2] });
-				pos = XMVectorSubtract(pos, vLeft * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vLeft * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vLeft * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vLeft * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vLeft * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vLeft * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vLeft);
 		return isMove;
 	}
 	if (keycode['S'] & 0x80) {
-		keyCount++;
-		if (keyCount > 3)
-		{
-			SetDir(vBack);
-			pos = XMVectorAdd(pos, vBack * 0.1);
-			eyePos = XMVectorAdd(eyePos, vBack * 0.1);
-			isMove = true;
-			keyCount = 0;
-			_models[modelID]->GetAABB()->_xMax += (vBack * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (vBack * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (vBack * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (vBack * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				vBack = XMVECTOR({ vBack.m128_f32[0], 0, 0 });
-				pos = XMVectorSubtract(pos, vBack * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vBack * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vBack * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vBack * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vBack * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vBack * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				vBack = XMVECTOR({ 0, 0, vBack.m128_f32[2] });
-				pos = XMVectorSubtract(pos, vBack * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vBack * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vBack * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vBack * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vBack * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vBack * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vBack);
 		return isMove;
 	}
 	if (keycode['D'] & 0x80) {
-		keyCount++;
-		if (keyCount > 3)
-		{
-			SetDir(vRight);
-			pos = XMVectorAdd(pos, vRight * 0.1);
-			eyePos = XMVectorAdd(eyePos, vRight * 0.1);
-			isMove = true;
-			keyCount = 0;
-			_models[modelID]->GetAABB()->_xMax += (vRight * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin += (vRight * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax += (vRight * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin += (vRight * 0.1).m128_f32[2];
-			if (isCollision() == "X")
-			{
-				vRight = XMVECTOR({ vRight.m128_f32[0], 0, 0 });
-				pos = XMVectorSubtract(pos, vRight * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vRight * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vRight * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vRight * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vRight * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vRight * 0.1).m128_f32[2];
-			}
-			else if (isCollision() == "Z")
-			{
-				vRight = XMVECTOR({ 0, 0, vRight.m128_f32[2] });
-				pos = XMVectorSubtract(pos, vRight * 0.1);
-				eyePos = XMVectorSubtract(eyePos, vRight * 0.1);
-				_models[modelID]->GetAABB()->_xMax -= (vRight * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_xMin -= (vRight * 0.1).m128_f32[0];
-				_models[modelID]->GetAABB()->_zMax -= (vRight * 0.1).m128_f32[2];
-				_models[modelID]->GetAABB()->_zMin -= (vRight * 0.1).m128_f32[2];
-			}
-		}
+		Collision(vRight);
 		return isMove;
 	}
 	if (keycode[VK_SPACE] & 0x80)
@@ -506,11 +245,51 @@ bool Keyboard::isGetKeyState()
 	return isMove;
 }
 
+void Keyboard::Collision(DirectX::XMVECTOR dir)
+{
+	keyCount++;
+	if (keyCount > 0)
+	{
+		XMVECTOR v = XMVector3Normalize(dir);
+		SetDir(v);
+		pos = XMVectorAdd(pos, v * 0.1);
+		eyePos = XMVectorAdd(eyePos, v * 0.1);
+		isMove = true;
+		keyCount = 0;
+		_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
+		_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
+		_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
+		_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
+		if (isCollision() == "X")
+		{
+			v = XMVECTOR({ v.m128_f32[0], 0, 0 });
+			pos = XMVectorSubtract(pos, v * 0.1);
+			eyePos = XMVectorSubtract(eyePos, v * 0.1);
+			_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
+		}
+		else if (isCollision() == "Z")
+		{
+			v = XMVECTOR({ 0, 0, v.m128_f32[2] });
+			pos = XMVectorSubtract(pos, v * 0.1);
+			eyePos = XMVectorSubtract(eyePos, v * 0.1);
+			_models[modelID]->GetAABB()->_xMax -= (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (v * 0.1).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (v * 0.1).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (v * 0.1).m128_f32[2];
+		}
+	}
+	
+}
+
+
 std::string Keyboard::isCollision()
 {
 	for (int i = 0; i < _models.size(); i++)
 	{
-		std::cout << "models[" << i << "] " << _models[i]->GetAABB()->_xMax << " " << _models[i]->GetAABB()->_xMin << " " << _models[i]->GetAABB()->_zMax << " " << _models[i]->GetAABB()->_zMin << std::endl;
+		//std::cout << "models[" << i << "] " << _models[i]->GetAABB()->_xMax << " " << _models[i]->GetAABB()->_xMin << " " << _models[i]->GetAABB()->_zMax << " " << _models[i]->GetAABB()->_zMin << std::endl;
 		if (i == modelID) continue;
 		if (_models[modelID]->GetAABB()->_xMax <= _models[i]->GetAABB()->_xMin) continue;
 		if (_models[modelID]->GetAABB()->_xMin >= _models[i]->GetAABB()->_xMax) continue;
