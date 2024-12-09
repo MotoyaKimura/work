@@ -414,6 +414,8 @@ bool PmxModel::ReadBone(PMXFileData& data, std::ifstream& file)
 	boneMatricesNum = numOfBone;
 	boneMatrices.resize(numOfBone);
 	std::fill(boneMatrices.begin(), boneMatrices.end(), XMMatrixIdentity());
+	invBoneMatrices.resize(numOfBone);
+	std::fill(invBoneMatrices.begin(), invBoneMatrices.end(), XMMatrixIdentity());
 	for (auto& bone : data.bones)
 	{
 		GetPMXStringUTF16(file, bone.name);
@@ -937,18 +939,34 @@ void PmxModel::PlayAnimation()
 
 void PmxModel::VertexSkinning()
 {
+	const std::vector<BoneNode*>& allNodes = _nodeManager->GetAllNodes();
+	for(int i = 0; i < allNodes.size(); i++)
+	{
+		boneMatrices[i] = allNodes[i]->GetGlobalTransform();
+		invBoneMatrices[i] = allNodes[i]->GetInitInverseTransform();
+	}
+	std::copy(boneMatrices.begin(), boneMatrices.end(), worldMatrix + 1);
+	std::copy(invBoneMatrices.begin(), invBoneMatrices.end(), invTransMatrix);
+
+
 	for(unsigned int i = 0; i < pmxData.vertices.size(); ++i)
 	{
 		const PMXVertex& currentVertexData = pmxData.vertices[i];
 		XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
 		XMVECTOR morphPosition = XMLoadFloat3(&_morphManager->GetMorphVertexPosition(i));
+		mesh.Vertices[i].Position = XMFLOAT3(currentVertexData.position.x, currentVertexData.position.y, currentVertexData.position.z );
+		mesh.Vertices[i].MorphPosition = _morphManager->GetMorphVertexPosition(i);
+		mesh.Vertices[i].weightType = (unsigned char)currentVertexData.weightType;
+		mesh.Vertices[i].MorphUV = _morphManager->GetMorphUV(i);
 
 		switch (currentVertexData.weightType)
 		{
 		case PMXVertexWeight::BDEF1:
 		{
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
+			
+			/*XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
 			position += morphPosition;
 			position = XMVector3Transform(position, m0);
 
@@ -959,18 +977,22 @@ void PmxModel::VertexSkinning()
 				m0.r[2].m128_f32[0], m0.r[2].m128_f32[1], m0.r[2].m128_f32[2], 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f);
 			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);*/
 			break;
 		}
 		case PMXVertexWeight::BDEF2:
 		{
 			float weight0 = currentVertexData.boneWeights[0];
 			float weight1 = 1.0f - weight0;
+			mesh.Vertices[i].boneWeight[0] = weight0;
+			mesh.Vertices[i].boneWeight[1] = weight1;
 
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
+			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
+			mesh.Vertices[i].boneNo[1] = currentVertexData.boneIndices[1];
 
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			/*XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
 			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
 
 			XMMATRIX mat = m0 * weight0 + m1 * weight1;
@@ -984,7 +1006,7 @@ void PmxModel::VertexSkinning()
 				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f);
 			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);*/
 			break;
 		}
 		case PMXVertexWeight::BDEF4:
@@ -994,12 +1016,23 @@ void PmxModel::VertexSkinning()
 			float weight2 = currentVertexData.boneWeights[2];
 			float weight3 = currentVertexData.boneWeights[3];
 
+			mesh.Vertices[i].boneWeight[0] = weight0;
+			mesh.Vertices[i].boneWeight[1] = weight1;
+			mesh.Vertices[i].boneWeight[2] = weight2;
+			mesh.Vertices[i].boneWeight[3] = weight3;
+
 			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
 			BoneNode* bone2 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[2]);
 			BoneNode* bone3 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[3]);
 
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
+			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
+			mesh.Vertices[i].boneNo[1] = currentVertexData.boneIndices[1];
+			mesh.Vertices[i].boneNo[2] = currentVertexData.boneIndices[2];
+			mesh.Vertices[i].boneNo[3] = currentVertexData.boneIndices[3];
+
+
+			/*XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
 			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
 			XMMATRIX m2 = XMMatrixMultiply(bone2->GetInitInverseTransform(), bone2->GetGlobalTransform());
 			XMMATRIX m3 = XMMatrixMultiply(bone3->GetInitInverseTransform(), bone3->GetGlobalTransform());
@@ -1015,7 +1048,7 @@ void PmxModel::VertexSkinning()
 				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f);
 			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
+			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);*/
 			break;
 		}
 		case PMXVertexWeight::SDEF:
@@ -1067,11 +1100,11 @@ void PmxModel::VertexSkinning()
 		default:
 			break;
 		}
-		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
+		/*XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
 
 		const XMFLOAT4& morphUV = _morphManager->GetMorphUV(i);
 		const XMFLOAT2& originalUV = mesh.Vertices[i].TexCoord;
-		mesh.Vertices[i].TexCoord = XMFLOAT2(originalUV.x + morphUV.x, originalUV.y + morphUV.y);
+		mesh.Vertices[i].TexCoord = XMFLOAT2(originalUV.x + morphUV.x, originalUV.y + morphUV.y);*/
 	}
 }
 

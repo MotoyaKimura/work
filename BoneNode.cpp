@@ -154,7 +154,7 @@ void BoneNode::UpdateGlobalTransform()
 {
 	if(_parentBoneNode == nullptr)
 	{
-		_globalTransform = _localTransform;
+		_globalTransform = XMMatrixScaling(0.2, 0.2,0.2) *  _localTransform;
 	}
 	else
 	{

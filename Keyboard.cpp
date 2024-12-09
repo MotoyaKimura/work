@@ -239,10 +239,10 @@ bool Keyboard::isGetKeyState()
 	unsigned int t = 30 * (elapsedTime / 1000.0f);
 	velocity = velocity + gravity * t;
 	float x = velocity * t + gravity * t * t * 0.5;
-	pos = XMVectorAdd(pos, vDown * x);
+	//pos = XMVectorAdd(pos, vDown * x);
 	if(eyePos.m128_f32[1] > -100)
 	{
-		eyePos = XMVectorAdd(eyePos, vDown * x);
+	//	eyePos = XMVectorAdd(eyePos, vDown * x);
 	}
 	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
 	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
@@ -283,7 +283,7 @@ bool Keyboard::isGetKeyState()
 void Keyboard::Collision(DirectX::XMVECTOR dir)
 {
 	keyCount++;
-	if (keyCount > 3)
+	if (keyCount > 0)
 	{
 		XMVECTOR v = XMVector3Normalize(dir);
 		SetDir(v);

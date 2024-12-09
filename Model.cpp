@@ -144,6 +144,12 @@ bool Model::WorldBuffInit()
 			(void**)&invTransMatrix
 		);
 		if (FAILED(result)) return false;
+
+		copy(
+			std::begin(boneMatrices),
+			std::end(boneMatrices),
+			invTransMatrix
+		);
 	}
 	else
 	{

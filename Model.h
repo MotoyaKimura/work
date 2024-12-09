@@ -42,6 +42,7 @@ protected:
 	DirectX::XMMATRIX* worldMatrix = nullptr;
 	DirectX::XMMATRIX* invTransMatrix = nullptr;
 	std::vector <DirectX::XMMATRIX> boneMatrices;
+	std::vector <DirectX::XMMATRIX> invBoneMatrices;
 
 	DirectX::XMFLOAT3 _pos;
 	DirectX::XMFLOAT3 _rotater;

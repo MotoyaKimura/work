@@ -79,7 +79,7 @@ void AssimpModel::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 			XMFLOAT2(pTexCoord->x, pTexCoord->y),
 			XMFLOAT3(0.0f, 0.0f, 0.0f),
 			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
-			0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0
+			0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 100
 		);
 		boneMatricesNum = 0;
 	}
