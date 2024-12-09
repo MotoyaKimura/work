@@ -194,12 +194,12 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 		mesh.Vertices[i] = MeshVertex(
 			XMFLOAT3(vertex.position.x * 0.2, vertex.position.y * 0.2, vertex.position.z * 0.2),
 			XMFLOAT3(vertex.normal.x, vertex.normal.y, vertex.normal.z),
-			XMFLOAT2(vertex.uv.x, vertex.uv.y)
-			/*XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT2(vertex.uv.x, vertex.uv.y),
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
 			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
 			vertex.boneIndices[0], vertex.boneIndices[1], vertex.boneIndices[2], vertex.boneIndices[3],
 			vertex.boneWeights[0], vertex.boneWeights[1], vertex.boneWeights[2], vertex.boneWeights[3],
-			(unsigned int)vertex.weightType*/
+			(unsigned int)vertex.weightType
 		);
 		i++;
 	}
@@ -504,7 +504,7 @@ bool PmxModel::ReadMorph(PMXFileData& data, std::ifstream& file)
 			{
 				file.read(reinterpret_cast<char*>(&morphData.vertexIndex), data.header.vertexIndexSize);
 				file.read(reinterpret_cast<char*>(&morphData.position), 12);
-				//mesh.Vertices[morphData.vertexIndex].MorphPosition = morphData.position;
+				mesh.Vertices[morphData.vertexIndex].MorphPosition = morphData.position;
 			}
 		}
 		else if (morph.morphType == PMXMorphType::UV ||
@@ -518,6 +518,7 @@ bool PmxModel::ReadMorph(PMXFileData& data, std::ifstream& file)
 			{
 				file.read(reinterpret_cast<char*>(&morphData.vertexIndex), data.header.vertexIndexSize);
 				file.read(reinterpret_cast<char*>(&morphData.uv), 16);
+				mesh.Vertices[morphData.vertexIndex].MorphUV = morphData.uv;
 			}
 		}
 		else if (morph.morphType == PMXMorphType::Bone)

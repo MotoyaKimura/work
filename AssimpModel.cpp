@@ -76,10 +76,10 @@ void AssimpModel::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 		dstMesh.Vertices[i] = MeshVertex(
 			XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
 			XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
-			XMFLOAT2(pTexCoord->x, pTexCoord->y)
-		/*	XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT2(pTexCoord->x, pTexCoord->y),
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
 			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
-			0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0*/
+			0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0
 		);
 	}
 

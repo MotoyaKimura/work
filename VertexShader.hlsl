@@ -1,9 +1,14 @@
 #include "ShaderHeader.hlsli"
 
 Output VS(
-float4 pos : POSITION ,
+float4 pos : POSITION,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,
+float3 morphPos : MORPHPOSITION,
+float4 morphUV : MORPHUV,
+int4 boneNo : BONENO,
+float4 boneWeight : WEIGHT,
+min16uint weightType : WEIGHTTYPE,
 uint instNo : SV_InstanceID
 ) 
 {
@@ -30,6 +35,11 @@ Output rsmVS(
 float4 pos : POSITION ,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,
+float3 morphPos : MORPHPOSITION,
+float4 morphUV : MORPHUV,
+int4 boneNo : BONENO,
+float4 boneWeight : WEIGHT,
+min16uint weightType : WEIGHTTYPE,
 uint instNo : SV_InstanceID
 ) 
 {

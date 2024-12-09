@@ -29,6 +29,11 @@ bool RSM::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::w
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
+	AddElement("MORPHPOSITION", DXGI_FORMAT_R32G32B32_FLOAT);
+	AddElement("MORPHUV", DXGI_FORMAT_R32G32B32A32_FLOAT);
+	AddElement("BONENO", DXGI_FORMAT_R32G32B32A32_UINT);
+	AddElement("WEIGHT", DXGI_FORMAT_R32G32B32A32_FLOAT);
+	AddElement("WEIGHTTYPE", DXGI_FORMAT_R8_UINT);
 	if (!PipelineStateInit()) return false;
 
 	return true;
