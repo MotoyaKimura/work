@@ -7,7 +7,6 @@
 #include "MorphManager.h"
 #include "NodeManager.h"
 #include "Application.h"
-
 #pragma comment(lib, "winmm.lib");
 
 using namespace DirectX;
@@ -196,6 +195,11 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 			XMFLOAT3(vertex.normal.x, vertex.normal.y, vertex.normal.z),
 			XMFLOAT2(vertex.uv.x, vertex.uv.y),
 			XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
+			XMFLOAT3(vertex.sdefC.x, vertex.sdefC.y, vertex.sdefC.z),
+			XMFLOAT3(vertex.sdefR0.x, vertex.sdefR0.y, vertex.sdefR0.z),
+			XMFLOAT3(vertex.sdefR1.x, vertex.sdefR1.y, vertex.sdefR1.z),
+			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
 			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
 			vertex.boneIndices[0], vertex.boneIndices[1], vertex.boneIndices[2], vertex.boneIndices[3],
 			vertex.boneWeights[0], vertex.boneWeights[1], vertex.boneWeights[2], vertex.boneWeights[3],
@@ -952,9 +956,9 @@ void PmxModel::VertexSkinning()
 	for(unsigned int i = 0; i < pmxData.vertices.size(); ++i)
 	{
 		const PMXVertex& currentVertexData = pmxData.vertices[i];
-		XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
-		XMVECTOR morphPosition = XMLoadFloat3(&_morphManager->GetMorphVertexPosition(i));
-		mesh.Vertices[i].Position = XMFLOAT3(currentVertexData.position.x, currentVertexData.position.y, currentVertexData.position.z );
+		/*XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
+		XMVECTOR morphPosition = XMLoadFloat3(&_morphManager->GetMorphVertexPosition(i));*/
+		mesh.Vertices[i].Position = currentVertexData.position;
 		mesh.Vertices[i].MorphPosition = _morphManager->GetMorphVertexPosition(i);
 		mesh.Vertices[i].weightType = (unsigned char)currentVertexData.weightType;
 		mesh.Vertices[i].MorphUV = _morphManager->GetMorphUV(i);
@@ -963,148 +967,52 @@ void PmxModel::VertexSkinning()
 		{
 		case PMXVertexWeight::BDEF1:
 		{
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
 			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
-			
-			/*XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			position += morphPosition;
-			position = XMVector3Transform(position, m0);
-
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-			XMMATRIX rotation = XMMatrixSet(
-				m0.r[0].m128_f32[0], m0.r[0].m128_f32[1], m0.r[0].m128_f32[2], 0.0f,
-				m0.r[1].m128_f32[0], m0.r[1].m128_f32[1], m0.r[1].m128_f32[2], 0.0f,
-				m0.r[2].m128_f32[0], m0.r[2].m128_f32[1], m0.r[2].m128_f32[2], 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f);
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);*/
 			break;
 		}
 		case PMXVertexWeight::BDEF2:
 		{
-			float weight0 = currentVertexData.boneWeights[0];
-			float weight1 = 1.0f - weight0;
-			mesh.Vertices[i].boneWeight[0] = weight0;
-			mesh.Vertices[i].boneWeight[1] = weight1;
-
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
+			mesh.Vertices[i].boneWeight[0] = currentVertexData.boneWeights[0];
+			mesh.Vertices[i].boneWeight[1] = 1.0f - mesh.Vertices[i].boneWeight[0];
 			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
 			mesh.Vertices[i].boneNo[1] = currentVertexData.boneIndices[1];
-
-			/*XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
-
-			XMMATRIX mat = m0 * weight0 + m1 * weight1;
-			position += morphPosition;
-			position = XMVector3Transform(position, mat);
-
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-			XMMATRIX rotation = XMMatrixSet(
-				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
-				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
-				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f);
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);*/
 			break;
 		}
 		case PMXVertexWeight::BDEF4:
 			{
-			float weight0 = currentVertexData.boneWeights[0];
-			float weight1 = currentVertexData.boneWeights[1];
-			float weight2 = currentVertexData.boneWeights[2];
-			float weight3 = currentVertexData.boneWeights[3];
-
-			mesh.Vertices[i].boneWeight[0] = weight0;
-			mesh.Vertices[i].boneWeight[1] = weight1;
-			mesh.Vertices[i].boneWeight[2] = weight2;
-			mesh.Vertices[i].boneWeight[3] = weight3;
-
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
-			BoneNode* bone2 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[2]);
-			BoneNode* bone3 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[3]);
+			mesh.Vertices[i].boneWeight[0] = currentVertexData.boneWeights[0];
+			mesh.Vertices[i].boneWeight[1] = currentVertexData.boneWeights[1];
+			mesh.Vertices[i].boneWeight[2] = currentVertexData.boneWeights[2];
+			mesh.Vertices[i].boneWeight[3] = currentVertexData.boneWeights[3];
 
 			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
 			mesh.Vertices[i].boneNo[1] = currentVertexData.boneIndices[1];
 			mesh.Vertices[i].boneNo[2] = currentVertexData.boneIndices[2];
 			mesh.Vertices[i].boneNo[3] = currentVertexData.boneIndices[3];
 
-
-			/*XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
-			XMMATRIX m2 = XMMatrixMultiply(bone2->GetInitInverseTransform(), bone2->GetGlobalTransform());
-			XMMATRIX m3 = XMMatrixMultiply(bone3->GetInitInverseTransform(), bone3->GetGlobalTransform());
-
-			XMMATRIX mat = m0 * weight0 + m1 * weight1 + m2 * weight2 + m3 * weight3;
-			position += morphPosition;
-			position = XMVector3Transform(position, mat);
-
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-			XMMATRIX rotation = XMMatrixSet(
-				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
-				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
-				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f);
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);*/
 			break;
 		}
 		case PMXVertexWeight::SDEF:
 		{
-			float w0 = currentVertexData.boneWeights[0];
-			float w1 = 1.0f - w0;
+			mesh.Vertices[i].boneWeight[0] = currentVertexData.boneWeights[0];
 
-			XMVECTOR sdefc = XMLoadFloat3(&currentVertexData.sdefC);
-			XMVECTOR sdefr0 = XMLoadFloat3(&currentVertexData.sdefR0);
-			XMVECTOR sdefr1 = XMLoadFloat3(&currentVertexData.sdefR1);
-
-			XMVECTOR rw = sdefr0 * w0 + sdefr1 * w1;
-			XMVECTOR r0 = sdefc + sdefr0 - rw;
-			XMVECTOR r1 = sdefc + sdefr1 - rw;
-
-			XMVECTOR cr0 = (sdefc + r0) * 0.5f;
-			XMVECTOR cr1 = (sdefc + r1) * 0.5f;
-
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
-
-			XMVECTOR q0 = XMQuaternionRotationMatrix(bone0->GetGlobalTransform());
-			XMVECTOR q1 = XMQuaternionRotationMatrix(bone1->GetGlobalTransform());
-
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
-
-			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionSlerp(q0, q1, w1));
-
-			position += morphPosition;
-
-			position = XMVector3Transform(position - sdefc, rotation) + XMVector3Transform(cr0, m0) * w0 + XMVector3Transform(cr1, m1) * w1;
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
+			mesh.Vertices[i].SdefC = currentVertexData.sdefC;
+			mesh.Vertices[i].SdefR0 = currentVertexData.sdefR0;
+			mesh.Vertices[i].SdefR1 = currentVertexData.sdefR1;
+			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
+			mesh.Vertices[i].boneNo[1] = currentVertexData.boneIndices[1];
+			XMStoreFloat4(&mesh.Vertices[i].Q0, XMQuaternionRotationMatrix(allNodes[currentVertexData.boneIndices[0]]->GetGlobalTransform()));
+			XMStoreFloat4(&mesh.Vertices[i].Q1, XMQuaternionRotationMatrix(allNodes[currentVertexData.boneIndices[1]]->GetGlobalTransform()));
 			break;
 		}
 		case PMXVertexWeight::QDEF:
 		{
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-
-			position += morphPosition;
-			position = XMVector3Transform(position, m0);
-
+			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
 			break;
 		}
 		default:
 			break;
 		}
-		/*XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
-
-		const XMFLOAT4& morphUV = _morphManager->GetMorphUV(i);
-		const XMFLOAT2& originalUV = mesh.Vertices[i].TexCoord;
-		mesh.Vertices[i].TexCoord = XMFLOAT2(originalUV.x + morphUV.x, originalUV.y + morphUV.y);*/
 	}
 }
 

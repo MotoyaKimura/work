@@ -56,6 +56,11 @@ protected:
 		DirectX::XMFLOAT2 TexCoord;
 		DirectX::XMFLOAT3 MorphPosition;
 		DirectX::XMFLOAT4 MorphUV;
+		DirectX::XMFLOAT3 SdefC;
+		DirectX::XMFLOAT3 SdefR0;
+		DirectX::XMFLOAT3 SdefR1;
+		DirectX::XMFLOAT4 Q0;
+		DirectX::XMFLOAT4 Q1;
 		int boneNo[4];
 		float boneWeight[4];
 		unsigned char weightType;
@@ -67,6 +72,11 @@ protected:
 			DirectX::XMFLOAT2 const& texcoord,
 			DirectX::XMFLOAT3 const& morphPosition,
 			DirectX::XMFLOAT4 const& morphUV,
+			DirectX::XMFLOAT3 const& sdefC,
+			DirectX::XMFLOAT3 const& sdefR0,
+			DirectX::XMFLOAT3 const& sdefR1,
+			DirectX::XMFLOAT4 const& q0,
+			DirectX::XMFLOAT4 const& q1,
 			int boneNo0, int boneNo1, int boneNo2, int boneNo3,
 			float boneWeight0, float boneWeight1, float boneWeight2, float boneWeight3,
 			unsigned char weightType
@@ -75,6 +85,11 @@ protected:
 			TexCoord(texcoord),
 			MorphPosition(morphPosition),
 			MorphUV(morphUV),
+			SdefC(sdefC),
+			SdefR0(sdefR0),
+			SdefR1(sdefR1),
+			Q0(q0),
+			Q1(q1),
 			boneNo{boneNo0, boneNo1, boneNo2, boneNo3},
 			boneWeight{ boneWeight0, boneWeight1, boneWeight2, boneWeight3 },
 			weightType(weightType)

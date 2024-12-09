@@ -225,7 +225,7 @@ private:
 		DirectX::XMFLOAT4 additionalUV[4];
 		PMXVertexWeight weightType;
 		int boneIndices[4];
-		float boneWeights[4];
+		float boneWeights[4];	
 		DirectX::XMFLOAT3 sdefC;
 		DirectX::XMFLOAT3 sdefR0;
 		DirectX::XMFLOAT3 sdefR1;
