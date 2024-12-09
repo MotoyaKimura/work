@@ -32,14 +32,20 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	D3D12_INDEX_BUFFER_VIEW ibView = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _worldBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _invTransBuff = nullptr;
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> _materialBuff = nullptr;
 	std::vector<std::pair< Microsoft::WRL::ComPtr<ID3D12Resource>, DXGI_FORMAT>> srvBuffs;
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> cbvBuffs;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _modelHeap = nullptr;
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX* worldMatrix;
+	DirectX::XMMATRIX* worldMatrix = nullptr;
+	DirectX::XMMATRIX* invTransMatrix = nullptr;
+	std::vector <DirectX::XMMATRIX> boneMatrices;
+
 	DirectX::XMFLOAT3 _pos;
 	DirectX::XMFLOAT3 _rotater;
+	int boneMatricesNum = 0;
 	char* materialMap = nullptr;
 
 	struct MeshVertex

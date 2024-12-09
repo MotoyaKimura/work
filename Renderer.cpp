@@ -114,13 +114,13 @@ void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
 	//カメラ、ワールド
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 3, 0);
 	ranges.emplace_back(descTblRange);
 	//ライト深度
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 	ranges.emplace_back(descTblRange);
 	//マテリアル
-	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
+	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 3);
 	ranges.emplace_back(descTblRange);
 	//マテリアルテクスチャ
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1);

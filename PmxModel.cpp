@@ -411,7 +411,9 @@ bool PmxModel::ReadBone(PMXFileData& data, std::ifstream& file)
 	file.read(reinterpret_cast<char*>(&numOfBone), 4);
 
 	data.bones.resize(numOfBone);
-
+	boneMatricesNum = numOfBone;
+	boneMatrices.resize(numOfBone);
+	std::fill(boneMatrices.begin(), boneMatrices.end(), XMMatrixIdentity());
 	for (auto& bone : data.bones)
 	{
 		GetPMXStringUTF16(file, bone.name);
@@ -1335,7 +1337,7 @@ bool PmxModel::ModelHeapInit()
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
 	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	descHeapDesc.NodeMask = 0;
-	descHeapDesc.NumDescriptors = 3 + pmxData.materials.size() * 4;
+	descHeapDesc.NumDescriptors = 4 + pmxData.materials.size() * 4;
 	
 	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	auto result = _dx->GetDevice()->CreateDescriptorHeap(
@@ -1371,7 +1373,7 @@ void PmxModel::Draw()
 		handle);
 
 	auto incSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
 	unsigned int idxOffset = 0;
 
 	for (int i = 0; i < Materials.size(); i++)

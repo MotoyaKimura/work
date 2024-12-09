@@ -15,9 +15,15 @@ cbuffer cbuff0 : register(b0)
 cbuffer cbuff1 : register(b1)
 {
     matrix world;
+    matrix bones[512];
 };
 
 cbuffer cbuff2 : register(b2)
+{
+    matrix invBones[512];
+};
+
+cbuffer cbuff3 : register(b3)
 {
     float4 diffuse;
     float3 specular;

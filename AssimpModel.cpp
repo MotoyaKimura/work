@@ -81,6 +81,7 @@ void AssimpModel::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
 			0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0
 		);
+		boneMatricesNum = 0;
 	}
 
 	dstMesh.Indices.resize(pSrcMesh->mNumFaces * 3);
@@ -218,7 +219,7 @@ void AssimpModel::Draw()
 		handle);
 
 	auto incSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
 	unsigned int idxOffset = 0;
 
 	for (int i = 0; i < Materials.size(); i++)
