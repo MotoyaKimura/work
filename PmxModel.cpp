@@ -191,7 +191,7 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
 		mesh.Vertices[i] = MeshVertex(
-			XMFLOAT3(vertex.position.x * 0.2, vertex.position.y * 0.2, vertex.position.z * 0.2),
+			XMFLOAT3(vertex.position),
 			XMFLOAT3(vertex.normal.x, vertex.normal.y, vertex.normal.z),
 			XMFLOAT2(vertex.uv.x, vertex.uv.y),
 			XMFLOAT3(0.0f, 0.0f, 0.0f),
@@ -952,15 +952,10 @@ void PmxModel::VertexSkinning()
 	std::copy(boneMatrices.begin(), boneMatrices.end(), worldMatrix + 1);
 	std::copy(invBoneMatrices.begin(), invBoneMatrices.end(), invTransMatrix);
 
-
 	for(unsigned int i = 0; i < pmxData.vertices.size(); ++i)
 	{
 		const PMXVertex& currentVertexData = pmxData.vertices[i];
-		/*XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
-		XMVECTOR morphPosition = XMLoadFloat3(&_morphManager->GetMorphVertexPosition(i));*/
-		mesh.Vertices[i].Position = currentVertexData.position;
 		mesh.Vertices[i].MorphPosition = _morphManager->GetMorphVertexPosition(i);
-		mesh.Vertices[i].weightType = (unsigned char)currentVertexData.weightType;
 		mesh.Vertices[i].MorphUV = _morphManager->GetMorphUV(i);
 
 		switch (currentVertexData.weightType)
@@ -973,7 +968,6 @@ void PmxModel::VertexSkinning()
 		case PMXVertexWeight::BDEF2:
 		{
 			mesh.Vertices[i].boneWeight[0] = currentVertexData.boneWeights[0];
-			mesh.Vertices[i].boneWeight[1] = 1.0f - mesh.Vertices[i].boneWeight[0];
 			mesh.Vertices[i].boneNo[0] = currentVertexData.boneIndices[0];
 			mesh.Vertices[i].boneNo[1] = currentVertexData.boneIndices[1];
 			break;

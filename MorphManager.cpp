@@ -271,6 +271,7 @@ void MorphManager::AnimatePositionMorph(Morph& morph, float weight)
 		XMStoreFloat3(&storePosition, originPosition + morphPosition);
 
 		_morphVertexPosition[data.vertexIndex] = storePosition;
+
 	}
 }
 
