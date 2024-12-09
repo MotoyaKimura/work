@@ -108,8 +108,8 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 
 void MorphManager::SetMorphKey(const std::vector<VMDMorph>& vmdMorphs)
 {
-	_morphKeys.clear();
-	_morphByName.clear();
+	//_morphKeys.clear();
+	//_morphByName.clear();
 
 	_morphKeys.resize(vmdMorphs.size());
 	for (int i = 0; i < vmdMorphs.size(); i++)
@@ -202,6 +202,10 @@ void MorphManager::Animate(unsigned int frame)
 		if (iterator == morphKey.second.end())
 		{
 			morphIt->second->SetWeight(0.0f);
+		}
+		else if (rit == morphKey.second.rend())
+		{
+			morphIt->second->SetWeight((*iterator)->weight);
 		}
 		else
 		{

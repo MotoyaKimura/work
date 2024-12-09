@@ -191,9 +191,16 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 			return false;
 		}
 		file.read(reinterpret_cast<char*>(&vertex.edgeMag), 4);
-		mesh.Vertices[i].Position = DirectX::XMFLOAT3(vertex.position.x * 0.2, vertex.position.y * 0.2, vertex.position.z * 0.2);
-		mesh.Vertices[i].Normal = vertex.normal;
-		mesh.Vertices[i].TexCoord = vertex.uv;
+		mesh.Vertices[i] = MeshVertex(
+			XMFLOAT3(vertex.position.x * 0.2, vertex.position.y * 0.2, vertex.position.z * 0.2),
+			XMFLOAT3(vertex.normal.x, vertex.normal.y, vertex.normal.z),
+			XMFLOAT2(vertex.uv.x, vertex.uv.y)
+			/*XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
+			vertex.boneIndices[0], vertex.boneIndices[1], vertex.boneIndices[2], vertex.boneIndices[3],
+			vertex.boneWeights[0], vertex.boneWeights[1], vertex.boneWeights[2], vertex.boneWeights[3],
+			(unsigned int)vertex.weightType*/
+		);
 		i++;
 	}
 	_aabb._xMax = xMax;
@@ -497,6 +504,7 @@ bool PmxModel::ReadMorph(PMXFileData& data, std::ifstream& file)
 			{
 				file.read(reinterpret_cast<char*>(&morphData.vertexIndex), data.header.vertexIndexSize);
 				file.read(reinterpret_cast<char*>(&morphData.position), 12);
+				//mesh.Vertices[morphData.vertexIndex].MorphPosition = morphData.position;
 			}
 		}
 		else if (morph.morphType == PMXMorphType::UV ||
@@ -806,7 +814,7 @@ void PmxModel::UpdateAnimation()
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
 
-	if(Application::GetIsMoveKeyUp())
+	/*if(Application::GetIsMoveKeyUp())
 	{
 		motionCountDown = 0;
 		Application::SetIsMoveKeyDown(false);
@@ -881,7 +889,7 @@ void PmxModel::UpdateAnimation()
 			motionCountJump = 0;
 			Application::SetIsKeyJump(false);
 		}
-	}
+	}*/
 
 	if(frameNo > _nodeManager->_duration)
 	{

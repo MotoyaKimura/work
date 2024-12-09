@@ -47,16 +47,30 @@ protected:
 		DirectX::XMFLOAT3 Position;
 		DirectX::XMFLOAT3 Normal;
 		DirectX::XMFLOAT2 TexCoord;
-
+		/*DirectX::XMFLOAT3 MorphPosition;
+		DirectX::XMFLOAT4 MorphUV;
+		int boneNo[4];
+		float boneWeight[4];
+		unsigned char weightType;*/
 
 		MeshVertex() = default;
 		MeshVertex(
 			DirectX::XMFLOAT3 const& position,
 			DirectX::XMFLOAT3 const& normal,
 			DirectX::XMFLOAT2 const& texcoord
+			/*DirectX::XMFLOAT3 const& morphPosition,
+			DirectX::XMFLOAT4 const& morphUV,
+			int boneNo0, int boneNo1, int boneNo2, int boneNo3,
+			float boneWeight0, float boneWeight1, float boneWeight2, float boneWeight3,
+			unsigned char weightType*/
 		) : Position(position),
 			Normal(normal),
 			TexCoord(texcoord)
+			/*MorphPosition(morphPosition),
+			MorphUV(morphUV),
+			boneNo{boneNo0, boneNo1, boneNo2, boneNo3},
+			boneWeight{ boneWeight0, boneWeight1, boneWeight2, boneWeight3 },
+			weightType(weightType)*/
 		{}
 	};
 
