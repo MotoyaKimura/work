@@ -72,13 +72,11 @@ void AssimpModel::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 		auto pPosition = &(pSrcMesh->mVertices[i]);
 		auto pNormal = &(pSrcMesh->mNormals[i]);
 		auto pTexCoord = pSrcMesh->HasTextureCoords(0) ? &(pSrcMesh->mTextureCoords[0][i]) : &zero3D;
-		auto pTangent = pSrcMesh->HasTangentsAndBitangents() ? &(pSrcMesh->mTangents[i]) : &zero3D;
 
 		dstMesh.Vertices[i] = MeshVertex(
 			XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
 			XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
-			XMFLOAT2(pTexCoord->x, pTexCoord->y),
-			XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
+			XMFLOAT2(pTexCoord->x, pTexCoord->y)
 		);
 	}
 

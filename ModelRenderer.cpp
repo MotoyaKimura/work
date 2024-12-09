@@ -29,7 +29,6 @@ bool ModelRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoi
 	AddElement("POSITION", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);
 	AddElement("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT);
-	AddElement("TANGENT", DXGI_FORMAT_R32G32B32_FLOAT);
 	if (!PipelineStateInit()) return false;
 	return true;
 }

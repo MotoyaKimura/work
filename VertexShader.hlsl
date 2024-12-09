@@ -4,7 +4,6 @@ Output VS(
 float4 pos : POSITION ,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,
-float4 tangent : TANGENT,
 uint instNo : SV_InstanceID
 ) 
 {
@@ -31,7 +30,6 @@ Output rsmVS(
 float4 pos : POSITION ,
 float4 normal : NORMAL,
 float2 uv : TEXCOORD,
-float4 tangent : TANGENT,
 uint instNo : SV_InstanceID
 ) 
 {

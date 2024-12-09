@@ -47,18 +47,16 @@ protected:
 		DirectX::XMFLOAT3 Position;
 		DirectX::XMFLOAT3 Normal;
 		DirectX::XMFLOAT2 TexCoord;
-		DirectX::XMFLOAT3 Tangent;
+
 
 		MeshVertex() = default;
 		MeshVertex(
 			DirectX::XMFLOAT3 const& position,
 			DirectX::XMFLOAT3 const& normal,
-			DirectX::XMFLOAT2 const& texcoord,
-			DirectX::XMFLOAT3 const& tangent
+			DirectX::XMFLOAT2 const& texcoord
 		) : Position(position),
 			Normal(normal),
-			TexCoord(texcoord),
-			Tangent(tangent)
+			TexCoord(texcoord)
 		{}
 	};
 
