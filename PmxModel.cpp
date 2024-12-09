@@ -53,7 +53,7 @@ bool PmxModel::Load(std::string filePath)
 	if (!result) return false;
 	InitAnimation(vmd->vmdData);
 
-	_morphManager.reset(new MorphManager());
+	_morphManager.reset(new MorphManager(&mesh));
 	_morphManager->Init(pmxData.morphs, 
 		vmd->vmdData.morphs, 
 		pmxData.vertices.size(), 
@@ -955,8 +955,6 @@ void PmxModel::VertexSkinning()
 	for(unsigned int i = 0; i < pmxData.vertices.size(); ++i)
 	{
 		const PMXVertex& currentVertexData = pmxData.vertices[i];
-		mesh.Vertices[i].MorphPosition = _morphManager->GetMorphVertexPosition(i);
-		mesh.Vertices[i].MorphUV = _morphManager->GetMorphUV(i);
 
 		switch (currentVertexData.weightType)
 		{

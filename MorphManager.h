@@ -1,6 +1,6 @@
 #pragma once
 #include "PmxModel.h"
-
+#include "Model.h"
 
 class Morph;
 struct MaterialMorphData
@@ -28,7 +28,7 @@ struct BoneMorphData
 class MorphManager
 {
 public:
-	MorphManager();
+	MorphManager(Mesh* mesh);
 	~MorphManager();
 
 	void Init(const std::vector<PMXMorph>& pmxMorphs, 
@@ -56,6 +56,7 @@ private:
 
 	void ResetMorphData();
 
+	Mesh*  _mesh;
 
 	std::vector<Morph> _morphs;
 	std::unordered_map<std::wstring, Morph*> _morphByName;

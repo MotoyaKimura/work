@@ -271,7 +271,7 @@ void MorphManager::AnimatePositionMorph(Morph& morph, float weight)
 		XMStoreFloat3(&storePosition, originPosition + morphPosition);
 
 		_morphVertexPosition[data.vertexIndex] = storePosition;
-
+		_mesh->Vertices[data.vertexIndex].MorphPosition = storePosition;
 	}
 }
 
@@ -290,6 +290,7 @@ void MorphManager::AnimateUVMorph(Morph& morph, float weight)
 		XMVECTOR originUV = XMLoadFloat4(&_morphUV[data.vertexIndex]);
 		
 		XMStoreFloat4(&_morphUV[data.vertexIndex], originUV + morphUV * morph.GetWeight() * weight);
+		_mesh->Vertices[data.vertexIndex].MorphUV = _morphUV[data.vertexIndex];
 	}
 }
 
@@ -351,7 +352,7 @@ void MorphManager::AnimateGroupMorph(Morph& morph, float weight)
 	}
 }
 
-MorphManager::MorphManager()
+MorphManager::MorphManager(Mesh* mesh) : _mesh(mesh)
 {
 }
 
