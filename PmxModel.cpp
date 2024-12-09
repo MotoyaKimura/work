@@ -814,7 +814,7 @@ void PmxModel::UpdateAnimation()
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
 
-	/*if(Application::GetIsMoveKeyUp())
+	if(Application::GetIsMoveKeyUp())
 	{
 		motionCountDown = 0;
 		Application::SetIsMoveKeyDown(false);
@@ -889,7 +889,7 @@ void PmxModel::UpdateAnimation()
 			motionCountJump = 0;
 			Application::SetIsKeyJump(false);
 		}
-	}*/
+	}
 
 	if(frameNo > _nodeManager->_duration)
 	{
@@ -918,7 +918,11 @@ void PmxModel::ChangeVMD(std::wstring vmdFile)
 	if (!result) return;
 	_nodeManager->_duration = 0;
 	InitAnimation(vmd->vmdData);
-	_morphManager->SetMorphKey(vmd->vmdData.morphs);
+	_morphManager->Init(pmxData.morphs,
+		vmd->vmdData.morphs,
+		pmxData.vertices.size(),
+		pmxData.materials.size(),
+		pmxData.bones.size());
 }
 
 

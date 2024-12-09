@@ -10,6 +10,16 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
                         unsigned int boneCount
 )
 {
+	_morphKeys.clear();
+	_morphByName.clear();
+	_morphKeyByName.clear();
+	_morphs.clear();
+	_morphVertexPosition.clear();
+	_morphUV.clear();
+	_morphMaterial.clear();
+	_morphBone.clear();
+	 
+
 	_morphs.resize(pmxMorphs.size());
 
 	for (unsigned int index = 0; index < pmxMorphs.size(); index++)
@@ -66,8 +76,8 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 		}
 		_morphByName[currentMorph.GetName() + L'\0'] = &currentMorph;
 	}
-	SetMorphKey(vmdMorphs);
-	/*_morphKeys.resize(vmdMorphs.size());
+	//SetMorphKey(vmdMorphs);
+	_morphKeys.resize(vmdMorphs.size());
 	for (int i = 0; i < vmdMorphs.size(); i++)
 	{
 		_morphKeys[i] = vmdMorphs[i];
@@ -98,7 +108,7 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 				}
 				return left->frame < right->frame;
 			});
-	}*/
+	}
 
 	_morphVertexPosition.resize(vertexCount);
 	_morphUV.resize(vertexCount);
