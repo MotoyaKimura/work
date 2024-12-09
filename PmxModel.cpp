@@ -897,7 +897,7 @@ void PmxModel::UpdateAnimation()
 	MorphMaterial();
 	MorphBone();
 
-	VertexSkinning();
+    VertexSkinning();
 
 	std::copy(mesh.Vertices.begin(), mesh.Vertices.end(), vertMap);
 }
