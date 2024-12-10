@@ -859,7 +859,10 @@ void PmxModel::UpdateAnimation()
 				ChangeVMD(_jumpFromRun);
 				motionCountJump++;
 			}
-
+			else if(motionCountJump == 2)
+			{
+				if (GetAsyncKeyState(VK_SPACE) & 0x8000) motionCountJump = 0;
+			}
 			if (frameNo > _nodeManager->_duration && motionCountJump == 1)
 			{
 				if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
@@ -877,10 +880,12 @@ void PmxModel::UpdateAnimation()
 					ChangeVMD(_endJump2);
 					motionCountJump++;
 				}
+				
 			}
 
 			if (frameNo > _nodeManager->_duration && motionCountJump == 2)
 			{
+				
 				if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
 					GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
 				{

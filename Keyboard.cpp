@@ -199,7 +199,7 @@ bool Keyboard::isGetKeyState()
 	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
 	isMove = true;
 
-	if (Application::GetIsKeyJump() && CollisionY())
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000 && CollisionY())
 	{
 		velocity = -2.5;
 		pos = XMVectorAdd(pos, vUp * 0.01);
@@ -296,19 +296,20 @@ bool Keyboard::isGetKeyState()
 
 void Keyboard::Collision(DirectX::XMVECTOR dir)
 {
+	float velocity = 0.2;
 	keyCount++;
 	if (keyCount > 0)
 	{
 		XMVECTOR v = XMVector3Normalize(dir);
 		SetDir(v);
-		pos = XMVectorAdd(pos, v * 0.1);
-		eyePos = XMVectorAdd(eyePos, v * 0.1);
+		pos = XMVectorAdd(pos, v * velocity);
+		eyePos = XMVectorAdd(eyePos, v * velocity);
 		isMove = true;
 		keyCount = 0;
-		_models[modelID]->GetAABB()->_xMax += (v * 0.1).m128_f32[0];
-		_models[modelID]->GetAABB()->_xMin += (v * 0.1).m128_f32[0];
-		_models[modelID]->GetAABB()->_zMax += (v * 0.1).m128_f32[2];
-		_models[modelID]->GetAABB()->_zMin += (v * 0.1).m128_f32[2];
+		_models[modelID]->GetAABB()->_xMax += (v * velocity).m128_f32[0];
+		_models[modelID]->GetAABB()->_xMin += (v * velocity).m128_f32[0];
+		_models[modelID]->GetAABB()->_zMax += (v * velocity).m128_f32[2];
+		_models[modelID]->GetAABB()->_zMin += (v * velocity).m128_f32[2];
 		isCollision(v);
 	}
 	
@@ -339,6 +340,7 @@ bool Keyboard::CollisionY()
 
 void Keyboard::isCollision(DirectX::XMVECTOR v)
 {
+	float velocity = 0.2;
 	for (int i = 0; i < _models.size(); i++)
 	{
 		//std::cout << "models[" << i << "] " << _models[i]->GetAABB()->_xMax << " " << _models[i]->GetAABB()->_xMin << " " << _models[i]->GetAABB()->_zMax << " " << _models[i]->GetAABB()->_zMin << std::endl;
@@ -361,22 +363,22 @@ void Keyboard::isCollision(DirectX::XMVECTOR v)
 		if (abs(abs(centerX1 - centerX2) - (edgeX1 + edgeX2) / 2) < abs(abs(centerZ1 - centerZ2) - (edgeZ1 + edgeZ2) / 2))
 		{
 			XMVECTOR vec = XMVECTOR({ v.m128_f32[0], 0, 0 });
-			pos = XMVectorSubtract(pos, vec * 0.1);
-			eyePos = XMVectorSubtract(eyePos, vec * 0.1);
-			_models[modelID]->GetAABB()->_xMax -= (vec * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin -= (vec * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax -= (vec * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin -= (vec * 0.1).m128_f32[2];
+			pos = XMVectorSubtract(pos, vec * velocity);
+			eyePos = XMVectorSubtract(eyePos, vec * velocity);
+			_models[modelID]->GetAABB()->_xMax -= (vec * velocity).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (vec * velocity).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (vec * velocity).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (vec * velocity).m128_f32[2];
 		}
 		else
 		{
 			XMVECTOR vec = XMVECTOR({ 0, 0, v.m128_f32[2] });
-			pos = XMVectorSubtract(pos, vec * 0.1);
-			eyePos = XMVectorSubtract(eyePos, vec * 0.1);
-			_models[modelID]->GetAABB()->_xMax -= (vec * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_xMin -= (vec * 0.1).m128_f32[0];
-			_models[modelID]->GetAABB()->_zMax -= (vec * 0.1).m128_f32[2];
-			_models[modelID]->GetAABB()->_zMin -= (vec * 0.1).m128_f32[2];
+			pos = XMVectorSubtract(pos, vec * velocity);
+			eyePos = XMVectorSubtract(eyePos, vec * velocity);
+			_models[modelID]->GetAABB()->_xMax -= (vec * velocity).m128_f32[0];
+			_models[modelID]->GetAABB()->_xMin -= (vec * velocity).m128_f32[0];
+			_models[modelID]->GetAABB()->_zMax -= (vec * velocity).m128_f32[2];
+			_models[modelID]->GetAABB()->_zMin -= (vec * velocity).m128_f32[2];
 		}
 	}
 }
