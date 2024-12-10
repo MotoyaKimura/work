@@ -47,15 +47,29 @@ bool PmxModel::Load(std::string filePath)
 	_nodeManager->Init(pmxData.bones);
 
 
-	std::shared_ptr<VMD> vmd;
-	vmd.reset(new VMD());
-	auto result = vmd->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
+	
+	_wait.reset(new VMD());
+	auto result = _wait->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
+	_preRun.reset(new VMD);
+	_preRun->LoadVMD(L"vmdData\\1.走り出し_(15f_前移動20).vmd");
+	_run.reset(new VMD);
+	_run->LoadVMD(L"vmdData\\2.走り75L_ダッシュ_(16f_前移動60).vmd");
+	_endRun.reset(new VMD);
+	_endRun->LoadVMD(L"vmdData\\4.止る_滑り_(25f_前移動30).vmd");
+	_preJump.reset(new VMD);
+	_preJump->LoadVMD(L"vmdData\\1.予備動作_(7f_移動なし).vmd");
+	_jump.reset(new VMD);
+	_jump->LoadVMD(L"vmdData\\2.ジャンプ_(11f_上移動3~10の間_前移動0~10の間).vmd");
+	_endJump.reset(new VMD);
+	_endJump->LoadVMD(L"vmdData\\3.着地_(8f_移動なし).vmd");
+
+
 	if (!result) return false;
-	InitAnimation(vmd->vmdData);
+	InitAnimation(_wait->vmdData);
 
 	_morphManager.reset(new MorphManager(&mesh));
 	_morphManager->Init(pmxData.morphs, 
-		vmd->vmdData.morphs, 
+		_wait->vmdData.morphs, 
 		pmxData.vertices.size(), 
 		pmxData.materials.size(), 
 		pmxData.bones.size()
@@ -823,47 +837,7 @@ void PmxModel::UpdateAnimation()
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
 
-	if(Application::GetIsMoveKeyUp())
-	{
-		motionCountDown = 0;
-		Application::SetIsMoveKeyDown(false);
-		if (frameNo > _nodeManager->_duration && motionCountUp == 0)
-		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(L"vmdData\\4.止る_滑り_(25f_前移動30).vmd");
-			motionCountUp++;
-		}
-		if (frameNo > _nodeManager->_duration && motionCountUp == 1)
-		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
-			motionCountUp = 0;
-			Application::SetIsMoveKeyUp(false);
-		}
-	}
-
-	if (Application::GetIsMoveKeyDown())
-	{
-		motionCountUp = 0;
-		Application::SetIsMoveKeyUp(false);
-		if (motionCountDown == 0)
-		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(L"vmdData\\1.走り出し_(15f_前移動20).vmd");
-			motionCountDown++;
-		}
-		if (frameNo > _nodeManager->_duration && motionCountDown == 1)
-		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(L"vmdData\\2.走り75L_ダッシュ_(16f_前移動60).vmd");
-			motionCountDown++;
-
-		}
-	}
+	
 
 	BYTE key[256];
 	GetKeyboardState(key);
@@ -873,30 +847,74 @@ void PmxModel::UpdateAnimation()
 		{
 			_startTime = timeGetTime();
 			frameNo = 0;
-			ChangeVMD(L"vmdData\\1.予備動作_(7f_移動なし).vmd");
+			ChangeVMD(_preJump);
 			motionCountJump++;
 		}
 		if (frameNo > _nodeManager->_duration && motionCountJump == 1)
 		{
 			_startTime = timeGetTime();
 			frameNo = 0;
-			ChangeVMD(L"vmdData\\2.ジャンプ_(11f_上移動3~10の間_前移動0~10の間).vmd");
+			ChangeVMD(_jump);
 			motionCountJump++;
 		}
 		if (frameNo > _nodeManager->_duration && motionCountJump == 2)
 		{
 			_startTime = timeGetTime();
 			frameNo = 0;
-			ChangeVMD(L"vmdData\\3.着地_(8f_移動なし).vmd");
+			ChangeVMD(_endJump);
 			motionCountJump++;
 		}
 		if (frameNo > _nodeManager->_duration && motionCountJump == 3)
 		{
 			_startTime = timeGetTime();
 			frameNo = 0;
-			ChangeVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
+			ChangeVMD(_wait);
 			motionCountJump = 0;
 			Application::SetIsKeyJump(false);
+		}
+	}
+	else
+	{
+		if (Application::GetIsMoveKeyUp())
+		{
+			motionCountDown = 0;
+			Application::SetIsMoveKeyDown(false);
+			if (frameNo > _nodeManager->_duration && motionCountUp == 0)
+			{
+				_startTime = timeGetTime();
+				frameNo = 0;
+				ChangeVMD(_endRun);
+				motionCountUp++;
+			}
+			if (frameNo > _nodeManager->_duration && motionCountUp == 1)
+			{
+				_startTime = timeGetTime();
+				frameNo = 0;
+				ChangeVMD(_wait);
+				motionCountUp = 0;
+				Application::SetIsMoveKeyUp(false);
+			}
+		}
+
+		if (Application::GetIsMoveKeyDown())
+		{
+			motionCountUp = 0;
+			Application::SetIsMoveKeyUp(false);
+			if (motionCountDown == 0)
+			{
+				_startTime = timeGetTime();
+				frameNo = 0;
+				ChangeVMD(_preRun);
+				motionCountDown++;
+			}
+			if (frameNo > _nodeManager->_duration && motionCountDown == 1)
+			{
+				_startTime = timeGetTime();
+				frameNo = 0;
+				ChangeVMD(_run);
+				motionCountDown++;
+
+			}
 		}
 	}
 
@@ -919,12 +937,9 @@ void PmxModel::UpdateAnimation()
 	std::copy(mesh.Vertices.begin(), mesh.Vertices.end(), vertMap);
 }
 
-void PmxModel::ChangeVMD(std::wstring vmdFile)
+void PmxModel::ChangeVMD(std::shared_ptr<VMD> vmd)
 {
-	std::shared_ptr<VMD> vmd;
-	vmd.reset(new VMD());
-	auto result = vmd->LoadVMD(vmdFile);
-	if (!result) return;
+	
 	_nodeManager->_duration = 0;
 	InitAnimation(vmd->vmdData);
 	_morphManager->Init(pmxData.morphs,

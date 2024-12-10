@@ -199,7 +199,6 @@ bool Keyboard::isGetKeyState()
 		_models[modelID]->GetAABB()->_yMax += (vUp * 0.01).m128_f32[1];
 		_models[modelID]->GetAABB()->_yMin += (vUp * 0.01).m128_f32[1];
 		isMove = true;
-		Application::SetIsKeyJump(false);
 	}
 
 	if (CollisionY()) {

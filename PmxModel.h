@@ -527,7 +527,15 @@ private:
 	void MorphMaterial();
 	void MorphBone();
 
-	void ChangeVMD(std::wstring vmdFile);
+	void ChangeVMD(std::shared_ptr<VMD> vmd);
+	std::shared_ptr<VMD> _wait;
+	std::shared_ptr<VMD> _preJump;
+	std::shared_ptr<VMD> _jump;
+	std::shared_ptr<VMD> _endJump;
+	std::shared_ptr<VMD> _preRun;
+	std::shared_ptr<VMD> _run;
+	std::shared_ptr<VMD> _endRun;
+
 	int motionCountDown = 0;
 	int motionCountUp = 0;
 	int motionCountJump = 0;
