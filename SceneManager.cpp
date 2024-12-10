@@ -2,7 +2,7 @@
 #include <cassert>
 #include "TitleScene.h"
 #include "GameScene.h"
-
+#include "ClearScene.h"
 
 // ƒV[ƒ“ŠÇ—‚Ì‰Šú‰»
 bool SceneManager::InitializeSceneManager(void)
@@ -63,7 +63,7 @@ void SceneManager::PopScene(void)
 SceneManager::SceneManager()
 {
 	//_scene.emplace(new TitleScene(*this));
-	_scene.emplace(new GameScene(*this));
+	_scene.emplace(new ClearScene(*this));
 }
 
 SceneManager::~SceneManager()

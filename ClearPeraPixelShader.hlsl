@@ -85,58 +85,19 @@ float4 PS(Output input) : SV_TARGET
     //        return float4(1.0f, 0.5f, 0.5f, 1.0f);
     //if ((step - endWipeRight) < 0)
     //    return float4(1.0f, 0.5f, 0.5f, 1.0f);
-    float4 backGround = float4(0.2f, 0.2f, 0.2f, 1.0f);
+    float4 backGround = float4(0.8f, 0.8f, 1.0f, 1.0f);
+   
     float3 indLight = calcRSM(input.uv);
     float ssao = ssaoTex.Sample(smp, (input.uv));
     float4 texColor = tex.Sample(smp, input.uv);
-    float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
-    startTexColor.rgb *= startTexColor.a;
-
-    if (input.uv.x > 0.45 && input.uv.x < 0.55 && input.uv.y > 0.9 && input.uv.y < 1.0)
-    {
-        return float4((startTexColor * fade * startHoverCnt + backGround.rgb).rgb, backGround.a);
-    }
-
-    if ((input.svpos.y - endWipeClose) <= 0 || input.svpos.y + endWipeClose >= height)
-    {
-        return float4(0.2f, 0.2f, 0.2f, 1.0f);
-    }
- 
-        //if (input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
-        //{
-        //    float dep = pow(depthTex.Sample(smp, input.uv * 5), 10);
-        //    dep = 1 - dep;
-        //    return float4(dep, dep, dep, 1);
-        //}
-        //else if (input.uv.x < 0.2 && input.uv.y < 0.6 && input.uv.y > 0.2)
-        //{
-        //    return normalTex.Sample(smp, input.uv * 5);
-        //}
-        //else if (input.uv.x < 0.2 && input.uv.y < 0.8 && input.uv.y > 0.2)
-        //{
-        //    float s = pow(ssaoTex.Sample(smp, (input.uv - float2(0, 0.6)) * 5), 10);
-        //    return float4(s, s, s, 1);
-        //}
-        //else if (input.uv.x > 0.2 && input.uv.x < 0.4 && input.uv.y < 0.2)
-        //{
-        //    float lightDep = lightDepthTex.Sample(smp, input.uv * 5);
-        //    lightDep = 1 - lightDep;
-        //    return float4(lightDep, lightDep, lightDep, 1);
-        //}
-        //else if (input.uv.x > 0.2 && input.uv.x < 0.6 && input.uv.y < 0.2)
-        //{
-        //    return worldTex.Sample(smp, input.uv * 5);
-        //}
-        //else if (input.uv.x > 0.2 && input.uv.x < 0.8 && input.uv.y < 0.2)
-        //{
-        //    return lightNormalTex.Sample(smp, input.uv * 5);
-        //}
-        //else if (input.uv.x > 0.2 && input.uv.x < 1.0 && input.uv.y < 0.2)
-        //{
-        //    return indirectLightTex.Sample(smp, input.uv * 5);
-        //}
-       
-  
+    float4 clearTexColor = clearTex.Sample(smp, float2((input.uv.x + 0.25) * 2, (input.uv.y ) * 4));
+    clearTexColor.rgb *= clearTexColor.a;
+    backGround.rgb *= texColor.a;
+   
+        if (input.uv.x > 0.25 && input.uv.x < 0.75 && input.uv.y > 0.0 && input.uv.y < 0.25)
+        {
+            return float4((texColor * ssao + clearTexColor + indLight).rgb, texColor.a);
+        }
     
     return float4((texColor * ssao + indLight).rgb, texColor.a);
     

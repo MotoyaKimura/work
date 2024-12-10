@@ -56,9 +56,9 @@ bool ClearScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_texture.reset(new Texture(Application::_dx));
-	_texture->Init(L"texture/start.png");
-	_pera->SetSRV(_texture->GetTexBuff(), _texture->GetMetadata().format);
+	_clearTex.reset(new Texture(Application::_dx));
+	_clearTex->Init(L"texture/clear.png");
+	_pera->SetSRV(_clearTex->GetTexBuff(), _clearTex->GetMetadata().format);
 
 	for (auto model : _models)
 	{
@@ -79,6 +79,8 @@ bool ClearScene::SceneInit()
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"ClearPeraVertexShader.hlsl", "VS", L"ClearPeraPixelShader.hlsl", "PS");
 
+	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
+	_modelRenderer->SetClearValue(0.8f, 0.8f, 0.9f, 1.0f);
 
 	_StartButton.reset(new Button("Start"));
 	int dx = Application::GetWindowSize().cx;
