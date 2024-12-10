@@ -123,6 +123,17 @@ void GameScene::SceneRender(void)
 		}
 	}
 
+	if (_camera->GetEyePos()->x > -15 && _camera->GetEyePos()->x < 15 &&
+		_camera->GetEyePos()->y >= 27.5 &&
+		_camera->GetEyePos()->z >= 5 * 14 - 10)
+	{
+		if (_peraRenderer->GameOverFadeOut())
+		{
+			_controller.ChangeScene(new GameOverScene(_controller));
+			return;
+		}
+	}
+
 	if(Application::GetMenu())
 	{
 		if (_peraRenderer->FadeOut())
