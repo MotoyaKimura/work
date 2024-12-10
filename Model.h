@@ -16,6 +16,61 @@ struct aabb
 	float _zMax;
 };
 
+struct MeshVertex
+{
+	DirectX::XMFLOAT3 Position;
+	DirectX::XMFLOAT3 Normal;
+	DirectX::XMFLOAT2 TexCoord;
+	DirectX::XMFLOAT3 MorphPosition;
+	DirectX::XMFLOAT4 MorphUV;
+	DirectX::XMFLOAT3 SdefC;
+	DirectX::XMFLOAT3 SdefR0;
+	DirectX::XMFLOAT3 SdefR1;
+	DirectX::XMFLOAT4 Q0;
+	DirectX::XMFLOAT4 Q1;
+	int boneNo[4];
+	float boneWeight[4];
+	unsigned char weightType;
+
+	MeshVertex() = default;
+	MeshVertex(
+		DirectX::XMFLOAT3 const& position,
+		DirectX::XMFLOAT3 const& normal,
+		DirectX::XMFLOAT2 const& texcoord,
+		DirectX::XMFLOAT3 const& morphPosition,
+		DirectX::XMFLOAT4 const& morphUV,
+		DirectX::XMFLOAT3 const& sdefC,
+		DirectX::XMFLOAT3 const& sdefR0,
+		DirectX::XMFLOAT3 const& sdefR1,
+		DirectX::XMFLOAT4 const& q0,
+		DirectX::XMFLOAT4 const& q1,
+		int boneNo0, int boneNo1, int boneNo2, int boneNo3,
+		float boneWeight0, float boneWeight1, float boneWeight2, float boneWeight3,
+		unsigned char weightType
+	) : Position(position),
+		Normal(normal),
+		TexCoord(texcoord),
+		MorphPosition(morphPosition),
+		MorphUV(morphUV),
+		SdefC(sdefC),
+		SdefR0(sdefR0),
+		SdefR1(sdefR1),
+		Q0(q0),
+		Q1(q1),
+		boneNo{ boneNo0, boneNo1, boneNo2, boneNo3 },
+		boneWeight{ boneWeight0, boneWeight1, boneWeight2, boneWeight3 },
+		weightType(weightType)
+	{}
+};
+
+
+struct Mesh
+{
+	std::vector<MeshVertex> Vertices;
+	std::vector<uint32_t> Indices;
+};
+
+
 class Camera;
 class Wrapper;
 class Model
@@ -32,42 +87,25 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	D3D12_INDEX_BUFFER_VIEW ibView = {};
 	Microsoft::WRL::ComPtr<ID3D12Resource> _worldBuff = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> _invTransBuff = nullptr;
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> _materialBuff = nullptr;
 	std::vector<std::pair< Microsoft::WRL::ComPtr<ID3D12Resource>, DXGI_FORMAT>> srvBuffs;
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> cbvBuffs;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _modelHeap = nullptr;
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX* worldMatrix;
+	DirectX::XMMATRIX* worldMatrix = nullptr;
+	DirectX::XMMATRIX* invTransMatrix = nullptr;
+	std::vector <DirectX::XMMATRIX> boneMatrices;
+	std::vector <DirectX::XMMATRIX> invBoneMatrices;
+
 	DirectX::XMFLOAT3 _pos;
 	DirectX::XMFLOAT3 _rotater;
+	int boneMatricesNum = 0;
 	char* materialMap = nullptr;
 
-	struct MeshVertex
-	{
-		DirectX::XMFLOAT3 Position;
-		DirectX::XMFLOAT3 Normal;
-		DirectX::XMFLOAT2 TexCoord;
-		DirectX::XMFLOAT3 Tangent;
-
-		MeshVertex() = default;
-		MeshVertex(
-			DirectX::XMFLOAT3 const& position,
-			DirectX::XMFLOAT3 const& normal,
-			DirectX::XMFLOAT2 const& texcoord,
-			DirectX::XMFLOAT3 const& tangent
-		) : Position(position),
-			Normal(normal),
-			TexCoord(texcoord),
-			Tangent(tangent)
-		{}
-	};
-
-	struct Mesh
-	{
-		std::vector<MeshVertex> Vertices;
-		std::vector<uint32_t> Indices;
-	};
 	Mesh mesh;
+	
 
 	MeshVertex* vertMap = nullptr;
 

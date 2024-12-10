@@ -18,6 +18,7 @@ private:
 		float _startWipeOpen;
 		float _endWipeClose;
 		float _fade;
+		float _GameOverFade;
 		float _monochromeRate;
 		float ScreenWidth;
 		float ScreenHeight;
@@ -49,6 +50,7 @@ public:
 	bool IsPause();
 	bool FadeIn();
 	bool FadeOut();
+	bool GameOverFadeOut();
 	bool WipeStart();
 	bool WipeEnd();
 	bool MonochromeToColor();

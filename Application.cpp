@@ -17,6 +17,7 @@ bool Application::isPause = false;
 bool Application::isMenu = false;
 bool Application::isMoveKeyDown = false;
 bool Application::isMoveKeyUp = false;
+bool Application::isKeyJump = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
 HMENU Application::ButtonID = nullptr;
@@ -66,6 +67,11 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 		if (wParam == 'W' || wParam == 'S' || wParam == 'D' || wParam == 'A')
 		{
 			isMoveKeyDown = true;
+		}
+
+		if (wParam == VK_SPACE)
+		{
+			isKeyJump = true;
 		}
 	}
 

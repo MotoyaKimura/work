@@ -102,7 +102,7 @@ bool Model::IndexInit()
 Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width, size_t num)
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(((width + 0xff) & ~0xff) * num);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(((width * num + 0xff) & ~0xff))  ;
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer = nullptr;
 	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
@@ -117,7 +117,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width, size_t num
 
 bool Model::WorldBuffInit()
 {
-	_worldBuff = CreateBuffer(sizeof(world), 1);
+	_worldBuff = CreateBuffer(sizeof(XMMATRIX), 1 + boneMatricesNum);
 	auto result = _worldBuff->Map(
 		0, 
 		nullptr, 
@@ -125,9 +125,48 @@ bool Model::WorldBuffInit()
 	);
 	if (FAILED(result)) return false;
 	world = XMMatrixIdentity();
-	*worldMatrix = world;
+	worldMatrix[0] = world;
+	if (boneMatricesNum > 0)
+	{
+		copy(
+			std::begin(boneMatrices),
+			std::end(boneMatrices),
+			worldMatrix + 1
+		);
+	}
+
+	if (boneMatricesNum > 0)
+	{
+		_invTransBuff = CreateBuffer(sizeof(XMMATRIX), boneMatricesNum);
+		result = _invTransBuff->Map(
+			0,
+			nullptr,
+			(void**)&invTransMatrix
+		);
+		if (FAILED(result)) return false;
+
+		copy(
+			std::begin(boneMatrices),
+			std::end(boneMatrices),
+			invTransMatrix
+		);
+	}
+	else
+	{
+		_invTransBuff = CreateBuffer(sizeof(XMMATRIX), 1);
+		result = _invTransBuff->Map(
+			0,
+			nullptr,
+			(void**)&invTransMatrix
+		);
+		if (FAILED(result)) return false;
+	}
+	
+
+
 	SetCBV(_camera->GetSceneTransBuff());
 	SetCBV(_worldBuff);
+	SetCBV(_invTransBuff);
 	return true;
 }
 
@@ -224,7 +263,7 @@ void Model::SetViews()
 	if (!ModelHeapInit()) return;
 
 	//最初の３つのディスクリプタはカメラ、ワールド、ライト深度
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 		cbvDesc.BufferLocation = cbvBuffs[i]->GetGPUVirtualAddress();
@@ -241,7 +280,7 @@ void Model::SetViews()
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		auto handle = _modelHeap->GetCPUDescriptorHandleForHeapStart();
-		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 2);
+		handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * (i + 3);
 		_dx->GetDevice()->CreateShaderResourceView(srvBuffs[i].first.Get(), &srvDesc, handle);
 	}
 
@@ -250,7 +289,7 @@ void Model::SetViews()
 	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC matCBVDesc = {};
-	matCBVDesc.BufferLocation = cbvBuffs[2]->GetGPUVirtualAddress();
+	matCBVDesc.BufferLocation = cbvBuffs[3]->GetGPUVirtualAddress();
 	matCBVDesc.SizeInBytes = materialBuffSize;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -259,7 +298,7 @@ void Model::SetViews()
 	srvDesc.Texture2D.MipLevels = 1;
 
 	auto matDescHeapH = _modelHeap->GetCPUDescriptorHandleForHeapStart();
-	matDescHeapH.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	matDescHeapH.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
 	auto incSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		for (int i = 0; i < Materials.size(); ++i)

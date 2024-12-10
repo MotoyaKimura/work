@@ -64,6 +64,7 @@ void PeraRenderer::DataReset()
 	_wipeBuffData->_startWipeOpen = Application::GetWindowSize().cy / 2;
 	_wipeBuffData->_endWipeClose = Application::GetWindowSize().cy / 10;
 	_wipeBuffData->_fade = 0.0f;
+	_wipeBuffData->_GameOverFade = 1.0f;
 	_wipeBuffData->_monochromeRate = 0.0f;
 	_wipeBuffData->ScreenWidth = Application::GetWindowSize().cx;
 	_wipeBuffData->ScreenHeight = Application::GetWindowSize().cy;
@@ -131,12 +132,19 @@ bool PeraRenderer::FadeOut()
 	return false;
 }
 
+bool PeraRenderer::GameOverFadeOut()
+{
+	if (_wipeBuffData->_GameOverFade <= 0.0f) return true;
+	_wipeBuffData->_GameOverFade -= 0.005f;
+	return false;
+}
+
 bool PeraRenderer::WipeStart()
 {
 	if (_wipeBuffData->_startWipeOpen < 0)
-		return true;
+		return false;
 	_wipeBuffData->_startWipeOpen -= pow(wipeOpenCnt++, 2) * 0.001;
-	return false;
+	return true;
 }
 
 bool PeraRenderer::WipeEnd()
@@ -149,10 +157,10 @@ bool PeraRenderer::WipeEnd()
 
 bool PeraRenderer::MonochromeToColor()
 {
-	if (_wipeBuffData->_monochromeRate >= 1.0f) return true;
+	if (_wipeBuffData->_monochromeRate >= 1.0f) return false;
 	_wipeBuffData->_monochromeRate += pow(monochromeCnt, 2);
 	monochromeCnt += 0.001f;
-	return false;
+	return true;
 }
 
 PeraRenderer::PeraRenderer(std::shared_ptr<Wrapper> dx, 

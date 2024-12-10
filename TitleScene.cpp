@@ -90,14 +90,18 @@ bool TitleScene::SceneInit()
 
 void TitleScene::SceneUpdate(void)
 {
-	if(_StartButton->IsHover())
+	if (!_StartButton->IsActive())
 	{
-		_peraRenderer->HoverButton(_StartButton->GetName());
+		if (_StartButton->IsHover())
+		{
+			_peraRenderer->HoverButton(_StartButton->GetName());
+		}
+		else
+		{
+			_peraRenderer->HoverCntReset();
+		}
 	}
-	else
-	{
-		_peraRenderer->HoverCntReset();
-	}
+	
 	_StartButton->Update();
 	if(_peraRenderer->Update())
 	{}

@@ -8,6 +8,7 @@ Texture2D<float4> normalTex : register(t5);
 Texture2D<float> depthTex : register(t6);
 
 Texture2D<float> ssaoTex : register(t7);
+Texture2D<float4> PauseTex : register(t8);
 //Texture2D<float4> startTex : register(t8);
 cbuffer cbuff0 : register(b0)
 {
@@ -26,6 +27,7 @@ cbuffer cbuff1 : register(b1){
     float startWipeOpen;
     float endWipeClose;
     float fade;
+    float GameOverFade;
     float monochromeRate;
     float screenWidth;
     float screenHeight;

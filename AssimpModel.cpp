@@ -72,14 +72,21 @@ void AssimpModel::ParseMesh(Mesh& dstMesh, const aiMesh* pSrcMesh)
 		auto pPosition = &(pSrcMesh->mVertices[i]);
 		auto pNormal = &(pSrcMesh->mNormals[i]);
 		auto pTexCoord = pSrcMesh->HasTextureCoords(0) ? &(pSrcMesh->mTextureCoords[0][i]) : &zero3D;
-		auto pTangent = pSrcMesh->HasTangentsAndBitangents() ? &(pSrcMesh->mTangents[i]) : &zero3D;
 
 		dstMesh.Vertices[i] = MeshVertex(
 			XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
 			XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
 			XMFLOAT2(pTexCoord->x, pTexCoord->y),
-			XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT3(0.0f, 0.0f, 0.0f),
+			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
+			XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f),
+			0, 0, 0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 100
 		);
+		boneMatricesNum = 0;
 	}
 
 	dstMesh.Indices.resize(pSrcMesh->mNumFaces * 3);
@@ -217,7 +224,7 @@ void AssimpModel::Draw()
 		handle);
 
 	auto incSize = _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 3;
+	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 4;
 	unsigned int idxOffset = 0;
 
 	for (int i = 0; i < Materials.size(); i++)

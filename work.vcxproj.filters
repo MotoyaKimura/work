@@ -96,6 +96,9 @@
     <ClCompile Include="MorphManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="GameOverScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
@@ -108,6 +111,8 @@
     <FxCompile Include="TitlePeraPixelShader.hlsl" />
     <FxCompile Include="MenuPeraPixelShader.hlsl" />
     <FxCompile Include="MenuPeraVertexShader.hlsl" />
+    <FxCompile Include="GameOverPeraPixelShader.hlsl" />
+    <FxCompile Include="GameOverPeraVertexShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -188,6 +193,9 @@
     <ClInclude Include="MorphManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="GameOverScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderHeader.hlsli" />
@@ -195,5 +203,6 @@
     <None Include="SSAOShaderHeader.hlsli" />
     <None Include="TitlePeraHeader.hlsli" />
     <None Include="MenuPeraHeader.hlsli" />
+    <None Include="GameOverPeraHeader.hlsli" />
   </ItemGroup>
 </Project>

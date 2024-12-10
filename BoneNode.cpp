@@ -124,8 +124,6 @@ float BoneNode::GetYFromXOnBezier(float x, XMFLOAT2& a, XMFLOAT2& b, uint8_t n)
 
 void BoneNode::UpdateLocalTransform()
 {
-	
-	XMMATRIX scale = XMMatrixIdentity();
 
 	XMMATRIX rotation = _animateRotation;
 	if(_enableIK == true)
@@ -146,15 +144,14 @@ void BoneNode::UpdateLocalTransform()
 
 	XMMATRIX translate = XMMatrixTranslationFromVector(t);
 
-	
-	_localTransform = scale * rotation * translate;
+	_localTransform = rotation * translate;
 }
 
 void BoneNode::UpdateGlobalTransform()
 {
 	if(_parentBoneNode == nullptr)
 	{
-		_globalTransform = _localTransform;
+		_globalTransform = XMMatrixScaling(0.2, 0.2,0.2) *  _localTransform;
 	}
 	else
 	{

@@ -15,6 +15,7 @@
 #include "MenuScene.h"
 #include "AssimpModel.h"
 #include "PmxModel.h"
+#include  "GameOverScene.h"
 
 bool GameScene::SceneInit()
 {
@@ -32,18 +33,16 @@ bool GameScene::SceneInit()
 		Application::DebugOutputFormatString("ÉJÉÅÉâÇÃèâä˙âªÉGÉâÅ[\n ");
 		return false;
 	}
-	//modelNum = 4;
-	modelNum = 5;
+	modelNum = 4;
 	_models.resize(modelNum);
-	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
 	
-	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor.obj");
+	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_yellow.obj");
 	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
 	_models[2]->Move(2.5, 2.5, 0);
 	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[3]->Move(0, 2.5, 2.5);
 
-	_models[4] = std::make_shared<PmxModel>(Application::_dx, _camera, "modelData/nico/nico.pmx");
 
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
@@ -58,6 +57,10 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
+	_pauseTex.reset(new Texture(Application::_dx));
+	_pauseTex->Init(L"texture/pause.png");
+	_pera->SetSRV(_pauseTex->GetTexBuff(), _pauseTex->GetMetadata().format);
+
 	for (auto model : _models)
 	{
 		if (!model->Init())
@@ -66,6 +69,7 @@ bool GameScene::SceneInit()
 			return false;
 		}
 	}
+
 	for (auto model : _models)
 	{
 		model->RendererInit();
@@ -82,14 +86,15 @@ bool GameScene::SceneInit()
 
 void GameScene::SceneUpdate(void)
 {
-	_peraRenderer->WipeStart();
 	_peraRenderer->MonochromeToColor();
-	if (_peraRenderer->Update())
+	if (_peraRenderer->Update() || _peraRenderer->WipeStart())
 	{}
 	else {
-		_rsm->Update();
-		_modelRenderer->Update();
+		_keyboard->Move();
+		_camera->CalcSceneTrans();
 	}
+	_rsm->Update();
+	_modelRenderer->Update();
 }
 
 void GameScene::SceneRender(void)
@@ -102,6 +107,15 @@ void GameScene::SceneRender(void)
 
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+
+	if(_camera->GetEyePos()->y <= -100)
+	{
+		if (_peraRenderer->GameOverFadeOut())
+		{
+			_controller.ChangeScene(new GameOverScene(_controller));
+			return;
+		}
+	}
 
 	if(Application::GetMenu())
 	{

@@ -225,7 +225,7 @@ private:
 		DirectX::XMFLOAT4 additionalUV[4];
 		PMXVertexWeight weightType;
 		int boneIndices[4];
-		float boneWeights[4];
+		float boneWeights[4];	
 		DirectX::XMFLOAT3 sdefC;
 		DirectX::XMFLOAT3 sdefR0;
 		DirectX::XMFLOAT3 sdefR1;
@@ -527,10 +527,18 @@ private:
 	void MorphMaterial();
 	void MorphBone();
 
-	void ChangeVMD(std::wstring vmdFile);
+	void ChangeVMD(std::shared_ptr<VMD> vmd);
+	std::shared_ptr<VMD> _wait;
+	std::shared_ptr<VMD> _preJump;
+	std::shared_ptr<VMD> _jump;
+	std::shared_ptr<VMD> _endJump;
+	std::shared_ptr<VMD> _preRun;
+	std::shared_ptr<VMD> _run;
+	std::shared_ptr<VMD> _endRun;
+
 	int motionCountDown = 0;
 	int motionCountUp = 0;
-
+	int motionCountJump = 0;
 public:
 
 	PmxModel(std::shared_ptr<Wrapper> dx

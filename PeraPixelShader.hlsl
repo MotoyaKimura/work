@@ -90,9 +90,7 @@ float4 PS(Output input) : SV_TARGET
     tex.GetDimensions(0, width, height, miplevels);
     float t = dot(input.uv, normalize(dir));
     float step = fmod(input.svpos.x, 64);
-    float PauseCol = 1.0f;
-    if(isPause)
-        PauseCol = 0.5f;
+   
     //if(step < 2)
     //    if ((input.svpos.y - endWipeDown) < 0)
     //        return float4(1.0f, 0.5f, 0.5f, 1.0f);
@@ -151,12 +149,23 @@ float4 PS(Output input) : SV_TARGET
 
         float ssao = ssaoTex.Sample(smp, (input.uv));
         float4 texColor = tex.Sample(smp, noise);
+        float4 pause = PauseTex.Sample(smp, input.uv * 5);
+        pause.rgb *= pause.a;
       //  float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
         //startTexColor.rgb *= startTexColor.a;
         float4 color = float4(texColor * ssao + indLight, texColor.a);
         float Y = 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
         float3 monochromeColor = float3(Y, Y, Y);
         color.xyz = lerp(monochromeColor, color, monochromeRate);
-        return float4(color.xyz * PauseCol * fade, color.a);
+        if(isPause)
+        {
+            if(input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.4 && input.uv.y < 0.6)
+            {
+                return float4((color.xyz * 0.5 + pause.rgb) * fade * GameOverFade, color.a);
+            }
+            return float4((color.xyz * 0.5) * fade * GameOverFade, color.a);
+        }
+            
+        return float4(color.xyz * fade * GameOverFade, color.a);
     }
 }

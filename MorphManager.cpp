@@ -10,6 +10,16 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
                         unsigned int boneCount
 )
 {
+	_morphKeys.clear();
+	_morphByName.clear();
+	_morphKeyByName.clear();
+	_morphs.clear();
+	_morphVertexPosition.clear();
+	_morphUV.clear();
+	_morphMaterial.clear();
+	_morphBone.clear();
+	 
+
 	_morphs.resize(pmxMorphs.size());
 
 	for (unsigned int index = 0; index < pmxMorphs.size(); index++)
@@ -66,8 +76,8 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 		}
 		_morphByName[currentMorph.GetName() + L'\0'] = &currentMorph;
 	}
-	SetMorphKey(vmdMorphs);
-	/*_morphKeys.resize(vmdMorphs.size());
+	//SetMorphKey(vmdMorphs);
+	_morphKeys.resize(vmdMorphs.size());
 	for (int i = 0; i < vmdMorphs.size(); i++)
 	{
 		_morphKeys[i] = vmdMorphs[i];
@@ -98,7 +108,7 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 				}
 				return left->frame < right->frame;
 			});
-	}*/
+	}
 
 	_morphVertexPosition.resize(vertexCount);
 	_morphUV.resize(vertexCount);
@@ -108,8 +118,8 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 
 void MorphManager::SetMorphKey(const std::vector<VMDMorph>& vmdMorphs)
 {
-	_morphKeys.clear();
-	_morphByName.clear();
+	//_morphKeys.clear();
+	//_morphByName.clear();
 
 	_morphKeys.resize(vmdMorphs.size());
 	for (int i = 0; i < vmdMorphs.size(); i++)
@@ -203,6 +213,10 @@ void MorphManager::Animate(unsigned int frame)
 		{
 			morphIt->second->SetWeight(0.0f);
 		}
+		else if (rit == morphKey.second.rend())
+		{
+			morphIt->second->SetWeight((*iterator)->weight);
+		}
 		else
 		{
 			float t = static_cast<float>(frame - (*rit)->frame) / static_cast<float>((*iterator)->frame - (*rit)->frame);
@@ -257,6 +271,7 @@ void MorphManager::AnimatePositionMorph(Morph& morph, float weight)
 		XMStoreFloat3(&storePosition, originPosition + morphPosition);
 
 		_morphVertexPosition[data.vertexIndex] = storePosition;
+		_mesh->Vertices[data.vertexIndex].MorphPosition = storePosition;
 	}
 }
 
@@ -275,6 +290,7 @@ void MorphManager::AnimateUVMorph(Morph& morph, float weight)
 		XMVECTOR originUV = XMLoadFloat4(&_morphUV[data.vertexIndex]);
 		
 		XMStoreFloat4(&_morphUV[data.vertexIndex], originUV + morphUV * morph.GetWeight() * weight);
+		_mesh->Vertices[data.vertexIndex].MorphUV = _morphUV[data.vertexIndex];
 	}
 }
 
@@ -336,7 +352,7 @@ void MorphManager::AnimateGroupMorph(Morph& morph, float weight)
 	}
 }
 
-MorphManager::MorphManager()
+MorphManager::MorphManager(Mesh* mesh) : _mesh(mesh)
 {
 }
 

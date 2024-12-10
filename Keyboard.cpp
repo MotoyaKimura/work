@@ -171,82 +171,35 @@ void Keyboard::RotateCameraAroundModel()
 
 bool Keyboard::isGetKeyState()
 {
-	
-	GetKeyboardState(keycode);
-	if ((keycode['W'] & 0x80) && (keycode['D'] & 0x80)) {
-		Collision(vRight + vFront);
-		return isMove;
-	}
-	if ((keycode['W'] & 0x80) && (keycode['A'] & 0x80))
-	{
-		Collision(vLeft + vFront);
-		return isMove;
-	}
-	if ((keycode['W'] & 0x80) && (keycode['S'] & 0x80))
-	{
-		isMove = true;
-		return isMove;
-	}
-	if ((keycode['A'] & 0x80) && (keycode['S'] & 0x80))
-	{
-		Collision(vLeft + vBack);
-		return isMove;
-	}
-	if ((keycode['D'] & 0x80) && (keycode['S'] & 0x80))
-	{
-		Collision(vRight + vBack);
-		return isMove;
-	}
-	if (keycode['W'] & 0x80) {
-		Collision(vFront);
-		return isMove;
-	}
-	if (keycode['A'] & 0x80) {
-		Collision(vLeft);
-		return isMove;
-	}
-	if (keycode['S'] & 0x80) {
-		Collision(vBack);
-		return isMove;
-	}
-	if (keycode['D'] & 0x80) {
-		Collision(vRight);
-		return isMove;
-	}
-	if (keycode[VK_SPACE] & 0x80)
-	{
-		pos = XMVectorAdd(pos, vUp * 0.1);
-		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
-		_models[modelID]->GetAABB()->_yMax += (vUp * 0.1).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin += (vUp * 0.1).m128_f32[1];
-		isMove = true;
-	}
-	if (keycode[VK_SHIFT] & 0x80)
-	{
-		pos = XMVectorAdd(pos, vDown * 0.1);
-		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
-		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
-		isMove = true;
-	}
 
-	if(_startTime <= 0)
+	if (_startTime <= 0)
 	{
 		_startTime = timeGetTime();
 	}
 
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int t = 30 * (elapsedTime / 1000.0f);
-	velocity = velocity + gravity * t;
-	float x = velocity * t + gravity * t * t * 0.5;
+	float second = elapsedTime / 1000.0f;
+	velocity = velocity + gravity * second;
+	float x = velocity * second + gravity * second * second * 0.5;
 	pos = XMVectorAdd(pos, vDown * x);
-	if(eyePos.m128_f32[1] > -100)
+	if (eyePos.m128_f32[1] > -100)
 	{
 		eyePos = XMVectorAdd(eyePos, vDown * x);
 	}
 	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
 	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
 	isMove = true;
+
+	if (Application::GetIsKeyJump() && CollisionY())
+	{
+		velocity = -2.5;
+		pos = XMVectorAdd(pos, vUp * 0.01);
+		eyePos = XMVectorAdd(eyePos, vUp * 0.01);
+		_models[modelID]->GetAABB()->_yMax += (vUp * 0.01).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vUp * 0.01).m128_f32[1];
+		isMove = true;
+	}
 
 	if (CollisionY()) {
 		velocity = 0;
@@ -255,6 +208,59 @@ bool Keyboard::isGetKeyState()
 		eyePos = XMVectorSubtract(eyePos, vDown * x);
 		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
 		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
+	}
+
+
+	
+	GetKeyboardState(keycode);
+	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('D') & 0x8000)) {
+		Collision(vRight + vFront);
+		return isMove;
+	}
+	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('A') & 0x8000))
+	{
+		Collision(vLeft + vFront);
+		return isMove;
+	}
+	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
+	{
+		isMove = true;
+		return isMove;
+	}
+	if ((GetAsyncKeyState('A') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
+	{
+		Collision(vLeft + vBack);
+		return isMove;
+	}
+	if ((GetAsyncKeyState('D') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
+	{
+		Collision(vRight + vBack);
+		return isMove;
+	}
+	if (GetAsyncKeyState('W') & 0x8000) {
+		Collision(vFront);
+		return isMove;
+	}
+	if (GetAsyncKeyState('A') & 0x8000) {
+		Collision(vLeft);
+		return isMove;
+	}
+	if (GetAsyncKeyState('S') & 0x8000) {
+		Collision(vBack);
+		return isMove;
+	}
+	if (GetAsyncKeyState('D') & 0x8000) {
+		Collision(vRight);
+		return isMove;
+	}
+	
+	if (keycode[VK_SHIFT] & 0x80)
+	{
+		pos = XMVectorAdd(pos, vDown * 0.1);
+		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
+		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
+		isMove = true;
 	}
 
 	
@@ -283,7 +289,7 @@ bool Keyboard::isGetKeyState()
 void Keyboard::Collision(DirectX::XMVECTOR dir)
 {
 	keyCount++;
-	if (keyCount > 3)
+	if (keyCount > 0)
 	{
 		XMVECTOR v = XMVector3Normalize(dir);
 		SetDir(v);
