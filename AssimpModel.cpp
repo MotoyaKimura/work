@@ -192,7 +192,7 @@ bool AssimpModel::ModelHeapInit()
 	return true;
 }
 
-void AssimpModel::Update()
+void AssimpModel::Update(bool isStart)
 {
 	world =
 		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)

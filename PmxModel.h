@@ -511,12 +511,12 @@ private:
 	DWORD _startTime;
 	void InitAnimation(VMDFileData& vmdData);
 	void PlayAnimation();
-	void UpdateAnimation();
+	void UpdateAnimation(bool isStart);
 	void VertexSkinning();
 
 	bool ModelHeapInit() override;
 	void Draw() override;
-	void Update() override;
+	void Update(bool isStart) override;
 
 	std::vector<SkinningRange> _skinningRanges;
 	std::vector<std::future<void>> _parallelUpdateFutures;

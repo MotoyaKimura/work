@@ -74,7 +74,7 @@ public:
 	virtual void Draw() = 0;
 	
 	void AddModel(std::shared_ptr<Model> model);
-	void Update();
+	void Update(bool isStart);
 	void BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate,
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature) const ;
 	void DrawModel() const ;
