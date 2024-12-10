@@ -121,6 +121,7 @@ void GameScene::SceneRender(void)
 	{
 		if (_peraRenderer->FadeOut())
 		{
+			_keyboard->SetIsMenu(true);
 			//_peraRenderer->DataReset();
 			_controller.PushScene(new MenuScene(_controller));
 			return;

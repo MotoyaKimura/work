@@ -41,12 +41,15 @@ bool Keyboard::isActive()
 {
 	if (_hwnd != GetForegroundWindow())
 	{
+
 		isActiveFirst = true;
 		return false;
 	}
 	if (isActiveFirst)
 	{
 		SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+		_startTime = timeGetTime() - elapsedTime;
+
 		isActiveFirst = false;
 	}
 	return true;
@@ -70,6 +73,11 @@ void Keyboard::MoveModel()
 			modelID = (key + i) & 0x0f;
 			ChangeTarget();
 		}
+	}
+	if(isMenu)
+	{
+		_startTime = timeGetTime() - elapsedTime;
+		isMenu = false;
 	}
 	if (isGetKeyState())
 		SetPos();
@@ -177,7 +185,7 @@ bool Keyboard::isGetKeyState()
 		_startTime = timeGetTime();
 	}
 
-	DWORD elapsedTime = timeGetTime() - _startTime;
+	elapsedTime = timeGetTime() - _startTime;
 	unsigned int t = 30 * (elapsedTime / 1000.0f);
 	float second = elapsedTime / 1000.0f;
 	velocity = velocity + gravity * second;
