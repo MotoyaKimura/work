@@ -85,19 +85,30 @@ float4 PS(Output input) : SV_TARGET
     //        return float4(1.0f, 0.5f, 0.5f, 1.0f);
     //if ((step - endWipeRight) < 0)
     //    return float4(1.0f, 0.5f, 0.5f, 1.0f);
-    float4 backGround = float4(0.8f, 0.8f, 1.0f, 1.0f);
    
     float3 indLight = calcRSM(input.uv);
     float ssao = ssaoTex.Sample(smp, (input.uv));
     float4 texColor = tex.Sample(smp, input.uv);
-    float4 clearTexColor = clearTex.Sample(smp, float2((input.uv.x + 0.25) * 2, (input.uv.y ) * 4));
-    clearTexColor.rgb *= clearTexColor.a;
-    backGround.rgb *= texColor.a;
+    float4 clear = clearTex.Sample(smp, float2((input.uv.x + 0.25) * 2, (input.uv.y ) * 4));
+    clear.rgb *= clear.a;
+    float4 restart = restartTex.Sample(smp, float2((input.uv.x) * 5, (input.uv.y) * 10));
+    restart.rgb *= restart.a;
+    float4 title = titleTex.Sample(smp, float2((input.uv.x) * 5, (input.uv.y) * 10));
+    title.rgb *= title.a;
+    
    
-        if (input.uv.x > 0.25 && input.uv.x < 0.75 && input.uv.y > 0.0 && input.uv.y < 0.25)
-        {
-            return float4((texColor * ssao + clearTexColor + indLight).rgb, texColor.a);
-        }
+    if (input.uv.x > 0.25 && input.uv.x < 0.75 && input.uv.y > 0.0 && input.uv.y < 0.25)
+    {
+        return float4((texColor * ssao + clear + indLight).rgb, texColor.a);
+    }
+    else if(input.uv.x > 0.2 && input.uv.x < 0.4 && input.uv.y > 0.8 && input.uv.y < 0.9)
+    {
+        return float4((texColor * ssao + restart * restartHoverCnt * fade + indLight).rgb, texColor.a);
+    }
+    else if (input.uv.x > 0.6 && input.uv.x < 0.8 && input.uv.y > 0.8 && input.uv.y < 0.9)
+    {
+        return float4((texColor * ssao + title * titleHoverCnt * fade + indLight).rgb, texColor.a);
+    }
     
     return float4((texColor * ssao + indLight).rgb, texColor.a);
     

@@ -15,6 +15,8 @@
 #include "AssimpModel.h"
 #include <tchar.h>
 
+#include "TitleScene.h"
+
 bool ClearScene::SceneInit()
 {
 	_pera.reset(new Pera(Application::_dx));
@@ -59,6 +61,12 @@ bool ClearScene::SceneInit()
 	_clearTex.reset(new Texture(Application::_dx));
 	_clearTex->Init(L"texture/clear.png");
 	_pera->SetSRV(_clearTex->GetTexBuff(), _clearTex->GetMetadata().format);
+	_restartTex.reset(new Texture(Application::_dx));
+	_restartTex->Init(L"texture/restart.png");
+	_pera->SetSRV(_restartTex->GetTexBuff(), _restartTex->GetMetadata().format);
+	_titleTex.reset(new Texture(Application::_dx));
+	_titleTex->Init(L"texture/BackToTitle.png");
+	_pera->SetSRV(_titleTex->GetTexBuff(), _titleTex->GetMetadata().format);
 
 	for (auto model : _models)
 	{
@@ -82,29 +90,42 @@ bool ClearScene::SceneInit()
 	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
 	_modelRenderer->SetClearValue(0.8f, 0.8f, 0.9f, 1.0f);
 
-	_StartButton.reset(new Button("Start"));
+	_restartButton.reset(new Button("Restart"));
 	int dx = Application::GetWindowSize().cx;
 	int dy = Application::GetWindowSize().cy;
-	_StartButton->Create(_T("Start"), (int)(dx * 0.45), (int)(dy * 0.9), (int)(dx * 0.1), (int)(dy * 0.1), (HMENU)1);
+	_restartButton->Create(_T("Restart"), (int)(dx * 0.2), (int)(dy * 0.8), (int)(dx * 0.2), (int)(dy * 0.1), (HMENU)7);
+
+	_titleButton.reset(new Button("Title"));
+	_titleButton->Create(_T("Back to Title"), (int)(dx * 0.6), (int)(dy * 0.8), (int)(dx * 0.2), (int)(dy * 0.1), (HMENU)8);
 
 	return true;
 }
 
 void ClearScene::SceneUpdate(void)
 {
-	if (!_StartButton->IsActive())
+	if(!_restartButton->IsActive())
 	{
-		if (_StartButton->IsHover())
+		if (_restartButton->IsHover())
 		{
-			_peraRenderer->HoverButton(_StartButton->GetName());
-		}
-		else
-		{
-			_peraRenderer->HoverCntReset();
+			_peraRenderer->HoverButton(_restartButton->GetName());
 		}
 	}
+	else if (!_titleButton->IsActive())
+	{
+		if (_titleButton->IsHover())
+		{
+			_peraRenderer->HoverButton(_titleButton->GetName());
+		}
+	}
+	
+	else
+	{
+		_peraRenderer->HoverCntReset();
+	}
 
-	_StartButton->Update();
+
+	_restartButton->Update();
+	_titleButton->Update();
 	if (_peraRenderer->Update())
 	{
 	}
@@ -125,26 +146,37 @@ void ClearScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	if (_StartButton->IsActive())
+	if (_restartButton->IsActive())
 	{
-		_peraRenderer->FadeOut();
-		if (_peraRenderer->WipeEnd()) {
-			_StartButton->SetInActive();
+		_restartButton->Hide();
+		_titleButton->Hide();
+
+		if (_peraRenderer->FadeOut()) {
 			SceneFinal();
 			_controller.ChangeScene(new GameScene(_controller));
+			return;
+		}
+	}
+
+	if (_titleButton->IsActive())
+	{
+		_restartButton->Hide();
+		_titleButton->Hide();
+
+		if (_peraRenderer->FadeOut()) {
+			SceneFinal();
+			_controller.ChangeScene(new TitleScene(_controller));
+			return;
 		}
 	}
 }
 
 void ClearScene::SceneFinal(void)
 {
-	_StartButton->Hide();
-	_StartButton->Destroy();
-
-	_renderer.reset();
-	_pera.reset();
-	_keyboard.reset();
-	_models.clear();
+	
+	_restartButton->Destroy();
+	
+	_titleButton->Destroy();
 
 }
 

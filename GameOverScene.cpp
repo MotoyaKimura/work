@@ -102,6 +102,8 @@ void GameOverScene::SceneRender(void)
 
 	if (_restartButton->IsActive())
 	{
+		_restartButton->Hide();
+		_titleButton->Hide();
 		if (_peraRenderer->FadeOut())
 		{
 			SceneFinal();
@@ -112,6 +114,8 @@ void GameOverScene::SceneRender(void)
 
 	if (_titleButton->IsActive())
 	{
+		_restartButton->Hide();
+		_titleButton->Hide();
 		if (_peraRenderer->FadeOut())
 		{
 			SceneFinal();
@@ -125,10 +129,6 @@ void GameOverScene::SceneRender(void)
 void GameOverScene::SceneFinal(void)
 {
 	Application::SetMenu();
-	
-	_restartButton->Hide();
-	_titleButton->Hide();
-	
 	_restartButton->Destroy();
 	_titleButton->Destroy();
 }

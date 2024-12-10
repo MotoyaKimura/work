@@ -119,6 +119,9 @@ void MenuScene::SceneRender(void)
 
 	if(_backButton->IsActive() || !Application::GetMenu())
 	{
+		_backButton->Hide();
+		_restartButton->Hide();
+		_titleButton->Hide();
 		if(_peraRenderer->FadeOut())
 		{
 			SceneFinal();
@@ -130,6 +133,9 @@ void MenuScene::SceneRender(void)
 
 	if (_restartButton->IsActive())
 	{
+		_backButton->Hide();
+		_restartButton->Hide();
+		_titleButton->Hide();
 		if (_peraRenderer->FadeOut())
 		{
 			SceneFinal();
@@ -140,6 +146,10 @@ void MenuScene::SceneRender(void)
 
 	if (_titleButton->IsActive())
 	{
+		
+		_backButton->Hide();
+		_restartButton->Hide();
+		_titleButton->Hide();
 		if (_peraRenderer->FadeOut())
 		{
 			SceneFinal();
@@ -153,9 +163,7 @@ void MenuScene::SceneRender(void)
 void MenuScene::SceneFinal(void)
 {
 	Application::SetMenu();
-	_backButton->Hide();
-	_restartButton->Hide();
-	_titleButton->Hide();
+	
 	_backButton->Destroy();
 	_restartButton->Destroy();
 	_titleButton->Destroy();
