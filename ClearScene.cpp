@@ -110,19 +110,20 @@ void ClearScene::SceneUpdate(void)
 			_peraRenderer->HoverButton(_restartButton->GetName());
 		}
 	}
-	else if (!_titleButton->IsActive())
+	if (!_titleButton->IsActive())
 	{
 		if (_titleButton->IsHover())
 		{
 			_peraRenderer->HoverButton(_titleButton->GetName());
 		}
 	}
-	
 	else
 	{
 		_peraRenderer->HoverCntReset();
 	}
 
+	_keyboard->AutoRotateCamera();
+	_camera->CalcSceneTrans();
 
 	_restartButton->Update();
 	_titleButton->Update();

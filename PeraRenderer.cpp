@@ -85,15 +85,15 @@ void PeraRenderer::HoverButton(std::string buttonName)
 {
 	if (buttonName == "Start")
 	{
-		_wipeBuffData->_startHoverCnt = sin(hoverCnt + DirectX::XM_PIDIV2) * 0.5 + 1;
+		_wipeBuffData->_startHoverCnt = (sin(hoverCnt + DirectX::XM_PIDIV2) + 1) * 0.5;
 	}
 	else if (buttonName == "Restart")
 	{
-		_wipeBuffData->_restartHoverCnt = sin(hoverCnt + DirectX::XM_PIDIV2) * 0.5 + 1;
+		_wipeBuffData->_restartHoverCnt = (sin(hoverCnt + DirectX::XM_PIDIV2) + 1) * 0.5;
 	}
 	else if (buttonName == "Title")
 	{
-		_wipeBuffData->_titleHoverCnt = sin(hoverCnt + DirectX::XM_PIDIV2) * 0.5 + 1;
+		_wipeBuffData->_titleHoverCnt = (sin(hoverCnt + DirectX::XM_PIDIV2) + 1) * 0.5;
 	}
 	hoverCnt += 0.05f;
 }

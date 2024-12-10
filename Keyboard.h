@@ -56,6 +56,7 @@ public:
 	void SetPos();
 	void SetDir(DirectX::XMVECTOR dir);
 	void RotateCameraAroundModel();
+	void AutoRotateCamera();
 	void Collision(DirectX::XMVECTOR dir);
 	bool CollisionY();
 	void isCollision(DirectX::XMVECTOR dir);

@@ -175,6 +175,19 @@ void Keyboard::RotateCameraAroundModel()
 	_eyePos->z = XMVectorGetZ(eyeTrans);
 }
 
+void Keyboard::AutoRotateCamera()
+{
+	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
+	XMMATRIX eyeMat =
+		XMMatrixTranslation(-_pos->x, -_pos->y, -_pos->z)
+		* XMMatrixRotationAxis(yAxis,  0.005)
+		* XMMatrixTranslation(_pos->x, _pos->y, _pos->z);
+	FXMVECTOR eyeVec = XMLoadFloat3(_eyePos);
+	FXMVECTOR eyeTrans = XMVector3Transform(eyeVec, eyeMat);
+	_eyePos->x = XMVectorGetX(eyeTrans);
+	_eyePos->y = XMVectorGetY(eyeTrans);
+	_eyePos->z = XMVectorGetZ(eyeTrans);
+}
 
 
 bool Keyboard::isGetKeyState()

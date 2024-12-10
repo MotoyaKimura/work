@@ -73,18 +73,6 @@ float4 PS(Output input) : SV_TARGET
     float PauseCol = 1.0f;
     if (isPause)
         PauseCol = 0.5f;
-
-    //ŠJn‚ÉÂ–‹‚ª‰E‚É‚¸‚ê‚Ä‚¢‚­
-    //if (((width - input.svpos.x) - startWipeRight) < 0)
-    //    return float4(0.5f, 0.5f, 1.0f, 1.0f);
-
-    //C—¹‚É‡@cü‚ª~‚è‚Ä‚­‚é‡AÔ–‹‚ª‰E‚É‚¸‚ê‚Ä‚¢‚­
-    //float step = fmod(input.svpos.x, 64);
-    //if (step < 2)
-    //    if ((input.svpos.y - endWipeDown) < 0)
-    //        return float4(1.0f, 0.5f, 0.5f, 1.0f);
-    //if ((step - endWipeRight) < 0)
-    //    return float4(1.0f, 0.5f, 0.5f, 1.0f);
    
     float3 indLight = calcRSM(input.uv);
     float ssao = ssaoTex.Sample(smp, (input.uv));
