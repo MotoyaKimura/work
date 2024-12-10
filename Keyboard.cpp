@@ -193,7 +193,7 @@ bool Keyboard::isGetKeyState()
 	pos = XMVectorAdd(pos, vDown * x);
 	if (eyePos.m128_f32[1] > -100)
 	{
-		eyePos = XMVectorAdd(eyePos, vDown * x);
+	eyePos = XMVectorAdd(eyePos, vDown * x);
 	}
 	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
 	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
@@ -270,7 +270,6 @@ bool Keyboard::isGetKeyState()
 		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
 		isMove = true;
 	}
-
 	
 
 	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)

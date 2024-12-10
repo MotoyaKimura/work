@@ -33,7 +33,7 @@ bool GameScene::SceneInit()
 		Application::DebugOutputFormatString("ƒJƒƒ‰‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;
 	}
-	modelNum = 4;
+	modelNum = 15;
 	_models.resize(modelNum);
 	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
 	
@@ -42,8 +42,13 @@ bool GameScene::SceneInit()
 	_models[2]->Move(2.5, 2.5, 0);
 	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[3]->Move(0, 2.5, 2.5);
-
-
+	for (int i = 0; i < 10; i++)
+	{
+		_models[i + 4] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_white.obj");
+		_models[i + 4]->Move(0, 2.5 * (i + 1), 5 * (i + 1));
+	}
+	_models[14] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_lightBlue.obj");
+	_models[14]->Move(0, 2.5 * 11, 5 * 14);
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 	_keyboard->Init();

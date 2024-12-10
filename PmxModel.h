@@ -538,6 +538,7 @@ private:
 	std::shared_ptr<VMD> _preRun;
 	std::shared_ptr<VMD> _run;
 	std::shared_ptr<VMD> _endRun;
+	
 
 	int motionCountDown = 0;
 	int motionCountUp = 0;
