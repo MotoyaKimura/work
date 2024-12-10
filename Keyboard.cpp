@@ -213,43 +213,43 @@ bool Keyboard::isGetKeyState()
 
 	
 	GetKeyboardState(keycode);
-	if ((keycode['W'] & 0x80) && (keycode['D'] & 0x80)) {
+	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('D') & 0x8000)) {
 		Collision(vRight + vFront);
 		return isMove;
 	}
-	if ((keycode['W'] & 0x80) && (keycode['A'] & 0x80))
+	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('A') & 0x8000))
 	{
 		Collision(vLeft + vFront);
 		return isMove;
 	}
-	if ((keycode['W'] & 0x80) && (keycode['S'] & 0x80))
+	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
 	{
 		isMove = true;
 		return isMove;
 	}
-	if ((keycode['A'] & 0x80) && (keycode['S'] & 0x80))
+	if ((GetAsyncKeyState('A') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
 	{
 		Collision(vLeft + vBack);
 		return isMove;
 	}
-	if ((keycode['D'] & 0x80) && (keycode['S'] & 0x80))
+	if ((GetAsyncKeyState('D') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
 	{
 		Collision(vRight + vBack);
 		return isMove;
 	}
-	if (keycode['W'] & 0x80) {
+	if (GetAsyncKeyState('W') & 0x8000) {
 		Collision(vFront);
 		return isMove;
 	}
-	if (keycode['A'] & 0x80) {
+	if (GetAsyncKeyState('A') & 0x8000) {
 		Collision(vLeft);
 		return isMove;
 	}
-	if (keycode['S'] & 0x80) {
+	if (GetAsyncKeyState('S') & 0x8000) {
 		Collision(vBack);
 		return isMove;
 	}
-	if (keycode['D'] & 0x80) {
+	if (GetAsyncKeyState('D') & 0x8000) {
 		Collision(vRight);
 		return isMove;
 	}
