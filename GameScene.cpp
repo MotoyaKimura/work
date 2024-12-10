@@ -16,6 +16,7 @@
 #include "AssimpModel.h"
 #include "PmxModel.h"
 #include  "GameOverScene.h"
+#include "ClearScene.h"
 
 bool GameScene::SceneInit()
 {
@@ -127,9 +128,9 @@ void GameScene::SceneRender(void)
 		_camera->GetEyePos()->y >= 27.5 &&
 		_camera->GetEyePos()->z >= 5 * 14 - 10)
 	{
-		if (_peraRenderer->GameOverFadeOut())
+		if (_peraRenderer->ClearFadeOut())
 		{
-			_controller.ChangeScene(new GameOverScene(_controller));
+			_controller.ChangeScene(new ClearScene(_controller));
 			return;
 		}
 	}

@@ -7,6 +7,12 @@
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
+      <FullPath>C:\Users\motoy\source\repos\work\ClearPeraPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\motoy\source\repos\work\ClearPeraVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\motoy\source\repos\work\GameOverPeraPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>

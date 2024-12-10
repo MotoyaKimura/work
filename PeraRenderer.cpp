@@ -64,7 +64,8 @@ void PeraRenderer::DataReset()
 	_wipeBuffData->_startWipeOpen = Application::GetWindowSize().cy / 2;
 	_wipeBuffData->_endWipeClose = Application::GetWindowSize().cy / 10;
 	_wipeBuffData->_fade = 0.0f;
-	_wipeBuffData->_GameOverFade = 1.0f;
+	_wipeBuffData->_gameOverFade = 1.0f;
+	_wipeBuffData->_clearFade = 0.0f;
 	_wipeBuffData->_monochromeRate = 0.0f;
 	_wipeBuffData->ScreenWidth = Application::GetWindowSize().cx;
 	_wipeBuffData->ScreenHeight = Application::GetWindowSize().cy;
@@ -134,8 +135,15 @@ bool PeraRenderer::FadeOut()
 
 bool PeraRenderer::GameOverFadeOut()
 {
-	if (_wipeBuffData->_GameOverFade <= 0.0f) return true;
-	_wipeBuffData->_GameOverFade -= 0.005f;
+	if (_wipeBuffData->_gameOverFade <= 0.0f) return true;
+	_wipeBuffData->_gameOverFade -= 0.005f;
+	return false;
+}
+
+bool PeraRenderer::ClearFadeOut()
+{
+	if (_wipeBuffData->_clearFade >= 1.0f) return true;
+	_wipeBuffData->_clearFade += 0.005f;
 	return false;
 }
 
