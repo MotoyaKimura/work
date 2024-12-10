@@ -171,6 +171,47 @@ void Keyboard::RotateCameraAroundModel()
 
 bool Keyboard::isGetKeyState()
 {
+
+	if (_startTime <= 0)
+	{
+		_startTime = timeGetTime();
+	}
+
+	DWORD elapsedTime = timeGetTime() - _startTime;
+	unsigned int t = 30 * (elapsedTime / 1000.0f);
+	float second = elapsedTime / 1000.0f;
+	velocity = velocity + gravity * second;
+	float x = velocity * second + gravity * second * second * 0.5;
+	pos = XMVectorAdd(pos, vDown * x);
+	if (eyePos.m128_f32[1] > -100)
+	{
+		eyePos = XMVectorAdd(eyePos, vDown * x);
+	}
+	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
+	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
+	isMove = true;
+
+	if (Application::GetIsKeyJump() && CollisionY())
+	{
+		velocity = -2.5;
+		pos = XMVectorAdd(pos, vUp * 0.01);
+		eyePos = XMVectorAdd(eyePos, vUp * 0.01);
+		_models[modelID]->GetAABB()->_yMax += (vUp * 0.01).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vUp * 0.01).m128_f32[1];
+		isMove = true;
+		Application::SetIsKeyJump(false);
+	}
+
+	if (CollisionY()) {
+		velocity = 0;
+		_startTime = timeGetTime();
+		pos = XMVectorSubtract(pos, vDown * x);
+		eyePos = XMVectorSubtract(eyePos, vDown * x);
+		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
+	}
+
+
 	
 	GetKeyboardState(keycode);
 	if ((keycode['W'] & 0x80) && (keycode['D'] & 0x80)) {
@@ -213,14 +254,7 @@ bool Keyboard::isGetKeyState()
 		Collision(vRight);
 		return isMove;
 	}
-	if (keycode[VK_SPACE] & 0x80)
-	{
-		pos = XMVectorAdd(pos, vUp * 0.1);
-		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
-		_models[modelID]->GetAABB()->_yMax += (vUp * 0.1).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin += (vUp * 0.1).m128_f32[1];
-		isMove = true;
-	}
+	
 	if (keycode[VK_SHIFT] & 0x80)
 	{
 		pos = XMVectorAdd(pos, vDown * 0.1);
@@ -228,33 +262,6 @@ bool Keyboard::isGetKeyState()
 		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
 		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
 		isMove = true;
-	}
-
-	if(_startTime <= 0)
-	{
-		_startTime = timeGetTime();
-	}
-
-	DWORD elapsedTime = timeGetTime() - _startTime;
-	unsigned int t = 30 * (elapsedTime / 1000.0f);
-	velocity = velocity + gravity * t;
-	float x = velocity * t + gravity * t * t * 0.5;
-	//pos = XMVectorAdd(pos, vDown * x);
-	if(eyePos.m128_f32[1] > -100)
-	{
-	//	eyePos = XMVectorAdd(eyePos, vDown * x);
-	}
-	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
-	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
-	isMove = true;
-
-	if (CollisionY()) {
-		velocity = 0;
-		_startTime = timeGetTime();
-		pos = XMVectorSubtract(pos, vDown * x);
-		eyePos = XMVectorSubtract(eyePos, vDown * x);
-		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
 	}
 
 	
