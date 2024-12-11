@@ -93,7 +93,7 @@ float4 PS(Output input) : SV_TARGET
     startTexColor.rgb *= startTexColor.a;
     float4 yabai = yabaiTex.Sample(smp2, float2((input.uv.x), (input.uv.y - 0.25) * 2));
     yabai.rgb *= yabai.a;
-    //phone.rgb *= phone.a;
+    
     if ((input.svpos.y - endWipeClose) <= 0 || input.svpos.y + endWipeClose >= height)
     {
         return backGround + startTexColor * fade * startHoverCnt;
