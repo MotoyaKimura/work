@@ -17,6 +17,7 @@ private:
 	POINT center;
 	bool isActiveFirst = true;
 	bool isActive();
+	bool isMenu = false;
 	float diff_x;
 	float diff_y;
 
@@ -38,6 +39,7 @@ private:
 
 	unsigned int keyCount = 0;
 	bool isMove = false;
+	DWORD elapsedTime = 0;
 	DWORD _startTime = 0;
 	float velocity = 0;
 	float gravity = 7.0f/10;
@@ -54,8 +56,11 @@ public:
 	void SetPos();
 	void SetDir(DirectX::XMVECTOR dir);
 	void RotateCameraAroundModel();
+	void AutoRotateCamera();
 	void Collision(DirectX::XMVECTOR dir);
 	bool CollisionY();
 	void isCollision(DirectX::XMVECTOR dir);
+	void SetIsMenu(bool _isMenu) { isMenu = _isMenu; }
+
 	~Keyboard();
 };

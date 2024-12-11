@@ -124,25 +124,23 @@ void TitleScene::SceneRender(void)
 
 	if (_StartButton->IsActive())
 	{
+	
+		_StartButton->Hide();
 		_peraRenderer->FadeOut();
 		if (_peraRenderer->WipeEnd()) {
 			_StartButton->SetInActive();
 			SceneFinal();
 			_controller.ChangeScene(new GameScene(_controller));
+			return;
 		}
 	}
 }
 
 void TitleScene::SceneFinal(void)
 {
-	_StartButton->Hide();
+	
 	_StartButton->Destroy();
-	
-	_renderer.reset();
-	_pera.reset();
-	_keyboard.reset();
-	_models.clear();
-	
+
 }
 
 void TitleScene::SceneResize(void)

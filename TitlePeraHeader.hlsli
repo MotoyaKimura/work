@@ -27,7 +27,8 @@ cbuffer cbuff1 : register(b1)
     float startWipeOpen;
     float endWipeClose;
     float fade;
-    float GameOverFade;
+    float gameOverFade;
+    float clearFade;
     float monochromeRate;
     float screenWidth;
     float screenHeight;

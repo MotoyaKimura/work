@@ -28,6 +28,7 @@ private:
 	std::shared_ptr<Renderer> _renderer;
 	std::vector<std::shared_ptr<Model>> _models;
 	UINT modelNum = 0;
+	bool isStart = false;
 	std::shared_ptr<Keyboard> _keyboard;
 	std::shared_ptr<Texture> _pauseTex;
 	std::shared_ptr<Button> _button;

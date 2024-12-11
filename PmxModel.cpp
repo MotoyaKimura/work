@@ -63,6 +63,12 @@ bool PmxModel::Load(std::string filePath)
 	_endJump.reset(new VMD);
 	_endJump->LoadVMD(L"vmdData\\3.着地_(8f_移動なし).vmd");
 
+	_jumpFromRun.reset(new VMD);
+	_jumpFromRun->LoadVMD(L"vmdData\\1.走りLから大ジャンプ_60L推奨_(25f_前移動90).vmd");
+	_endJumpToRun.reset(new VMD);
+	_endJumpToRun->LoadVMD(L"vmdData\\2.着地して走りへ_クッション2_(33f_前移動35).vmd");
+	_endJump2.reset(new VMD);
+	_endJump2->LoadVMD(L"vmdData\\3.着地して棒立ち_(25f_前移動5).vmd");
 
 	if (!result) return false;
 	InitAnimation(_wait->vmdData);
@@ -827,7 +833,7 @@ void PmxModel::InitAnimation(VMDFileData& vmdData)
 	//PlayAnimation();
 }
 
-void PmxModel::UpdateAnimation()
+void PmxModel::UpdateAnimation(bool isStart)
 {
 	if(_startTime <= 0)
 	{
@@ -841,82 +847,155 @@ void PmxModel::UpdateAnimation()
 
 	BYTE key[256];
 	GetKeyboardState(key);
-	if (Application::GetIsKeyJump())
+	if(isStart)
 	{
-		if(motionCountJump == 0)
+		if (GetAsyncKeyState(VK_SPACE) & 0x8000 || isJumping)
 		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(_preJump);
-			motionCountJump++;
-		}
-		if (frameNo > _nodeManager->_duration && motionCountJump == 1)
-		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(_jump);
-			motionCountJump++;
-		}
-		if (frameNo > _nodeManager->_duration && motionCountJump == 2)
-		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(_endJump);
-			motionCountJump++;
-		}
-		if (frameNo > _nodeManager->_duration && motionCountJump == 3)
-		{
-			_startTime = timeGetTime();
-			frameNo = 0;
-			ChangeVMD(_wait);
-			motionCountJump = 0;
-			Application::SetIsKeyJump(false);
-		}
-	}
-	else
-	{
-		if (Application::GetIsMoveKeyUp())
-		{
-			motionCountDown = 0;
-			Application::SetIsMoveKeyDown(false);
-			if (frameNo > _nodeManager->_duration && motionCountUp == 0)
+			isJumping = true;
+			if (isRunning)
 			{
-				_startTime = timeGetTime();
-				frameNo = 0;
-				ChangeVMD(_endRun);
-				motionCountUp++;
+				if (motionCountJump == 0)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_jumpFromRun);
+					motionCountJump++;
+				}
+				else if (motionCountJump == 2)
+				{
+					if (GetAsyncKeyState(VK_SPACE) & 0x8000) motionCountJump = 0;
+				}
+				if (frameNo > _nodeManager->_duration && motionCountJump == 1)
+				{
+					if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+						GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+					{
+						_startTime = timeGetTime();
+						frameNo = 0;
+						ChangeVMD(_endJumpToRun);
+						motionCountJump++;
+					}
+					else
+					{
+						_startTime = timeGetTime();
+						frameNo = 0;
+						ChangeVMD(_endJump2);
+						motionCountJump++;
+					}
+
+				}
+
+				if (frameNo > _nodeManager->_duration && motionCountJump == 2)
+				{
+
+					if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+						GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+					{
+						_startTime = timeGetTime();
+						frameNo = 0;
+						ChangeVMD(_run);
+						motionCountJump = 0;
+						Application::SetIsKeyJump(false);
+						isJumping = false;
+						motionCountDown = 0;
+					}
+					else
+					{
+						_startTime = timeGetTime();
+						frameNo = 0;
+						ChangeVMD(_wait);
+						motionCountJump = 0;
+						Application::SetIsKeyJump(false);
+						isJumping = false;
+						motionCountDown = 0;
+					}
+				}
+
+
 			}
-			if (frameNo > _nodeManager->_duration && motionCountUp == 1)
+			else
 			{
-				_startTime = timeGetTime();
-				frameNo = 0;
-				ChangeVMD(_wait);
+				if (motionCountJump == 0)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_preJump);
+					motionCountJump++;
+				}
+				if (frameNo > _nodeManager->_duration && motionCountJump == 1)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_jump);
+					motionCountJump++;
+				}
+				if (frameNo > _nodeManager->_duration && motionCountJump == 2)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_endJump);
+					motionCountJump++;
+				}
+				if (frameNo > _nodeManager->_duration && motionCountJump == 3)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_wait);
+					motionCountJump = 0;
+					Application::SetIsKeyJump(false);
+					isJumping = false;
+					motionCountDown = 0;
+				}
+			}
+
+		}
+		else
+		{
+			if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+				GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+			{
+				isRunning = true;
 				motionCountUp = 0;
 				Application::SetIsMoveKeyUp(false);
-			}
-		}
+				if (motionCountDown == 0)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_preRun);
+					motionCountDown++;
+				}
+				if (frameNo > _nodeManager->_duration && motionCountDown == 1)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_run);
+					motionCountDown++;
 
-		if (Application::GetIsMoveKeyDown())
-		{
-			motionCountUp = 0;
-			Application::SetIsMoveKeyUp(false);
-			if (motionCountDown == 0)
-			{
-				_startTime = timeGetTime();
-				frameNo = 0;
-				ChangeVMD(_preRun);
-				motionCountDown++;
+				}
 			}
-			if (frameNo > _nodeManager->_duration && motionCountDown == 1)
+			else if (isRunning)
 			{
-				_startTime = timeGetTime();
-				frameNo = 0;
-				ChangeVMD(_run);
-				motionCountDown++;
-
+				motionCountDown = 0;
+				Application::SetIsMoveKeyDown(false);
+				if (frameNo > _nodeManager->_duration && motionCountUp == 0)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_endRun);
+					motionCountUp++;
+				}
+				if (frameNo > _nodeManager->_duration && motionCountUp == 1)
+				{
+					_startTime = timeGetTime();
+					frameNo = 0;
+					ChangeVMD(_wait);
+					motionCountUp = 0;
+					Application::SetIsMoveKeyUp(false);
+				}
 			}
 		}
 	}
+	
 
 	if(frameNo > _nodeManager->_duration)
 	{
@@ -1295,14 +1374,15 @@ bool PmxModel::ModelHeapInit()
 	return true;
 }
 
-void PmxModel::Update()
+void PmxModel::Update(bool isStart)
 {
 	world =
 		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 
 	*worldMatrix = world;
-	UpdateAnimation();
+	
+	UpdateAnimation(isStart);
 }
 
 

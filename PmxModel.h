@@ -511,12 +511,12 @@ private:
 	DWORD _startTime;
 	void InitAnimation(VMDFileData& vmdData);
 	void PlayAnimation();
-	void UpdateAnimation();
+	void UpdateAnimation(bool isStart);
 	void VertexSkinning();
 
 	bool ModelHeapInit() override;
 	void Draw() override;
-	void Update() override;
+	void Update(bool isStart) override;
 
 	std::vector<SkinningRange> _skinningRanges;
 	std::vector<std::future<void>> _parallelUpdateFutures;
@@ -531,14 +531,20 @@ private:
 	std::shared_ptr<VMD> _wait;
 	std::shared_ptr<VMD> _preJump;
 	std::shared_ptr<VMD> _jump;
+	std::shared_ptr<VMD> _jumpFromRun;
 	std::shared_ptr<VMD> _endJump;
+	std::shared_ptr<VMD> _endJump2;
+	std::shared_ptr<VMD> _endJumpToRun;
 	std::shared_ptr<VMD> _preRun;
 	std::shared_ptr<VMD> _run;
 	std::shared_ptr<VMD> _endRun;
+	
 
 	int motionCountDown = 0;
 	int motionCountUp = 0;
 	int motionCountJump = 0;
+	bool isRunning = false;
+	bool isJumping = false;
 public:
 
 	PmxModel(std::shared_ptr<Wrapper> dx

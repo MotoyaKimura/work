@@ -16,6 +16,7 @@
 #include "AssimpModel.h"
 #include "PmxModel.h"
 #include  "GameOverScene.h"
+#include "ClearScene.h"
 
 bool GameScene::SceneInit()
 {
@@ -33,7 +34,7 @@ bool GameScene::SceneInit()
 		Application::DebugOutputFormatString("ƒJƒƒ‰‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;
 	}
-	modelNum = 4;
+	modelNum = 15;
 	_models.resize(modelNum);
 	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
 	
@@ -42,8 +43,13 @@ bool GameScene::SceneInit()
 	_models[2]->Move(2.5, 2.5, 0);
 	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
 	_models[3]->Move(0, 2.5, 2.5);
-
-
+	for (int i = 0; i < 10; i++)
+	{
+		_models[i + 4] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_white.obj");
+		_models[i + 4]->Move(0, 2.5 * (i + 1), 5 * (i + 1));
+	}
+	_models[14] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_lightBlue.obj");
+	_models[14]->Move(0, 2.5 * 11, 5 * 14);
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 	_keyboard->Init();
@@ -90,11 +96,12 @@ void GameScene::SceneUpdate(void)
 	if (_peraRenderer->Update() || _peraRenderer->WipeStart())
 	{}
 	else {
+		isStart = true;
 		_keyboard->Move();
 		_camera->CalcSceneTrans();
 	}
-	_rsm->Update();
-	_modelRenderer->Update();
+	_rsm->Update(isStart);
+	_modelRenderer->Update(isStart);
 }
 
 void GameScene::SceneRender(void)
@@ -117,10 +124,22 @@ void GameScene::SceneRender(void)
 		}
 	}
 
+	if (_camera->GetEyePos()->x > -15 && _camera->GetEyePos()->x < 15 &&
+		_camera->GetEyePos()->y >= 27.5 &&
+		_camera->GetEyePos()->z >= 5 * 14 - 10)
+	{
+		if (_peraRenderer->ClearFadeOut())
+		{
+			_controller.ChangeScene(new ClearScene(_controller));
+			return;
+		}
+	}
+
 	if(Application::GetMenu())
 	{
 		if (_peraRenderer->FadeOut())
 		{
+			_keyboard->SetIsMenu(true);
 			//_peraRenderer->DataReset();
 			_controller.PushScene(new MenuScene(_controller));
 			return;

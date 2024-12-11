@@ -116,10 +116,6 @@ void AssimpModel::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMat
 		{
 			dstMaterial.diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 		}
-		/*SetConsoleOutputCP(CP_UTF8);
-		SetConsoleCP(CP_UTF8);
-		std::string name = pSrcMaterial->GetName().C_Str();
-		std::cout << name << std::endl;*/
 
 		aiString path;
 		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
@@ -141,10 +137,6 @@ void AssimpModel::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMat
 				&wstr[0],
 				num1);
 
-		}
-		else
-		{
-			std::cout << "no texture" << std::endl;
 		}
 	}
 
@@ -200,7 +192,7 @@ bool AssimpModel::ModelHeapInit()
 	return true;
 }
 
-void AssimpModel::Update()
+void AssimpModel::Update(bool isStart)
 {
 	world =
 		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)

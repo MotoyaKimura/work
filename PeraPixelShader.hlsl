@@ -161,11 +161,11 @@ float4 PS(Output input) : SV_TARGET
         {
             if(input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.4 && input.uv.y < 0.6)
             {
-                return float4((color.xyz * 0.5 + pause.rgb) * fade * GameOverFade, color.a);
+                return float4((color.xyz * 0.5 + pause.rgb) * fade * gameOverFade + clearFade, color.a);
             }
-            return float4((color.xyz * 0.5) * fade * GameOverFade, color.a);
+            return float4((color.xyz * 0.5) * fade * gameOverFade + clearFade, color.a);
         }
             
-        return float4(color.xyz * fade * GameOverFade, color.a);
+        return float4(color.xyz * fade * gameOverFade + clearFade, color.a);
     }
 }

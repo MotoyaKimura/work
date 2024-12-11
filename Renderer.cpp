@@ -219,14 +219,11 @@ void Renderer::AddModel(std::shared_ptr<Model> model)
 	_models.emplace_back(model);
 }
 
-void Renderer::Update()
+void Renderer::Update(bool isStart)
 {
-
-	//_keyboard->Move();
 	for (auto& _models : _models) {
-		_models->Update();
+		_models->Update(isStart);
 	}
-	//_camera->CalcSceneTrans();
 }
 
 void Renderer::DrawModel() const

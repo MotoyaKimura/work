@@ -16,7 +16,7 @@ private:
 
 	bool ModelHeapInit() override;
 	void Draw() override;
-	void Update() override;
+	void Update(bool isStart) override;
 public:
 	AssimpModel(std::shared_ptr<Wrapper> dx, 
 		std::shared_ptr<Camera> camera,

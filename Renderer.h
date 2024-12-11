@@ -45,7 +45,6 @@ protected:
 	void SetNumBuffers(UINT num) { _numBuffers = num; }
 	void SetResSize(UINT width, UINT height) { resWidth = width; resHeight = height; }
 	void SetFormat(DXGI_FORMAT format) { _format = format; }
-	void SetClearValue(float r, float g, float b, float a) { clsClr[0] = r; clsClr[1] = g; clsClr[2] = b; clsClr[3] = a; }
 	void AddElement(const char* semantics, DXGI_FORMAT format);
 
 	bool CheckResult(HRESULT result) const;
@@ -61,6 +60,7 @@ protected:
 	void SetRootSigParamForPera(size_t cbvDescs, size_t srvDescs);
 	void SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs);
 public:
+	void SetClearValue(float r, float g, float b, float a) { clsClr[0] = r; clsClr[1] = g; clsClr[2] = b; clsClr[3] = a; }
 	
 	bool CreateBuffers();
 	bool CreateDepthBuffer();
@@ -74,7 +74,7 @@ public:
 	virtual void Draw() = 0;
 	
 	void AddModel(std::shared_ptr<Model> model);
-	void Update();
+	void Update(bool isStart);
 	void BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate,
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature) const ;
 	void DrawModel() const ;
