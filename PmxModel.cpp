@@ -897,7 +897,7 @@ void PmxModel::UpdateAnimation(bool isStart)
 						motionCountJump = 0;
 						Application::SetIsKeyJump(false);
 						isJumping = false;
-						motionCountDown = 0;
+						motionCountDown = 2;
 					}
 					else
 					{
@@ -907,6 +907,7 @@ void PmxModel::UpdateAnimation(bool isStart)
 						motionCountJump = 0;
 						Application::SetIsKeyJump(false);
 						isJumping = false;
+						isRunning = false;
 						motionCountDown = 0;
 					}
 				}
@@ -990,6 +991,7 @@ void PmxModel::UpdateAnimation(bool isStart)
 					frameNo = 0;
 					ChangeVMD(_wait);
 					motionCountUp = 0;
+					isRunning = false;
 					Application::SetIsMoveKeyUp(false);
 				}
 			}

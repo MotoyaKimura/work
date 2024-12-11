@@ -6,7 +6,7 @@
 class RSM : public Renderer
 {
 private:
-	UINT rsm_difinition = 1024;
+	UINT rsm_difinition = 2048;
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Pera> _pera;
 	std::vector<std::shared_ptr<Model>> _models;

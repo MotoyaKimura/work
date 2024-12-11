@@ -274,6 +274,15 @@ bool Keyboard::isGetKeyState()
 		Collision(vRight);
 		return isMove;
 	}
+
+	/*if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+	{
+		pos = XMVectorAdd(pos, vUp* 0.1);
+		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
+		_models[modelID]->GetAABB()->_yMax += (vUp * 0.1).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vUp * 0.1).m128_f32[1];
+		isMove = true;
+	}*/
 	
 	if (keycode[VK_SHIFT] & 0x80)
 	{

@@ -34,7 +34,7 @@ bool GameScene::SceneInit()
 		Application::DebugOutputFormatString("カメラの初期化エラー\n ");
 		return false;
 	}
-	modelNum = 15;
+	modelNum = 21;
 	_models.resize(modelNum);
 	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
 	
@@ -49,7 +49,21 @@ bool GameScene::SceneInit()
 		_models[i + 4]->Move(0, 2.5 * (i + 1), 5 * (i + 1));
 	}
 	_models[14] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_lightBlue.obj");
-	_models[14]->Move(0, 2.5 * 11, 5 * 14);
+	_models[14]->Move(0, 2.5 * 11, 5 * 15);
+
+	//家モデル（一遍にできないので１つずつ、モデル数：６）
+	_models[15] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/cafe.obj");
+	_models[16] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/chimney.obj");
+	_models[17] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/roof.obj");
+	_models[18] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/knob.obj");
+	_models[19] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/door.obj");
+	_models[20] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/base.obj");
+	for (int i = 0; i < 6; i++)
+	{
+		_models[15 + i]->Move(0, 2.5 * 11 + 0.5, 5 * 18);
+	}
+
+
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 	_keyboard->Init();
@@ -79,6 +93,7 @@ bool GameScene::SceneInit()
 			return false;
 		}
 	}
+
 
 	for (auto model : _models)
 	{

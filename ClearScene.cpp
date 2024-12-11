@@ -14,7 +14,7 @@
 #include "Button.h"
 #include "AssimpModel.h"
 #include <tchar.h>
-
+#include "PmxModel.h"
 #include "TitleScene.h"
 
 bool ClearScene::SceneInit()
@@ -34,16 +34,24 @@ bool ClearScene::SceneInit()
 		return false;
 	}
 
+	
 
-	modelNum = 3;
+	modelNum = 7;
 	_models.resize(modelNum);
-	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
-	_models[0]->Move(0, 0, 0);
-	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
-	_models[1]->Move(2.5, 2.5, 0);
-	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
-	_models[2]->Move(0, 2.5, 2.5);
-
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
+	_models[0]->Move(0, 0, 20);
+	_models[0]->Rotate(0, 0.5, 0);
+	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/cafe.obj");
+	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/chimney.obj");
+	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/roof.obj");
+	_models[4] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/knob.obj");
+	_models[5] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/door.obj");
+	_models[6] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/base.obj");
+	for (int i = 0; i < 6; i++)
+	{
+		_models[1 + i]->Move(-3, 0, 30);
+		_models[1 + i]->Rotate(0, -0.5, 0);
+	}
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 
@@ -125,13 +133,10 @@ void ClearScene::SceneUpdate(void)
 
 	_restartButton->Update();
 	_titleButton->Update();
-	if (_peraRenderer->Update())
-	{
-	}
-	else {
-			_rsm->Update(false);
-			_modelRenderer->Update(false);
-	}
+	
+	_peraRenderer->Update();
+	_rsm->Update(false);
+	_modelRenderer->Update(false);
 }
 
 void ClearScene::SceneRender(void)

@@ -153,7 +153,7 @@ float4 PS(Output input) : SV_TARGET
         pause.rgb *= pause.a;
       //  float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
         //startTexColor.rgb *= startTexColor.a;
-        float4 color = float4(texColor * ssao + indLight, texColor.a);
+        float4 color = float4(texColor.rgb * ssao, texColor.a);
         float Y = 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
         float3 monochromeColor = float3(Y, Y, Y);
         color.xyz = lerp(monochromeColor, color, monochromeRate);
