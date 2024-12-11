@@ -36,7 +36,8 @@ bool GameScene::SceneInit()
 	}
 	modelNum = 21;
 	_models.resize(modelNum);
-	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx", 
+		L"vmdData\\1.‚Ú‚ñ‚â‚è‘Ò‚¿_(490f_ˆÚ“®‚È‚µ).vmd", true));
 	
 	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_yellow.obj");
 	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");

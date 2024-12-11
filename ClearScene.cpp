@@ -36,10 +36,10 @@ bool ClearScene::SceneInit()
 
 	
 
-	modelNum = 7;
+	modelNum = 8;
 	_models.resize(modelNum);
-	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
-	_models[0]->Move(0, 0, 20);
+	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/floor/floor_circle.obj"));
+	_models[0]->Move(0, -2, 20);
 	_models[0]->Rotate(0, 0.5, 0);
 	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/cafe.obj");
 	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/chimney.obj");
@@ -53,6 +53,10 @@ bool ClearScene::SceneInit()
 		_models[1 + i]->Rotate(0, -0.5, 0);
 	}
 
+	_models[7] = std::make_shared<PmxModel>(Application::_dx, _camera, "modelData/nico/nico.pmx", 
+		L"vmdData\\jump.vmd", false);
+	_models[7]->Move(10, 0, 20);
+	
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 
 	_keyboard->Init();

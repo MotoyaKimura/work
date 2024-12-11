@@ -47,7 +47,8 @@ bool PmxModel::Load(std::string filePath)
 	_nodeManager->Init(pmxData.bones);
 
 
-	
+	_firstVMD.reset(new VMD());
+	_firstVMD->LoadVMD(_firstVmdPath);
 	_wait.reset(new VMD());
 	auto result = _wait->LoadVMD(L"vmdData\\1.‚Ú‚ñ‚â‚è‘Ò‚¿_(490f_ˆÚ“®‚È‚µ).vmd");
 	_preRun.reset(new VMD);
@@ -71,11 +72,16 @@ bool PmxModel::Load(std::string filePath)
 	_endJump2->LoadVMD(L"vmdData\\3.’…’n‚µ‚Ä–_—§‚¿_(25f_‘OˆÚ“®5).vmd");
 
 	if (!result) return false;
-	InitAnimation(_wait->vmdData);
+	InitAnimation(_firstVMD->vmdData);
+
+	if(!_isRepeat)
+	{
+		_nodeManager->SetDuration((std::numeric_limits<unsigned int>::max)());
+	}
 
 	_morphManager.reset(new MorphManager(&mesh));
 	_morphManager->Init(pmxData.morphs, 
-		_wait->vmdData.morphs, 
+		_firstVMD->vmdData.morphs,
 		pmxData.vertices.size(), 
 		pmxData.materials.size(), 
 		pmxData.bones.size()
@@ -835,15 +841,14 @@ void PmxModel::InitAnimation(VMDFileData& vmdData)
 
 void PmxModel::UpdateAnimation(bool isStart)
 {
-	if(_startTime <= 0)
-	{
-		_startTime = timeGetTime();
-	}
-
 	DWORD elapsedTime = timeGetTime() - _startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
 
-	
+	if(_startTime <= 0)
+	{
+		_startTime = timeGetTime();
+		frameNo = 0;
+	}
 
 	BYTE key[256];
 	GetKeyboardState(key);
@@ -1430,8 +1435,10 @@ void PmxModel::Draw()
 
 PmxModel::PmxModel(std::shared_ptr<Wrapper> dx
 	, std::shared_ptr<Camera> camera,
-	std::string filePath
-) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath)
+	std::string filePath,
+	std::wstring firstVmdPath,
+	bool isRepeat
+) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath), _firstVmdPath(firstVmdPath), _isRepeat(isRepeat)
 {
 	Load(filePath);
 }

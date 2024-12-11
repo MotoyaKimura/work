@@ -36,7 +36,8 @@ bool TitleScene::SceneInit()
 
 	modelNum = 3;
 	_models.resize(modelNum);
-	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx"));
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx", 
+		L"vmdData\\1.‚Ú‚ñ‚â‚è‘Ò‚¿_(490f_ˆÚ“®‚È‚µ).vmd", true));
 	_models[0]->Move(0, 0, 0);
 	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
 	_models[1]->Move(2.5, 2.5, 0);

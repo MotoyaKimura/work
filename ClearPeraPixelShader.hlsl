@@ -87,17 +87,17 @@ float4 PS(Output input) : SV_TARGET
    
     if (input.uv.x > 0.25 && input.uv.x < 0.75 && input.uv.y > 0.0 && input.uv.y < 0.25)
     {
-        return float4((texColor * ssao + clear + indLight).rgb, texColor.a);
+        return float4((texColor * ssao + clear ).rgb, texColor.a);
     }
     else if(input.uv.x > 0.2 && input.uv.x < 0.4 && input.uv.y > 0.8 && input.uv.y < 0.9)
     {
-        return float4((texColor * ssao + restart * restartHoverCnt * fade + indLight).rgb, texColor.a);
+        return float4((texColor * ssao + restart * restartHoverCnt * fade).rgb, texColor.a);
     }
     else if (input.uv.x > 0.6 && input.uv.x < 0.8 && input.uv.y > 0.8 && input.uv.y < 0.9)
     {
-        return float4((texColor * ssao + title * titleHoverCnt * fade + indLight).rgb, texColor.a);
+        return float4((texColor * ssao + title * titleHoverCnt * fade).rgb, texColor.a);
     }
     
-    return float4((texColor * ssao + indLight).rgb, texColor.a);
+    return float4((texColor * ssao ).rgb, texColor.a);
     
 }

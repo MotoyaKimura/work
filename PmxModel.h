@@ -192,6 +192,7 @@ private:
 	std::shared_ptr<Wrapper> _dx;
 	std::shared_ptr<Camera> _camera;
 	std::string _filePath;
+	std::wstring _firstVmdPath;
 
 	//ここからPMXファイルの読み込みに必要な構造体
 	struct PMXHeader
@@ -507,8 +508,8 @@ private:
 
 	std::wstring GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW);
 
-	unsigned int _duration = 0;
-	DWORD _startTime;
+	
+	DWORD _startTime = 0;
 	void InitAnimation(VMDFileData& vmdData);
 	void PlayAnimation();
 	void UpdateAnimation(bool isStart);
@@ -528,6 +529,8 @@ private:
 	void MorphBone();
 
 	void ChangeVMD(std::shared_ptr<VMD> vmd);
+	std::shared_ptr<VMD> _firstVMD;
+
 	std::shared_ptr<VMD> _wait;
 	std::shared_ptr<VMD> _preJump;
 	std::shared_ptr<VMD> _jump;
@@ -545,11 +548,14 @@ private:
 	int motionCountJump = 0;
 	bool isRunning = false;
 	bool isJumping = false;
+	bool _isRepeat = false;
 public:
 
 	PmxModel(std::shared_ptr<Wrapper> dx
 		, std::shared_ptr<Camera> camera,
-		std::string filePath
+		std::string filePath,
+		std::wstring firstVmdPath,
+		bool isRepeat
 	);
 	~PmxModel() override;
 };
