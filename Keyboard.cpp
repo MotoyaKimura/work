@@ -284,14 +284,14 @@ bool Keyboard::isGetKeyState()
 		isMove = true;
 	}*/
 	
-	if (keycode[VK_SHIFT] & 0x80)
+	/*if (keycode[VK_SHIFT] & 0x80)
 	{
 		pos = XMVectorAdd(pos, vDown * 0.1);
 		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
 		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
 		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
 		isMove = true;
-	}
+	}*/
 	
 
 	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)

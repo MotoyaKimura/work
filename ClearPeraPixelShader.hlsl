@@ -77,27 +77,16 @@ float4 PS(Output input) : SV_TARGET
     float3 indLight = calcRSM(input.uv);
     float ssao = ssaoTex.Sample(smp, (input.uv));
     float4 texColor = tex.Sample(smp, input.uv);
-    float4 clear = clearTex.Sample(smp, float2((input.uv.x + 0.25) * 2, (input.uv.y ) * 4));
+    float4 clear = clearTex.Sample(smp2, float2((input.uv.x - 0.25) * 2, (input.uv.y) * 4));
     clear.rgb *= clear.a;
-    float4 restart = restartTex.Sample(smp, float2((input.uv.x) * 5, (input.uv.y) * 10));
+    float4 restart = restartTex.Sample(smp2, float2((input.uv.x - 0.2) * 5, (input.uv.y - 0.8) * 10));
     restart.rgb *= restart.a;
-    float4 title = titleTex.Sample(smp, float2((input.uv.x) * 5, (input.uv.y) * 10));
+    float4 title = titleTex.Sample(smp2, float2((input.uv.x - 0.6) * 5, (input.uv.y - 0.8) * 10));
     title.rgb *= title.a;
-    
+
    
-    if (input.uv.x > 0.25 && input.uv.x < 0.75 && input.uv.y > 0.0 && input.uv.y < 0.25)
-    {
-        return float4((texColor * ssao + clear ).rgb, texColor.a);
-    }
-    else if(input.uv.x > 0.2 && input.uv.x < 0.4 && input.uv.y > 0.8 && input.uv.y < 0.9)
-    {
-        return float4((texColor * ssao + restart * restartHoverCnt * fade).rgb, texColor.a);
-    }
-    else if (input.uv.x > 0.6 && input.uv.x < 0.8 && input.uv.y > 0.8 && input.uv.y < 0.9)
-    {
-        return float4((texColor * ssao + title * titleHoverCnt * fade).rgb, texColor.a);
-    }
     
-    return float4((texColor * ssao ).rgb, texColor.a);
-    
+    return float4((texColor * ssao + clear +
+    restart * restartHoverCnt * fade +
+    title * titleHoverCnt * fade).rgb, texColor.a);
 }

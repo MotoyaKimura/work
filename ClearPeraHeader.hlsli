@@ -42,7 +42,7 @@ cbuffer cbuff1 : register(b1)
 }
 
 SamplerState smp : register(s0);
-
+SamplerState smp2 : register(s2);
 
 struct Output
 {
