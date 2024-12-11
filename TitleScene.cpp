@@ -51,6 +51,10 @@ bool TitleScene::SceneInit()
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+
+	_rsm->SetClearValue(0.5, 0.5, 0.5, 1.0);
+	_modelRenderer->SetClearValue(0.5, 0.5, 0.5, 1.0);
+
 	_rsm->Init();
 	_modelRenderer->Init();
 	_ssao->Init();

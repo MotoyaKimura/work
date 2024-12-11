@@ -53,6 +53,10 @@ bool ClearScene::SceneInit()
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+
+	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
+	_modelRenderer->SetClearValue(0.8f, 0.8f, 0.9f, 1.0f);
+
 	_rsm->Init();
 	_modelRenderer->Init();
 	_ssao->Init();
@@ -87,9 +91,6 @@ bool ClearScene::SceneInit()
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"ClearPeraVertexShader.hlsl", "VS", L"ClearPeraPixelShader.hlsl", "PS");
 
-	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
-	_modelRenderer->SetClearValue(0.8f, 0.8f, 0.9f, 1.0f);
-
 	_restartButton.reset(new Button("Restart"));
 	int dx = Application::GetWindowSize().cx;
 	int dy = Application::GetWindowSize().cy;
@@ -103,25 +104,22 @@ bool ClearScene::SceneInit()
 
 void ClearScene::SceneUpdate(void)
 {
-	if(!_restartButton->IsActive())
+	if(!_restartButton->IsActive() && !_titleButton->IsActive())
 	{
 		if (_restartButton->IsHover())
 		{
 			_peraRenderer->HoverButton(_restartButton->GetName());
 		}
-	}
-	if (!_titleButton->IsActive())
-	{
-		if (_titleButton->IsHover())
+		else if (_titleButton->IsHover())
 		{
 			_peraRenderer->HoverButton(_titleButton->GetName());
 		}
+		else
+		{
+			_peraRenderer->HoverCntReset();
+		}
 	}
-	else
-	{
-		_peraRenderer->HoverCntReset();
-	}
-
+	
 	_keyboard->AutoRotateCamera();
 	_camera->CalcSceneTrans();
 
