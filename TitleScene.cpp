@@ -62,9 +62,12 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_texture.reset(new Texture(Application::_dx));
-	_texture->Init(L"texture/start.png");
-	_pera->SetSRV(_texture->GetTexBuff(), _texture->GetMetadata().format);
+	_startTex.reset(new Texture(Application::_dx));
+	_startTex->Init(L"texture/start.png");
+	_pera->SetSRV(_startTex->GetTexBuff(), _startTex->GetMetadata().format);
+	_yabaiTex.reset(new Texture(Application::_dx));
+	_yabaiTex->Init(L"texture/yabai.png");
+	_pera->SetSRV(_yabaiTex->GetTexBuff(), _yabaiTex->GetMetadata().format);
 
 	for (auto model : _models)
 	{
