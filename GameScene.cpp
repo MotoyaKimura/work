@@ -120,8 +120,12 @@ void GameScene::SceneUpdate(void)
 		_keyboard->Move();
 		_camera->CalcSceneTrans();
 	}
-	_rsm->Update(isStart);
-	_modelRenderer->Update(isStart);
+	if(!_peraRenderer->IsPause())
+	{
+		_rsm->Update(isStart);
+		_modelRenderer->Update(isStart);
+	}
+	
 }
 
 void GameScene::SceneRender(void)
@@ -154,6 +158,10 @@ void GameScene::SceneRender(void)
 			return;
 		}
 	}
+
+	
+	_keyboard->SetIsPause(Application::GetPause());
+	
 
 	if(Application::GetMenu())
 	{

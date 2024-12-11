@@ -39,6 +39,7 @@ private:
 
 	unsigned int keyCount = 0;
 	bool isMove = false;
+	bool isPause = false;
 	DWORD elapsedTime = 0;
 	DWORD _startTime = 0;
 	float velocity = 0;
@@ -61,6 +62,6 @@ public:
 	bool CollisionY();
 	void isCollision(DirectX::XMVECTOR dir);
 	void SetIsMenu(bool _isMenu) { isMenu = _isMenu; }
-
+	void SetIsPause(bool _isPause) { isPause =  _isPause; }
 	~Keyboard();
 };

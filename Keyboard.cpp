@@ -74,7 +74,7 @@ void Keyboard::MoveModel()
 			ChangeTarget();
 		}
 	}
-	if(isMenu)
+	if(isMenu || isPause)
 	{
 		_startTime = timeGetTime() - elapsedTime;
 		isMenu = false;
