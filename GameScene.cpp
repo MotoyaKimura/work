@@ -42,9 +42,9 @@ bool GameScene::SceneInit()
 	_models[0]->Move(0, 0.2, 0);
 	
 	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_yellow.obj");
-	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/piller.obj");
+	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/piller/piller.obj");
 	_models[2]->Move(9, 0, 9);
-	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/piller.obj");
+	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/piller/piller.obj");
 	_models[3]->Move(-9, 0, 9);
 	for (int i = 0; i < 10; i++)
 	{
