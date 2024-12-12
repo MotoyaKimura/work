@@ -70,8 +70,10 @@ int4 calcMilliToSecond()
     int ten = a / 10000;
     int b = a % 10000;
     int one = b / 1000;
-    int tenth = (b % 1000) / 100;
-    int hundredth = b % 100;
+    int c = b % 1000;
+    int tenth = c / 100;
+    int d = c % 100;
+    int hundredth = d / 10;
     return int4(ten, one, tenth, hundredth);
 }
 
