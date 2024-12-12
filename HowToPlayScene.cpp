@@ -50,9 +50,9 @@ bool HowToPlayScene::SceneInit()
 	_backButton.reset(new Button("Back"));
 	_backButton->Create(
 		_T("Å©"),
-		(int)(dx * 0.0f), (int)(dy * 0.0f),
-		(int)(dx * 0.1), (int)(dy * 0.1),
-		(HMENU)2
+		(int)(dx * 0.025f), (int)(dy * 0.1f),
+		(int)(dx * 0.05), (int)(dy * 0.05),
+		(HMENU)9
 	);
 
 

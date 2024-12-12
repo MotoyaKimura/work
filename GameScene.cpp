@@ -41,10 +41,10 @@ bool GameScene::SceneInit()
 		L"vmdData\\1.‚Ú‚ñ‚â‚è‘Ò‚¿_(490f_ˆÚ“®‚È‚µ).vmd", true));
 	
 	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_yellow.obj");
-	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
-	_models[2]->Move(2.5, 2.5, 0);
-	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
-	_models[3]->Move(0, 2.5, 2.5);
+	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/piller.obj");
+	_models[2]->Move(9, 0, 9);
+	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/piller.obj");
+	_models[3]->Move(-9, 0, 9);
 	for (int i = 0; i < 10; i++)
 	{
 		_models[i + 4] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/floor/floor_white.obj");
