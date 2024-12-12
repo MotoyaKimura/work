@@ -134,7 +134,7 @@ float4 PS(Output input) : SV_TARGET
                 return (num4 + redTime) * 0.5 * fade * gameOverFade + clearFade;
             else if (colon.a > 0.1)
                 return (colon + redTime) * 0.5 * fade * gameOverFade + clearFade;
-            return timer * fade * gameOverFade + clearFade;
+            return timer * 0.5 * fade * gameOverFade + clearFade;
         }
         if (input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.4 && input.uv.y < 0.6)
         {

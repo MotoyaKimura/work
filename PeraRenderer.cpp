@@ -113,7 +113,13 @@ void PeraRenderer::HoverCntReset()
 void PeraRenderer::CalcTime()
 {
 	_wipeBuffData->_milliSecond = timeGetTime() - startTime;
-	
+}
+
+bool PeraRenderer::TimeLimit()
+{
+	if (_wipeBuffData->_milliSecond >= 30000)
+		return true;
+	return false;
 }
 
 void PeraRenderer::TimeStart()
@@ -125,7 +131,11 @@ bool PeraRenderer::IsPause()
 {
 	_wipeBuffData->_isPause = Application::GetPause();
 	if (_wipeBuffData->_isPause)
+	{
 		while (ShowCursor(true) < 0);
+		startTime = timeGetTime() - _wipeBuffData->_milliSecond;
+	}
+
 	return _wipeBuffData->_isPause;
 }
 

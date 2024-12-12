@@ -197,6 +197,7 @@ void GameScene::SceneRender(void)
 		return;
 	}
 
+	
 	if(_camera->GetEyePos()->y <= -100)
 	{
 		if (_peraRenderer->GameOverFadeOut())
@@ -206,7 +207,15 @@ void GameScene::SceneRender(void)
 		}
 	}
 
-	if (_camera->GetEyePos()->x > -15 && _camera->GetEyePos()->x < 15 &&
+	if (_peraRenderer->TimeLimit())
+	{
+		if (_peraRenderer->GameOverFadeOut())
+		{
+			_controller.ChangeScene(new GameOverScene(_controller));
+			return;
+		}
+	}
+	else if (_camera->GetEyePos()->x > -15 && _camera->GetEyePos()->x < 15 &&
 		_camera->GetEyePos()->y >= 27.5 &&
 		_camera->GetEyePos()->z >= 5 * 14 - 10 || isClear)
 	{

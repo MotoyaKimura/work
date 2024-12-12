@@ -61,6 +61,7 @@ public:
 	bool MonochromeToColor();
 	void TimeStart();
 	void CalcTime();
+	bool TimeLimit();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera, 
