@@ -26,6 +26,7 @@ private:
 		float _startHoverCnt;
 		float _restartHoverCnt;
 		float _titleHoverCnt;
+		float credit;
 		int _milliSecond;
 		bool _isPause;
 	};
@@ -63,6 +64,7 @@ public:
 	void CalcTime();
 	bool TimeLimit();
 	void TimeStop();
+	void creditRoll();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera, 

@@ -11,6 +11,9 @@ Texture2D<float> ssaoTex : register(t7);
 Texture2D<float4> clearTex : register(t8);
 Texture2D<float4> restartTex : register(t9);
 Texture2D<float4> titleTex : register(t10);
+Texture2D<float4> creditTex1 : register(t11);
+Texture2D<float4> creditTex2 : register(t12);
+
 
 cbuffer cbuff0 : register(b0)
 {
@@ -38,6 +41,7 @@ cbuffer cbuff1 : register(b1)
     float startHoverCnt;
     float restartHoverCnt;
     float titleHoverCnt;
+    float creditCnt;
     int milliSecond;
     bool isPause;
 }

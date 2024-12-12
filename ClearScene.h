@@ -31,6 +31,9 @@ private:
 	std::shared_ptr<Texture> _clearTex;
 	std::shared_ptr<Texture> _restartTex;
 	std::shared_ptr<Texture> _titleTex;
+	std::shared_ptr<Texture> _creditTex1;
+	std::shared_ptr<Texture> _creditTex2;
+
 	std::shared_ptr<Button> _restartButton;
 	std::shared_ptr<Button> _titleButton;
 

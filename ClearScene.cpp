@@ -84,6 +84,13 @@ bool ClearScene::SceneInit()
 	_titleTex.reset(new Texture(Application::_dx));
 	_titleTex->Init(L"texture/BackToTitle.png");
 	_pera->SetSRV(_titleTex->GetTexBuff(), _titleTex->GetMetadata().format);
+	_creditTex1.reset(new Texture(Application::_dx));
+	_creditTex1->Init(L"texture/credit1.png");
+	_pera->SetSRV(_creditTex1->GetTexBuff(), _creditTex1->GetMetadata().format);
+	_creditTex2.reset(new Texture(Application::_dx));
+	_creditTex2->Init(L"texture/credit2.png");
+	_pera->SetSRV(_creditTex2->GetTexBuff(), _creditTex2->GetMetadata().format);
+
 
 	for (auto model : _models)
 	{
@@ -132,6 +139,7 @@ void ClearScene::SceneUpdate(void)
 			_peraRenderer->HoverCntReset();
 		}
 	}
+	_peraRenderer->creditRoll();
 	
 	_keyboard->AutoRotateCamera();
 	_camera->CalcSceneTrans();

@@ -73,6 +73,7 @@ void PeraRenderer::DataReset()
 	_wipeBuffData->_restartHoverCnt = 1.0f;
 	_wipeBuffData->_titleHoverCnt = 1.0f;
 	_wipeBuffData->_milliSecond = 0;
+	_wipeBuffData->credit = 0.0f;
 	_wipeBuffData->_isPause = Application::GetPause();
 }
 
@@ -125,6 +126,11 @@ bool PeraRenderer::TimeLimit()
 void PeraRenderer::TimeStart()
 {
 	startTime = timeGetTime();
+}
+
+void PeraRenderer::creditRoll()
+{
+	_wipeBuffData->credit += 0.001f;
 }
 
 bool PeraRenderer::IsPause()
