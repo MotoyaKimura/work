@@ -17,6 +17,7 @@
 #include "PmxModel.h"
 #include  "GameOverScene.h"
 #include "ClearScene.h"
+#include "HowToPlayScene.h"
 
 bool GameScene::SceneInit()
 {
@@ -170,6 +171,11 @@ void GameScene::SceneUpdate(void)
 	{
 		_peraRenderer->TimeStart();
 	}
+	if(isBackFromHowToPlay)
+	{
+		isBackFromHowToPlay = false;
+		_peraRenderer->TimeStart();
+	}
 }
 
 void GameScene::SceneRender(void)
@@ -183,11 +189,13 @@ void GameScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
-	/*if(isStart && !Application::GetIsShowHowToPlay())
+	if(isStart && !Application::GetIsShowHowToPlay())
 	{
-		_controller.PushScene(new MenuScene(_controller));
+		_keyboard->SetIsHowToPlay(true);
+		isBackFromHowToPlay = true;
+		_controller.PushScene(new HowToPlayScene(_controller));
 		return;
-	}*/
+	}
 
 	if(_camera->GetEyePos()->y <= -100)
 	{

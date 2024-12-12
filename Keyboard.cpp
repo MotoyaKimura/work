@@ -74,10 +74,11 @@ void Keyboard::MoveModel()
 			ChangeTarget();
 		}
 	}
-	if(isMenu || isPause)
+	if(isMenu || isPause || isHowToPlay)
 	{
 		_startTime = timeGetTime() - elapsedTime;
 		isMenu = false;
+		isHowToPlay = false;
 	}
 	if (isGetKeyState())
 		SetPos();

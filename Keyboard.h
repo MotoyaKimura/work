@@ -18,6 +18,7 @@ private:
 	bool isActiveFirst = true;
 	bool isActive();
 	bool isMenu = false;
+	bool isHowToPlay = false;
 	float diff_x;
 	float diff_y;
 
@@ -62,6 +63,7 @@ public:
 	bool CollisionY();
 	void isCollision(DirectX::XMVECTOR dir);
 	void SetIsMenu(bool _isMenu) { isMenu = _isMenu; }
+	void SetIsHowToPlay(bool _isHowToPlay) { isHowToPlay = _isHowToPlay; }
 	void SetIsPause(bool _isPause) { isPause =  _isPause; }
 	~Keyboard();
 };

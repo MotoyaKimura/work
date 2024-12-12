@@ -155,6 +155,7 @@
     <ClCompile Include="ClearScene.cpp" />
     <ClCompile Include="GameOverScene.cpp" />
     <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="HowToPlayScene.cpp" />
     <ClCompile Include="IKSolver.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="main.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="ClearScene.h" />
     <ClInclude Include="GameOverScene.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="HowToPlayScene.h" />
     <ClInclude Include="IKSolver.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="MenuScene.h" />
