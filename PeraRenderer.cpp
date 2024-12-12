@@ -133,10 +133,15 @@ bool PeraRenderer::IsPause()
 	if (_wipeBuffData->_isPause)
 	{
 		while (ShowCursor(true) < 0);
-		startTime = timeGetTime() - _wipeBuffData->_milliSecond;
+		TimeStop();
 	}
 
 	return _wipeBuffData->_isPause;
+}
+
+void PeraRenderer::TimeStop()
+{
+	startTime = timeGetTime() - _wipeBuffData->_milliSecond;
 }
 
 bool PeraRenderer::FadeIn()

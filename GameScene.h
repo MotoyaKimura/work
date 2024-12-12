@@ -30,6 +30,7 @@ private:
 	UINT modelNum = 0;
 	bool isStart = false;
 	bool isClear = false;
+	bool isMenu = false;
 	bool isBackFromHowToPlay = false;
 	std::shared_ptr<Keyboard> _keyboard;
 	std::shared_ptr<Texture> _pauseTex;

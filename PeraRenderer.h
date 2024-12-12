@@ -62,6 +62,7 @@ public:
 	void TimeStart();
 	void CalcTime();
 	bool TimeLimit();
+	void TimeStop();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera, 

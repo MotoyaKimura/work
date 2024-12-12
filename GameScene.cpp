@@ -163,17 +163,23 @@ void GameScene::SceneUpdate(void)
 		_rsm->Update(isStart);
 		_modelRenderer->Update(isStart);
 	}
+	
+	if(isBackFromHowToPlay)
+	{
+		isBackFromHowToPlay = false;
+		_peraRenderer->TimeStart();
+	}
+	if(isMenu)
+	{
+		isMenu = false;
+		_peraRenderer->TimeStop();
+	}
 	if (isStart)
 	{
 		_peraRenderer->CalcTime();
 	}
 	else
 	{
-		_peraRenderer->TimeStart();
-	}
-	if(isBackFromHowToPlay)
-	{
-		isBackFromHowToPlay = false;
 		_peraRenderer->TimeStart();
 	}
 }
@@ -235,6 +241,7 @@ void GameScene::SceneRender(void)
 	{
 		if (_peraRenderer->FadeOut())
 		{
+			isMenu = true;
 			_keyboard->SetIsMenu(true);
 			//_peraRenderer->DataReset();
 			_controller.PushScene(new MenuScene(_controller));
