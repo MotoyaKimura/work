@@ -151,6 +151,8 @@ bool PeraRenderer::FadeIn()
 	return true;
 }
 
+
+
 bool PeraRenderer::FadeOut()
 {
 	if (_wipeBuffData->_fade <= 0.0f) return true;
@@ -171,6 +173,7 @@ bool PeraRenderer::ClearFadeOut()
 	_wipeBuffData->_clearFade += 0.005f;
 	return false;
 }
+
 
 bool PeraRenderer::WipeStart()
 {

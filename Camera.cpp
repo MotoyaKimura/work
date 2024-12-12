@@ -65,7 +65,7 @@ void Camera::CalcSceneTrans()
 		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(20, 20, 1.0f, 30.0f);
+		XMMatrixOrthographicLH(80, 80, 1.0f, 100.0f);
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 

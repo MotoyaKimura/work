@@ -34,12 +34,12 @@ bool ClearScene::SceneInit()
 		return false;
 	}
 
-	
+	_camera->SetEyePos(DirectX::XMFLOAT3(0, 0, -40));
 
 	modelNum = 8;
 	_models.resize(modelNum);
 	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/floor/floor_circle.obj"));
-	_models[0]->Move(0, -2, 20);
+	_models[0]->Move(0, -11.5, 0);
 	_models[0]->Rotate(0, 0.5, 0);
 	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/cafe.obj");
 	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/chimney.obj");
@@ -49,13 +49,14 @@ bool ClearScene::SceneInit()
 	_models[6] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/base.obj");
 	for (int i = 0; i < 6; i++)
 	{
-		_models[1 + i]->Move(-3, 0, 30);
-		_models[1 + i]->Rotate(0, -0.5, 0);
+		_models[1 + i]->Move(3, -10.5, 10);
+		_models[1 + i]->Rotate(0, 0.5, 0);
 	}
 
 	_models[7] = std::make_shared<PmxModel>(Application::_dx, _camera, "modelData/nico/nico.pmx", 
 		L"vmdData\\jump.vmd", false);
-	_models[7]->Move(10, 0, 20);
+	_models[7]->Move(-15, -10.5, -10);
+	_models[7]->Rotate(0, 0.5, 0);
 	
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 
@@ -138,6 +139,7 @@ void ClearScene::SceneUpdate(void)
 	_restartButton->Update();
 	_titleButton->Update();
 	
+	_peraRenderer->GameOverFadeOut();
 	_peraRenderer->Update();
 	_rsm->Update(false);
 	_modelRenderer->Update(false);
