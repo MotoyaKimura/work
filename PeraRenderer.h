@@ -26,6 +26,7 @@ private:
 		float _startHoverCnt;
 		float _restartHoverCnt;
 		float _titleHoverCnt;
+		int _milliSecond;
 		bool _isPause;
 	};
 	wipeBuffData* _wipeBuffData = {};
@@ -34,6 +35,8 @@ private:
 	float hoverCnt = 0.0f;
 	float monochromeCnt = 0.0f;
 	bool isWipe = false;
+	DWORD startTime = 0;
+	
 	bool wipeBuffInit();
 public:
 	void HoverButton(std::string buttonName);
@@ -56,6 +59,8 @@ public:
 	bool WipeStart();
 	bool WipeEnd();
 	bool MonochromeToColor();
+	void TimeStart();
+	void CalcTime();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera, 

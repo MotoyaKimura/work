@@ -29,8 +29,22 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	UINT modelNum = 0;
 	bool isStart = false;
+	bool isClear = false;
 	std::shared_ptr<Keyboard> _keyboard;
 	std::shared_ptr<Texture> _pauseTex;
+	std::shared_ptr<Texture> _zeroTex;
+	std::shared_ptr<Texture> _oneTex;
+	std::shared_ptr<Texture> _twoTex;
+	std::shared_ptr<Texture> _threeTex;
+	std::shared_ptr<Texture> _fourTex;
+	std::shared_ptr<Texture> _fiveTex;
+	std::shared_ptr<Texture> _sixTex;
+	std::shared_ptr<Texture> _sevenTex;
+	std::shared_ptr<Texture> _eightTex;
+	std::shared_ptr<Texture> _nineTex;
+	std::shared_ptr<Texture> _timerTex;
+	std::shared_ptr<Texture> _colonTex;
+
 	std::shared_ptr<Button> _button;
 
 	void SceneUpdate(void) override;

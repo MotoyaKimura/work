@@ -86,6 +86,43 @@ bool GameScene::SceneInit()
 	_pauseTex->Init(L"texture/pause.png");
 	_pera->SetSRV(_pauseTex->GetTexBuff(), _pauseTex->GetMetadata().format);
 
+	_zeroTex.reset(new Texture(Application::_dx));
+	_zeroTex->Init(L"texture/zero.png");
+	_pera->SetSRV(_zeroTex->GetTexBuff(), _zeroTex->GetMetadata().format);
+	_oneTex.reset(new Texture(Application::_dx));
+	_oneTex->Init(L"texture/one.png");
+	_pera->SetSRV(_oneTex->GetTexBuff(), _oneTex->GetMetadata().format);
+	_twoTex.reset(new Texture(Application::_dx));
+	_twoTex->Init(L"texture/two.png");
+	_pera->SetSRV(_twoTex->GetTexBuff(), _twoTex->GetMetadata().format);
+	_threeTex.reset(new Texture(Application::_dx));
+	_threeTex->Init(L"texture/three.png");
+	_pera->SetSRV(_threeTex->GetTexBuff(), _threeTex->GetMetadata().format);
+	_fourTex.reset(new Texture(Application::_dx));
+	_fourTex->Init(L"texture/four.png");
+	_pera->SetSRV(_fourTex->GetTexBuff(), _fourTex->GetMetadata().format);
+	_fiveTex.reset(new Texture(Application::_dx));
+	_fiveTex->Init(L"texture/five.png");
+	_pera->SetSRV(_fiveTex->GetTexBuff(), _fiveTex->GetMetadata().format);
+	_sixTex.reset(new Texture(Application::_dx));
+	_sixTex->Init(L"texture/six.png");
+	_pera->SetSRV(_sixTex->GetTexBuff(), _sixTex->GetMetadata().format);
+	_sevenTex.reset(new Texture(Application::_dx));
+	_sevenTex->Init(L"texture/seven.png");
+	_pera->SetSRV(_sevenTex->GetTexBuff(), _sevenTex->GetMetadata().format);
+	_eightTex.reset(new Texture(Application::_dx));
+	_eightTex->Init(L"texture/eight.png");
+	_pera->SetSRV(_eightTex->GetTexBuff(), _eightTex->GetMetadata().format);
+	_nineTex.reset(new Texture(Application::_dx));
+	_nineTex->Init(L"texture/nine.png");
+	_pera->SetSRV(_nineTex->GetTexBuff(), _nineTex->GetMetadata().format);
+	_timerTex.reset(new Texture(Application::_dx));
+	_timerTex->Init(L"texture/timer.png");
+	_pera->SetSRV(_timerTex->GetTexBuff(), _timerTex->GetMetadata().format);
+	_colonTex.reset(new Texture(Application::_dx));
+	_colonTex->Init(L"texture/colon.png");
+	_pera->SetSRV(_colonTex->GetTexBuff(), _colonTex->GetMetadata().format);
+
 	for (auto model : _models)
 	{
 		if (!model->Init())
@@ -106,7 +143,7 @@ bool GameScene::SceneInit()
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
 
-
+	_peraRenderer->TimeStart();
 	return true;
 }
 
@@ -125,7 +162,7 @@ void GameScene::SceneUpdate(void)
 		_rsm->Update(isStart);
 		_modelRenderer->Update(isStart);
 	}
-	
+	_peraRenderer->CalcTime();
 }
 
 void GameScene::SceneRender(void)
@@ -150,8 +187,9 @@ void GameScene::SceneRender(void)
 
 	if (_camera->GetEyePos()->x > -15 && _camera->GetEyePos()->x < 15 &&
 		_camera->GetEyePos()->y >= 27.5 &&
-		_camera->GetEyePos()->z >= 5 * 14 - 10)
+		_camera->GetEyePos()->z >= 5 * 14 - 10 || isClear)
 	{
+		isClear = true;
 		if (_peraRenderer->ClearFadeOut())
 		{
 			_controller.ChangeScene(new ClearScene(_controller));

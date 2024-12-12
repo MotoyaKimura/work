@@ -38,6 +38,7 @@ cbuffer cbuff1 : register(b1)
     float startHoverCnt;
     float restartHoverCnt;
     float titleHoverCnt;
+    int milliSecond;
     bool isPause;
 }
 
