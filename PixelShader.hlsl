@@ -31,7 +31,7 @@ PixelOutput PS(Output input) : SV_TARGET
     //output.col.xyz = (spa.xyz);
     //output.col.a = 1.0f;
    
-	output.col = max(saturate(diffuse * texCol * brightness * shadowWeight * toonDif
+	output.col = max(saturate(diffuse * texCol * brightness * shadowWeight * toonDif.r
     + spa * texCol), float4(diffuse * texCol * ambient, 1.0f));
     
 	

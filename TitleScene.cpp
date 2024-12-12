@@ -36,7 +36,7 @@ bool TitleScene::SceneInit()
 
 	modelNum = 1;
 	_models.resize(modelNum);
-	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/nico/nico.pmx", 
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/MiraikomachiPMX-master/Miraikomachi.pmx", 
 		L"vmdData\\1.‚Ú‚ñ‚â‚è‘Ò‚¿_(490f_ˆÚ“®‚È‚µ).vmd", true));
 	_models[0]->Move(0, 0, 0);
 	

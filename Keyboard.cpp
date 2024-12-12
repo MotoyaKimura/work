@@ -301,16 +301,16 @@ bool Keyboard::isGetKeyState()
 	if (keycode[VK_SHIFT] & keycode['S'] & 0x80)
 	{
 	}
-	if (keycode['R'] & 0x80)
-	{
-		_rotate->y += 0.1f;
-		isMove = true;
-	}
-	if (keycode['L'] & 0x80)
-	{
-		_rotate->y -= 0.1f;
-		isMove = true;
-	}
+	//if (keycode['R'] & 0x80)
+	//{
+	//	_rotate->y += 0.1f;
+	//	isMove = true;
+	//}
+	//if (keycode['L'] & 0x80)
+	//{
+	//	_rotate->y -= 0.1f;
+	//	isMove = true;
+	//}
 
 	keyCount = 0;
 	return isMove;
