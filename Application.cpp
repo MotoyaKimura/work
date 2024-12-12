@@ -18,6 +18,7 @@ bool Application::isMenu = false;
 bool Application::isMoveKeyDown = false;
 bool Application::isMoveKeyUp = false;
 bool Application::isKeyJump = false;
+bool Application::isShowHowToPlay = false;
 WNDCLASSEX Application::w;
 LPRECT Application::wrc;
 HMENU Application::ButtonID = nullptr;

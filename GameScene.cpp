@@ -143,7 +143,7 @@ bool GameScene::SceneInit()
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"PeraVertexShader.hlsl", "VS", L"PeraPixelShader.hlsl", "PS");
 
-	_peraRenderer->TimeStart();
+	
 	return true;
 }
 
@@ -162,7 +162,14 @@ void GameScene::SceneUpdate(void)
 		_rsm->Update(isStart);
 		_modelRenderer->Update(isStart);
 	}
-	_peraRenderer->CalcTime();
+	if (isStart)
+	{
+		_peraRenderer->CalcTime();
+	}
+	else
+	{
+		_peraRenderer->TimeStart();
+	}
 }
 
 void GameScene::SceneRender(void)
@@ -175,6 +182,12 @@ void GameScene::SceneRender(void)
 
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+
+	/*if(isStart && !Application::GetIsShowHowToPlay())
+	{
+		_controller.PushScene(new MenuScene(_controller));
+		return;
+	}*/
 
 	if(_camera->GetEyePos()->y <= -100)
 	{
