@@ -27,6 +27,7 @@ public:
 
 	void Dispose();
 
+	void SetDuration(unsigned int duration) { _duration = duration; }
 	unsigned int _duration = 0;
 private:
 	std::unordered_map<std::wstring, BoneNode*> _boneNodeByName;

@@ -108,6 +108,15 @@ void Renderer::SetRootSigParamForPera(size_t cbvDescs, size_t srvDescs)
 		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
 	);
 	samplers.emplace_back(samplerDesc);
+	samplerDesc.Init(
+		2,
+		D3D12_FILTER_ANISOTROPIC,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	);
+	samplers.emplace_back(samplerDesc);
+
 }
 
 void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)

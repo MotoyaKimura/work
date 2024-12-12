@@ -9,6 +9,9 @@ Texture2D<float> depthTex : register(t6);
 
 Texture2D<float> ssaoTex : register(t7);
 Texture2D<float4> startTex : register(t8);
+Texture2D<float4> yabaiTex : register(t9);
+
+
 cbuffer cbuff0 : register(b0)
 {
     matrix view;
@@ -35,11 +38,12 @@ cbuffer cbuff1 : register(b1)
     float startHoverCnt;
     float restartHoverCnt;
     float titleHoverCnt;
+    int milliSecond;
     bool isPause;
 }
 
 SamplerState smp : register(s0);
-
+SamplerState smp2 : register(s2);
 
 struct Output
 {

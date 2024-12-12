@@ -72,6 +72,7 @@ void PeraRenderer::DataReset()
 	_wipeBuffData->_startHoverCnt = 1.0f;
 	_wipeBuffData->_restartHoverCnt = 1.0f;
 	_wipeBuffData->_titleHoverCnt = 1.0f;
+	_wipeBuffData->_milliSecond = 0;
 	_wipeBuffData->_isPause = Application::GetPause();
 }
 
@@ -109,14 +110,38 @@ void PeraRenderer::HoverCntReset()
 		_wipeBuffData->_titleHoverCnt += 0.1;
 }
 
+void PeraRenderer::CalcTime()
+{
+	_wipeBuffData->_milliSecond = timeGetTime() - startTime;
+}
 
+bool PeraRenderer::TimeLimit()
+{
+	if (_wipeBuffData->_milliSecond >= 30000)
+		return true;
+	return false;
+}
+
+void PeraRenderer::TimeStart()
+{
+	startTime = timeGetTime();
+}
 
 bool PeraRenderer::IsPause()
 {
 	_wipeBuffData->_isPause = Application::GetPause();
 	if (_wipeBuffData->_isPause)
+	{
 		while (ShowCursor(true) < 0);
+		TimeStop();
+	}
+
 	return _wipeBuffData->_isPause;
+}
+
+void PeraRenderer::TimeStop()
+{
+	startTime = timeGetTime() - _wipeBuffData->_milliSecond;
 }
 
 bool PeraRenderer::FadeIn()
@@ -125,6 +150,8 @@ bool PeraRenderer::FadeIn()
 	_wipeBuffData->_fade += 0.1f;
 	return true;
 }
+
+
 
 bool PeraRenderer::FadeOut()
 {
@@ -146,6 +173,7 @@ bool PeraRenderer::ClearFadeOut()
 	_wipeBuffData->_clearFade += 0.005f;
 	return false;
 }
+
 
 bool PeraRenderer::WipeStart()
 {

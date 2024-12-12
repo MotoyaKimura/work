@@ -35,6 +35,7 @@ private:
 	static bool isMoveKeyDown;
 	static bool isMoveKeyUp;
 	static bool isKeyJump;
+	static bool isShowHowToPlay;
 protected:
 public:
 	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -48,12 +49,14 @@ public:
 	static WNDCLASSEX GetW() { return w; }
 	static bool GetPause() { return isPause; }
 	static bool GetMenu() { return isMenu; }
+	static bool GetIsShowHowToPlay() { return isShowHowToPlay; }
 	static void SetMenu() { isMenu = false; }
 	static HMENU GetButtonID() { return ButtonID; }
 	static void SetButtonID(HMENU id) { ButtonID = id; }
 	static void SetIsMoveKeyDown(bool flag) { isMoveKeyDown = flag; }
 	static void SetIsMoveKeyUp(bool flag) { isMoveKeyUp = flag; }
 	static void SetIsKeyJump(bool flag) { isKeyJump = flag; }
+	static void SetIsShowHowToPlay(bool flag) { isShowHowToPlay = flag; }
 
 	static bool GetIsMoveKeyDown() { return isMoveKeyDown; }
 	static bool GetIsMoveKeyUp() { return isMoveKeyUp; }

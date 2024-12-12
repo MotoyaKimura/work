@@ -9,7 +9,7 @@ bool RSM::Init()
 	SetNumBuffers(3);
 	SetResSize(rsm_difinition, rsm_difinition);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-	SetClearValue(0.5, 0.5, 0.5, 1.0);
+	
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
 	for (auto model : _models)

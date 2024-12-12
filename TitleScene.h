@@ -28,7 +28,11 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	UINT modelNum = 0;
 	std::shared_ptr<Keyboard> _keyboard;
-	std::shared_ptr<Texture> _texture;
+	std::shared_ptr<Texture> _startTex;
+	std::shared_ptr<Texture> _yabaiTex;
+
+	
+
 	std::shared_ptr<Button> _StartButton;
 
 	void SceneUpdate(void) override;

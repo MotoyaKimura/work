@@ -14,7 +14,7 @@
 #include "Button.h"
 #include "AssimpModel.h"
 #include <tchar.h>
-
+#include "PmxModel.h"
 #include "TitleScene.h"
 
 bool ClearScene::SceneInit()
@@ -34,17 +34,30 @@ bool ClearScene::SceneInit()
 		return false;
 	}
 
+	_camera->SetEyePos(DirectX::XMFLOAT3(0, 0, -40));
 
-	modelNum = 3;
+	modelNum = 8;
 	_models.resize(modelNum);
-	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
-	_models[0]->Move(0, 0, 0);
-	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
-	_models[1]->Move(2.5, 2.5, 0);
-	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
-	_models[2]->Move(0, 2.5, 2.5);
+	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/floor/floor_circle.obj"));
+	_models[0]->Move(0, -11.5, 0);
+	_models[0]->Rotate(0, 0.5, 0);
+	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/cafe.obj");
+	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/chimney.obj");
+	_models[3] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/roof.obj");
+	_models[4] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/knob.obj");
+	_models[5] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/door.obj");
+	_models[6] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/base.obj");
+	for (int i = 0; i < 6; i++)
+	{
+		_models[1 + i]->Move(3, -10.5, 10);
+		_models[1 + i]->Rotate(0, 0.5, 0);
+	}
 
-
+	_models[7] = std::make_shared<PmxModel>(Application::_dx, _camera, "modelData/MiraikomachiPMX-master/Miraikomachi.pmx", 
+		L"vmdData\\jump.vmd", false);
+	_models[7]->Move(-15, -10.5, -10);
+	_models[7]->Rotate(0, 0.5, 0);
+	
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 
 	_keyboard->Init();
@@ -53,6 +66,10 @@ bool ClearScene::SceneInit()
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+
+	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
+	_modelRenderer->SetClearValue(0.8f, 0.8f, 0.9f, 1.0f);
+
 	_rsm->Init();
 	_modelRenderer->Init();
 	_ssao->Init();
@@ -87,9 +104,6 @@ bool ClearScene::SceneInit()
 	_ssao->RendererInit(L"SSAOVertexShader.hlsl", "ssaoVS", L"SSAOPixelShader.hlsl", "ssaoPS");
 	_peraRenderer->RendererInit(L"ClearPeraVertexShader.hlsl", "VS", L"ClearPeraPixelShader.hlsl", "PS");
 
-	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
-	_modelRenderer->SetClearValue(0.8f, 0.8f, 0.9f, 1.0f);
-
 	_restartButton.reset(new Button("Restart"));
 	int dx = Application::GetWindowSize().cx;
 	int dy = Application::GetWindowSize().cy;
@@ -103,37 +117,32 @@ bool ClearScene::SceneInit()
 
 void ClearScene::SceneUpdate(void)
 {
-	if(!_restartButton->IsActive())
+	if(!_restartButton->IsActive() && !_titleButton->IsActive())
 	{
 		if (_restartButton->IsHover())
 		{
 			_peraRenderer->HoverButton(_restartButton->GetName());
 		}
-	}
-	if (!_titleButton->IsActive())
-	{
-		if (_titleButton->IsHover())
+		else if (_titleButton->IsHover())
 		{
 			_peraRenderer->HoverButton(_titleButton->GetName());
 		}
+		else
+		{
+			_peraRenderer->HoverCntReset();
+		}
 	}
-	else
-	{
-		_peraRenderer->HoverCntReset();
-	}
-
+	
 	_keyboard->AutoRotateCamera();
 	_camera->CalcSceneTrans();
 
 	_restartButton->Update();
 	_titleButton->Update();
-	if (_peraRenderer->Update())
-	{
-	}
-	else {
-			_rsm->Update(false);
-			_modelRenderer->Update(false);
-	}
+	
+	_peraRenderer->GameOverFadeOut();
+	_peraRenderer->Update();
+	_rsm->Update(false);
+	_modelRenderer->Update(false);
 }
 
 void ClearScene::SceneRender(void)

@@ -102,6 +102,9 @@
     <ClCompile Include="ClearScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="HowToPlayScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
@@ -118,6 +121,8 @@
     <FxCompile Include="GameOverPeraVertexShader.hlsl" />
     <FxCompile Include="ClearPeraPixelShader.hlsl" />
     <FxCompile Include="ClearPeraVertexShader.hlsl" />
+    <FxCompile Include="HowToPlayPeraPixelShader.hlsl" />
+    <FxCompile Include="HowToPlayPeraVertexShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -204,6 +209,9 @@
     <ClInclude Include="ClearScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="HowToPlayScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ShaderHeader.hlsli" />
@@ -213,5 +221,6 @@
     <None Include="MenuPeraHeader.hlsli" />
     <None Include="GameOverPeraHeader.hlsli" />
     <None Include="ClearPeraHeader.hlsli" />
+    <None Include="HowToPlayPeraHeader.hlsli" />
   </ItemGroup>
 </Project>

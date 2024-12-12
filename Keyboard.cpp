@@ -74,10 +74,11 @@ void Keyboard::MoveModel()
 			ChangeTarget();
 		}
 	}
-	if(isMenu)
+	if(isMenu || isPause || isHowToPlay)
 	{
 		_startTime = timeGetTime() - elapsedTime;
 		isMenu = false;
+		isHowToPlay = false;
 	}
 	if (isGetKeyState())
 		SetPos();
@@ -274,15 +275,24 @@ bool Keyboard::isGetKeyState()
 		Collision(vRight);
 		return isMove;
 	}
+
+	/*if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+	{
+		pos = XMVectorAdd(pos, vUp* 0.1);
+		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
+		_models[modelID]->GetAABB()->_yMax += (vUp * 0.1).m128_f32[1];
+		_models[modelID]->GetAABB()->_yMin += (vUp * 0.1).m128_f32[1];
+		isMove = true;
+	}*/
 	
-	if (keycode[VK_SHIFT] & 0x80)
+	/*if (keycode[VK_SHIFT] & 0x80)
 	{
 		pos = XMVectorAdd(pos, vDown * 0.1);
 		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
 		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
 		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
 		isMove = true;
-	}
+	}*/
 	
 
 	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
@@ -291,16 +301,16 @@ bool Keyboard::isGetKeyState()
 	if (keycode[VK_SHIFT] & keycode['S'] & 0x80)
 	{
 	}
-	if (keycode['R'] & 0x80)
-	{
-		_rotate->y += 0.1f;
-		isMove = true;
-	}
-	if (keycode['L'] & 0x80)
-	{
-		_rotate->y -= 0.1f;
-		isMove = true;
-	}
+	//if (keycode['R'] & 0x80)
+	//{
+	//	_rotate->y += 0.1f;
+	//	isMove = true;
+	//}
+	//if (keycode['L'] & 0x80)
+	//{
+	//	_rotate->y -= 0.1f;
+	//	isMove = true;
+	//}
 
 	keyCount = 0;
 	return isMove;

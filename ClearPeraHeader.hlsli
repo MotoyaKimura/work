@@ -38,11 +38,12 @@ cbuffer cbuff1 : register(b1)
     float startHoverCnt;
     float restartHoverCnt;
     float titleHoverCnt;
+    int milliSecond;
     bool isPause;
 }
 
 SamplerState smp : register(s0);
-
+SamplerState smp2 : register(s2);
 
 struct Output
 {

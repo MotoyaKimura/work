@@ -13,6 +13,7 @@
 #include "Texture.h"
 #include "Button.h"
 #include "AssimpModel.h"
+#include "PmxModel.h"
 #include <tchar.h>
 
 bool TitleScene::SceneInit()
@@ -33,14 +34,12 @@ bool TitleScene::SceneInit()
 	}
 
 
-	modelNum = 3;
+	modelNum = 1;
 	_models.resize(modelNum);
-	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/bunny/bunny.obj"));
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/MiraikomachiPMX-master/Miraikomachi.pmx", 
+		L"vmdData\\1.‚Ú‚ñ‚â‚è‘Ò‚¿_(490f_ˆÚ“®‚È‚µ).vmd", true));
 	_models[0]->Move(0, 0, 0);
-	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_green.obj");
-	_models[1]->Move(2.5, 2.5, 0);
-	_models[2] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/wall/wall_red.obj");
-	_models[2]->Move(0, 2.5, 2.5);
+	
 
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
@@ -51,14 +50,22 @@ bool TitleScene::SceneInit()
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+
+	_rsm->SetClearValue(0.5, 0.5, 0.5, 1.0);
+	_modelRenderer->SetClearValue(0.5, 0.5, 0.5, 1.0);
+
 	_rsm->Init();
 	_modelRenderer->Init();
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_texture.reset(new Texture(Application::_dx));
-	_texture->Init(L"texture/start.png");
-	_pera->SetSRV(_texture->GetTexBuff(), _texture->GetMetadata().format);
+	_startTex.reset(new Texture(Application::_dx));
+	_startTex->Init(L"texture/start.png");
+	_pera->SetSRV(_startTex->GetTexBuff(), _startTex->GetMetadata().format);
+	_yabaiTex.reset(new Texture(Application::_dx));
+	_yabaiTex->Init(L"texture/yabai.png");
+	_pera->SetSRV(_yabaiTex->GetTexBuff(), _yabaiTex->GetMetadata().format);
+	
 
 	for (auto model : _models)
 	{
@@ -103,12 +110,9 @@ void TitleScene::SceneUpdate(void)
 	}
 	
 	_StartButton->Update();
-	if(_peraRenderer->Update())
-	{}
-	else {
-	/*	_rsm->Update();
-		_modelRenderer->Update();*/
-	}
+	_peraRenderer->Update();
+	_rsm->Update(true);
+	_modelRenderer->Update(true);
 }
 
 void TitleScene::SceneRender(void)

@@ -18,6 +18,7 @@ private:
 	bool isActiveFirst = true;
 	bool isActive();
 	bool isMenu = false;
+	bool isHowToPlay = false;
 	float diff_x;
 	float diff_y;
 
@@ -39,6 +40,7 @@ private:
 
 	unsigned int keyCount = 0;
 	bool isMove = false;
+	bool isPause = false;
 	DWORD elapsedTime = 0;
 	DWORD _startTime = 0;
 	float velocity = 0;
@@ -61,6 +63,7 @@ public:
 	bool CollisionY();
 	void isCollision(DirectX::XMVECTOR dir);
 	void SetIsMenu(bool _isMenu) { isMenu = _isMenu; }
-
+	void SetIsHowToPlay(bool _isHowToPlay) { isHowToPlay = _isHowToPlay; }
+	void SetIsPause(bool _isPause) { isPause =  _isPause; }
 	~Keyboard();
 };
