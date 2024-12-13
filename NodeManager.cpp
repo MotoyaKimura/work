@@ -140,9 +140,10 @@ void NodeManager::UpdateAnimation(unsigned int frameNo)
 	{
 		_boneNodeByIdx[0]->UpdateGlobalTransform();
 	}
-
+	int i = 0;
 	for(BoneNode* curNode : _sortedNodes)
 	{
+	
 		if (curNode->GetAppendBoneNode() != nullptr)
 		{
 			curNode->UpdateAppendTransform();

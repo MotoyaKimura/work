@@ -334,6 +334,7 @@ bool PmxModel::ReadMaterial(PMXFileData& data, std::ifstream& file)
 	for (auto& mat : data.materials)
 	{
 		GetPMXStringUTF16(file, mat.name);
+		mat.name = mat.name + L'\0';
 		GetPMXStringUTF8(file, mat.englishName);
 		file.read(reinterpret_cast<char*>(&mat.diffuse), 16);
 		file.read(reinterpret_cast<char*>(&mat.specular), 12);
@@ -852,7 +853,7 @@ void PmxModel::UpdateAnimation(bool isStart)
 
 	BYTE key[256];
 	GetKeyboardState(key);
-	if(isStart)
+	/*if(isStart)
 	{
 		if (GetAsyncKeyState(VK_SPACE) & 0x8000 || isJumping)
 		{
@@ -1001,7 +1002,7 @@ void PmxModel::UpdateAnimation(bool isStart)
 				}
 			}
 		}
-	}
+	}*/
 	
 
 	if(frameNo > _nodeManager->_duration)
@@ -1305,6 +1306,7 @@ void PmxModel::MorphMaterial()
 		PMXMaterial& material = pmxData.materials[i];
 
 		Material* uploadMat = reinterpret_cast<Material*>(mappedMaterialPtr);
+
 
 		XMVECTOR diffuse = XMLoadFloat4(&material.diffuse);
 		XMVECTOR specular = XMLoadFloat3(&material.specular);

@@ -35,9 +35,9 @@ bool GameScene::SceneInit()
 		Application::DebugOutputFormatString("カメラの初期化エラー\n ");
 		return false;
 	}
-	modelNum = 21;
+	modelNum = 22;
 	_models.resize(modelNum);
-	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/MiraikomachiPMX-master/Miraikomachi.pmx",
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/八重沢なとり/YaezawaNatori.pmx",
 		L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd", true));
 	_models[0]->Move(0, 0.2, 0);
 	
@@ -65,7 +65,7 @@ bool GameScene::SceneInit()
 	{
 		_models[15 + i]->Move(0, 2.5 * 11 + 0.5, 5 * 18);
 	}
-
+	_models[21].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/sky/skyDome.obj"));
 
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));

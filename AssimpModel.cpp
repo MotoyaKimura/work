@@ -1,5 +1,6 @@
 #include "AssimpModel.h"
 #include "Wrapper.h"
+#include "Texture.h"
 #include <iostream>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -121,6 +122,19 @@ void AssimpModel::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMat
 		if (pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
 		{
 			std::string str = path.C_Str();
+			std::string ext = str.substr(str.find_last_of("."));
+			str = str.substr(str.find_last_of("/") + 1, str.find_last_of(".") - str.find_last_of("/") - 1);
+			std::shared_ptr<Texture> texture;
+			texture.reset(new Texture(_dx));
+		
+			texture->Init(L"modelData/RSMScene/sky/skyTex.png");
+			_aabb._xMax = 0;
+			_aabb._yMax = 0;
+			_aabb._zMax = 0;
+			_aabb._xMin = 0;
+			_aabb._yMin = 0;
+			_aabb._zMin = 0;
+			mTextureResources[Materials.size() - 1] = texture->GetTexBuff();
 			auto num1 = MultiByteToWideChar(
 				CP_UTF8,
 				0U,
