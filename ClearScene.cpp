@@ -44,8 +44,6 @@ bool ClearScene::SceneInit()
 //シーンの更新
 void ClearScene::SceneUpdate(void)
 {
-	//ボタンの更新
-	ButtonUpdate();
 	//カメラの自動回転
 	_keyboard->AutoRotateCamera();
 	//カメラの更新
@@ -59,6 +57,8 @@ void ClearScene::SceneUpdate(void)
 	//モデルの動き更新
 	_rsm->Update(false);
 	_modelRenderer->Update(false);
+	//ボタンの更新
+	ButtonUpdate();
 }
 
 //シーンの描画
@@ -256,7 +256,7 @@ void ClearScene::ButtonUpdate()
 	//クリック判定
 	_restartButton->Update();
 	_titleButton->Update();
-	//ボタンが押された
+	//ボタンが押されていない
 	//ホバー時にボタンがフェードイン・アウトする
 	if (!_restartButton->IsActive() && !_titleButton->IsActive())
 	{

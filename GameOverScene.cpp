@@ -36,9 +36,9 @@ bool GameOverScene::SceneInit()
 //シーンの更新
 void GameOverScene::SceneUpdate(void)
 {
-	ButtonUpdate();
 	//ポーズ判定と初めのフェードイン
 	_peraRenderer->FadeIn();
+	ButtonUpdate();
 }
 
 //シーンの描画
@@ -163,7 +163,7 @@ void GameOverScene::ButtonUpdate()
 	//クリック判定
 	_restartButton->Update();
 	_titleButton->Update();
-	//ボタンが押された
+	//ボタンが押されていない
 	//ホバー時にボタンがフェードイン・アウトする
 	if (!_restartButton->IsActive() && !_titleButton->IsActive())
 	{
