@@ -99,10 +99,10 @@ bool Model::IndexInit()
 	return true;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width, size_t num)
+Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width)
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(((width * num + 0xff) & ~0xff))  ;
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(width)  ;
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer = nullptr;
 	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
@@ -117,7 +117,8 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width, size_t num
 
 bool Model::WorldBuffInit()
 {
-	_worldBuff = CreateBuffer(sizeof(XMMATRIX), 1 + boneMatricesNum);
+	
+	_worldBuff = CreateBuffer((sizeof(XMMATRIX)* (1 + boneMatricesNum) + 0xff) & ~0xff);
 	auto result = _worldBuff->Map(
 		0, 
 		nullptr, 
@@ -137,7 +138,8 @@ bool Model::WorldBuffInit()
 
 	if (boneMatricesNum > 0)
 	{
-		_invTransBuff = CreateBuffer(sizeof(XMMATRIX), boneMatricesNum);
+		
+		_invTransBuff = CreateBuffer((sizeof(XMMATRIX) *  boneMatricesNum + 0xff) & ~0xff);
 		result = _invTransBuff->Map(
 			0,
 			nullptr,
@@ -153,7 +155,8 @@ bool Model::WorldBuffInit()
 	}
 	else
 	{
-		_invTransBuff = CreateBuffer(sizeof(XMMATRIX), 1);
+		
+		_invTransBuff = CreateBuffer((sizeof(XMMATRIX)  + 0xff) & ~0xff);
 		result = _invTransBuff->Map(
 			0,
 			nullptr,
@@ -176,7 +179,8 @@ bool Model::MaterialBuffInit()
 {
 	int materialBuffSize = sizeof(Material);
 	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
-	_materialBuff = CreateBuffer(materialBuffSize, Materials.size());
+	
+	_materialBuff = CreateBuffer(materialBuffSize * Materials.size());
 	//Material* materialMap = nullptr;
 	
 	auto result = _materialBuff->Map(
@@ -185,15 +189,16 @@ bool Model::MaterialBuffInit()
 		(void**)&materialMap
 	);
 	if (FAILED(result)) return false;
+	char* mappedMaterialPtr = materialMap;
 
 	for (auto& material : Materials)
 	{
-		Material* uploadMat = reinterpret_cast<Material*>(materialMap);
+		Material* uploadMat = reinterpret_cast<Material*>(mappedMaterialPtr);
 		uploadMat->diffuse = material.diffuse;
 		uploadMat->specular = material.specular;
 		uploadMat->specularPower = material.specularPower;
 		uploadMat->ambient = material.ambient;
-		materialMap += materialBuffSize;
+		mappedMaterialPtr += materialBuffSize;
 	}
 	//_materialBuff->Unmap(0, nullptr);
 	/*std::copy(
@@ -208,7 +213,7 @@ bool Model::MaterialBuffInit()
 		if(mTextureResources[i] == nullptr)
 		{
 			std::shared_ptr<Texture> whiteTex;
-			whiteTex.reset(new Texture(_dx));
+			whiteTex.reset(new Texture(_dx, L""));
 			whiteTex->WhileTextureInit();
 			SetSRV(whiteTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}
@@ -220,7 +225,7 @@ bool Model::MaterialBuffInit()
 		if (mToonResources[i] == nullptr)
 		{
 			std::shared_ptr<Texture> gradTex;
-			gradTex.reset(new Texture(_dx));
+			gradTex.reset(new Texture(_dx, L""));
 			gradTex->WhileTextureInit();
 			SetSRV(gradTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}
@@ -232,7 +237,7 @@ bool Model::MaterialBuffInit()
 		if (mSphereTextureResources[i] == nullptr)
 		{
 			std::shared_ptr<Texture> sphereTex;
-			sphereTex.reset(new Texture(_dx));
+			sphereTex.reset(new Texture(_dx, L""));
 			sphereTex->BlackTextureInit();
 			SetSRV(sphereTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}
@@ -342,13 +347,13 @@ bool Model::Init()
 		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 	*worldMatrix = world;
+	SetViews();
 	return true;
 }
 
 bool Model::RendererInit()
 {
 	
-	SetViews();
 	return true;
 }
 

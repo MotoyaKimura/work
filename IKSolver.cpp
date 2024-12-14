@@ -122,13 +122,19 @@ void IKSolver::SolveCore(unsigned int iteration)
 		float dot = XMVector3Dot(chainTargetVector, chainIKVector).m128_f32[0];
 		dot = std::clamp(dot, -1.0f, 1.0f);
 
-		float angle = acosf(dot);
+		float angle = acos(dot);
 		float angleDegree = XMConvertToDegrees(angle);
+		if (chainTargetVector.m128_f32[0] - chainIKVector.m128_f32[0] < 1.0e-3f &&
+			chainTargetVector.m128_f32[1] - chainIKVector.m128_f32[1] < 1.0e-3f &&
+			chainTargetVector.m128_f32[2] - chainIKVector.m128_f32[2] < 1.0e-3f)
+		{
+			continue;
+		}
 		if (angleDegree < 1.0e-3f)
 		{
 			continue;
 		}
-
+		
 		angle = std::clamp(angle, -_ikLimitAngle, _ikLimitAngle);
 		XMVECTOR cross = XMVector3Normalize(XMVector3Cross(chainTargetVector, chainIKVector));
 		XMMATRIX rotation = XMMatrixRotationAxis(cross, angle);

@@ -334,6 +334,7 @@ bool PmxModel::ReadMaterial(PMXFileData& data, std::ifstream& file)
 	for (auto& mat : data.materials)
 	{
 		GetPMXStringUTF16(file, mat.name);
+		mat.name = mat.name + L'\0';
 		GetPMXStringUTF8(file, mat.englishName);
 		file.read(reinterpret_cast<char*>(&mat.diffuse), 16);
 		file.read(reinterpret_cast<char*>(&mat.specular), 12);
@@ -386,13 +387,13 @@ bool PmxModel::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		else
 		{
 			std::shared_ptr<Texture> texture;
-			texture.reset(new Texture(_dx));
 			std::wstring texPath =
 				GetTexturePathFromModelAndTexPath(
 					_filePath,
 					data.textures[mat.textureIndex].textureName
 				);
-			texture->Init(texPath);
+			texture.reset(new Texture(_dx, texPath));
+			if (!texture->Init()) return false;
 
 			mTextureResources[materialIndex] = texture->GetTexBuff();
 		}
@@ -404,13 +405,14 @@ bool PmxModel::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		else
 		{
 			std::shared_ptr<Texture> toonTexture;
-			toonTexture.reset(new Texture(_dx));
+			
 			std::wstring toonPath =
 				GetTexturePathFromModelAndTexPath(
 					_filePath,
 					data.textures[mat.toonTextureIndex].textureName
 				);
-			toonTexture->Init(toonPath);
+			toonTexture.reset(new Texture(_dx, toonPath));
+			if (!toonTexture->Init()) return false;
 			mToonResources[materialIndex] = toonTexture->GetTexBuff();
 		}
 
@@ -421,13 +423,14 @@ bool PmxModel::ReadMaterial(PMXFileData& data, std::ifstream& file)
 		else
 		{
 			std::shared_ptr<Texture> sphereTexture;
-			sphereTexture.reset(new Texture(_dx));
+			
 			std::wstring spherePath =
 				GetTexturePathFromModelAndTexPath(
 					_filePath,
 					data.textures[mat.sphereTextureIndex].textureName
 				);
-			sphereTexture->Init(spherePath);
+			sphereTexture.reset(new Texture(_dx, spherePath));
+			if (!sphereTexture->Init()) return false;
 			mSphereTextureResources[materialIndex] = sphereTexture->GetTexBuff();
 		}
 		materialIndex++;
@@ -1297,14 +1300,15 @@ void PmxModel::MorphMaterial()
 	size_t bufferSize = sizeof(Material);
 	bufferSize = (bufferSize + 0xff) & ~0xff;
 
-	
-	char* mappedMaterialPtr = materialMap;
 
+	char* mappedMaterialPtr = materialMap;
 	for(int i = 0; i < pmxData.materials.size(); i++)
 	{
 		PMXMaterial& material = pmxData.materials[i];
 
-		Material* uploadMat = reinterpret_cast<Material*>(mappedMaterialPtr);
+		Material* uploadMat = nullptr;
+		uploadMat = reinterpret_cast<Material*>(mappedMaterialPtr);
+		if (uploadMat == nullptr) return;
 
 		XMVECTOR diffuse = XMLoadFloat4(&material.diffuse);
 		XMVECTOR specular = XMLoadFloat3(&material.specular);

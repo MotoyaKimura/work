@@ -26,10 +26,11 @@ private:
 		float _startHoverCnt;
 		float _restartHoverCnt;
 		float _titleHoverCnt;
+		float credit;
 		int _milliSecond;
 		bool _isPause;
 	};
-	wipeBuffData* _wipeBuffData = {};
+	wipeBuffData* _wipeBuffData = nullptr;
 	int wipeOpenCnt = 0;
 	int wipeCloseCnt = 0;
 	float hoverCnt = 0.0f;
@@ -50,19 +51,19 @@ public:
 	) override;
 	void DataReset();
 	void Draw() override;
-	bool Update();
+	
 	bool IsPause();
-	bool FadeIn();
+	void FadeIn();
 	bool FadeOut();
 	bool GameOverFadeOut();
 	bool ClearFadeOut();
-	bool WipeStart();
-	bool WipeEnd();
+	bool IsWipeOpen();
+	bool IsWipeClose();
 	bool MonochromeToColor();
-	void TimeStart();
 	void CalcTime();
 	bool TimeLimit();
 	void TimeStop();
+	void creditRoll();
 	PeraRenderer(
 		std::shared_ptr<Wrapper> dx,
 		std::shared_ptr<Pera> pera, 

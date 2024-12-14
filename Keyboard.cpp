@@ -64,7 +64,7 @@ void Keyboard::Move()
 
 void Keyboard::MoveModel()
 {
-	int modelNum = _models.size();
+	/*int modelNum = _models.size();
 	int key = 0x60;
 	GetKeyboardState(keycode);
 	for (int i = 0; i < modelNum; i++)
@@ -73,7 +73,7 @@ void Keyboard::MoveModel()
 			modelID = (key + i) & 0x0f;
 			ChangeTarget();
 		}
-	}
+	}*/
 	if(isMenu || isPause || isHowToPlay)
 	{
 		_startTime = timeGetTime() - elapsedTime;
@@ -91,6 +91,40 @@ void Keyboard::MoveCamera()
 		CalcMoveDir();
 		RotateCameraAroundModel();
 	}
+
+
+	float diff = 0.1f;
+	if (eyePos.m128_f32[1] > -100)
+	{
+		while (diff < 10)
+		{
+			XMFLOAT3 center;
+			center = _models[modelID]->GetAABBCenter();
+			XMVECTOR rayPt = XMLoadFloat3(&center) - XMVector3Normalize(eyeToTarget) * diff;
+			float length = XMVector3Length(rayPt).m128_f32[0];
+			aabb rayAabb = {
+				rayPt.m128_f32[0] - 0.01f,
+				rayPt.m128_f32[0] + 0.01f,
+				rayPt.m128_f32[1] - 0.01f,
+				rayPt.m128_f32[1] + 0.01f,
+				rayPt.m128_f32[2] - 0.01f,
+				rayPt.m128_f32[2] + 0.01f,
+
+			};
+
+			if (isCollision(rayAabb))
+			{
+				XMStoreFloat3(_eyePos, rayPt);
+				break;
+			}
+			diff += 0.01f;
+			if (diff >= 10)
+			{
+				XMStoreFloat3(_eyePos, XMLoadFloat3(&center) - XMVector3Normalize(eyeToTarget) * 10);
+			}
+		}
+	}
+	
 }
 
 bool Keyboard::isMoveMouse()
@@ -174,6 +208,9 @@ void Keyboard::RotateCameraAroundModel()
 	_eyePos->x = XMVectorGetX(eyeTrans);
 	_eyePos->y = XMVectorGetY(eyeTrans);
 	_eyePos->z = XMVectorGetZ(eyeTrans);
+
+	
+
 }
 
 void Keyboard::AutoRotateCamera()
@@ -188,6 +225,26 @@ void Keyboard::AutoRotateCamera()
 	_eyePos->x = XMVectorGetX(eyeTrans);
 	_eyePos->y = XMVectorGetY(eyeTrans);
 	_eyePos->z = XMVectorGetZ(eyeTrans);
+
+	
+}
+
+bool Keyboard::isCollision(aabb aabb)
+{
+	for (int i = 0; i < _models.size(); i++)
+	{
+		if (i == modelID) continue;
+		if (aabb._xMax <= _models[i]->GetAABB()->_xMin) continue;
+		if (aabb._xMin >= _models[i]->GetAABB()->_xMax) continue;
+		if (aabb._yMax <= _models[i]->GetAABB()->_yMin) continue;
+		if (aabb._yMin >= _models[i]->GetAABB()->_yMax) continue;
+		if (aabb._zMax <= _models[i]->GetAABB()->_zMin) continue;
+		if (aabb._zMin >= _models[i]->GetAABB()->_zMax) continue;
+		//std::cout << aabb._xMax << " " << aabb._xMin << " " << aabb._yMax << " " << aabb._yMin << " " << aabb._zMax << " " << aabb._zMin << std::endl;
+		//std::cout << _models[i]->GetAABB()->_xMin << " " << _models[i]->GetAABB()->_xMax << " " << _models[i]->GetAABB()->_yMin << " " << _models[i]->GetAABB()->_yMax << " " << _models[i]->GetAABB()->_zMin << " " << _models[i]->GetAABB()->_zMax << std::endl;
+		return true;
+	}
+	return false;
 }
 
 
@@ -225,11 +282,6 @@ bool Keyboard::isGetKeyState()
 
 	if (CollisionY()) {
 		velocity = 0;
-		_startTime = timeGetTime();
-		pos = XMVectorSubtract(pos, vDown * x);
-		eyePos = XMVectorSubtract(eyePos, vDown * x);
-		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
 	}
 
 
@@ -354,6 +406,11 @@ bool Keyboard::CollisionY()
 		float edgeY2 = abs(_models[i]->GetAABB()->_yMax - _models[i]->GetAABB()->_yMin);
 		if (abs(centerY1 - centerY2) - (edgeY1 + edgeY2) / 2.0f < 0.0f)
 		{
+			_startTime = timeGetTime();
+			pos.m128_f32[1] = _models[i]->GetAABB()->_yMax + 0.01;
+			//eyePos = XMVectorSubtract(eyePos, vDown * x);
+			_models[modelID]->GetAABB()->_yMax = pos.m128_f32[1] + edgeY1 + 0.01;
+			_models[modelID]->GetAABB()->_yMin = pos.m128_f32[1] + 0.01;
 			return true;
 		}
 	}

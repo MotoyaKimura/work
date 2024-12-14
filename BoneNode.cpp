@@ -4,7 +4,7 @@
 
 using namespace DirectX;
 
-
+//ボーンノードの初期化
 BoneNode::BoneNode(unsigned int index, const PMXBone& pmxBone) :
 _boneIndex(index),
 _name(pmxBone.name),
@@ -26,23 +26,26 @@ _appendRotation(XMMatrixIdentity())
 {
 }
 
+//各ボーンノードにモーションキー情報を追加
 void BoneNode::AddMotionKey(unsigned int& frameNo, XMFLOAT4& quaternion, XMFLOAT3& offset, const XMFLOAT2& p1, const XMFLOAT2& p2)
 {
 	_motionKeys.emplace_back(frameNo, XMLoadFloat4(&quaternion), offset, p1, p2);
 }
 
+//各ボーンノードにIKキー情報を追加
 void BoneNode::AddIKKey(unsigned int& frameNo, bool& enable)
 {
 	_ikKeys.emplace_back(frameNo, enable);
 }
 
+//モーションキーをクリア
 void BoneNode::ClearKey()
 {
 	_motionKeys.clear();
 	_ikKeys.clear();
 }
 
-
+//モーションキーをソート
 void BoneNode::SortAllKeys()
 {
 	std::sort(_motionKeys.begin(), _motionKeys.end(), 
@@ -52,6 +55,7 @@ void BoneNode::SortAllKeys()
 		});
 }
 
+//ボーンのアニメーションを更新
 void BoneNode::AnimateMotion(unsigned int frameNo)
 {
 	_animateRotation = XMMatrixIdentity();
@@ -62,6 +66,7 @@ void BoneNode::AnimateMotion(unsigned int frameNo)
 		return;
 	}
 
+	//アニメーション経過フレームの直前のキーを取得
 	auto rit = std::find_if(_motionKeys.rbegin(), _motionKeys.rend(),
 		[frameNo](const VMDKey& key)
 		{
@@ -76,6 +81,7 @@ void BoneNode::AnimateMotion(unsigned int frameNo)
 
 	auto iterator = rit.base();
 
+	//重みを計算
 	if(iterator != _motionKeys.end())
 	{
 		float t = static_cast<float>(frameNo - rit->frameNo) / static_cast<float>(iterator->frameNo - rit->frameNo);
@@ -91,6 +97,7 @@ void BoneNode::AnimateMotion(unsigned int frameNo)
 	}
 }
 
+//ベジェ曲線のY座標を求める
 float BoneNode::GetYFromXOnBezier(float x, XMFLOAT2& a, XMFLOAT2& b, uint8_t n)
 {
 	if (a.x == a.y && b.x == b.y)
@@ -122,6 +129,7 @@ float BoneNode::GetYFromXOnBezier(float x, XMFLOAT2& a, XMFLOAT2& b, uint8_t n)
 	return t * t * t + 3 * t * t * r * b.y + 3 * t * r * r * a.y;
 }
 
+//ボーンのローカル行列を更新
 void BoneNode::UpdateLocalTransform()
 {
 
@@ -147,11 +155,12 @@ void BoneNode::UpdateLocalTransform()
 	_localTransform = rotation * translate;
 }
 
+//親ボーンから行列をかけていく
 void BoneNode::UpdateGlobalTransform()
 {
 	if(_parentBoneNode == nullptr)
 	{
-		_globalTransform = XMMatrixScaling(0.2, 0.2,0.2) *  _localTransform;
+		_globalTransform = XMMatrixScaling(0.25, 0.25,0.25) *  _localTransform;
 	}
 	else
 	{
@@ -164,6 +173,7 @@ void BoneNode::UpdateGlobalTransform()
 	}
 }
 
+//アペンドボーンの行列を更新
 void BoneNode::UpdateAppendTransform()
 {
 	if(_appendBoneNode == nullptr)
@@ -226,7 +236,7 @@ void BoneNode::UpdateAppendTransform()
 	UpdateLocalTransform();
 }
 
-
+//モーションのキーフレーム最大値を取得
 unsigned int BoneNode::GetMaxFrameNo() const 
 {
 	if (_motionKeys.size() <= 0)
@@ -237,6 +247,7 @@ unsigned int BoneNode::GetMaxFrameNo() const
 	return _motionKeys.back().frameNo;
 }
 
+//IKのアニメーション
 void BoneNode::AnimateIK(unsigned int frameNo)
 {
 	if (_motionKeys.size() <= 0 || _ikSolver == nullptr)
@@ -244,6 +255,7 @@ void BoneNode::AnimateIK(unsigned int frameNo)
 		return;
 	}
 
+	//アニメーション経過フレームの直前のキーフレームを取得
 	auto rit = std::find_if(_ikKeys.rbegin(), _ikKeys.rend(),
 		[frameNo](const VMDIKkey& key)
 		{
@@ -255,5 +267,6 @@ void BoneNode::AnimateIK(unsigned int frameNo)
 		return;
 	}
 
+	//キーフレームのIKを計算し始める
 	_ikSolver->SetEnable(rit->enable);
 }

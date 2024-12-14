@@ -138,24 +138,11 @@ uint instNo : SV_InstanceID
     pos.xyz = pos.xyz + morphPos;
     output.pos = vertexSkinning(pos, boneNo, boneWeight, weightType, sdefC, sdefR0, sdefR1, q0, q1);
 	output.pos = mul(world, output.pos);
-    output.pos = mul(shadowOffsetY, output.pos);
-    if(instNo == 1)
-    {
-        output.pos = mul(shadow, output.pos);
-    }
-    output.pos = mul(invShadowOffsetY, output.pos);
     output.svpos = mul(mul(projection, view), output.pos);
     normal.w = 0;
     output.tpos = mul(lightCamera, output.pos);
-
-    //skinning = matrix(skinning._11, skinning._12, skinning._13, 0,
-    //                  skinning._21, skinning._22, skinning._23, 0,
-    //                  skinning._31, skinning._32, skinning._33, 0,
-    //                  0, 0, 0, 1);
-    //output.normal = mul(skinning, normal);
     output.normal = mul(world, normal);
     output.vnormal = mul(view, output.normal);
-
     uv += morphUV.xy;
 	output.uv = uv;
     output.ray = normalize(output.pos.xyz - mul(view, eye));
@@ -185,17 +172,9 @@ uint instNo : SV_InstanceID
     pos.xyz = pos.xyz + morphPos;
     output.pos = vertexSkinning(pos, boneNo, boneWeight, weightType, sdefC, sdefR0, sdefR1, q0, q1);
     output.pos = mul(world, output.pos);
-    output.pos = mul(shadowOffsetY, output.pos);
-    output.pos = mul(invShadowOffsetY, output.pos);
     output.svpos = mul(lightCamera, output.pos);
     normal.w = 0;
     output.tpos = mul(lightCamera, output.pos);
-    //skinning = matrix(skinning._11, skinning._12, skinning._13, 0,
-    //                  skinning._21, skinning._22, skinning._23, 0,
-    //                  skinning._31, skinning._32, skinning._33, 0,
-    //                  0, 0, 0, 1);
-    //output.normal = mul(skinning, normal);
-    
     output.normal = mul(world, normal);
     uv += morphUV.xy;
     output.uv = uv;

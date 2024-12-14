@@ -131,7 +131,7 @@ protected:
 	bool WorldBuffInit();
 	bool MaterialBuffInit();
 	virtual bool ModelHeapInit() = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width, size_t num);
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width);
 
 	
 	aabb _aabb;
@@ -153,6 +153,17 @@ public:
 	DirectX::XMVECTOR GetEye() const { return _eye; }
 	void SetEye(DirectX::XMVECTOR eye) { _eye = eye; }
 	aabb* GetAABB()  { return &_aabb; }
+	DirectX::XMFLOAT3 GetAABBCenter() { return DirectX::XMFLOAT3(
+		(_aabb._xMax + _aabb._xMin) / 2, (_aabb._yMax + _aabb._yMin) / 2, (_aabb._zMax + _aabb._zMin) / 2); }
+	void SetAABB(float xMax, float xMin, float yMax, float yMin, float zMax, float zMin)
+	{
+		_aabb._xMax = xMax;
+		_aabb._xMin = xMin;
+		_aabb._yMax = yMax;
+		_aabb._yMin = yMin;
+		_aabb._zMax = zMax;
+		_aabb._zMin = zMin;
+	}
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const { return _modelHeap; }
 	Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath);
 	virtual ~Model();

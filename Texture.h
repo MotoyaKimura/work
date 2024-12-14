@@ -14,6 +14,7 @@ private:
 	DirectX::TexMetadata metadata = {};
 	DirectX::ScratchImage scratchImg = {};
 	const DirectX::Image* image = nullptr;
+	std::wstring _fileName;
 	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> _texBuff = nullptr;
 	size_t AlignmentedSize(size_t size, size_t alignment) { return size + alignment - size % alignment; }
@@ -30,7 +31,7 @@ private:
 	std::map<std::string, LoadLambda_t> loadLambdaTable;
 	void DefineLambda();
 public:
-	bool Init(std::wstring fileName);
+	bool Init();
 	bool WhileTextureInit();
 	bool BlackTextureInit();
 	bool GradTextureInit();
@@ -38,6 +39,6 @@ public:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTexBuff() { return _texBuff.Get(); }
 	DirectX::TexMetadata GetMetadata() { return metadata; }
-	Texture(std::shared_ptr<Wrapper> dx);
+	Texture(std::shared_ptr<Wrapper> dx, std::wstring fileName);
 	~Texture();
 };

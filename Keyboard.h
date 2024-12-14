@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include <Windows.h>
 #include <iostream>
+#include "Model.h"
 #include <vector>
 class Camera;
 class Model;
@@ -62,6 +63,7 @@ public:
 	void Collision(DirectX::XMVECTOR dir);
 	bool CollisionY();
 	void isCollision(DirectX::XMVECTOR dir);
+	bool isCollision(aabb aabb);
 	void SetIsMenu(bool _isMenu) { isMenu = _isMenu; }
 	void SetIsHowToPlay(bool _isHowToPlay) { isHowToPlay = _isHowToPlay; }
 	void SetIsPause(bool _isPause) { isPause =  _isPause; }

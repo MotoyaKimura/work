@@ -19,7 +19,7 @@ PixelOutput PS(Output input) : SV_TARGET
     float4 texCol = texColor.Sample(smp, input.uv);
     float3 refLight = normalize(reflect(-lightVec, input.normal.xyz));
     float specularB = pow(saturate(dot(refLight, normalize(input.ray))), specularPower);
-    float diffuseB = saturate(dot(normalize(lightVec), input.normal.xyz));
+    float diffuseB = saturate(dot(normalize(-lightVec), input.normal.xyz));
     float4 toonDif = toon.Sample(smpToon, float2(0, 1.0 - diffuseB));
     float2 normalUV = (input.normal.xy + float2(1, -1)) * float2(0.5, -0.5);
     float2 sphereMapUV = input.vnormal.xy;
@@ -31,7 +31,7 @@ PixelOutput PS(Output input) : SV_TARGET
     //output.col.xyz = (spa.xyz);
     //output.col.a = 1.0f;
    
-	output.col = max(saturate(diffuse * texCol * brightness * shadowWeight * toonDif.r
+	output.col = max(saturate(diffuse * texCol * brightness * shadowWeight * toonDif
     + spa * texCol), float4(diffuse * texCol * ambient, 1.0f));
     
 	

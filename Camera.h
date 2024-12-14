@@ -16,9 +16,6 @@ private:
 		DirectX::XMMATRIX view;//ビュー
 		DirectX::XMMATRIX projection;//プロジェクション
 		DirectX::XMMATRIX invProjection;
-		DirectX::XMMATRIX shadow;
-		DirectX::XMMATRIX shadowOffsetY;
-		DirectX::XMMATRIX invShadowOffsetY;
 		DirectX::XMMATRIX lightView;
 		DirectX::XMMATRIX lightCamera;
 		DirectX::XMFLOAT3 lightVec;

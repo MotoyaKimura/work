@@ -34,8 +34,12 @@ bool HowToPlayScene::SceneInit()
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer->Init();
 
-	_howToPlayTex.reset(new Texture(Application::_dx));
-	_howToPlayTex->Init(L"texture/asobikata.png");
+	_howToPlayTex.reset(new Texture(Application::_dx, L"texture/asobikata.png"));
+	if(!_howToPlayTex->Init())
+	{
+		Application::DebugOutputFormatString("テクスチャの初期化エラー\n ");
+		return false;
+	}
 	_pera->SetSRV(_howToPlayTex->GetTexBuff(), _howToPlayTex->GetMetadata().format);
 	
 
@@ -70,7 +74,7 @@ void HowToPlayScene::SceneUpdate(void)
 		_peraRenderer->HoverCntReset();
 	}
 	_backButton->Update();
-	_peraRenderer->Update();
+	_peraRenderer->FadeIn();
 }
 
 void HowToPlayScene::SceneRender(void)

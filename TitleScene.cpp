@@ -36,8 +36,8 @@ bool TitleScene::SceneInit()
 
 	modelNum = 1;
 	_models.resize(modelNum);
-	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/MiraikomachiPMX-master/Miraikomachi.pmx", 
-		L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd", true));
+	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/八重沢なとり/YaezawaNatori.pmx", 
+		L"wait.vmd", true));
 	_models[0]->Move(0, 0, 0);
 	
 
@@ -59,12 +59,18 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_startTex.reset(new Texture(Application::_dx));
-	_startTex->Init(L"texture/start.png");
-	_pera->SetSRV(_startTex->GetTexBuff(), _startTex->GetMetadata().format);
-	_yabaiTex.reset(new Texture(Application::_dx));
-	_yabaiTex->Init(L"texture/yabai.png");
-	_pera->SetSRV(_yabaiTex->GetTexBuff(), _yabaiTex->GetMetadata().format);
+	_textures.resize(2);
+	_textures[0].reset(new Texture(Application::_dx, L"texture/start.png"));
+	_textures[1].reset(new Texture(Application::_dx, L"texture/yabai.png"));
+	for (auto tex : _textures)
+	{
+		if (!tex->Init())
+		{
+			Application::DebugOutputFormatString("テクスチャの初期化エラー\n ");
+			return false;
+		}
+		_pera->SetSRV(tex->GetTexBuff(), tex->GetMetadata().format);
+	}
 	
 
 	for (auto model : _models)
@@ -110,7 +116,7 @@ void TitleScene::SceneUpdate(void)
 	}
 	
 	_StartButton->Update();
-	_peraRenderer->Update();
+	_peraRenderer->FadeIn();
 	_rsm->Update(true);
 	_modelRenderer->Update(true);
 }
@@ -131,7 +137,7 @@ void TitleScene::SceneRender(void)
 	
 		_StartButton->Hide();
 		_peraRenderer->FadeOut();
-		if (_peraRenderer->WipeEnd()) {
+		if (_peraRenderer->IsWipeClose()) {
 			_StartButton->SetInActive();
 			SceneFinal();
 			_controller.ChangeScene(new GameScene(_controller));

@@ -8,9 +8,6 @@ cbuffer cbuff0 : register(b0)
     matrix view;
     matrix projection;
     matrix invprojection;
-    matrix shadow;
-    matrix shadowOffsetY;
-    matrix invShadowOffsetY;
     matrix lightCamera;
     float3 lightVec;
     float3 eye;
@@ -29,6 +26,7 @@ cbuffer cbuff1 : register(b1)
     float startHoverCnt;
     float restartHoverCnt;
     float titleHoverCnt;
+    float creditCnt;
     int milliSecond;
     bool isPause;
 }

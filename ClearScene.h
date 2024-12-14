@@ -28,9 +28,9 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	UINT modelNum = 0;
 	std::shared_ptr<Keyboard> _keyboard;
-	std::shared_ptr<Texture> _clearTex;
-	std::shared_ptr<Texture> _restartTex;
-	std::shared_ptr<Texture> _titleTex;
+	
+	std::vector<std::shared_ptr<Texture>> _textures;
+
 	std::shared_ptr<Button> _restartButton;
 	std::shared_ptr<Button> _titleButton;
 
@@ -41,6 +41,17 @@ private:
 	void SceneRender(void) override;
 	void SceneResize(void) override;
 	const char* GetSceneName(void) override;
+
+	bool PeraInit();
+	bool CameraInit();
+	void ModelReset();
+	void KeyboardInit();
+	bool RendererBuffInit();
+	bool TextureInit();
+	bool ModelInit();
+	bool RendererDrawInit();
+	void ButtonInit();
+	void ButtonUpdate();
 public:
 	ClearScene(SceneManager& controller);
 	~ClearScene() override;

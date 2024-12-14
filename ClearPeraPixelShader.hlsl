@@ -83,7 +83,19 @@ float4 PS(Output input) : SV_TARGET
     restart.rgb *= restart.a;
     float4 title = titleTex.Sample(smp2, float2((input.uv.x - 0.6) * 5, (input.uv.y - 0.8) * 10));
     title.rgb *= title.a;
+    float4 credit1 = creditTex1.Sample(smp2, float2(input.uv.x, input.uv.y - 1.0 + creditCnt));
+    credit1.rgb *= credit1.a;
+    float4 credit2 = creditTex2.Sample(smp2, float2(input.uv.x, input.uv.y - 2.0 + creditCnt));
+    credit2.rgb *= credit2.a;
 
+    if(credit1.a > 0.1f)
+    {
+        return credit1;
+    }
+    if(credit2.a > 0.1f)
+    {
+        return credit2;
+    }
     //if (input.uv.x < 0.2 && input.uv.y < 0.4 && input.uv.y > 0.2)
     //{
     //    float dep = pow(depthTex.Sample(smp, input.uv * 5), 10);
