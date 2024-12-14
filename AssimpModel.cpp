@@ -127,7 +127,7 @@ void AssimpModel::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMat
 			std::shared_ptr<Texture> texture;
 			texture.reset(new Texture(_dx));
 		
-			texture->Init(L"modelData/RSMScene/sky/skyTex.png");
+			texture->Init(L"modelData/RSMScene/sky/skySphereTex.png");
 			_aabb._xMax = 0;
 			_aabb._yMax = 0;
 			_aabb._zMax = 0;

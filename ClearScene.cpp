@@ -54,7 +54,7 @@ bool ClearScene::SceneInit()
 	}
 
 	_models[7] = std::make_shared<PmxModel>(Application::_dx, _camera, "modelData/”ªd‘ò‚È‚Æ‚è/YaezawaNatori.pmx", 
-		L"vmdData\\a.vmd", false);
+		L"vmdData\\˜rã‚°.vmd", false);
 	_models[7]->Move(-15, -10.5, -10);
 	_models[7]->Rotate(0, 0.5, 0);
 	

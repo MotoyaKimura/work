@@ -65,7 +65,7 @@ bool GameScene::SceneInit()
 	{
 		_models[15 + i]->Move(0, 2.5 * 11 + 0.5, 5 * 18);
 	}
-	_models[21].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/sky/skyDome.obj"));
+	_models[21].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/sky/skySphere.obj"));
 
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
@@ -223,10 +223,10 @@ void GameScene::SceneRender(void)
 		}
 		return;
 	}
-
-	if (_camera->GetEyePos()->x > -15 && _camera->GetEyePos()->x < 15 &&
-		_camera->GetEyePos()->y >= 27.5 &&
-		_camera->GetEyePos()->z >= 5 * 14 - 10 || isClear)
+	
+	if (_models[0]->GetPos()->x > -15 && _models[0]->GetPos()->x < 15 &&
+		_models[0]->GetPos()->y >= 27 &&
+		_models[0]->GetPos()->z >= 5 * 14 - 10 || isClear)
 	{
 		isClear = true;
 		if (_peraRenderer->ClearFadeOut())

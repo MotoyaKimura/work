@@ -153,6 +153,8 @@ public:
 	DirectX::XMVECTOR GetEye() const { return _eye; }
 	void SetEye(DirectX::XMVECTOR eye) { _eye = eye; }
 	aabb* GetAABB()  { return &_aabb; }
+	DirectX::XMFLOAT3 GetAABBCenter() { return DirectX::XMFLOAT3(
+		(_aabb._xMax + _aabb._xMin) / 2, (_aabb._yMax + _aabb._yMin) / 2, (_aabb._zMax + _aabb._zMin) / 2); }
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeap() const { return _modelHeap; }
 	Model(std::shared_ptr<Wrapper> dx, std::shared_ptr<Camera> camera, std::string filePath);
 	virtual ~Model();
