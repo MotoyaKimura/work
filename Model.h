@@ -131,7 +131,7 @@ protected:
 	bool WorldBuffInit();
 	bool MaterialBuffInit();
 	virtual bool ModelHeapInit() = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width, size_t num);
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width);
 
 	
 	aabb _aabb;

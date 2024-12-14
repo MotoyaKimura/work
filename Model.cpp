@@ -99,10 +99,10 @@ bool Model::IndexInit()
 	return true;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width, size_t num)
+Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width)
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(((width * num + 0xff) & ~0xff))  ;
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(width)  ;
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer = nullptr;
 	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
@@ -117,7 +117,8 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Model::CreateBuffer(int width, size_t num
 
 bool Model::WorldBuffInit()
 {
-	_worldBuff = CreateBuffer(sizeof(XMMATRIX), 1 + boneMatricesNum);
+	
+	_worldBuff = CreateBuffer((sizeof(XMMATRIX)* (1 + boneMatricesNum) + 0xff) & ~0xff);
 	auto result = _worldBuff->Map(
 		0, 
 		nullptr, 
@@ -137,7 +138,8 @@ bool Model::WorldBuffInit()
 
 	if (boneMatricesNum > 0)
 	{
-		_invTransBuff = CreateBuffer(sizeof(XMMATRIX), boneMatricesNum);
+		
+		_invTransBuff = CreateBuffer((sizeof(XMMATRIX) *  boneMatricesNum + 0xff) & ~0xff);
 		result = _invTransBuff->Map(
 			0,
 			nullptr,
@@ -153,7 +155,8 @@ bool Model::WorldBuffInit()
 	}
 	else
 	{
-		_invTransBuff = CreateBuffer(sizeof(XMMATRIX), 1);
+		
+		_invTransBuff = CreateBuffer((sizeof(XMMATRIX)  + 0xff) & ~0xff);
 		result = _invTransBuff->Map(
 			0,
 			nullptr,
@@ -176,7 +179,8 @@ bool Model::MaterialBuffInit()
 {
 	int materialBuffSize = sizeof(Material);
 	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
-	_materialBuff = CreateBuffer(materialBuffSize, Materials.size());
+	
+	_materialBuff = CreateBuffer(materialBuffSize * Materials.size());
 	//Material* materialMap = nullptr;
 	
 	auto result = _materialBuff->Map(

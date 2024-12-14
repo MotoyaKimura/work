@@ -1300,7 +1300,10 @@ void PmxModel::MorphMaterial()
 	size_t bufferSize = sizeof(Material);
 	bufferSize = (bufferSize + 0xff) & ~0xff;
 
-	
+	if(materialMap == nullptr)
+	{
+		return;
+	}
 	char* mappedMaterialPtr = materialMap;
 
 	for(int i = 0; i < pmxData.materials.size(); i++)
