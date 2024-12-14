@@ -855,7 +855,7 @@ void PmxModel::UpdateAnimation(bool isStart)
 
 	BYTE key[256];
 	GetKeyboardState(key);
-	/*if(isStart)
+	if(isStart)
 	{
 		if (GetAsyncKeyState(VK_SPACE) & 0x8000 || isJumping)
 		{
@@ -1004,7 +1004,7 @@ void PmxModel::UpdateAnimation(bool isStart)
 				}
 			}
 		}
-	}*/
+	}
 	
 
 	if(frameNo > _nodeManager->_duration)

@@ -59,6 +59,7 @@ void GameScene::SceneUpdate(void)
 	//モーションはポーズ画面でないときのみ更新
 	if(_peraRenderer->IsPause())
 	{
+		_keyboard->SetIsPause(Application::GetPause());
 		_peraRenderer->TimeStop();
 	}
 	else
@@ -67,16 +68,19 @@ void GameScene::SceneUpdate(void)
 		_modelRenderer->Update(isStart);
 	}
 
+	//遊び方シーンから戻るまで時間は止めておく
 	if(isBackFromHowToPlay)
 	{
 		isBackFromHowToPlay = false;
 		_peraRenderer->TimeStop();
 	}
+	//メニューから戻るまで時間は止めておく
 	if(isMenu)
 	{
 		isMenu = false;
 		_peraRenderer->TimeStop();
 	}
+	//幕が上がるまで時間は止めておく
 	if (isStart)
 	{
 		_peraRenderer->CalcTime();
@@ -84,6 +88,51 @@ void GameScene::SceneUpdate(void)
 	else
 	{
 		_peraRenderer->TimeStop();
+	}
+	//幕が上がったらまず遊び方シーンへ遷移（一度きり）
+	if (isStart && !Application::GetIsShowHowToPlay())
+	{
+		_keyboard->SetIsHowToPlay(true);
+		isBackFromHowToPlay = true;
+		_controller.PushScene(new HowToPlayScene(_controller));
+		return;
+	}
+
+	//落ちたらゲームオーバーシーンへ遷移
+	//制限時間を過ぎたらゲームオーバーシーンへ遷移
+	if ((_camera->GetEyePos()->y <= -100 || _peraRenderer->TimeLimit()) && !isClear)
+	{
+		if (_peraRenderer->GameOverFadeOut())
+		{
+			_controller.ChangeScene(new GameOverScene(_controller));
+			return;
+		}
+	}
+
+	//プレイヤーがあるラインを超えたらクリアシーンへ遷移
+	if (_models[0]->GetPos()->x > -15 && _models[0]->GetPos()->x < 15 &&
+		_models[0]->GetPos()->y >= 27 &&
+		_models[0]->GetPos()->z >= 5 * 14 - 10 || isClear)
+	{
+		isClear = true;
+		if (_peraRenderer->ClearFadeOut())
+		{
+			_controller.ChangeScene(new ClearScene(_controller));
+			return;
+		}
+		return;
+	}
+
+	//エスケープが押されたらメニューシーンへ遷移
+	if (Application::GetMenu())
+	{
+		if (_peraRenderer->FadeOut())
+		{
+			isMenu = true;
+			_keyboard->SetIsMenu(true);
+			_controller.PushScene(new MenuScene(_controller));
+			return;
+		}
 	}
 }
 
@@ -98,62 +147,6 @@ void GameScene::SceneRender(void)
 
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
-
-	if(isStart && !Application::GetIsShowHowToPlay())
-	{
-		_keyboard->SetIsHowToPlay(true);
-		isBackFromHowToPlay = true;
-		_controller.PushScene(new HowToPlayScene(_controller));
-		return;
-	}
-
-	
-	if(_camera->GetEyePos()->y <= -100 && !isClear)
-	{
-		if (_peraRenderer->GameOverFadeOut())
-		{
-			_controller.ChangeScene(new GameOverScene(_controller));
-			return;
-		}
-	}
-
-	if (_peraRenderer->TimeLimit() && !isClear)
-	{
-		if (_peraRenderer->GameOverFadeOut())
-		{
-			_controller.ChangeScene(new GameOverScene(_controller));
-			return;
-		}
-		return;
-	}
-	
-	if (_models[0]->GetPos()->x > -15 && _models[0]->GetPos()->x < 15 &&
-		_models[0]->GetPos()->y >= 27 &&
-		_models[0]->GetPos()->z >= 5 * 14 - 10 || isClear)
-	{
-		isClear = true;
-		if (_peraRenderer->ClearFadeOut())
-		{
-			_controller.ChangeScene(new ClearScene(_controller));
-			return;
-		}
-		return;
-	}
-
-	
-	_keyboard->SetIsPause(Application::GetPause());
-	
-
-	if(Application::GetMenu())
-	{
-		if (_peraRenderer->FadeOut())
-		{
-			isMenu = true;
-			_keyboard->SetIsMenu(true);
-			_controller.PushScene(new MenuScene(_controller));
-			return;
-		}
-	}
 
 }
 

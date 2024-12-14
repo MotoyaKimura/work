@@ -51,6 +51,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 	{
 		if ((wParam == VK_PAUSE) & !(lParam >> 30))
 		{
+			if (_sceneManager->GetSceneName() == "GameScene")
 			isPause = !isPause;
 			if (isPause == false)
 			{

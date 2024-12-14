@@ -30,7 +30,7 @@ private:
 		int _milliSecond;
 		bool _isPause;
 	};
-	wipeBuffData* _wipeBuffData = {};
+	wipeBuffData* _wipeBuffData = nullptr;
 	int wipeOpenCnt = 0;
 	int wipeCloseCnt = 0;
 	float hoverCnt = 0.0f;
@@ -60,7 +60,6 @@ public:
 	bool IsWipeOpen();
 	bool IsWipeClose();
 	bool MonochromeToColor();
-	void TimeStart();
 	void CalcTime();
 	bool TimeLimit();
 	void TimeStop();

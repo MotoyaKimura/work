@@ -119,10 +119,6 @@ bool PeraRenderer::TimeLimit()
 	return false;
 }
 
-void PeraRenderer::TimeStart()
-{
-	startTime = timeGetTime();
-}
 
 void PeraRenderer::creditRoll()
 {
