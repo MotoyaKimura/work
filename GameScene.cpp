@@ -39,7 +39,7 @@ bool GameScene::SceneInit()
 	_models.resize(modelNum);
 	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/”ªd‘ò‚È‚Æ‚è/YaezawaNatori.pmx",
 		L"vmdData\\1.‚Ú‚ñ‚â‚è‘Ò‚¿_(490f_ˆÚ“®‚È‚µ).vmd", true));
-	_models[0]->Move(0, 0.2, 0);
+	_models[0]->Move(0, 0.0, 0);
 	
 	_models[1].reset(new AssimpModel (Application::_dx, _camera, "modelData/RSMScene/floor/floor_yellow.obj"));
 	_models[2].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/piller/piller.obj"));
@@ -66,7 +66,7 @@ bool GameScene::SceneInit()
 		_models[15 + i]->Move(0, 2.5 * 11 + 0.5, 5 * 18);
 	}
 	_models[21].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/sky/skySphere.obj"));
-
+	_models[21]->SetAABB(0,0,0,0,0,0);
 
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
 	_keyboard->Init();

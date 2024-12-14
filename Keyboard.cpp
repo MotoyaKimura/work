@@ -282,11 +282,6 @@ bool Keyboard::isGetKeyState()
 
 	if (CollisionY()) {
 		velocity = 0;
-		_startTime = timeGetTime();
-		pos = XMVectorSubtract(pos, vDown * x);
-		eyePos = XMVectorSubtract(eyePos, vDown * x);
-		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
 	}
 
 
@@ -411,6 +406,11 @@ bool Keyboard::CollisionY()
 		float edgeY2 = abs(_models[i]->GetAABB()->_yMax - _models[i]->GetAABB()->_yMin);
 		if (abs(centerY1 - centerY2) - (edgeY1 + edgeY2) / 2.0f < 0.0f)
 		{
+			_startTime = timeGetTime();
+			pos.m128_f32[1] = _models[i]->GetAABB()->_yMax + 0.01;
+			//eyePos = XMVectorSubtract(eyePos, vDown * x);
+			_models[modelID]->GetAABB()->_yMax = pos.m128_f32[1] + edgeY1 + 0.01;
+			_models[modelID]->GetAABB()->_yMin = pos.m128_f32[1] + 0.01;
 			return true;
 		}
 	}

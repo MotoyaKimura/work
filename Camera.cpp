@@ -5,23 +5,13 @@
 
 using namespace DirectX;
 
-void Camera::SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs) const
-{
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs;
-	cbvDesc.BufferLocation = _sceneTransBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = static_cast<UINT>(_sceneTransBuff->GetDesc().Width);
-
-	_dx->GetDevice()->CreateConstantBufferView(&cbvDesc, handle);
-}
-
+//カメラ情報の初期化
 bool Camera::Init()
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(SceneTransMatrix) + 0xff) & ~0xff);
-
-	_dx->GetDevice()->CreateCommittedResource(
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(
+		(sizeof(SceneTransMatrix) + 0xff) & ~0xff);
+	auto result = _dx->GetDevice()->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -29,46 +19,57 @@ bool Camera::Init()
 		nullptr,
 		IID_PPV_ARGS(_sceneTransBuff.ReleaseAndGetAddressOf())
 	);
-	auto result = _sceneTransBuff->Map(0, nullptr, (void**)&_sceneTransMatrix);
 	if (FAILED(result)) return false;
-
+	result = _sceneTransBuff->Map(
+		0, nullptr, (void**)&_sceneTransMatrix
+	);
+	if (FAILED(result)) return false;
 	_pera->SetCBV(_sceneTransBuff);
 	CalcSceneTrans();
 	return true;
 }
 
+//カメラ情報の更新
 void Camera::CalcSceneTrans()
 {
+	//視点情報
+		//視点位置
+	_sceneTransMatrix->eye = eye;
+		//ビュー
 	_sceneTransMatrix->view = XMMatrixLookAtLH(
 		XMLoadFloat3(&eye),
 		XMLoadFloat3(&target),
 		XMLoadFloat3(&up));;
-
+		//プロジェクション
 	_sceneTransMatrix->projection = XMMatrixPerspectiveFovLH(
 		XM_PIDIV4,
-		static_cast<float>(Application::GetWindowSize().cx) / static_cast<float>(Application::GetWindowSize().cy),
+		static_cast<float>(Application::GetWindowSize().cx)
+		/ static_cast<float>(Application::GetWindowSize().cy),
 		1.0f,
 		3000.0f);
+		//プロジェクションの逆行列
 	XMVECTOR det;
-	_sceneTransMatrix->invProjection = XMMatrixInverse(&det, _sceneTransMatrix->view * _sceneTransMatrix->projection);
-	XMFLOAT4 planeVec = XMFLOAT4(0, 1, 0, 0);
-	_sceneTransMatrix->shadow = XMMatrixShadow(
-		XMLoadFloat4(&planeVec),
-		XMLoadFloat3(&lightVec));
-	_sceneTransMatrix->shadowOffsetY = XMMatrixTranslation(0, 15, 0);
+	_sceneTransMatrix->invProjection = XMMatrixInverse(
+		&det, _sceneTransMatrix->view * _sceneTransMatrix->projection
+	);
 
-	_sceneTransMatrix->invShadowOffsetY = XMMatrixInverse(&det, _sceneTransMatrix->shadowOffsetY);
+
+	//光源情報
+		//光源の位置
 	_sceneTransMatrix->lightVec = lightVec;
-	_sceneTransMatrix->eye = eye;
+
+		//光源ベクトル
 	auto lightPos = XMLoadFloat3(&target) +
 		XMVector3Normalize(XMLoadFloat3(&lightVec)) *
-		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target), XMLoadFloat3(&eye))).m128_f32[0];
+		XMVector3Length(XMVectorSubtract(XMLoadFloat3(&target),
+			XMLoadFloat3(&eye))).m128_f32[0];
+		//ライトビュープロジェクション
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
 		XMMatrixOrthographicLH(80, 80, 1.0f, 100.0f);
+		//ライトビュー
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
-
 
 Camera::Camera(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera) : _dx(dx), _pera(pera),
 eye(0, 2.5, -10),

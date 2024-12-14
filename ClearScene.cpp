@@ -27,13 +27,11 @@ bool ClearScene::SceneInit()
 	}
 
 	_camera.reset(new Camera(Application::_dx, _pera));
-
 	if (!_camera->Init())
 	{
 		Application::DebugOutputFormatString("ƒJƒƒ‰‚Ì‰Šú‰»ƒGƒ‰[\n ");
 		return false;
 	}
-
 	_camera->SetEyePos(DirectX::XMFLOAT3(0, 0, -40));
 
 	modelNum = 8;
@@ -59,7 +57,6 @@ bool ClearScene::SceneInit()
 	_models[7]->Rotate(0, 0.5, 0);
 	
 	_keyboard.reset(new Keyboard(Application::GetHwnd(), _camera, _models));
-
 	_keyboard->Init();
 
 	_rsm.reset(new RSM(Application::_dx, _pera, _keyboard, _models, _camera));
@@ -75,6 +72,8 @@ bool ClearScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
+	_textures.resize(5);
+	_textures[0].reset(new Texture(Application::_dx));
 	_clearTex.reset(new Texture(Application::_dx));
 	_clearTex->Init(L"texture/clear.png");
 	_pera->SetSRV(_clearTex->GetTexBuff(), _clearTex->GetMetadata().format);

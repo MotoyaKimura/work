@@ -102,6 +102,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 	
 	if(msg == WM_MOUSEMOVE)
 	{
+		//ゲームシーンではカーソルを非表示にする
 		if(_sceneManager->GetSceneName() == "GameScene")
 		{
 			while (ShowCursor(false) >= 0);
@@ -121,6 +122,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 		return 0;
 	}
 
+	//全画面表示
 	if(msg == WM_SYSKEYDOWN)
 	{
 		if (wParam == VK_RETURN && 1 << 29)

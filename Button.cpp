@@ -1,7 +1,7 @@
 #include "Button.h"
 #include <tchar.h>
 
-
+//ボタンの作成
 void Button::Create(LPCWSTR name, int left, int top, int width, int height, HMENU id)
 {
 	hBTN = CreateWindowEx(0, _T("BUTTON"), name,
@@ -13,32 +13,38 @@ void Button::Create(LPCWSTR name, int left, int top, int width, int height, HMEN
 	_id = id;
 }
 
+//ボタンの表示
 void Button::Show()
 {
 	ShowWindow(hBTN, SW_SHOW);
 }
 
+//ボタンの非表示
 void Button::Hide()
 {
 	ShowWindow(hBTN, SW_HIDE);
 }
 
+//ボタンの有効化
 void Button::Enable()
 {
 	EnableWindow(hBTN, true);
 }
 
+//ボタンの無効化
 void Button::Disable()
 {
 	EnableWindow(hBTN, false);
 }
 
+//ボタンの破棄
 void Button::Destroy()
 {
 	DestroyWindow(hBTN);
 	hBTN = nullptr;
 }
 
+//ボタンのホバー判定
 bool Button::IsHover()
 {
 	GetCursorPos(&cursorPos);
@@ -47,6 +53,7 @@ bool Button::IsHover()
 	return false;
 }
 
+//ボタンのクリック判定
 bool Button::IsClicked()
 {
 	if (Application::GetButtonID() == _id) {
@@ -56,6 +63,7 @@ bool Button::IsClicked()
 	return false;
 }
 
+//ボタンの更新
 void Button::Update()
 {
 	if(IsClicked())

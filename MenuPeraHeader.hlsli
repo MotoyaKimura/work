@@ -11,9 +11,6 @@ cbuffer cbuff0 : register(b0)
     matrix view;
     matrix projection;
     matrix invprojection;
-    matrix shadow;
-    matrix shadowOffsetY;
-    matrix invShadowOffsetY;
     matrix lightCamera;
     float3 lightVec;
     float3 eye;

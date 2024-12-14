@@ -281,7 +281,8 @@ bool Texture::GradTextureInit()
 
 
 Texture::Texture(std::shared_ptr<Wrapper> dx) : _dx(dx)
-{}
+{
+}
 
 Texture ::~Texture()
 {}

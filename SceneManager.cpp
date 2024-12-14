@@ -48,12 +48,14 @@ const char* SceneManager::GetSceneName(void)
 	return _scene.top()->GetSceneName();
 }
 
+//シーンの追加
 void SceneManager::PushScene(Scene* scene)
 {
 	_scene.emplace(scene);
 	InitializeSceneManager();
 }
 
+//シーンの削除
 void SceneManager::PopScene(void)
 {
 	_scene.pop();
@@ -63,7 +65,7 @@ void SceneManager::PopScene(void)
 SceneManager::SceneManager()
 {
 	//_scene.emplace(new TitleScene(*this));
-	_scene.emplace(new ClearScene(*this));
+	_scene.emplace(new GameScene(*this));
 }
 
 SceneManager::~SceneManager()

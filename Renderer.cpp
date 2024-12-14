@@ -122,7 +122,7 @@ void Renderer::SetRootSigParamForPera(size_t cbvDescs, size_t srvDescs)
 void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
-	//カメラ、ワールド
+	//カメラ、(ワールド, ボーン）, invボーン
 	descTblRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 3, 0);
 	ranges.emplace_back(descTblRange);
 	//ライト深度

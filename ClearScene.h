@@ -33,6 +33,7 @@ private:
 	std::shared_ptr<Texture> _titleTex;
 	std::shared_ptr<Texture> _creditTex1;
 	std::shared_ptr<Texture> _creditTex2;
+	std::vector<std::shared_ptr<Texture>> _textures;
 
 	std::shared_ptr<Button> _restartButton;
 	std::shared_ptr<Button> _titleButton;
