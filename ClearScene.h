@@ -44,12 +44,12 @@ private:
 
 	bool PeraInit();
 	bool CameraInit();
-	bool TextureInit();
 	void ModelReset();
 	void KeyboardInit();
 	bool RendererBuffInit();
-	bool RendererDrawInit();
+	bool TextureInit();
 	bool ModelInit();
+	bool RendererDrawInit();
 	void ButtonInit();
 	void ButtonUpdate();
 public:

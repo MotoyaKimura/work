@@ -51,14 +51,14 @@ public:
 	) override;
 	void DataReset();
 	void Draw() override;
-	bool Update();
+	
 	bool IsPause();
-	bool FadeIn();
+	void FadeIn();
 	bool FadeOut();
 	bool GameOverFadeOut();
 	bool ClearFadeOut();
-	bool WipeStart();
-	bool WipeEnd();
+	bool IsWipeOpen();
+	bool IsWipeClose();
 	bool MonochromeToColor();
 	void TimeStart();
 	void CalcTime();

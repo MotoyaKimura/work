@@ -66,7 +66,7 @@ void Camera::CalcSceneTrans()
 		//ライトビュープロジェクション
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(80, 80, 1.0f, 100.0f);
+		XMMatrixOrthographicLH(200, 200, 1.0f, 100.0f);
 		//ライトビュー
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }

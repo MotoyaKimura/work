@@ -116,7 +116,7 @@ void TitleScene::SceneUpdate(void)
 	}
 	
 	_StartButton->Update();
-	_peraRenderer->Update();
+	_peraRenderer->FadeIn();
 	_rsm->Update(true);
 	_modelRenderer->Update(true);
 }
@@ -137,7 +137,7 @@ void TitleScene::SceneRender(void)
 	
 		_StartButton->Hide();
 		_peraRenderer->FadeOut();
-		if (_peraRenderer->WipeEnd()) {
+		if (_peraRenderer->IsWipeClose()) {
 			_StartButton->SetInActive();
 			SceneFinal();
 			_controller.ChangeScene(new GameScene(_controller));

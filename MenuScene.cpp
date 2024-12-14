@@ -106,7 +106,7 @@ void MenuScene::SceneUpdate(void)
 	_backButton->Update();
 	_restartButton->Update();
 	_titleButton->Update();
-	_peraRenderer->Update();
+	_peraRenderer->FadeIn();
 }
 
 void MenuScene::SceneRender(void)

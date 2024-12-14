@@ -77,11 +77,7 @@ void PeraRenderer::DataReset()
 	_wipeBuffData->_isPause = Application::GetPause();
 }
 
-bool PeraRenderer::Update()
-{
-	if (IsPause()) return true;
-	if (FadeIn()) return true;
-}
+
 
 void PeraRenderer::HoverButton(std::string buttonName)
 {
@@ -139,7 +135,6 @@ bool PeraRenderer::IsPause()
 	if (_wipeBuffData->_isPause)
 	{
 		while (ShowCursor(true) < 0);
-		TimeStop();
 	}
 
 	return _wipeBuffData->_isPause;
@@ -150,11 +145,11 @@ void PeraRenderer::TimeStop()
 	startTime = timeGetTime() - _wipeBuffData->_milliSecond;
 }
 
-bool PeraRenderer::FadeIn()
+void PeraRenderer::FadeIn()
 {
-	if (_wipeBuffData->_fade >= 1.0f) return false;
+	if (_wipeBuffData->_fade >= 1.0f) return;
 	_wipeBuffData->_fade += 0.1f;
-	return true;
+	return;
 }
 
 
@@ -181,7 +176,7 @@ bool PeraRenderer::ClearFadeOut()
 }
 
 
-bool PeraRenderer::WipeStart()
+bool PeraRenderer::IsWipeOpen()
 {
 	if (_wipeBuffData->_startWipeOpen < 0)
 		return false;
@@ -189,7 +184,7 @@ bool PeraRenderer::WipeStart()
 	return true;
 }
 
-bool PeraRenderer::WipeEnd()
+bool PeraRenderer::IsWipeClose()
 {
 		if (_wipeBuffData->_endWipeClose > Application::GetWindowSize().cy / 2)
 			return true;

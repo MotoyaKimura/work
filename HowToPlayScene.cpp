@@ -74,7 +74,7 @@ void HowToPlayScene::SceneUpdate(void)
 		_peraRenderer->HoverCntReset();
 	}
 	_backButton->Update();
-	_peraRenderer->Update();
+	_peraRenderer->FadeIn();
 }
 
 void HowToPlayScene::SceneRender(void)

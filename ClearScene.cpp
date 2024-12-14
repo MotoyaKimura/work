@@ -55,7 +55,7 @@ void ClearScene::SceneUpdate(void)
 	//フェードイン白
 	_peraRenderer->GameOverFadeOut();
 	//ポーズ判定と初めのフェードイン
-	_peraRenderer->Update();
+	_peraRenderer->FadeIn();
 	//モデルの動き更新
 	_rsm->Update(false);
 	_modelRenderer->Update(false);
@@ -70,8 +70,6 @@ void ClearScene::SceneRender(void)
 	_peraRenderer->Draw();
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
-
-	
 }
 
 //シーンの終了
@@ -114,6 +112,7 @@ bool ClearScene::CameraInit()
 		return false;
 	}
 	_camera->SetEyePos(DirectX::XMFLOAT3(0, 0, -40));
+	return true;
 }
 
 bool ClearScene::TextureInit()

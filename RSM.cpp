@@ -7,7 +7,7 @@
 bool RSM::Init()
 {
 	SetNumBuffers(3);
-	SetResSize(rsm_difinition, rsm_difinition);
+	SetResSize(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
 	
 	if (!CreateBuffers()) return false;

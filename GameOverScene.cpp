@@ -38,7 +38,7 @@ void GameOverScene::SceneUpdate(void)
 {
 	ButtonUpdate();
 	//ポーズ判定と初めのフェードイン
-	_peraRenderer->Update();
+	_peraRenderer->FadeIn();
 }
 
 //シーンの描画

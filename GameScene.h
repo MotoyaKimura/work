@@ -44,6 +44,16 @@ private:
 	void SceneRender(void) override;
 	void SceneResize(void) override;
 	const char* GetSceneName(void) override;
+
+	bool PeraInit();
+	bool CameraInit();
+	void ModelReset();
+	void KeyboardInit();
+	bool RendererBuffInit();
+	bool TextureInit();
+	bool ModelInit();
+	bool RendererDrawInit();
+	
 public:
 	GameScene(SceneManager& controller);
 	~GameScene() override;
