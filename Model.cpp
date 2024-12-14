@@ -189,15 +189,16 @@ bool Model::MaterialBuffInit()
 		(void**)&materialMap
 	);
 	if (FAILED(result)) return false;
+	char* mappedMaterialPtr = materialMap;
 
 	for (auto& material : Materials)
 	{
-		Material* uploadMat = reinterpret_cast<Material*>(materialMap);
+		Material* uploadMat = reinterpret_cast<Material*>(mappedMaterialPtr);
 		uploadMat->diffuse = material.diffuse;
 		uploadMat->specular = material.specular;
 		uploadMat->specularPower = material.specularPower;
 		uploadMat->ambient = material.ambient;
-		materialMap += materialBuffSize;
+		mappedMaterialPtr += materialBuffSize;
 	}
 	//_materialBuff->Unmap(0, nullptr);
 	/*std::copy(
@@ -346,13 +347,13 @@ bool Model::Init()
 		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
 	*worldMatrix = world;
+	SetViews();
 	return true;
 }
 
 bool Model::RendererInit()
 {
 	
-	SetViews();
 	return true;
 }
 

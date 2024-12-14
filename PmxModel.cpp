@@ -1300,18 +1300,15 @@ void PmxModel::MorphMaterial()
 	size_t bufferSize = sizeof(Material);
 	bufferSize = (bufferSize + 0xff) & ~0xff;
 
-	if(materialMap == nullptr)
-	{
-		return;
-	}
-	char* mappedMaterialPtr = materialMap;
 
+	char* mappedMaterialPtr = materialMap;
 	for(int i = 0; i < pmxData.materials.size(); i++)
 	{
 		PMXMaterial& material = pmxData.materials[i];
 
-		Material* uploadMat = reinterpret_cast<Material*>(mappedMaterialPtr);
-
+		Material* uploadMat = nullptr;
+		uploadMat = reinterpret_cast<Material*>(mappedMaterialPtr);
+		if (uploadMat == nullptr) return;
 
 		XMVECTOR diffuse = XMLoadFloat4(&material.diffuse);
 		XMVECTOR specular = XMLoadFloat3(&material.specular);
