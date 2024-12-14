@@ -208,7 +208,7 @@ bool Model::MaterialBuffInit()
 		if(mTextureResources[i] == nullptr)
 		{
 			std::shared_ptr<Texture> whiteTex;
-			whiteTex.reset(new Texture(_dx));
+			whiteTex.reset(new Texture(_dx, L""));
 			whiteTex->WhileTextureInit();
 			SetSRV(whiteTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}
@@ -220,7 +220,7 @@ bool Model::MaterialBuffInit()
 		if (mToonResources[i] == nullptr)
 		{
 			std::shared_ptr<Texture> gradTex;
-			gradTex.reset(new Texture(_dx));
+			gradTex.reset(new Texture(_dx, L""));
 			gradTex->WhileTextureInit();
 			SetSRV(gradTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}
@@ -232,7 +232,7 @@ bool Model::MaterialBuffInit()
 		if (mSphereTextureResources[i] == nullptr)
 		{
 			std::shared_ptr<Texture> sphereTex;
-			sphereTex.reset(new Texture(_dx));
+			sphereTex.reset(new Texture(_dx, L""));
 			sphereTex->BlackTextureInit();
 			SetSRV(sphereTex->GetTexBuff(), DXGI_FORMAT_R8G8B8A8_UNORM);
 		}

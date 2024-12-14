@@ -28,11 +28,7 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	UINT modelNum = 0;
 	std::shared_ptr<Keyboard> _keyboard;
-	std::shared_ptr<Texture> _clearTex;
-	std::shared_ptr<Texture> _restartTex;
-	std::shared_ptr<Texture> _titleTex;
-	std::shared_ptr<Texture> _creditTex1;
-	std::shared_ptr<Texture> _creditTex2;
+	
 	std::vector<std::shared_ptr<Texture>> _textures;
 
 	std::shared_ptr<Button> _restartButton;

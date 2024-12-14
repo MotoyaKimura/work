@@ -73,22 +73,20 @@ bool ClearScene::SceneInit()
 	_peraRenderer->Init();
 
 	_textures.resize(5);
-	_textures[0].reset(new Texture(Application::_dx));
-	_clearTex.reset(new Texture(Application::_dx));
-	_clearTex->Init(L"texture/clear.png");
-	_pera->SetSRV(_clearTex->GetTexBuff(), _clearTex->GetMetadata().format);
-	_restartTex.reset(new Texture(Application::_dx));
-	_restartTex->Init(L"texture/restart.png");
-	_pera->SetSRV(_restartTex->GetTexBuff(), _restartTex->GetMetadata().format);
-	_titleTex.reset(new Texture(Application::_dx));
-	_titleTex->Init(L"texture/BackToTitle.png");
-	_pera->SetSRV(_titleTex->GetTexBuff(), _titleTex->GetMetadata().format);
-	_creditTex1.reset(new Texture(Application::_dx));
-	_creditTex1->Init(L"texture/credit1.png");
-	_pera->SetSRV(_creditTex1->GetTexBuff(), _creditTex1->GetMetadata().format);
-	_creditTex2.reset(new Texture(Application::_dx));
-	_creditTex2->Init(L"texture/credit2.png");
-	_pera->SetSRV(_creditTex2->GetTexBuff(), _creditTex2->GetMetadata().format);
+	_textures[0].reset(new Texture(Application::_dx,L"texture/clear.png"));
+	_textures[1].reset(new Texture(Application::_dx, L"texture/restart.png"));
+	_textures[2].reset(new Texture(Application::_dx,L"texture/BackToTitle.png"));
+	_textures[3].reset(new Texture(Application::_dx, L"texture/credit1.png"));
+	_textures[4].reset(new Texture(Application::_dx, L"texture/credit2.png"));
+	for (auto tex : _textures)
+	{
+		if (!tex->Init())
+		{
+			Application::DebugOutputFormatString("テクスチャの初期化エラー\n ");
+			return false;
+		}
+		_pera->SetSRV(tex->GetTexBuff(), tex->GetMetadata().format);
+	}
 
 
 	for (auto model : _models)

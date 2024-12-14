@@ -84,46 +84,30 @@ bool GameScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_pauseTex.reset(new Texture(Application::_dx));
-	_pauseTex->Init(L"texture/pause.png");
-	_pera->SetSRV(_pauseTex->GetTexBuff(), _pauseTex->GetMetadata().format);
-
-	_zeroTex.reset(new Texture(Application::_dx));
-	_zeroTex->Init(L"texture/zero.png");
-	_pera->SetSRV(_zeroTex->GetTexBuff(), _zeroTex->GetMetadata().format);
-	_oneTex.reset(new Texture(Application::_dx));
-	_oneTex->Init(L"texture/one.png");
-	_pera->SetSRV(_oneTex->GetTexBuff(), _oneTex->GetMetadata().format);
-	_twoTex.reset(new Texture(Application::_dx));
-	_twoTex->Init(L"texture/two.png");
-	_pera->SetSRV(_twoTex->GetTexBuff(), _twoTex->GetMetadata().format);
-	_threeTex.reset(new Texture(Application::_dx));
-	_threeTex->Init(L"texture/three.png");
-	_pera->SetSRV(_threeTex->GetTexBuff(), _threeTex->GetMetadata().format);
-	_fourTex.reset(new Texture(Application::_dx));
-	_fourTex->Init(L"texture/four.png");
-	_pera->SetSRV(_fourTex->GetTexBuff(), _fourTex->GetMetadata().format);
-	_fiveTex.reset(new Texture(Application::_dx));
-	_fiveTex->Init(L"texture/five.png");
-	_pera->SetSRV(_fiveTex->GetTexBuff(), _fiveTex->GetMetadata().format);
-	_sixTex.reset(new Texture(Application::_dx));
-	_sixTex->Init(L"texture/six.png");
-	_pera->SetSRV(_sixTex->GetTexBuff(), _sixTex->GetMetadata().format);
-	_sevenTex.reset(new Texture(Application::_dx));
-	_sevenTex->Init(L"texture/seven.png");
-	_pera->SetSRV(_sevenTex->GetTexBuff(), _sevenTex->GetMetadata().format);
-	_eightTex.reset(new Texture(Application::_dx));
-	_eightTex->Init(L"texture/eight.png");
-	_pera->SetSRV(_eightTex->GetTexBuff(), _eightTex->GetMetadata().format);
-	_nineTex.reset(new Texture(Application::_dx));
-	_nineTex->Init(L"texture/nine.png");
-	_pera->SetSRV(_nineTex->GetTexBuff(), _nineTex->GetMetadata().format);
-	_timerTex.reset(new Texture(Application::_dx));
-	_timerTex->Init(L"texture/timer.png");
-	_pera->SetSRV(_timerTex->GetTexBuff(), _timerTex->GetMetadata().format);
-	_colonTex.reset(new Texture(Application::_dx));
-	_colonTex->Init(L"texture/colon.png");
-	_pera->SetSRV(_colonTex->GetTexBuff(), _colonTex->GetMetadata().format);
+	_textures.resize(13);
+	_textures[0].reset(new Texture(Application::_dx, L"texture/pause.png"));
+	_textures[1].reset(new Texture(Application::_dx, L"texture/zero.png"));
+	_textures[2].reset(new Texture(Application::_dx, L"texture/one.png"));
+	_textures[3].reset(new Texture(Application::_dx, L"texture/two.png"));
+	_textures[4].reset(new Texture(Application::_dx, L"texture/three.png"));
+	_textures[5].reset(new Texture(Application::_dx, L"texture/four.png"));
+	_textures[6].reset(new Texture(Application::_dx, L"texture/five.png"));
+	_textures[7].reset(new Texture(Application::_dx, L"texture/six.png"));
+	_textures[8].reset(new Texture(Application::_dx, L"texture/seven.png"));
+	_textures[9].reset(new Texture(Application::_dx, L"texture/eight.png"));
+	_textures[10].reset(new Texture(Application::_dx, L"texture/nine.png"));
+	_textures[11].reset(new Texture(Application::_dx, L"texture/timer.png"));
+	_textures[12].reset(new Texture(Application::_dx, L"texture/colon.png"));
+	for (auto tex : _textures)
+	{
+		if (!tex->Init())
+		{
+			Application::DebugOutputFormatString("テクスチャの初期化エラー\n ");
+			return false;
+		}
+		_pera->SetSRV(tex->GetTexBuff(), tex->GetMetadata().format);
+	}
+	
 
 	for (auto model : _models)
 	{

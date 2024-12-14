@@ -59,12 +59,18 @@ bool TitleScene::SceneInit()
 	_ssao->Init();
 	_peraRenderer->Init();
 
-	_startTex.reset(new Texture(Application::_dx));
-	_startTex->Init(L"texture/start.png");
-	_pera->SetSRV(_startTex->GetTexBuff(), _startTex->GetMetadata().format);
-	_yabaiTex.reset(new Texture(Application::_dx));
-	_yabaiTex->Init(L"texture/yabai.png");
-	_pera->SetSRV(_yabaiTex->GetTexBuff(), _yabaiTex->GetMetadata().format);
+	_textures.resize(2);
+	_textures[0].reset(new Texture(Application::_dx, L"texture/start.png"));
+	_textures[1].reset(new Texture(Application::_dx, L"texture/yabai.png"));
+	for (auto tex : _textures)
+	{
+		if (!tex->Init())
+		{
+			Application::DebugOutputFormatString("テクスチャの初期化エラー\n ");
+			return false;
+		}
+		_pera->SetSRV(tex->GetTexBuff(), tex->GetMetadata().format);
+	}
 	
 
 	for (auto model : _models)

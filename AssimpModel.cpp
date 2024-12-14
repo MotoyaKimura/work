@@ -127,8 +127,8 @@ void AssimpModel::ParseMaterial(Material& dstMaterial, const aiMaterial* pSrcMat
 			strW = L"texture/" + strW;
 			strW.pop_back();
 			std::shared_ptr<Texture> texture;
-			texture.reset(new Texture(_dx));
-			texture->Init(strW);
+			texture.reset(new Texture(_dx, strW));
+			if (!texture->Init()) return;
 			mTextureResources[Materials.size() - 1] = texture->GetTexBuff();
 		}
 	}

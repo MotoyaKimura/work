@@ -65,17 +65,17 @@ void Texture::DefineLambda()
 		};
 }
 
-bool Texture::Init(std::wstring fileName)
+bool Texture::Init()
 {
 	DefineLambda();
 	
-	_texBuff = _dx->GetTextureByPath(fileName);
+	_texBuff = _dx->GetTextureByPath(_fileName);
 	if (_texBuff == nullptr) {
-		if (!LoadTexture(fileName)) return false;
+		if (!LoadTexture(_fileName)) return false;
 		if (!UploadBufferInit()) return false;
 		if (!TexBufferInit()) return false;
 		if (!CopyBuffer()) return false;
-		_dx->GetResourceTable()[fileName] = _texBuff;
+		_dx->GetResourceTable()[_fileName] = _texBuff;
 	}
 	ChangeBarrier();
 	_dx->ExecuteCommand();
@@ -280,9 +280,8 @@ bool Texture::GradTextureInit()
 }
 
 
-Texture::Texture(std::shared_ptr<Wrapper> dx) : _dx(dx)
-{
-}
+Texture::Texture(std::shared_ptr<Wrapper> dx, std::wstring fileName) : _dx(dx), _fileName(fileName)
+{}
 
 Texture ::~Texture()
 {}
