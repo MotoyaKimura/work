@@ -32,7 +32,6 @@ private:
 public:
 	void CalcSceneTrans();
 	bool Init();
-	void SetCBVToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs) const;
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetSceneTransBuff() const { return _sceneTransBuff.Get(); }
 	DirectX::XMFLOAT3* GetEyePos() { return &eye; }
 	void SetEyePos(DirectX::XMFLOAT3 pos) { eye = pos; }

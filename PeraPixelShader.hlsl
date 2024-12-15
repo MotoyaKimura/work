@@ -10,6 +10,7 @@ float hash(float n)
     return frac(sin(n)*43758.5453);
 }
 
+//シンプレックスノイズ計算
 float SimplexNoise(float3 x)
 {
     float3 p = floor(x);
@@ -24,6 +25,7 @@ float SimplexNoise(float3 x)
                      lerp(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
 }
 
+//numberの数のテクスチャを返す
 float4 defineNum(float2 uv, float diffx, int number)
 {
     switch (number)
@@ -64,6 +66,7 @@ float4 defineNum(float2 uv, float diffx, int number)
     }
 }
 
+//ミリ秒を秒に変換
 int4 calcMilliToSecond()
 {
     int a = 30 * 1000 - milliSecond;
@@ -83,14 +86,11 @@ float4 PS(Output input) : SV_TARGET
     float2 dir = float2(1, 1);
     float width, height, miplevels;
     tex.GetDimensions(0, width, height, miplevels);
-   
-   
-    
+
     if ((input.svpos.y - startWipeOpen) <= 0 || input.svpos.y + startWipeOpen >= height)
     {
         return float4(0.2f, 0.2f, 0.2f, 1.0f);
     }
-
 
     float t = SimplexNoise(input.svpos.xyz);
     t = (t - 0.5f) * 2.0f;
@@ -98,7 +98,7 @@ float4 PS(Output input) : SV_TARGET
    
     float ssao = ssaoTex.Sample(smp, (input.uv));
     float4 texColor = tex.Sample(smp, noise);
-    float4 pause = PauseTex.Sample(smp, input.uv * 5);
+    float4 pause = PauseTex.Sample(smp2, (input.uv - float2(0.4, 0.4)) * 5);
     pause.rgb *= pause.a;
     int4 limit = calcMilliToSecond();
     float4 redTime = float4(0, 0, 0, 1);
@@ -114,50 +114,39 @@ float4 PS(Output input) : SV_TARGET
     
     float4 colon = colonTex.Sample(smp2, float2((input.uv.x - 0.75) * 4, (input.uv.y - 0.005) * 5));
     float4 timer = timerTex.Sample(smp2, float2((input.uv.x - 0.75) * 4, (input.uv.y) * 5));
-        
-      //  float4 startTexColor = startTex.Sample(smp, float2((input.uv.x + 0.05) * 10, (input.uv.y) * 10));
-        //startTexColor.rgb *= startTexColor.a;
+
     float4 color = float4(texColor.rgb * ssao, texColor.a);
     float Y = 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
     float3 monochromeColor = float3(Y, Y, Y);
     color.xyz = lerp(monochromeColor, color, monochromeRate);
-
+    float pauseWeight = 1.0;
     if (isPause)
     {
-        if (timer.a > 0.1)
+        pauseWeight = 0.5;
+        if (pause.a > 0.1)
         {
-            if (num1.a > 0.1)
-                return (num1 + redTime) * 0.5 * fade * gameOverFade + clearFade;
-            else if (num2.a > 0.1)
-                return (num2 + redTime) * 0.5 * fade * gameOverFade + clearFade;
-            else if (num3.a > 0.1)
-                return (num3 + redTime) * 0.5 * fade * gameOverFade + clearFade;
-            else if (num4.a > 0.1)
-                return (num4 + redTime) * 0.5 * fade * gameOverFade + clearFade;
-            else if (colon.a > 0.1)
-                return (colon + redTime) * 0.5 * fade * gameOverFade + clearFade;
-            return timer * 0.5 * fade * gameOverFade + clearFade;
+            return pause;
         }
-        if (input.uv.x > 0.4 && input.uv.x < 0.6 && input.uv.y > 0.4 && input.uv.y < 0.6)
-        {
-            return float4((color.xyz * 0.5 + pause.rgb) * fade * gameOverFade + clearFade, color.a);
-        }
-        return float4((color.xyz * 0.5) * fade * gameOverFade + clearFade, color.a);
     }
+    else
+    {
+        pauseWeight = 1.0;
+    }
+  
     if (timer.a > 0.1)
     {
         if(num1.a > 0.1)
-            return (num1 + redTime) * fade * gameOverFade + clearFade;
+            return (num1 + redTime) * pauseWeight * fade * gameOverFade + clearFade;
         else if (num2.a > 0.1)
-            return (num2 + redTime) * fade * gameOverFade + clearFade;
+            return (num2 + redTime) * pauseWeight * fade * gameOverFade + clearFade;
         else if (num3.a > 0.1)
-            return (num3 + redTime) * fade * gameOverFade + clearFade;
+            return (num3 + redTime) * pauseWeight * fade * gameOverFade + clearFade;
         else if (num4.a > 0.1)
-            return (num4 + redTime) * fade * gameOverFade + clearFade;
+            return (num4 + redTime) * pauseWeight * fade * gameOverFade + clearFade;
         else if(colon.a > 0.1)
-            return (colon + redTime) * fade * gameOverFade + clearFade;
-        return timer * fade * gameOverFade + clearFade;
+            return (colon + redTime) * pauseWeight * fade * gameOverFade + clearFade;
+        return timer * pauseWeight * fade * gameOverFade + clearFade;
     }
         
-    return float4(color.xyz * fade * gameOverFade + clearFade, color.a);
+    return float4(color.xyz * pauseWeight * fade * gameOverFade + clearFade, color.a);
 }

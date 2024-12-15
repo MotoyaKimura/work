@@ -35,7 +35,4 @@ private:
 	std::vector<BoneNode*> _sortedNodes;
 
 	std::vector<IKSolver*> _ikSolvers;
-
-	
-
 };

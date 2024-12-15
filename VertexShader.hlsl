@@ -1,5 +1,6 @@
 #include "ShaderHeader.hlsli"
 
+//クォータニオンの線形補間
 float4 QuaternionSlerp(float4 q0, float4 q1, float t)
 {
     float4 q = float4(0, 0, 0, 1);
@@ -23,6 +24,7 @@ float4 QuaternionSlerp(float4 q0, float4 q1, float t)
     return  q0 * cos(theta1) + q1a * sin(theta1);
 }
 
+//クォータニオンから行列に変換
 matrix QuaternionToMatrix(float4 quat)
 {
 	float x = quat.x;
@@ -47,6 +49,7 @@ matrix QuaternionToMatrix(float4 quat)
     return rotationMatrix;
 }
 
+//頂点スキニング
 float4 vertexSkinning(float4 pos, uint4 boneNo, float4 boneWeight, min16uint weightType, float3 sdefC, float3 sdefR0, float3 sdefR1, float4 q0, float4 q1)
 {
     matrix ret = matrix(1, 0, 0, 0,

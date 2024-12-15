@@ -1,7 +1,5 @@
 Texture2D<float4> howToPlayTex : register(t0);
 
-
-
 cbuffer cbuff0 : register(b0)
 {
     matrix view;

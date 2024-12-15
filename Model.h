@@ -4,7 +4,6 @@
 #include <DirectXMath.h>
 #include <DirectXTex.h>
 #include <assimp/scene.h>
-#include <array>
 
 struct aabb
 {
@@ -105,7 +104,6 @@ protected:
 	char* materialMap = nullptr;
 
 	Mesh mesh;
-	
 
 	MeshVertex* vertMap = nullptr;
 

@@ -41,7 +41,6 @@ private:
 	bool FenceInit();
 
 public:
-	Wrapper(HWND hwnd);
 	bool Init();
 	void ExecuteCommand();
 	void Flip();
@@ -56,8 +55,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetBackBuff() const { return backBuffers[_swapchain->GetCurrentBackBufferIndex()].Get(); }
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetRTVHeap() const { return rtvHeaps.Get(); }
 	std::map<std::wstring, Microsoft::WRL::ComPtr<ID3D12Resource>> GetResourceTable() const { return mResourceTableW; }
-	
-	
 
+	Wrapper(HWND hwnd);
 	~Wrapper();
 };

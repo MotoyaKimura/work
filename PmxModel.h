@@ -2,6 +2,7 @@
 #include <future>
 #include "Model.h"
 #include "VMD.h"
+#include <array>
 
 enum class PMXVertexWeight : unsigned char
 {
