@@ -128,21 +128,21 @@ protected:
 
 	bool VertexInit();
 	bool IndexInit();
-	bool WorldBuffInit();
+	bool TransBuffInit();
 	bool MaterialBuffInit();
 	virtual bool ModelHeapInit() = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer ( int width);
+	bool CreateBuffer (Microsoft::WRL::ComPtr<ID3D12Resource>& buffer,  int width);
 
 	
 	aabb _aabb;
 public:
 	bool Init();
-	bool RendererInit();
+	
 	virtual void Update(bool isStart) = 0;
 	virtual void Draw() = 0;
 	void SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer);
 	void SetSRV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer, DXGI_FORMAT format);
-	void SetViews();
+	bool SetViews();
 	void Move(float x, float y, float z);
 	void Rotate(float x, float y, float z);
 	DirectX::XMFLOAT3* GetPos() { return &_pos; }

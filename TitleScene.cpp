@@ -82,10 +82,6 @@ bool TitleScene::SceneInit()
 		}
 	}
 
-	for (auto model : _models)
-	{
-		model->RendererInit();
-	}
 
 	_rsm->RendererInit(L"VertexShader.hlsl", "rsmVS", L"PixelShader.hlsl", "rsmPS");
 	_modelRenderer->RendererInit(L"VertexShader.hlsl", "VS", L"PixelShader.hlsl", "PS");

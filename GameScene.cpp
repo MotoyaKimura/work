@@ -309,11 +309,6 @@ bool GameScene::ModelInit()
 			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
 			return false;
 		}
-		if (!model->RendererInit())
-		{
-			Application::DebugOutputFormatString("モデルのレンダラー初期化エラー\n ");
-			return false;
-		}
 	}
 	return true;
 }

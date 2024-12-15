@@ -1,4 +1,5 @@
 #include "Texture.h"
+#include <iostream>
 #include "Pera.h"
 #include "Wrapper.h"
 
@@ -230,8 +231,11 @@ bool Texture::WhileTextureInit()
 		4 * 4, 
 		data.size()
 	);
-
-	assert(SUCCEEDED(result));
+	if (FAILED(result))
+	{
+		std::cout << "白テクスチャの初期化に失敗しました" << std::endl;
+		return false;
+	}
 	return true;
 }
 
@@ -248,8 +252,13 @@ bool Texture::BlackTextureInit()
 		4 * 4,
 		data.size()
 	);
-
-	assert(SUCCEEDED(result));
+	
+	if (FAILED(result))
+	{
+		std::cout << "黒テクスチャの初期化に失敗しました" << std::endl;
+		return false;
+	}
+	
 	return true;
 }
 
@@ -275,7 +284,10 @@ bool Texture::GradTextureInit()
 		data.size() * sizeof(unsigned int)
 	);
 
-	assert(SUCCEEDED(result));
+	if (FAILED(result)) {
+		std::cout << "グラデーションテクスチャの初期化に失敗しました" << std::endl;
+		return false;
+	}
 	return true;
 }
 
