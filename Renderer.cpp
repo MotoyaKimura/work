@@ -12,6 +12,26 @@
 using namespace std;
 using namespace Microsoft::WRL;
 
+//レンダラーの共通クラス
+Renderer::Renderer(
+	shared_ptr<Wrapper> dx,
+	shared_ptr<Pera> pera, 
+	shared_ptr<Keyboard> keyboard,
+	std::vector<std::shared_ptr<Model>> models, 
+	std::shared_ptr<Camera> camera
+) :
+	_dx(dx),
+_pera(pera),
+_keyboard(keyboard),
+_models(models),
+_camera(camera)
+{
+}
+
+Renderer::~Renderer()
+{
+}
+
 bool Renderer::CheckResult(HRESULT result) const
 {
 	if (FAILED(result))
@@ -217,10 +237,7 @@ bool Renderer::PipelineStateInit()
 	return true;
 }
 
-Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera) :
-	_dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
-{
-}
+
 
 void Renderer::AddModel(std::shared_ptr<Model> model)
 {
@@ -455,9 +472,4 @@ void Renderer::AddElement(const char* semantics, DXGI_FORMAT format)
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 	};
 	inputElements.emplace_back(element);
-}
-
-
-Renderer::~Renderer()
-{
 }

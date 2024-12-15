@@ -63,6 +63,7 @@ public:
 	bool CollisionY();
 	void CalcGravity();
 	void CollisionCamera();
+	bool isAngleLimit(DirectX::XMVECTOR eyePos);
 	bool isCollision(aabb aabb);
 	void SetIsMenu(bool _isMenu) { isMenu = _isMenu; }
 	void SetIsHowToPlay(bool _isHowToPlay) { isHowToPlay = _isHowToPlay; }

@@ -200,20 +200,45 @@ void Keyboard::CalcMoveDir()
 //カメラをモデルを中心に回転
 void Keyboard::RotateCameraAroundModel()
 {
-	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
+	XMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
 	XMMATRIX eyeMat =
 		XMMatrixTranslation(-_pos->x, -_pos->y, -_pos->z)
 		* XMMatrixRotationAxis(yAxis, diff_x * 0.005)
 		* XMMatrixRotationAxis(vRight, diff_y * 0.005)
 		* XMMatrixTranslation(_pos->x, _pos->y, _pos->z);
 
-	FXMVECTOR eyeVec = XMLoadFloat3(_eyePos);
-	FXMVECTOR eyeTrans = XMVector3Transform(eyeVec, eyeMat);
-	
+	XMVECTOR eyeVec = XMLoadFloat3(_eyePos);
+	XMVECTOR eyeTrans = XMVector3Transform(eyeVec, eyeMat);
+
+	if (isAngleLimit(eyeTrans))
+	{
+		eyeMat = XMMatrixTranslation(-_pos->x, -_pos->y, -_pos->z)
+			* XMMatrixRotationAxis(yAxis, diff_x * 0.005)
+			* XMMatrixTranslation(_pos->x, _pos->y, _pos->z);
+		eyeTrans = XMVector3Transform(eyeVec, eyeMat);
+	}
 	eyePos = eyeTrans;
 	_eyePos->x = XMVectorGetX(eyeTrans);
 	_eyePos->y = XMVectorGetY(eyeTrans);
 	_eyePos->z = XMVectorGetZ(eyeTrans);
+}
+
+//カメラの緯度に制限をかける
+bool Keyboard::isAngleLimit(XMVECTOR eyePos)
+{
+	XMVECTOR eyeToTarget = XMVectorSubtract(XMLoadFloat3(_targetPos), eyePos);
+	eyeToTarget = XMVector3Normalize(eyeToTarget);
+	FXMVECTOR yAxis = XMVectorSet(0, 1, 0, 0);
+	float dot = XMVector3Dot(eyeToTarget, yAxis).m128_f32[0];
+	if(dot < 0.0f)
+	{
+		dot = XMVector3Dot(eyeToTarget, -yAxis).m128_f32[0];
+	}
+	if (dot > 0.65f)
+	{
+		return true;
+	}
+	return false;
 }
 
 //カメラの自動回転
