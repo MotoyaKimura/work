@@ -50,7 +50,7 @@ public:
 	void Update();
 	void MoveModel();
 	void MoveCamera();
-	void ChangeTarget();
+	
 
 	void CalcMove();
 	bool isMoveMouse();
@@ -61,7 +61,8 @@ public:
 	void AutoRotateCamera();
 	void Collision(DirectX::XMVECTOR dir);
 	bool CollisionY();
-	void isCollision(DirectX::XMVECTOR dir);
+	void CalcGravity();
+	void CollisionCamera();
 	bool isCollision(aabb aabb);
 	void SetIsMenu(bool _isMenu) { isMenu = _isMenu; }
 	void SetIsHowToPlay(bool _isHowToPlay) { isHowToPlay = _isHowToPlay; }
