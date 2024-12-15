@@ -3,16 +3,30 @@
 #include "Application.h"
 #include "Camera.h"
 
-
+//モデルの移動、カメラの移動、衝突判定を行うクラス
 using namespace DirectX;
 
+Keyboard::Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models) :
+	_hwnd(hwnd), _camera(camera), _models(models)
+{
+}
+
+Keyboard::~Keyboard()
+{
+}
+
+//初期化
 void Keyboard::Init()
 {
+	//座標
 	_pos = _models[modelID]->GetPos();
+	pos = XMLoadFloat3(_pos);
 	_rotate = _models[modelID]->GetRotate();
 	_eyePos = _camera->GetEyePos();
+	eyePos = XMLoadFloat3(_eyePos);
 	_targetPos = _camera->GetTargetPos();
 
+	//カメラの向き
 	eyeToTarget = XMVectorSubtract(XMLoadFloat3(_pos), XMLoadFloat3(_eyePos));
 	vFront = XMVectorSetY(eyeToTarget, 0);
 	vFront = XMVector3Normalize(vFront);
@@ -21,27 +35,21 @@ void Keyboard::Init()
 	vDown = XMVectorNegate(vUp);
 	vRight = XMVector3Cross(vUp, vFront);
 	vLeft = XMVectorNegate(vRight);
-
-	pos = XMLoadFloat3(_pos);
-	eyePos = XMLoadFloat3(_eyePos);
-
-	_pos->x = XMVectorGetX(pos);
-	_pos->y = XMVectorGetY(pos);
-	_pos->z = XMVectorGetZ(pos);
-	_targetPos->x = XMVectorGetX(pos);
-	_targetPos->y = XMVectorGetY(pos) + 2.5f;
-	_targetPos->z = XMVectorGetZ(pos);
-	_eyePos->x = XMVectorGetX(eyePos);
-	_eyePos->y = XMVectorGetY(eyePos);
-	_eyePos->z = XMVectorGetZ(eyePos);
-
 }
 
+//外部から呼び出される更新関数
+void Keyboard::Update()
+{
+	if (!isActive()) return;
+	MoveModel();
+	MoveCamera();
+}
+
+//ウィンドウがアクティブになったとき、カーソルを中心に戻す
 bool Keyboard::isActive()
 {
 	if (_hwnd != GetForegroundWindow())
 	{
-
 		isActiveFirst = true;
 		return false;
 	}
@@ -49,21 +57,14 @@ bool Keyboard::isActive()
 	{
 		SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
 		_startTime = timeGetTime() - elapsedTime;
-
 		isActiveFirst = false;
 	}
 	return true;
 }
 
-void Keyboard::Move()
-{
-	if (!isActive()) return;
-	MoveModel();
-	MoveCamera();
-}
-
 void Keyboard::MoveModel()
 {
+	//動かすモデルの変更
 	/*int modelNum = _models.size();
 	int key = 0x60;
 	GetKeyboardState(keycode);
@@ -74,14 +75,18 @@ void Keyboard::MoveModel()
 			ChangeTarget();
 		}
 	}*/
+
+	//メニュー、ポーズ、遊び方シーンの場合は時間を止める、落下防止
 	if(isMenu || isPause || isHowToPlay)
 	{
 		_startTime = timeGetTime() - elapsedTime;
+		isPause = false;
 		isMenu = false;
 		isHowToPlay = false;
 	}
-	if (isGetKeyState())
-		SetPos();
+
+	CalcMove();
+	SetPos();
 }
 
 void Keyboard::MoveCamera()
@@ -248,9 +253,9 @@ bool Keyboard::isCollision(aabb aabb)
 }
 
 
-bool Keyboard::isGetKeyState()
+//重力計算、ジャンプ、移動
+void Keyboard::CalcMove()
 {
-
 	if (_startTime <= 0)
 	{
 		_startTime = timeGetTime();
@@ -259,17 +264,20 @@ bool Keyboard::isGetKeyState()
 	elapsedTime = timeGetTime() - _startTime;
 	unsigned int t = 30 * (elapsedTime / 1000.0f);
 	float second = elapsedTime / 1000.0f;
+
+	//重力計算
 	velocity = velocity + gravity * second;
 	float x = velocity * second + gravity * second * second * 0.5;
 	pos = XMVectorAdd(pos, vDown * x);
+	//カメラはy = -100以下には行かない
 	if (eyePos.m128_f32[1] > -100)
 	{
-	eyePos = XMVectorAdd(eyePos, vDown * x);
+		eyePos = XMVectorAdd(eyePos, vDown * x);
 	}
 	_models[modelID]->GetAABB()->_yMax += (vDown * x).m128_f32[1];
 	_models[modelID]->GetAABB()->_yMin += (vDown * x).m128_f32[1];
-	isMove = true;
 
+	//ジャンプ
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000 && CollisionY())
 	{
 		velocity = -2.5;
@@ -277,121 +285,84 @@ bool Keyboard::isGetKeyState()
 		eyePos = XMVectorAdd(eyePos, vUp * 0.01);
 		_models[modelID]->GetAABB()->_yMax += (vUp * 0.01).m128_f32[1];
 		_models[modelID]->GetAABB()->_yMin += (vUp * 0.01).m128_f32[1];
-		isMove = true;
 	}
 
+	//地面についたら速度を0にする
 	if (CollisionY()) {
 		velocity = 0;
-
 		pos = XMVectorSubtract(pos, vDown * x);
 		eyePos = XMVectorSubtract(eyePos, vDown * x);
 		_models[modelID]->GetAABB()->_yMax -= (vDown * x).m128_f32[1];
 		_models[modelID]->GetAABB()->_yMin -= (vDown * x).m128_f32[1];
 	}
 
-
-	
-	GetKeyboardState(keycode);
+	//移動
+		//斜め右
 	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('D') & 0x8000)) {
 		Collision(vRight + vFront);
-		return isMove;
+		return;
 	}
+		//斜め左
 	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('A') & 0x8000))
 	{
 		Collision(vLeft + vFront);
-		return isMove;
+		return;
 	}
+
 	if ((GetAsyncKeyState('W') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
 	{
-		isMove = true;
-		return isMove;
+		return;
 	}
+	if ((GetAsyncKeyState('A') & 0x8000) && (GetAsyncKeyState('D') & 0x8000))
+	{
+		return;
+	}
+		//斜め左後ろ
 	if ((GetAsyncKeyState('A') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
 	{
 		Collision(vLeft + vBack);
-		return isMove;
+		return;
 	}
+		//斜め右後ろ
 	if ((GetAsyncKeyState('D') & 0x8000) && (GetAsyncKeyState('S') & 0x8000))
 	{
 		Collision(vRight + vBack);
-		return isMove;
+		return;
 	}
+		//前
 	if (GetAsyncKeyState('W') & 0x8000) {
 		Collision(vFront);
-		return isMove;
+		return;
 	}
+		//左
 	if (GetAsyncKeyState('A') & 0x8000) {
 		Collision(vLeft);
-		return isMove;
+		return;
 	}
+		//後ろ
 	if (GetAsyncKeyState('S') & 0x8000) {
 		Collision(vBack);
-		return isMove;
+		return;
 	}
+		//右
 	if (GetAsyncKeyState('D') & 0x8000) {
 		Collision(vRight);
-		return isMove;
+		return;
 	}
-
-	/*if (GetAsyncKeyState(VK_SPACE) & 0x8000)
-	{
-		pos = XMVectorAdd(pos, vUp* 0.1);
-		eyePos = XMVectorAdd(eyePos, vUp * 0.1);
-		_models[modelID]->GetAABB()->_yMax += (vUp * 0.1).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin += (vUp * 0.1).m128_f32[1];
-		isMove = true;
-	}*/
-	
-	/*if (keycode[VK_SHIFT] & 0x80)
-	{
-		pos = XMVectorAdd(pos, vDown * 0.1);
-		eyePos = XMVectorAdd(eyePos, vDown * 0.1);
-		_models[modelID]->GetAABB()->_yMax += (vDown * 0.1).m128_f32[1];
-		_models[modelID]->GetAABB()->_yMin += (vDown * 0.1).m128_f32[1];
-		isMove = true;
-	}*/
-	
-
-	if (keycode[VK_SHIFT] & keycode['W'] & 0x80)
-	{
-	}
-	if (keycode[VK_SHIFT] & keycode['S'] & 0x80)
-	{
-	}
-	//if (keycode['R'] & 0x80)
-	//{
-	//	_rotate->y += 0.1f;
-	//	isMove = true;
-	//}
-	//if (keycode['L'] & 0x80)
-	//{
-	//	_rotate->y -= 0.1f;
-	//	isMove = true;
-	//}
-
-	keyCount = 0;
-	return isMove;
 }
 
 void Keyboard::Collision(DirectX::XMVECTOR dir)
 {
 	float velocity = 0.2;
-	keyCount++;
-	if (keyCount > 0)
-	{
-		XMVECTOR v = XMVector3Normalize(dir);
-		SetDir(v);
-		pos = XMVectorAdd(pos, v * velocity);
-		eyePos = XMVectorAdd(eyePos, v * velocity);
-		isMove = true;
-		keyCount = 0;
-		_models[modelID]->GetAABB()->_xMax += (v * velocity).m128_f32[0];
-		_models[modelID]->GetAABB()->_xMin += (v * velocity).m128_f32[0];
-		_models[modelID]->GetAABB()->_zMax += (v * velocity).m128_f32[2];
-		_models[modelID]->GetAABB()->_zMin += (v * velocity).m128_f32[2];
-		isCollision(v);
-	}
-	
+	XMVECTOR v = XMVector3Normalize(dir);
+	SetDir(v);
+	pos = XMVectorAdd(pos, v * velocity);
+	eyePos = XMVectorAdd(eyePos, v * velocity);
+	_models[modelID]->GetAABB()->_xMax += (v * velocity).m128_f32[0];
+	_models[modelID]->GetAABB()->_xMin += (v * velocity).m128_f32[0];
+	_models[modelID]->GetAABB()->_zMax += (v * velocity).m128_f32[2];
+	_models[modelID]->GetAABB()->_zMin += (v * velocity).m128_f32[2];
+	isCollision(v);
 }
 
 bool Keyboard::CollisionY()
@@ -482,13 +453,5 @@ void Keyboard::ChangeTarget()
 	eyePos = XMLoadFloat3(_eyePos);
 }
 
-Keyboard::Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models) :
-	_hwnd(hwnd), _camera(camera), _models(models)
-{
-}
 
-
-Keyboard::~Keyboard()
-{
-}
 

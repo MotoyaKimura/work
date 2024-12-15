@@ -52,7 +52,7 @@ void GameScene::SceneUpdate(void)
 	if (!_peraRenderer->IsPause() && !_peraRenderer->IsWipeOpen())
 	{
 		isStart = true;
-		_keyboard->Move();
+		_keyboard->Update();
 		_camera->CalcSceneTrans();
 	}
 
