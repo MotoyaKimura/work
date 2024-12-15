@@ -111,7 +111,7 @@ bool ClearScene::CameraInit()
 		Application::DebugOutputFormatString("カメラの初期化エラー\n ");
 		return false;
 	}
-	_camera->SetEyePos(DirectX::XMFLOAT3(0, 0, -40));
+	_camera->SetEyePos(DirectX::XMFLOAT3(0, -10, -40));
 	return true;
 }
 
@@ -172,18 +172,18 @@ bool ClearScene::RendererBuffInit()
 	_modelRenderer.reset(new ModelRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
 	_ssao.reset(new SSAO(Application::_dx, _pera, _keyboard, _models, _camera));
 	_peraRenderer.reset(new PeraRenderer(Application::_dx, _pera, _keyboard, _models, _camera));
+	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
 	if (!_rsm->Init())
 	{
 		Application::DebugOutputFormatString("RSMのバッファー初期化エラー\n ");
 		return false;
 	}
-	_rsm->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
+	_modelRenderer->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
 	if (!_modelRenderer->Init())
 	{
 		Application::DebugOutputFormatString("モデルレンダラーのバッファー初期化エラー\n ");
 		return false;
 	}
-	_modelRenderer->SetClearValue(0.8f, 0.8f, 1.0f, 1.0f);
 	if (!_ssao->Init())
 	{
 		Application::DebugOutputFormatString("SSAOのバッファー初期化エラー\n ");

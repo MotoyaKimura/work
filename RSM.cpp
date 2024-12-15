@@ -4,12 +4,27 @@
 #include "Model.h"
 #include "Pera.h"
 
+//Reflective Shadow Mapsを描画するクラス
+RSM::RSM(
+	std::shared_ptr<Wrapper> dx,
+	std::shared_ptr<Pera> pera,
+	std::shared_ptr<Keyboard> keyboard,
+	std::vector<std::shared_ptr<Model>> models,
+	std::shared_ptr<Camera> camera
+) : Renderer(dx, pera, keyboard, models, camera), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
+{
+}
+
+RSM::~RSM()
+{
+}
+
+//バッファー初期化
 bool RSM::Init()
 {
 	SetNumBuffers(3);
 	SetResSize(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-	
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
 	for (auto model : _models)
@@ -20,6 +35,7 @@ bool RSM::Init()
 	return true;
 }
 
+//シェーダー、ルートシグネチャ、パイプライン初期化
 bool RSM::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint)
 {
 	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
@@ -40,29 +56,10 @@ bool RSM::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::w
 	AddElement("WEIGHT", DXGI_FORMAT_R32G32B32A32_FLOAT);
 	AddElement("WEIGHTTYPE", DXGI_FORMAT_R8_UINT);
 	if (!PipelineStateInit()) return false;
-
 	return true;
 }
 
-
-void RSM::SetDepthBuffToHeap(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap, UINT numDescs)
-{
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Shader4ComponentMapping =
-		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-	auto handle = heap->GetCPUDescriptorHandleForHeapStart();
-
-	handle.ptr += _dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * numDescs++;
-	_dx->GetDevice()->CreateShaderResourceView(
-		_depthBuffer.Get(),
-		&srvDesc,
-		handle);
-}
-
+//描画
 void RSM::Draw()
 {
 	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -74,16 +71,3 @@ void RSM::Draw()
 }
 
 
-RSM::RSM(
-	std::shared_ptr<Wrapper> dx, 
-	std::shared_ptr<Pera> pera, 
-	std::shared_ptr<Keyboard> keyboard, 
-	std::vector<std::shared_ptr<Model>> models, 
-	std::shared_ptr<Camera> camera
-) : Renderer(dx, pera, keyboard, models, camera), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
-{
-}
-
-RSM::~RSM()
-{
-}

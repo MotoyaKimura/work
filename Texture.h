@@ -35,7 +35,7 @@ public:
 	bool WhileTextureInit();
 	bool BlackTextureInit();
 	bool GradTextureInit();
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultTexture(size_t width, size_t height);
+	bool CreateDefaultTexture(Microsoft::WRL::ComPtr<ID3D12Resource> &buffer, size_t width, size_t height);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTexBuff() { return _texBuff.Get(); }
 	DirectX::TexMetadata GetMetadata() { return metadata; }
