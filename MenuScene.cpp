@@ -12,6 +12,7 @@
 #include <tchar.h>
 #include "TitleScene.h"
 
+//メニューシーンクラス
 MenuScene::MenuScene(SceneManager& controller)
 	: Scene(controller), _controller(controller)
 {
@@ -46,6 +47,49 @@ void MenuScene::SceneRender(void)
 	_peraRenderer->Draw();
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+
+	//戻るボタンが押されたら元のゲームシーンへ遷移
+	if (_backButton->IsActive() || !Application::GetMenu())
+	{
+		_backButton->Hide();
+		_restartButton->Hide();
+		_titleButton->Hide();
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+			_controller.PopScene();
+			return;
+		}
+	}
+
+	//リスタートボタンが押されたら新しいゲームシーンへ遷移
+	if (_restartButton->IsActive())
+	{
+		_backButton->Hide();
+		_restartButton->Hide();
+		_titleButton->Hide();
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+			return;
+		}
+	}
+
+	//タイトルボタンが押されたらタイトルシーンへ遷移
+	if (_titleButton->IsActive())
+	{
+		_backButton->Hide();
+		_restartButton->Hide();
+		_titleButton->Hide();
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			_controller.ChangeScene(new TitleScene(_controller));
+			return;
+		}
+	}
 }
 
 //シーンの終了
@@ -201,48 +245,6 @@ void MenuScene::ButtonUpdate()
 	else
 	{
 		_peraRenderer->HoverCntReset();
-		//戻るボタンが押されたら元のゲームシーンへ遷移
-		if (_backButton->IsActive() || !Application::GetMenu())
-		{
-			_backButton->Hide();
-			_restartButton->Hide();
-			_titleButton->Hide();
-			if (_peraRenderer->FadeOut())
-			{
-				SceneFinal();
-				SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
-				_controller.PopScene();
-				return;
-			}
-		}
-
-		//リスタートボタンが押されたら新しいゲームシーンへ遷移
-		if (_restartButton->IsActive())
-		{
-			_backButton->Hide();
-			_restartButton->Hide();
-			_titleButton->Hide();
-			if (_peraRenderer->FadeOut())
-			{
-				SceneFinal();
-				_controller.ChangeScene(new GameScene(_controller));
-				return;
-			}
-		}
-
-		//タイトルボタンが押されたらタイトルシーンへ遷移
-		if (_titleButton->IsActive())
-		{
-			_backButton->Hide();
-			_restartButton->Hide();
-			_titleButton->Hide();
-			if (_peraRenderer->FadeOut())
-			{
-				SceneFinal();
-				_controller.ChangeScene(new TitleScene(_controller));
-				return;
-			}
-		}
 	}
 	
 }

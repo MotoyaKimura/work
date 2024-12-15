@@ -17,6 +17,7 @@
 #include "PmxModel.h"
 #include "TitleScene.h"
 
+//クリアシーンクラス
 ClearScene::ClearScene(SceneManager& controller)
 	: Scene(controller), _controller(controller)
 {
@@ -70,6 +71,30 @@ void ClearScene::SceneRender(void)
 	_peraRenderer->Draw();
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+
+	//リスタートボタンが押されたら
+	if (_restartButton->IsActive())
+	{
+		_restartButton->Hide();
+		_titleButton->Hide();
+		if (_peraRenderer->FadeOut()) {
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+			return;
+		}
+	}
+
+	//タイトルボタンが押されたら
+	if (_titleButton->IsActive())
+	{
+		_restartButton->Hide();
+		_titleButton->Hide();
+		if (_peraRenderer->FadeOut()) {
+			SceneFinal();
+			_controller.ChangeScene(new TitleScene(_controller));
+			return;
+		}
+	}
 }
 
 //シーンの終了
@@ -135,7 +160,7 @@ bool ClearScene::TextureInit()
 	return true;
 }
 
-void ClearScene::ModelReset()
+bool ClearScene::ModelReset()
 {
 	modelNum = 8;
 	_models.resize(modelNum);
@@ -157,6 +182,9 @@ void ClearScene::ModelReset()
 		L"vmdData\\腕上げ.vmd", false);
 	_models[7]->Move(-15, -10.5, -10);
 	_models[7]->Rotate(0, 0.5, 0);
+
+
+	return true;
 }
 
 void ClearScene::KeyboardInit()
@@ -272,28 +300,5 @@ void ClearScene::ButtonUpdate()
 	else
 	{
 		_peraRenderer->HoverCntReset();
-		//リスタートボタンが押されたら
-		if (_restartButton->IsActive())
-		{
-			_restartButton->Hide();
-			_titleButton->Hide();
-			if (_peraRenderer->FadeOut()) {
-				SceneFinal();
-				_controller.ChangeScene(new GameScene(_controller));
-				return;
-			}
-		}
-
-		//タイトルボタンが押されたら
-		if (_titleButton->IsActive())
-		{
-			_restartButton->Hide();
-			_titleButton->Hide();
-			if (_peraRenderer->FadeOut()) {
-				SceneFinal();
-				_controller.ChangeScene(new TitleScene(_controller));
-				return;
-			}
-		}
 	}
 }

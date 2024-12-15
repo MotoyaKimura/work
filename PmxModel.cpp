@@ -11,6 +11,22 @@
 
 using namespace DirectX;
 
+//PMXモデルクラス
+PmxModel::PmxModel(std::shared_ptr<Wrapper> dx
+	, std::shared_ptr<Camera> camera,
+	std::string filePath,
+	std::wstring firstVmdPath,
+	bool isRepeat
+) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath), _firstVmdPath(firstVmdPath), _isRepeat(isRepeat)
+{
+	Load(filePath);
+}
+
+PmxModel::~PmxModel()
+{
+}
+
+//テクスチャパスをモデルパスを使ってアプリケーションからみたパスに変換
 std::wstring PmxModel::GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW)
 {
 	
@@ -24,6 +40,7 @@ std::wstring PmxModel::GetTexturePathFromModelAndTexPath(const std::string& mode
 
 }
 
+//
 bool PmxModel::Load(std::string filePath)
 {
 	if (filePath.empty()) return false;
@@ -1434,19 +1451,4 @@ void PmxModel::Draw()
 		handle.ptr += incSize;
 		idxOffset += numVertex;
 	}
-}
-
-
-PmxModel::PmxModel(std::shared_ptr<Wrapper> dx
-	, std::shared_ptr<Camera> camera,
-	std::string filePath,
-	std::wstring firstVmdPath,
-	bool isRepeat
-) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath), _firstVmdPath(firstVmdPath), _isRepeat(isRepeat)
-{
-	Load(filePath);
-}
-
-PmxModel::~PmxModel()
-{
 }

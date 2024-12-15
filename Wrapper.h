@@ -38,17 +38,17 @@ private:
 	bool CMDInit();
 	bool SwapChainInit();
 	bool CreateBackBuffRTV();
+	bool FenceInit();
 
 public:
 	Wrapper(HWND hwnd);
 	bool Init();
-	void Update();
 	void ExecuteCommand();
-	void Draw();
 	void Flip();
 	void ResizeBackBuffers();
 	std::wstring GetWideStringFromString(const std::string& str);
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTextureByPath(const std::wstring& path);
+	std::string GetStringFromWideString(const std::wstring& wstr);
 
 	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() const {return _dev.Get();}
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() const {return  _cmdList.Get();}

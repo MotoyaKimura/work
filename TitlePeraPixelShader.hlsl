@@ -81,6 +81,11 @@ float4 PS(Output input) : SV_TARGET
     float4 texColor = tex.Sample(smp, input.uv);
     float4 startTexColor = startTex.Sample(smp2, float2((input.uv.x -0.45) * 10, (input.uv.y - 0.9) * 10));
     startTexColor.rgb *= startTexColor.a;
+
+    if (startTexColor.a > 0.1)
+    {
+        return backGround + startTexColor * startHoverCnt * fade;
+    }
     float4 yabai = yabaiTex.Sample(smp2, input.uv);
     yabai.rgb *= yabai.a;
     if(yabai.a > 0.1)

@@ -1,47 +1,34 @@
 #include "VMD.h"
 #include <fstream>
 #include <iostream>
+#include "Wrapper.h"
+#include "Application.h"
 
-std::wstring VMD::GetWideStringFromString(const std::string& str)
+//モーションクラス
+VMD::VMD()
 {
-	auto num1 = MultiByteToWideChar(
-		CP_ACP,
-		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
-		str.c_str(),
-		-1,
-		nullptr,
-		0);
-
-	std::wstring wstr;
-	wstr.resize(num1);
-
-	auto num2 = MultiByteToWideChar(
-		CP_ACP,
-		MB_PRECOMPOSED | MB_ERR_INVALID_CHARS,
-		str.c_str(),
-		-1,
-		&wstr[0],
-		num1);
-
-	assert(num1 == num2);
-	return wstr;
 }
 
+VMD::~VMD()
+{
+}
+
+//JIS文字列をwstringに変換
 void VMD::ReadJISToWString(std::ifstream& _file, std::wstring& output, size_t length)
 {
 	char* charStr = new char[length];
 	_file.read(reinterpret_cast<char*>(charStr), length);
 	std::string jisString = charStr;
-	output = GetWideStringFromString(jisString);
+	output = Application::_dx->GetWideStringFromString(jisString);
 	delete[] charStr;
 }
 
+//VMDファイルの読み込み
 bool VMD::LoadVMD(std::wstring filePath)
 {
 	if (filePath.empty()) return false;
 	std::ifstream vmdFile{ filePath, (std::ios::binary | std::ios::in) };
 	if (vmdFile.fail()) return false;
-
 	if (!ReadHeader(vmdData, vmdFile)) return false;
 	if (!ReadMotion(vmdData, vmdFile)) return false;
 	if (!ReadMorph(vmdData, vmdFile)) return false;
@@ -49,11 +36,11 @@ bool VMD::LoadVMD(std::wstring filePath)
 	if (!ReadLight(vmdData, vmdFile)) return false;
 	if (!ReadShadow(vmdData, vmdFile)) return false;
 	if (!ReadIK(vmdData, vmdFile)) return false;
-
 	vmdFile.close();
 	return true;
 }
 
+//VMDファイルのヘッダー読み込み
 bool VMD::ReadHeader(VMDFileData& data, std::ifstream& file)
 {
 	file.read(reinterpret_cast<char*>(&data.header.header), 30);
@@ -62,17 +49,18 @@ bool VMD::ReadHeader(VMDFileData& data, std::ifstream& file)
 	if (headerStr != "Vocaloid Motion Data 0002" && 
 		headerStr != "Vocaloid Motion Data")
 	{
+		Application::DebugOutputFormatString("VMDファイルのヘッダーが不正です\n");
 		return false;
 	}
 	file.read(reinterpret_cast<char*>(&data.header.modelName), 20);
 	return true;
 }
 
+//モーションデータの読み込み
 bool VMD::ReadMotion(VMDFileData& data, std::ifstream& file)
 {
 	unsigned int count = 0;
 	file.read(reinterpret_cast<char*>(&count), sizeof(unsigned int));
-
 
 	data.motions.resize(count);
 
@@ -87,8 +75,7 @@ bool VMD::ReadMotion(VMDFileData& data, std::ifstream& file)
 	return true;
 }
 
-
-
+//モーフデータの読み込み
 bool VMD::ReadMorph(VMDFileData& data, std::ifstream& file)
 {
 	unsigned int count = 0;
@@ -104,6 +91,7 @@ bool VMD::ReadMorph(VMDFileData& data, std::ifstream& file)
 	return true;
 }
 
+//カメラデータの読み込み
 bool VMD::ReadCamera(VMDFileData& data, std::ifstream& file)
 {
 	unsigned int count = 0;
@@ -123,6 +111,7 @@ bool VMD::ReadCamera(VMDFileData& data, std::ifstream& file)
 	return true;
 }
 
+//ライトデータの読み込み
 bool VMD::ReadLight(VMDFileData& data, std::ifstream& file)
 {
 	unsigned int count = 0;
@@ -138,6 +127,7 @@ bool VMD::ReadLight(VMDFileData& data, std::ifstream& file)
 	return true;
 }
 
+//シャドウデータの読み込み
 bool VMD::ReadShadow(VMDFileData& data, std::ifstream& file)
 {
 	unsigned int count = 0;
@@ -153,6 +143,7 @@ bool VMD::ReadShadow(VMDFileData& data, std::ifstream& file)
 	return true;
 }
 
+//IKデータの読み込み
 bool VMD::ReadIK(VMDFileData& data, std::ifstream& file)
 {
 	unsigned int count = 0;
@@ -175,12 +166,4 @@ bool VMD::ReadIK(VMDFileData& data, std::ifstream& file)
 		}
 	}
 	return true;
-}
-
-VMD::VMD()
-{
-}
-
-VMD::~VMD()
-{
 }

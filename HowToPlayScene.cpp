@@ -11,6 +11,7 @@
 #include "Button.h"
 #include <tchar.h>
 
+//遊び方シーンクラス
 HowToPlayScene::HowToPlayScene(SceneManager& controller)
 	: Scene(controller), _controller(controller)
 {
@@ -50,6 +51,17 @@ void HowToPlayScene::SceneRender(void)
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
 
+	//ボタンが押された
+	if (_backButton->IsActive()) {
+		_backButton->Hide();
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
+			_controller.PopScene();
+			return;
+		}
+	}
 }
 
 //シーンの終了
@@ -154,19 +166,5 @@ void HowToPlayScene::ButtonUpdate()
 	//クリック判定
 	_backButton->Update();
 
-	//ボタンが押されていない
-	if(!_backButton->IsActive())
-	{
-	}
-	//ボタンが押された
-	else {
-		_backButton->Hide();
-		if (_peraRenderer->FadeOut())
-		{
-			SceneFinal();
-			SetCursorPos(Application::GetCenter().x, Application::GetCenter().y);
-			_controller.PopScene();
-			return;
-		}
-	}
+	
 }

@@ -24,7 +24,7 @@ private:
 	bool CopyBuffer();
 	void ChangeBarrier();
 
-	std::string GetStringFromWideString(const std::wstring& wstr);
+
 	std::string GetExtension(const std::wstring& path);
 
 	using LoadLambda_t = std::function<HRESULT(const std::wstring& path, DirectX::TexMetadata*, DirectX::ScratchImage&)>;

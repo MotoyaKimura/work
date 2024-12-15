@@ -57,40 +57,12 @@ void Texture::DefineLambda()
 		};
 }
 
-//ƒƒCƒh•¶Žš—ñ‚©‚ç•¶Žš—ñ‚Ö•ÏŠ·
-std::string Texture::GetStringFromWideString(const std::wstring& wstr)
-{
-	auto num1 = WideCharToMultiByte(
-		CP_ACP,
-		0,
-		wstr.c_str(),
-		-1,
-		nullptr,
-		0,
-		nullptr,
-		nullptr);
 
-	std::string str;
-	str.resize(num1);
-
-	auto num2 = WideCharToMultiByte(
-		CP_ACP,
-		0,
-		wstr.c_str(),
-		-1,
-		&str[0],
-		num1,
-		nullptr,
-		nullptr);
-
-	assert(num1 == num2);
-	return str;
-}
 
 //Šg’£Žq‚ÌŽæ“¾
 std::string Texture::GetExtension(const std::wstring& path)
 {
-	auto str = GetStringFromWideString(path);
+	auto str = _dx->GetStringFromWideString(path);
 	return str.substr(str.find_last_of('.') + 1);
 }
 

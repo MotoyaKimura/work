@@ -6,6 +6,7 @@
 //モデルの移動、カメラの移動、衝突判定を行うクラス
 using namespace DirectX;
 
+//キーボードクラス
 Keyboard::Keyboard(HWND hwnd, std::shared_ptr<Camera> camera, std::vector<std::shared_ptr<Model>>models) :
 	_hwnd(hwnd), _camera(camera), _models(models)
 {

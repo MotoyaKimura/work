@@ -17,19 +17,46 @@ using namespace std;
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
+//DirectX12の共通クラス
+Wrapper::Wrapper(HWND hwnd) :
+	_hwnd(hwnd),
+	winSize(Application::Instance().GetWindowSize())
+{
+}
 
+Wrapper::~Wrapper()
+{
+}
+
+//初期化
+bool Wrapper::Init()
+{
+	if (!DXGIInit()) return false;
+	DeviceInit();
+	if (!CMDInit()) return false;
+	if (!SwapChainInit()) return false;
+	if (!CreateBackBuffRTV()) return false;
+	if (!FenceInit()) return false;
+	return true;
+}
+
+//デバッグレイヤーの有効化
 bool EnableDebugLayer()
 {
 	ComPtr<ID3D12Debug> debugLayer = nullptr;
 	auto result = D3D12GetDebugInterface(
 		IID_PPV_ARGS(debugLayer.ReleaseAndGetAddressOf()));
-	if (FAILED(result)) return false;
-	
+	if (FAILED(result))
+	{
+		std::cout << "デバッグレイヤーの有効化に失敗しました" << std::endl;
+		return false;
+	}
 	debugLayer->EnableDebugLayer();
 	debugLayer->Release();
 	return true;
 }
 
+//文字列からワイド文字列へ変換
 std::wstring Wrapper::GetWideStringFromString(const std::string& str)
 {
 	auto num1 = MultiByteToWideChar(
@@ -55,6 +82,37 @@ std::wstring Wrapper::GetWideStringFromString(const std::string& str)
 	return wstr;
 }
 
+//ワイド文字列から文字列へ変換
+std::string Wrapper::GetStringFromWideString(const std::wstring& wstr)
+{
+	auto num1 = WideCharToMultiByte(
+		CP_ACP,
+		0,
+		wstr.c_str(),
+		-1,
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
+
+	std::string str;
+	str.resize(num1);
+
+	auto num2 = WideCharToMultiByte(
+		CP_ACP,
+		0,
+		wstr.c_str(),
+		-1,
+		&str[0],
+		num1,
+		nullptr,
+		nullptr);
+
+	assert(num1 == num2);
+	return str;
+}
+
+//DirectX Graphics Infrastructureの初期化
 bool Wrapper::DXGIInit()
 {
 #ifdef _DEBUG
@@ -69,6 +127,7 @@ bool Wrapper::DXGIInit()
 	return true;
 }
 
+//デバイスの初期化
 void Wrapper::DeviceInit()
 {
 	ComPtr<IDXGIAdapter> tmpAdapter = nullptr;
@@ -116,6 +175,7 @@ void Wrapper::DeviceInit()
 	}
 }
 
+//コマンドリストの初期化
 bool Wrapper::CMDInit()
 {
 	auto result = _dev->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -129,8 +189,6 @@ bool Wrapper::CMDInit()
 		IID_PPV_ARGS(_cmdList.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
 
-	
-
 	cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	cmdQueueDesc.NodeMask = 0;
 	cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
@@ -142,6 +200,7 @@ bool Wrapper::CMDInit()
 	return true;
 }
 
+//スワップチェインの初期化
 bool Wrapper::SwapChainInit()
 {
 	swapchainDesc.Width = winSize.cx;
@@ -169,26 +228,7 @@ bool Wrapper::SwapChainInit()
 	return true;
 }
 
-void Wrapper::ResizeBackBuffers()
-{
-	ExecuteCommand();
-
-	for (auto& backBuff : backBuffers)
-	{
-		backBuff.Reset();
-	}
-	_swapchain->ResizeBuffers(
-		2,
-		winSize.cx,
-		winSize.cy,
-		DXGI_FORMAT_R8G8B8A8_UNORM,
-		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
-	);
-	CreateBackBuffRTV();
-	//SceneTransBuffInit();
-}
-
-
+//バックバッファの作成
 bool Wrapper::CreateBackBuffRTV()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC _rtvheapDesc = {};
@@ -223,31 +263,16 @@ bool Wrapper::CreateBackBuffRTV()
 	return true;
 }
 
-Wrapper::Wrapper(HWND hwnd) :
-	_hwnd(hwnd),
-winSize(Application::Instance().GetWindowSize())
+//フェンスの初期化
+bool Wrapper::FenceInit()
 {
-}
-
-bool Wrapper::Init()
-{
-	if(!DXGIInit()) return false;
-	DeviceInit();
-	if(!CMDInit()) return false;
-	if(!SwapChainInit()) return false;
-	if(!CreateBackBuffRTV()) return false;
-
 	auto result = _dev->CreateFence(
 		_fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(_fence.ReleaseAndGetAddressOf()));
 	if (FAILED(result)) return false;
-
 	return true;
 }
 
-void Wrapper::Update()
-{
-}
-
+//コマンドの実行
 void Wrapper::ExecuteCommand()
 {
 	_cmdList->Close();
@@ -268,15 +293,13 @@ void Wrapper::ExecuteCommand()
 	_cmdList->Reset(_cmdAllocator.Get(), nullptr);
 }
 
-void Wrapper::Draw()
-{
-}
-
+//フリップ
 void Wrapper::Flip()
 {
 	_swapchain->Present(1, 0);
 }
 
+//テクスチャパスの取得
 ComPtr <ID3D12Resource> Wrapper::GetTextureByPath(const std::wstring& path)
 {
 	auto it = mResourceTableW.find(path);
@@ -288,6 +311,22 @@ ComPtr <ID3D12Resource> Wrapper::GetTextureByPath(const std::wstring& path)
 	}
 }
 
-Wrapper::~Wrapper()
+//バックバッファのリサイズ
+void Wrapper::ResizeBackBuffers()
 {
+	ExecuteCommand();
+
+	for (auto& backBuff : backBuffers)
+	{
+		backBuff.Reset();
+	}
+	_swapchain->ResizeBuffers(
+		2,
+		winSize.cx,
+		winSize.cy,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+	);
+	CreateBackBuffRTV();
+	//SceneTransBuffInit();
 }

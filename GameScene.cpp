@@ -18,6 +18,7 @@
 #include "ClearScene.h"
 #include "HowToPlayScene.h"
 
+//ゲームシーンクラス
 GameScene::GameScene(SceneManager& controller)
 	: Scene(controller), _controller(controller)
 {
@@ -195,7 +196,7 @@ bool GameScene::CameraInit()
 }
 
 //モデルのリセット
-void GameScene::ModelReset()
+bool GameScene::ModelReset()
 {
 	modelNum = 22;
 	_models.resize(modelNum);
@@ -229,6 +230,8 @@ void GameScene::ModelReset()
 	}
 	_models[21].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/sky/skySphere.obj"));
 	_models[21]->SetAABB(0, 0, 0, 0, 0, 0);
+
+	return true;
 }
 
 //キーボードの初期化

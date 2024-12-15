@@ -11,6 +11,7 @@
 
 using namespace DirectX;
 
+//ƒ‚ƒfƒ‹ƒNƒ‰ƒX
 Model::Model(
 	std::shared_ptr<Wrapper> dx,
 	std::shared_ptr<Camera> camera,
