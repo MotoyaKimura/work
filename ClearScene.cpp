@@ -165,6 +165,7 @@ bool ClearScene::ModelReset()
 	modelNum = 8;
 	_models.resize(modelNum);
 	_models[0].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/floor/floor_circle.obj"));
+	if (!_models[0]->Load()) return false;
 	_models[0]->Move(0, -11.5, 0);
 	_models[0]->Rotate(0, 0.5, 0);
 	_models[1] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/cafe.obj");
@@ -175,11 +176,13 @@ bool ClearScene::ModelReset()
 	_models[6] = std::make_shared<AssimpModel>(Application::_dx, _camera, "modelData/RSMScene/house/base.obj");
 	for (int i = 0; i < 6; i++)
 	{
+		if (!_models[i + 1]->Load()) return false;
 		_models[1 + i]->Move(3, -10.5, 10);
 		_models[1 + i]->Rotate(0, 0.5, 0);
 	}
 	_models[7] = std::make_shared<PmxModel>(Application::_dx, _camera, "modelData/”ªd‘ò‚È‚Æ‚è/YaezawaNatori.pmx",
 		L"vmdData\\˜rã‚°.vmd", false);
+	if (!_models[7]->Load()) return false;
 	_models[7]->Move(-15, -10.5, -10);
 	_models[7]->Rotate(0, 0.5, 0);
 

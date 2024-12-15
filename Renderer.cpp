@@ -5,7 +5,6 @@
 #include "Wrapper.h"
 #include "Keyboard.h"
 
-
 #ifdef _DEBUG
 #include <iostream>
 #endif

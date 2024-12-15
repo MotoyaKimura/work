@@ -124,7 +124,6 @@ protected:
 
 	DirectX::XMVECTOR _eye = DirectX::XMVectorSet(0.0f,0.0f,-1.0f,0.0f);
 	
-	virtual bool Load(std::string filePath) = 0;
 
 	bool VertexInit();
 	bool IndexInit();
@@ -138,6 +137,7 @@ protected:
 public:
 	bool Init();
 	
+	virtual bool Load() = 0;
 	virtual void Update(bool isStart) = 0;
 	virtual void Draw() = 0;
 	void SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer);

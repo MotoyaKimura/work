@@ -490,7 +490,7 @@ private:
 
 	
 
-	bool Load(std::string filePath) override;
+	bool Load() override;
 	bool ReadHeader(PMXFileData& data, std::ifstream& file);
 	bool GetPMXStringUTF16(std::ifstream& _file, std::wstring& output);
 	bool GetPMXStringUTF8(std::ifstream& _file, std::string& output);
@@ -521,8 +521,6 @@ private:
 
 	std::vector<SkinningRange> _skinningRanges;
 	std::vector<std::future<void>> _parallelUpdateFutures;
-	void InitParallelVertexSkinningSetting();
-	void VertexSkinningByRange(const SkinningRange& range);
 
 	std::shared_ptr<MorphManager> _morphManager;
 	void MorphMaterial();

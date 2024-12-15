@@ -14,16 +14,16 @@ using namespace DirectX;
 AssimpModel::AssimpModel(std::shared_ptr<Wrapper> dx,
 	std::shared_ptr<Camera> camera,
 	std::string filePath
-) : Model(dx, camera, filePath), _dx(dx), _camera(camera)
+) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath)
 {
-	Load(filePath);
+	
 }
 
 AssimpModel::~AssimpModel()
 {
 }
 
-bool AssimpModel::Load(std::string filePath)
+bool AssimpModel::Load()
 {
 	Assimp::Importer importer;
 	int flag = 0;
@@ -38,7 +38,7 @@ bool AssimpModel::Load(std::string filePath)
 	flag |= aiProcess_OptimizeMeshes;
 	flag |= aiProcess_GenBoundingBoxes;
 
-	auto pScene = importer.ReadFile(filePath.c_str(), flag);
+	auto pScene = importer.ReadFile(_filePath.c_str(), flag);
 	if (pScene == nullptr)
 	{
 		Application::DebugOutputFormatString("ÉÇÉfÉãÇÃì«Ç›çûÇ›Ç…é∏îsÇµÇ‹ÇµÇΩ\n");
