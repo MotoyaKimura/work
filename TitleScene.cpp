@@ -123,7 +123,7 @@ bool TitleScene::ModelReset()
 	modelNum = 1;
 	_models.resize(modelNum);
 	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/”ªd‘ò‚È‚Æ‚è/YaezawaNatori.pmx",
-		L"wait.vmd", true));
+		L"vmdData\\a.vmd", false));
 	if (!_models[0]->Load()) return false;
 	_models[0]->Move(0, 0, 0);
 

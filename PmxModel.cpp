@@ -66,7 +66,7 @@ bool PmxModel::Load()
 	//VMDモーションの読み込み
 	_firstVMD.reset(new VMD());
 	_firstVMD->LoadVMD(_firstVmdPath);
-	_wait.reset(new VMD());
+	/*_wait.reset(new VMD());
 	if (!_wait->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd")) return false;
 	_preRun.reset(new VMD);
 	if (!_preRun->LoadVMD(L"vmdData\\1.走り出し_(15f_前移動20).vmd")) return false;
@@ -85,7 +85,7 @@ bool PmxModel::Load()
 	_endJumpToRun.reset(new VMD);
 	if (!_endJumpToRun->LoadVMD(L"vmdData\\2.着地して走りへ_クッション2_(33f_前移動35).vmd")) return false;
 	_endJump2.reset(new VMD);
-	if (!_endJump2->LoadVMD(L"vmdData\\3.着地して棒立ち_(25f_前移動5).vmd")) return false;
+	if (!_endJump2->LoadVMD(L"vmdData\\3.着地して棒立ち_(25f_前移動5).vmd")) return false;*/
 
 
 	//最初のモーションをセット
@@ -881,174 +881,174 @@ void PmxModel::UpdateAnimation(bool isStart)
 	}
 
 	//幕が上がるまで待機
-	if(isStart)
-	{
-		//ジャンプしたら
-		if (GetAsyncKeyState(VK_SPACE) & 0x8000 || isJumping)
-		{
-			isJumping = true;
-			//直前で走っていたとき
-			if (isRunning)
-			{
-				if (motionCountJump == 0)
-				{
-					//走りジャンプのモーションに変更
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_jumpFromRun);
-					motionCountJump++;
-				}
-				
-				else if (motionCountJump == 2)
-				{
-					//着地してすぐジャンプキーが押されたらすぐさまジャンプに戻る
-					if (GetAsyncKeyState(VK_SPACE) & 0x8000) motionCountJump = 0;
-				}
-				//着地時に移動キーが押されていたら走りのつなぎモーションに変更
-				if (frameNo > _nodeManager->_duration && motionCountJump == 1)
-				{
-					if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
-						GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_endJumpToRun);
-						motionCountJump++;
-					}
-					//移動キーが押されていなかったら待ちモーションへのつなぎモーションに変更
-					else
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_endJump2);
-						motionCountJump++;
-					}
-				}
+	//if(isStart)
+	//{
+	//	//ジャンプしたら
+	//	if (GetAsyncKeyState(VK_SPACE) & 0x8000 || isJumping)
+	//	{
+	//		isJumping = true;
+	//		//直前で走っていたとき
+	//		if (isRunning)
+	//		{
+	//			if (motionCountJump == 0)
+	//			{
+	//				//走りジャンプのモーションに変更
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_jumpFromRun);
+	//				motionCountJump++;
+	//			}
+	//			
+	//			else if (motionCountJump == 2)
+	//			{
+	//				//着地してすぐジャンプキーが押されたらすぐさまジャンプに戻る
+	//				if (GetAsyncKeyState(VK_SPACE) & 0x8000) motionCountJump = 0;
+	//			}
+	//			//着地時に移動キーが押されていたら走りのつなぎモーションに変更
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 1)
+	//			{
+	//				if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+	//					GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_endJumpToRun);
+	//					motionCountJump++;
+	//				}
+	//				//移動キーが押されていなかったら待ちモーションへのつなぎモーションに変更
+	//				else
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_endJump2);
+	//					motionCountJump++;
+	//				}
+	//			}
 
-				//つなぎモーションが終わったら
-				if (frameNo > _nodeManager->_duration && motionCountJump == 2)
-				{
-					//移動している場合、走りモーションに変更
-					if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
-						GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_run);
-						motionCountJump = 0;
-						Application::SetIsKeyJump(false);
-						isJumping = false;
-						motionCountDown = 2;
-					}
-					//移動していない場合、待ちモーションに変更
-					else
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_wait);
-						motionCountJump = 0;
-						Application::SetIsKeyJump(false);
-						isJumping = false;
-						isRunning = false;
-						motionCountDown = 0;
-					}
-				}
-			}
-			//直前で走っていなかったとき、普通のジャンプモーションに変更
-			else
-			{
-				//まずは助走
-				if (motionCountJump == 0)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_preJump);
-					motionCountJump++;
-				}
-				//次にジャンプ
-				if (frameNo > _nodeManager->_duration && motionCountJump == 1)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_jump);
-					motionCountJump++;
-				}
-				//次に着地
-				if (frameNo > _nodeManager->_duration && motionCountJump == 2)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_endJump);
-					motionCountJump++;
-				}
-				//最後に待ち
-				if (frameNo > _nodeManager->_duration && motionCountJump == 3)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_wait);
-					motionCountJump = 0;
-					Application::SetIsKeyJump(false);
-					isJumping = false;
-					motionCountDown = 0;
-				}
-			}
-		}
-		//ジャンプしていない
-		else
-		{
-			//移動キーが押されていたら走りモーションに変更
-			if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
-				GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
-			{
-				isRunning = true;
-				motionCountUp = 0;
-				Application::SetIsMoveKeyUp(false);
-				//助走
-				if (motionCountDown == 0)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_preRun);
-					motionCountDown++;
-				}
-				//走り
-				if (frameNo > _nodeManager->_duration && motionCountDown == 1)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_run);
-					motionCountDown++;
+	//			//つなぎモーションが終わったら
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 2)
+	//			{
+	//				//移動している場合、走りモーションに変更
+	//				if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+	//					GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_run);
+	//					motionCountJump = 0;
+	//					Application::SetIsKeyJump(false);
+	//					isJumping = false;
+	//					motionCountDown = 2;
+	//				}
+	//				//移動していない場合、待ちモーションに変更
+	//				else
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_wait);
+	//					motionCountJump = 0;
+	//					Application::SetIsKeyJump(false);
+	//					isJumping = false;
+	//					isRunning = false;
+	//					motionCountDown = 0;
+	//				}
+	//			}
+	//		}
+	//		//直前で走っていなかったとき、普通のジャンプモーションに変更
+	//		else
+	//		{
+	//			//まずは助走
+	//			if (motionCountJump == 0)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_preJump);
+	//				motionCountJump++;
+	//			}
+	//			//次にジャンプ
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 1)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_jump);
+	//				motionCountJump++;
+	//			}
+	//			//次に着地
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 2)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_endJump);
+	//				motionCountJump++;
+	//			}
+	//			//最後に待ち
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 3)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_wait);
+	//				motionCountJump = 0;
+	//				Application::SetIsKeyJump(false);
+	//				isJumping = false;
+	//				motionCountDown = 0;
+	//			}
+	//		}
+	//	}
+	//	//ジャンプしていない
+	//	else
+	//	{
+	//		//移動キーが押されていたら走りモーションに変更
+	//		if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+	//			GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+	//		{
+	//			isRunning = true;
+	//			motionCountUp = 0;
+	//			Application::SetIsMoveKeyUp(false);
+	//			//助走
+	//			if (motionCountDown == 0)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_preRun);
+	//				motionCountDown++;
+	//			}
+	//			//走り
+	//			if (frameNo > _nodeManager->_duration && motionCountDown == 1)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_run);
+	//				motionCountDown++;
 
-				}
-			}
-			//走りが終わったら
-			else if (isRunning)
-			{
-				//止まるモーションに変更
-				motionCountDown = 0;
-				Application::SetIsMoveKeyDown(false);
-				if (frameNo > _nodeManager->_duration && motionCountUp == 0)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_endRun);
-					motionCountUp++;
-				}
-				//その後、待ちモーションに変更
-				if (frameNo > _nodeManager->_duration && motionCountUp == 1)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_wait);
-					motionCountUp = 0;
-					isRunning = false;
-					Application::SetIsMoveKeyUp(false);
-				}
-			}
-		}
-	}
-	
+	//			}
+	//		}
+	//		//走りが終わったら
+	//		else if (isRunning)
+	//		{
+	//			//止まるモーションに変更
+	//			motionCountDown = 0;
+	//			Application::SetIsMoveKeyDown(false);
+	//			if (frameNo > _nodeManager->_duration && motionCountUp == 0)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_endRun);
+	//				motionCountUp++;
+	//			}
+	//			//その後、待ちモーションに変更
+	//			if (frameNo > _nodeManager->_duration && motionCountUp == 1)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_wait);
+	//				motionCountUp = 0;
+	//				isRunning = false;
+	//				Application::SetIsMoveKeyUp(false);
+	//			}
+	//		}
+	//	}
+	//}
+	//
 	//モーションキーが最大値を超えたらリセット
 	if(frameNo > _nodeManager->_duration)
 	{

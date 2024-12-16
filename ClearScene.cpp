@@ -146,7 +146,7 @@ bool ClearScene::TextureInit()
 	_textures[0].reset(new Texture(Application::_dx, L"texture/clear.png"));
 	_textures[1].reset(new Texture(Application::_dx, L"texture/restart.png"));
 	_textures[2].reset(new Texture(Application::_dx, L"texture/BackToTitle.png"));
-	_textures[3].reset(new Texture(Application::_dx, L"texture/credit1.png"));
+	_textures[3].reset(new Texture(Application::_dx, L"texture/credit3.png"));
 	_textures[4].reset(new Texture(Application::_dx, L"texture/credit2.png"));
 	for (auto tex : _textures)
 	{
