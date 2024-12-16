@@ -24,7 +24,7 @@ private:
 	bool CopyBuffer();
 	void ChangeBarrier();
 
-	std::string GetStringFromWideString(const std::wstring& wstr);
+
 	std::string GetExtension(const std::wstring& path);
 
 	using LoadLambda_t = std::function<HRESULT(const std::wstring& path, DirectX::TexMetadata*, DirectX::ScratchImage&)>;
@@ -35,7 +35,7 @@ public:
 	bool WhileTextureInit();
 	bool BlackTextureInit();
 	bool GradTextureInit();
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultTexture(size_t width, size_t height);
+	bool CreateDefaultTexture(Microsoft::WRL::ComPtr<ID3D12Resource> &buffer, size_t width, size_t height);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetTexBuff() { return _texBuff.Get(); }
 	DirectX::TexMetadata GetMetadata() { return metadata; }

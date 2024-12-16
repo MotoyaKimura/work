@@ -11,6 +11,21 @@
 
 using namespace DirectX;
 
+//PMXモデルクラス
+PmxModel::PmxModel(std::shared_ptr<Wrapper> dx
+	, std::shared_ptr<Camera> camera,
+	std::string filePath,
+	std::wstring firstVmdPath,
+	bool isRepeat
+) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath), _firstVmdPath(firstVmdPath), _isRepeat(isRepeat)
+{
+}
+
+PmxModel::~PmxModel()
+{
+}
+
+//テクスチャパスをモデルパスを使ってアプリケーションからみたパスに変換
 std::wstring PmxModel::GetTexturePathFromModelAndTexPath(const std::string& modelPath, const std::wstring& texPathW)
 {
 	
@@ -24,10 +39,11 @@ std::wstring PmxModel::GetTexturePathFromModelAndTexPath(const std::string& mode
 
 }
 
-bool PmxModel::Load(std::string filePath)
+//PMXモデルの読み込み
+bool PmxModel::Load()
 {
-	if (filePath.empty()) return false;
-	std::ifstream pmxFile{ filePath, (std::ios::binary | std::ios::in) };
+	if (_filePath.empty()) return false;
+	std::ifstream pmxFile{ _filePath, (std::ios::binary | std::ios::in) };
 	if (pmxFile.fail()) return false;
 	if (!ReadHeader(pmxData, pmxFile)) return false;
 	if (!ReadModelInfo(pmxData, pmxFile)) return false;
@@ -43,42 +59,41 @@ bool PmxModel::Load(std::string filePath)
 	if (!ReadSoftBody(pmxData, pmxFile)) return false;
 	pmxFile.close();
 
+	//ノードマネージャの初期化
 	_nodeManager.reset(new NodeManager());
 	_nodeManager->Init(pmxData.bones);
 
-
+	//VMDモーションの読み込み
 	_firstVMD.reset(new VMD());
 	_firstVMD->LoadVMD(_firstVmdPath);
-	_wait.reset(new VMD());
-	auto result = _wait->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd");
+	/*_wait.reset(new VMD());
+	if (!_wait->LoadVMD(L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd")) return false;
 	_preRun.reset(new VMD);
-	_preRun->LoadVMD(L"vmdData\\1.走り出し_(15f_前移動20).vmd");
+	if (!_preRun->LoadVMD(L"vmdData\\1.走り出し_(15f_前移動20).vmd")) return false;
 	_run.reset(new VMD);
-	_run->LoadVMD(L"vmdData\\2.走り75L_ダッシュ_(16f_前移動60).vmd");
+	if (!_run->LoadVMD(L"vmdData\\2.走り75L_ダッシュ_(16f_前移動60).vmd")) return false;
 	_endRun.reset(new VMD);
-	_endRun->LoadVMD(L"vmdData\\4.止る_滑り_(25f_前移動30).vmd");
+	if (!_endRun->LoadVMD(L"vmdData\\4.止る_滑り_(25f_前移動30).vmd")) return false;
 	_preJump.reset(new VMD);
-	_preJump->LoadVMD(L"vmdData\\1.予備動作_(7f_移動なし).vmd");
+	if (!_preJump->LoadVMD(L"vmdData\\1.予備動作_(7f_移動なし).vmd")) return false;
 	_jump.reset(new VMD);
-	_jump->LoadVMD(L"vmdData\\2.ジャンプ_(11f_上移動3~10の間_前移動0~10の間).vmd");
+	if (!_jump->LoadVMD(L"vmdData\\2.ジャンプ_(11f_上移動3~10の間_前移動0~10の間).vmd")) return false;
 	_endJump.reset(new VMD);
-	_endJump->LoadVMD(L"vmdData\\3.着地_(8f_移動なし).vmd");
-
+	if (!_endJump->LoadVMD(L"vmdData\\3.着地_(8f_移動なし).vmd")) return false;
 	_jumpFromRun.reset(new VMD);
-	_jumpFromRun->LoadVMD(L"vmdData\\1.走りLから大ジャンプ_60L推奨_(25f_前移動90).vmd");
+	if (!_jumpFromRun->LoadVMD(L"vmdData\\1.走りLから大ジャンプ_60L推奨_(25f_前移動90).vmd")) return false;
 	_endJumpToRun.reset(new VMD);
-	_endJumpToRun->LoadVMD(L"vmdData\\2.着地して走りへ_クッション2_(33f_前移動35).vmd");
+	if (!_endJumpToRun->LoadVMD(L"vmdData\\2.着地して走りへ_クッション2_(33f_前移動35).vmd")) return false;
 	_endJump2.reset(new VMD);
-	_endJump2->LoadVMD(L"vmdData\\3.着地して棒立ち_(25f_前移動5).vmd");
+	if (!_endJump2->LoadVMD(L"vmdData\\3.着地して棒立ち_(25f_前移動5).vmd")) return false;*/
 
-	if (!result) return false;
+
+	//最初のモーションをセット
 	InitAnimation(_firstVMD->vmdData);
-
 	if(!_isRepeat)
 	{
 		_nodeManager->SetDuration((std::numeric_limits<unsigned int>::max)());
 	}
-
 	_morphManager.reset(new MorphManager(&mesh));
 	_morphManager->Init(pmxData.morphs, 
 		_firstVMD->vmdData.morphs,
@@ -90,6 +105,7 @@ bool PmxModel::Load(std::string filePath)
 	return true;
 }
 
+//ヘッダーの読み込み
 bool PmxModel::ReadHeader(PMXFileData& data, std::ifstream& file)
 {
 	constexpr std::array<unsigned char, 4> PMX_MAGIC_NUMBER = { 0x50, 0x4d, 0x58, 0x20 };
@@ -113,6 +129,7 @@ bool PmxModel::ReadHeader(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//UTF16文字列の読み込み
 bool PmxModel::GetPMXStringUTF16(std::ifstream& _file, std::wstring& output)
 {
 	std::array<wchar_t, 1024> wBuffer{};
@@ -125,6 +142,7 @@ bool PmxModel::GetPMXStringUTF16(std::ifstream& _file, std::wstring& output)
 	return true;
 }
 
+//UTF8文字列の読み込み
 bool PmxModel::GetPMXStringUTF8(std::ifstream& _file, std::string& output)
 {
 	std::array<char, 1024> wBuffer{};
@@ -137,7 +155,7 @@ bool PmxModel::GetPMXStringUTF8(std::ifstream& _file, std::string& output)
 	return true;
 }
 
-
+//モデル情報の読み込み
 bool PmxModel::ReadModelInfo(PMXFileData& data, std::ifstream& file)
 {
 	GetPMXStringUTF16(file, data.modelInfo.modelName);
@@ -147,6 +165,7 @@ bool PmxModel::ReadModelInfo(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//頂点情報の読み込み
 bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int vertexCount;
@@ -243,6 +262,7 @@ bool PmxModel::ReadVertex(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//インデックス情報の読み込み
 bool PmxModel::ReadFace(PMXFileData& data, std::ifstream& file)
 {
 	int faceCount;
@@ -305,6 +325,7 @@ bool PmxModel::ReadFace(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//テクスチャ情報の読み込み
 bool PmxModel::ReadTexture(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int numOfTexture = 0;
@@ -317,6 +338,7 @@ bool PmxModel::ReadTexture(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//マテリアル情報の読み込み
 bool PmxModel::ReadMaterial(PMXFileData& data, std::ifstream& file)
 {
 	int numOfMaterial = 0;
@@ -438,6 +460,7 @@ bool PmxModel::ReadMaterial(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//ボーン情報の読み込み
 bool PmxModel::ReadBone(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int numOfBone;
@@ -516,6 +539,7 @@ bool PmxModel::ReadBone(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//モーフ情報の読み込み
 bool PmxModel::ReadMorph(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int numOfMorph = 0;
@@ -623,6 +647,7 @@ bool PmxModel::ReadMorph(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//ディスプレイフレーム情報の読み込み
 bool PmxModel::ReadDisplayFrame(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int numOfDisplayFrame = 0;
@@ -661,6 +686,7 @@ bool PmxModel::ReadDisplayFrame(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//剛体情報の読み込み
 bool PmxModel::ReadRigidBody(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int numOfRigidBody = 0;
@@ -690,6 +716,7 @@ bool PmxModel::ReadRigidBody(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//ジョイント情報の読み込み
 bool PmxModel::ReadJoint(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int numOfJoint = 0;
@@ -720,6 +747,7 @@ bool PmxModel::ReadJoint(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//ソフトボディ情報の読み込み
 bool PmxModel::ReadSoftBody(PMXFileData& data, std::ifstream& file)
 {
 	unsigned int numOfSoftBody = 0;
@@ -800,6 +828,7 @@ bool PmxModel::ReadSoftBody(PMXFileData& data, std::ifstream& file)
 	return true;
 }
 
+//モーションキー情報の読み込み
 void PmxModel::InitAnimation(VMDFileData& vmdData)
 {
 	const std::vector<BoneNode*>& allNodes = _nodeManager->GetAllNodes();
@@ -837,11 +866,9 @@ void PmxModel::InitAnimation(VMDFileData& vmdData)
 	}
 
 	_nodeManager->SortKey();
-	//InitParallelVertexSkinningSetting();
-
-	//PlayAnimation();
 }
 
+//モーションの更新
 void PmxModel::UpdateAnimation(bool isStart)
 {
 	DWORD elapsedTime = timeGetTime() - _startTime;
@@ -853,160 +880,176 @@ void PmxModel::UpdateAnimation(bool isStart)
 		frameNo = 0;
 	}
 
-	BYTE key[256];
-	GetKeyboardState(key);
-	if(isStart)
-	{
-		if (GetAsyncKeyState(VK_SPACE) & 0x8000 || isJumping)
-		{
-			isJumping = true;
-			if (isRunning)
-			{
-				if (motionCountJump == 0)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_jumpFromRun);
-					motionCountJump++;
-				}
-				else if (motionCountJump == 2)
-				{
-					if (GetAsyncKeyState(VK_SPACE) & 0x8000) motionCountJump = 0;
-				}
-				if (frameNo > _nodeManager->_duration && motionCountJump == 1)
-				{
-					if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
-						GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_endJumpToRun);
-						motionCountJump++;
-					}
-					else
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_endJump2);
-						motionCountJump++;
-					}
+	//幕が上がるまで待機
+	//if(isStart)
+	//{
+	//	//ジャンプしたら
+	//	if (GetAsyncKeyState(VK_SPACE) & 0x8000 || isJumping)
+	//	{
+	//		isJumping = true;
+	//		//直前で走っていたとき
+	//		if (isRunning)
+	//		{
+	//			if (motionCountJump == 0)
+	//			{
+	//				//走りジャンプのモーションに変更
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_jumpFromRun);
+	//				motionCountJump++;
+	//			}
+	//			
+	//			else if (motionCountJump == 2)
+	//			{
+	//				//着地してすぐジャンプキーが押されたらすぐさまジャンプに戻る
+	//				if (GetAsyncKeyState(VK_SPACE) & 0x8000) motionCountJump = 0;
+	//			}
+	//			//着地時に移動キーが押されていたら走りのつなぎモーションに変更
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 1)
+	//			{
+	//				if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+	//					GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_endJumpToRun);
+	//					motionCountJump++;
+	//				}
+	//				//移動キーが押されていなかったら待ちモーションへのつなぎモーションに変更
+	//				else
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_endJump2);
+	//					motionCountJump++;
+	//				}
+	//			}
 
-				}
+	//			//つなぎモーションが終わったら
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 2)
+	//			{
+	//				//移動している場合、走りモーションに変更
+	//				if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+	//					GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_run);
+	//					motionCountJump = 0;
+	//					Application::SetIsKeyJump(false);
+	//					isJumping = false;
+	//					motionCountDown = 2;
+	//				}
+	//				//移動していない場合、待ちモーションに変更
+	//				else
+	//				{
+	//					_startTime = timeGetTime();
+	//					frameNo = 0;
+	//					ChangeVMD(_wait);
+	//					motionCountJump = 0;
+	//					Application::SetIsKeyJump(false);
+	//					isJumping = false;
+	//					isRunning = false;
+	//					motionCountDown = 0;
+	//				}
+	//			}
+	//		}
+	//		//直前で走っていなかったとき、普通のジャンプモーションに変更
+	//		else
+	//		{
+	//			//まずは助走
+	//			if (motionCountJump == 0)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_preJump);
+	//				motionCountJump++;
+	//			}
+	//			//次にジャンプ
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 1)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_jump);
+	//				motionCountJump++;
+	//			}
+	//			//次に着地
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 2)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_endJump);
+	//				motionCountJump++;
+	//			}
+	//			//最後に待ち
+	//			if (frameNo > _nodeManager->_duration && motionCountJump == 3)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_wait);
+	//				motionCountJump = 0;
+	//				Application::SetIsKeyJump(false);
+	//				isJumping = false;
+	//				motionCountDown = 0;
+	//			}
+	//		}
+	//	}
+	//	//ジャンプしていない
+	//	else
+	//	{
+	//		//移動キーが押されていたら走りモーションに変更
+	//		if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
+	//			GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
+	//		{
+	//			isRunning = true;
+	//			motionCountUp = 0;
+	//			Application::SetIsMoveKeyUp(false);
+	//			//助走
+	//			if (motionCountDown == 0)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_preRun);
+	//				motionCountDown++;
+	//			}
+	//			//走り
+	//			if (frameNo > _nodeManager->_duration && motionCountDown == 1)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_run);
+	//				motionCountDown++;
 
-				if (frameNo > _nodeManager->_duration && motionCountJump == 2)
-				{
-
-					if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
-						GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_run);
-						motionCountJump = 0;
-						Application::SetIsKeyJump(false);
-						isJumping = false;
-						motionCountDown = 2;
-					}
-					else
-					{
-						_startTime = timeGetTime();
-						frameNo = 0;
-						ChangeVMD(_wait);
-						motionCountJump = 0;
-						Application::SetIsKeyJump(false);
-						isJumping = false;
-						isRunning = false;
-						motionCountDown = 0;
-					}
-				}
-
-
-			}
-			else
-			{
-				if (motionCountJump == 0)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_preJump);
-					motionCountJump++;
-				}
-				if (frameNo > _nodeManager->_duration && motionCountJump == 1)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_jump);
-					motionCountJump++;
-				}
-				if (frameNo > _nodeManager->_duration && motionCountJump == 2)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_endJump);
-					motionCountJump++;
-				}
-				if (frameNo > _nodeManager->_duration && motionCountJump == 3)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_wait);
-					motionCountJump = 0;
-					Application::SetIsKeyJump(false);
-					isJumping = false;
-					motionCountDown = 0;
-				}
-			}
-
-		}
-		else
-		{
-			if (GetAsyncKeyState('W') & 0x8000 || GetAsyncKeyState('A') & 0x8000 ||
-				GetAsyncKeyState('S') & 0x8000 || GetAsyncKeyState('D') & 0x8000)
-			{
-				isRunning = true;
-				motionCountUp = 0;
-				Application::SetIsMoveKeyUp(false);
-				if (motionCountDown == 0)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_preRun);
-					motionCountDown++;
-				}
-				if (frameNo > _nodeManager->_duration && motionCountDown == 1)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_run);
-					motionCountDown++;
-
-				}
-			}
-			else if (isRunning)
-			{
-				motionCountDown = 0;
-				Application::SetIsMoveKeyDown(false);
-				if (frameNo > _nodeManager->_duration && motionCountUp == 0)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_endRun);
-					motionCountUp++;
-				}
-				if (frameNo > _nodeManager->_duration && motionCountUp == 1)
-				{
-					_startTime = timeGetTime();
-					frameNo = 0;
-					ChangeVMD(_wait);
-					motionCountUp = 0;
-					isRunning = false;
-					Application::SetIsMoveKeyUp(false);
-				}
-			}
-		}
-	}
-	
-
+	//			}
+	//		}
+	//		//走りが終わったら
+	//		else if (isRunning)
+	//		{
+	//			//止まるモーションに変更
+	//			motionCountDown = 0;
+	//			Application::SetIsMoveKeyDown(false);
+	//			if (frameNo > _nodeManager->_duration && motionCountUp == 0)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_endRun);
+	//				motionCountUp++;
+	//			}
+	//			//その後、待ちモーションに変更
+	//			if (frameNo > _nodeManager->_duration && motionCountUp == 1)
+	//			{
+	//				_startTime = timeGetTime();
+	//				frameNo = 0;
+	//				ChangeVMD(_wait);
+	//				motionCountUp = 0;
+	//				isRunning = false;
+	//				Application::SetIsMoveKeyUp(false);
+	//			}
+	//		}
+	//	}
+	//}
+	//
+	//モーションキーが最大値を超えたらリセット
 	if(frameNo > _nodeManager->_duration)
 	{
 		_startTime = timeGetTime();
@@ -1015,17 +1058,22 @@ void PmxModel::UpdateAnimation(bool isStart)
 
 	_nodeManager->BeforeUpdateAnimation();
 
+	//ボーンのアニメーション
 	_morphManager->Animate(frameNo);
 	_nodeManager->UpdateAnimation(frameNo);
 
+	//モーフのアニメーション
 	MorphMaterial();
 	MorphBone();
 
+	//頂点スキニング
     VertexSkinning();
 
+	//シェーダーに送る
 	std::copy(mesh.Vertices.begin(), mesh.Vertices.end(), vertMap);
 }
 
+//モーションの変更
 void PmxModel::ChangeVMD(std::shared_ptr<VMD> vmd)
 {
 	
@@ -1038,13 +1086,13 @@ void PmxModel::ChangeVMD(std::shared_ptr<VMD> vmd)
 		pmxData.bones.size());
 }
 
-
+//アニメーションの開始
 void PmxModel::PlayAnimation()
 {
 	_startTime = timeGetTime();
 }
 
-
+//頂点スキニング
 void PmxModel::VertexSkinning()
 {
 	const std::vector<BoneNode*>& allNodes = _nodeManager->GetAllNodes();
@@ -1112,189 +1160,7 @@ void PmxModel::VertexSkinning()
 	}
 }
 
-//void PmxModel::VertexSkinning()
-//{
-//	const int futureCount = _parallelUpdateFutures.size();
-//
-//	for (int i = 0; i < futureCount; i++)
-//	{
-//		const SkinningRange& currentRange = _skinningRanges[i];
-//		_parallelUpdateFutures[i] = std::async(std::launch::async, [this, currentRange]()
-//			{
-//				this->VertexSkinningByRange(currentRange);
-//			});
-//	}
-//
-//	for (const std::future<void>& future : _parallelUpdateFutures)
-//	{
-//		future.wait();
-//	}
-//}
-
-void PmxModel::InitParallelVertexSkinningSetting()
-{
-	unsigned int threadCount = std::thread::hardware_concurrency();
-	unsigned int divNum = threadCount - 1;
-
-	_skinningRanges.resize(threadCount);
-	_parallelUpdateFutures.resize(threadCount);
-
-	unsigned int divVertexCount = pmxData.vertices.size() / divNum;
-	unsigned int remainder = pmxData.vertices.size() % divNum;
-
-	int startIndex = 0;
-	for(int i = 0; i < _skinningRanges.size() - 1; i++)
-	{
-		_skinningRanges[i].startIndex = startIndex;
-		_skinningRanges[i].vertexCount = divVertexCount;
-
-		startIndex += _skinningRanges[i].vertexCount;
-	}
-
-	_skinningRanges[_skinningRanges.size() - 1].startIndex = startIndex;
-	_skinningRanges[_skinningRanges.size() - 1].vertexCount = remainder;
-}
-
-void PmxModel::VertexSkinningByRange(const SkinningRange& range)
-{
-	for (unsigned int i = 0; i < pmxData.vertices.size(); ++i)
-	{
-		const PMXVertex& currentVertexData = pmxData.vertices[i];
-		XMVECTOR position = XMLoadFloat3(&currentVertexData.position);
-		XMVECTOR morphPosition = XMLoadFloat3(&_morphManager->GetMorphVertexPosition(i));
-
-		switch (currentVertexData.weightType)
-		{
-		case PMXVertexWeight::BDEF1:
-		{
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			position += morphPosition;
-			position = XMVector3Transform(position, m0);
-
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-			XMMATRIX rotation = XMMatrixSet(
-				m0.r[0].m128_f32[0], m0.r[0].m128_f32[1], m0.r[0].m128_f32[2], 0.0f,
-				m0.r[1].m128_f32[0], m0.r[1].m128_f32[1], m0.r[1].m128_f32[2], 0.0f,
-				m0.r[2].m128_f32[0], m0.r[2].m128_f32[1], m0.r[2].m128_f32[2], 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f);
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
-			break;
-		}
-		case PMXVertexWeight::BDEF2:
-		{
-			float weight0 = currentVertexData.boneWeights[0];
-			float weight1 = 1.0f - weight0;
-
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
-
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
-
-			XMMATRIX mat = m0 * weight0 + m1 * weight1;
-			position += morphPosition;
-			position = XMVector3Transform(position, mat);
-
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-			XMMATRIX rotation = XMMatrixSet(
-				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
-				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
-				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f);
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
-			break;
-		}
-		case PMXVertexWeight::BDEF4:
-		{
-			float weight0 = currentVertexData.boneWeights[0];
-			float weight1 = currentVertexData.boneWeights[1];
-			float weight2 = currentVertexData.boneWeights[2];
-			float weight3 = currentVertexData.boneWeights[3];
-
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
-			BoneNode* bone2 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[2]);
-			BoneNode* bone3 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[3]);
-
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
-			XMMATRIX m2 = XMMatrixMultiply(bone2->GetInitInverseTransform(), bone2->GetGlobalTransform());
-			XMMATRIX m3 = XMMatrixMultiply(bone3->GetInitInverseTransform(), bone3->GetGlobalTransform());
-
-			XMMATRIX mat = m0 * weight0 + m1 * weight1 + m2 * weight2 + m3 * weight3;
-			position += morphPosition;
-			position = XMVector3Transform(position, mat);
-
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-			XMMATRIX rotation = XMMatrixSet(
-				mat.r[0].m128_f32[0], mat.r[0].m128_f32[1], mat.r[0].m128_f32[2], 0.0f,
-				mat.r[1].m128_f32[0], mat.r[1].m128_f32[1], mat.r[1].m128_f32[2], 0.0f,
-				mat.r[2].m128_f32[0], mat.r[2].m128_f32[1], mat.r[2].m128_f32[2], 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f);
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
-			break;
-		}
-		case PMXVertexWeight::SDEF:
-		{
-			float w0 = currentVertexData.boneWeights[0];
-			float w1 = 1.0f - w0;
-
-			XMVECTOR sdefc = XMLoadFloat3(&currentVertexData.sdefC);
-			XMVECTOR sdefr0 = XMLoadFloat3(&currentVertexData.sdefR0);
-			XMVECTOR sdefr1 = XMLoadFloat3(&currentVertexData.sdefR1);
-
-			XMVECTOR rw = sdefr0 * w0 + sdefr1 * w1;
-			XMVECTOR r0 = sdefc + sdefr0 - rw;
-			XMVECTOR r1 = sdefc + sdefr1 - rw;
-
-			XMVECTOR cr0 = (sdefc + r0) * 0.5f;
-			XMVECTOR cr1 = (sdefc + r1) * 0.5f;
-
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			BoneNode* bone1 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[1]);
-
-			XMVECTOR q0 = XMQuaternionRotationMatrix(bone0->GetGlobalTransform());
-			XMVECTOR q1 = XMQuaternionRotationMatrix(bone1->GetGlobalTransform());
-
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-			XMMATRIX m1 = XMMatrixMultiply(bone1->GetInitInverseTransform(), bone1->GetGlobalTransform());
-
-			XMMATRIX rotation = XMMatrixRotationQuaternion(XMQuaternionSlerp(q0, q1, w1));
-
-			position += morphPosition;
-
-			position = XMVector3Transform(position - sdefc, rotation) + XMVector3Transform(cr0, m0) * w0 + XMVector3Transform(cr1, m1) * w1;
-			XMVECTOR normal = XMLoadFloat3(&currentVertexData.normal);
-
-			normal = XMVector3Transform(normal, rotation);
-			XMStoreFloat3(&mesh.Vertices[i].Normal, normal);
-			break;
-		}
-		case PMXVertexWeight::QDEF:
-		{
-			BoneNode* bone0 = _nodeManager->GetBoneNodeByIndex(currentVertexData.boneIndices[0]);
-			XMMATRIX m0 = XMMatrixMultiply(bone0->GetInitInverseTransform(), bone0->GetGlobalTransform());
-
-			position += morphPosition;
-			position = XMVector3Transform(position, m0);
-
-			break;
-		}
-		default:
-			break;
-		}
-		XMStoreFloat3(&mesh.Vertices[i].Position, XMVectorScale(position, 0.2));
-
-		const XMFLOAT4& morphUV = _morphManager->GetMorphUV(i);
-		const XMFLOAT2& originalUV = mesh.Vertices[i].TexCoord;
-		mesh.Vertices[i].TexCoord = XMFLOAT2(originalUV.x + morphUV.x, originalUV.y + morphUV.y);
-	}
-}
-
+//モーフのマテリアル更新
 void PmxModel::MorphMaterial()
 {
 	size_t bufferSize = sizeof(Material);
@@ -1348,6 +1214,7 @@ void PmxModel::MorphMaterial()
 	}
 }
 
+//モーフのボーン更新
 void PmxModel::MorphBone()
 {
 	const std::vector<BoneNode*>& allNodes = _nodeManager->GetAllNodes();
@@ -1369,7 +1236,7 @@ void PmxModel::MorphBone()
 	}
 }
 
-
+//ヒープの初期化
 bool PmxModel::ModelHeapInit()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
@@ -1390,13 +1257,11 @@ void PmxModel::Update(bool isStart)
 	world =
 		XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
 		* XMMatrixTranslation(_pos.x, _pos.y, _pos.z);
-
 	*worldMatrix = world;
-	
 	UpdateAnimation(isStart);
 }
 
-
+//モデルの描画
 void PmxModel::Draw()
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1434,19 +1299,4 @@ void PmxModel::Draw()
 		handle.ptr += incSize;
 		idxOffset += numVertex;
 	}
-}
-
-
-PmxModel::PmxModel(std::shared_ptr<Wrapper> dx
-	, std::shared_ptr<Camera> camera,
-	std::string filePath,
-	std::wstring firstVmdPath,
-	bool isRepeat
-) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath), _firstVmdPath(firstVmdPath), _isRepeat(isRepeat)
-{
-	Load(filePath);
-}
-
-PmxModel::~PmxModel()
-{
 }

@@ -4,22 +4,36 @@
 #include "Model.h"
 #include "Pera.h"
 
+//モデルの描画クラス
+ModelRenderer::ModelRenderer(
+	std::shared_ptr<Wrapper> dx,
+	std::shared_ptr<Pera> pera,
+	std::shared_ptr<Keyboard> keyboard,
+	std::vector<std::shared_ptr<Model>> models,
+	std::shared_ptr<Camera> camera
+) : Renderer(dx, pera, keyboard, models, camera), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
+{
+}
 
+ModelRenderer::~ModelRenderer()
+{
+}
+
+//バッファー初期化
 bool ModelRenderer::Init()
 {
 	SetNumBuffers(2);
 	SetResSize(Application::GetWindowSize().cx, Application::GetWindowSize().cy);
 	SetFormat(DXGI_FORMAT_R8G8B8A8_UNORM);
-	
 	if (!CreateBuffers()) return false;
 	if (!CreateDepthBuffer()) return false;
 	for (auto RTBuff : GetBuffers())
 		_pera->SetSRV(RTBuff, GetFormat());
 	_pera->SetSRV(GetDepthBuffer(), DXGI_FORMAT_R32_FLOAT);
-	
 	return true;
 }
 
+//シェーダー、ルートシグネチャ、パイプライン初期化
 bool ModelRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoint, std::wstring PShlslFile, std::string PSEntryPoint)
 {
 	if (FAILED(!CompileShaderFile(VShlslFile, VSEntryPoint, "vs_5_0", vsBlob))) return false;
@@ -43,6 +57,7 @@ bool ModelRenderer::RendererInit(std::wstring VShlslFile, std::string VSEntryPoi
 	return true;
 }
 
+//描画
 void ModelRenderer::Draw()
 {
 	SetBarrierState(_buffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -54,16 +69,3 @@ void ModelRenderer::Draw()
 }
 
 
-ModelRenderer::ModelRenderer(
-	std::shared_ptr<Wrapper> dx,
-	std::shared_ptr<Pera> pera, 
-	std::shared_ptr<Keyboard> keyboard, 
-	std::vector<std::shared_ptr<Model>> models, 
-	std::shared_ptr<Camera> camera
-) : Renderer(dx, pera, keyboard, models, camera), _dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
-{
-}
-
-ModelRenderer::~ModelRenderer()
-{
-}

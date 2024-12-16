@@ -1,5 +1,15 @@
 #include "Morph.h"
 
+//モーフクラス
+Morph::Morph()
+{
+}
+
+Morph::~Morph()
+{
+}
+
+//モーフの位置の初期化
 void Morph::SetPositionMorph(std::vector<PMXMorph::PositionMorph> pmxPositionMorphs)
 {
 	_positionMorphData.resize(pmxPositionMorphs.size());
@@ -10,6 +20,7 @@ void Morph::SetPositionMorph(std::vector<PMXMorph::PositionMorph> pmxPositionMor
 	}
 }
 
+//モーフのUVの初期化
 void Morph::SetUVMorph(std::vector<PMXMorph::UVMorph> pmxUVMorphs)
 {
 	_uvMorphData.resize(pmxUVMorphs.size());
@@ -20,6 +31,7 @@ void Morph::SetUVMorph(std::vector<PMXMorph::UVMorph> pmxUVMorphs)
 	}
 }
 
+//モーフのマテリアルの初期化
 void Morph::SetMaterialMorph(std::vector<PMXMorph::MaterialMorph> pmxMaterialMorphs)
 {
 	_materialMorphData.resize(pmxMaterialMorphs.size());
@@ -30,6 +42,7 @@ void Morph::SetMaterialMorph(std::vector<PMXMorph::MaterialMorph> pmxMaterialMor
 	}
 }
 
+//モーフのボーンの初期化
 void Morph::SetBoneMorph(std::vector<PMXMorph::BoneMorph> pmxBoneMorphs)
 {
 	_boneMorphData.resize(pmxBoneMorphs.size());
@@ -40,6 +53,7 @@ void Morph::SetBoneMorph(std::vector<PMXMorph::BoneMorph> pmxBoneMorphs)
 	}
 }
 
+//モーフのグループの初期化,モーフタイプが複数のとき
 void Morph::SetGroupMorph(std::vector<PMXMorph::GroupMorph> pmxGroupMorphs)
 {
 	_groupMorphData.resize(pmxGroupMorphs.size());
@@ -50,11 +64,5 @@ void Morph::SetGroupMorph(std::vector<PMXMorph::GroupMorph> pmxGroupMorphs)
 	}
 }
 
-Morph::Morph()
-{
-}
 
-Morph::~Morph()
-{
-}
 

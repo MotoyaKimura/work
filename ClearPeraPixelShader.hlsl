@@ -1,10 +1,12 @@
 #include "ClearPeraHeader.hlsli"
 
+//ƒ‰ƒ“ƒ_ƒ€’l‚ğæ“¾
 float random(float2 uv)
 {
     return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
 }
 
+//RSM‚©‚çŠÔÚŒõ‚ğŒvZ
 float3 calcRSM(float2 uv)
 {
     float dp = depthTex.Sample(smp, uv);
@@ -64,16 +66,9 @@ float3 calcRSM(float2 uv)
     return indLight;
 }
 
+//
 float4 PS(Output input) : SV_TARGET
 {
-    float2 dir = float2(1, 1);
-    float width, height, miplevels;
-    tex.GetDimensions(0, width, height, miplevels);
-    float t = dot(input.uv, normalize(dir));
-    float PauseCol = 1.0f;
-    if (isPause)
-        PauseCol = 0.5f;
-   
     float3 indLight = calcRSM(input.uv);
     float ssao = ssaoTex.Sample(smp, (input.uv));
     float4 texColor = tex.Sample(smp, input.uv);

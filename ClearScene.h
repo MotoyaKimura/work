@@ -44,7 +44,7 @@ private:
 
 	bool PeraInit();
 	bool CameraInit();
-	void ModelReset();
+	bool ModelReset();
 	void KeyboardInit();
 	bool RendererBuffInit();
 	bool TextureInit();

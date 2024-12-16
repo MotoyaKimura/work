@@ -36,7 +36,6 @@ private:
 	static bool isMoveKeyUp;
 	static bool isKeyJump;
 	static bool isShowHowToPlay;
-protected:
 public:
 	static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static std::shared_ptr<Wrapper> _dx;

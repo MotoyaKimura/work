@@ -4,7 +4,7 @@
 
 using namespace DirectX;
 
-//ボーンノードの初期化
+//ボーンノードクラス
 BoneNode::BoneNode(unsigned int index, const PMXBone& pmxBone) :
 _boneIndex(index),
 _name(pmxBone.name),

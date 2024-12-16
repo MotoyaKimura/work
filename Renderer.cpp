@@ -5,7 +5,6 @@
 #include "Wrapper.h"
 #include "Keyboard.h"
 
-
 #ifdef _DEBUG
 #include <iostream>
 #endif
@@ -13,6 +12,45 @@
 using namespace std;
 using namespace Microsoft::WRL;
 
+//レンダラーの共通クラス
+Renderer::Renderer(
+	shared_ptr<Wrapper> dx,
+	shared_ptr<Pera> pera, 
+	shared_ptr<Keyboard> keyboard,
+	std::vector<std::shared_ptr<Model>> models, 
+	std::shared_ptr<Camera> camera
+) :
+	_dx(dx),
+_pera(pera),
+_keyboard(keyboard),
+_models(models),
+_camera(camera)
+{
+}
+
+Renderer::~Renderer()
+{
+}
+
+
+//シェーダーのコンパイル
+bool Renderer::CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, std::string model, Microsoft::WRL::ComPtr<ID3DBlob>& _xsBlob)
+{
+	auto result = D3DCompileFromFile(
+		hlslFile.c_str(),
+		nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		EntryPoint.c_str(),
+		model.c_str(),
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		_xsBlob.ReleaseAndGetAddressOf(),
+		errBlob.ReleaseAndGetAddressOf());
+
+	return CheckResult(result);
+}
+
+//シェーダーのコンパイルが成功したかどうかを返す
 bool Renderer::CheckResult(HRESULT result) const
 {
 	if (FAILED(result))
@@ -37,23 +75,7 @@ bool Renderer::CheckResult(HRESULT result) const
 	return true;
 }
 
-
-bool Renderer::CompileShaderFile(std::wstring hlslFile, std::string EntryPoint, std::string model, Microsoft::WRL::ComPtr<ID3DBlob>& _xsBlob)
-{
-	auto result = D3DCompileFromFile(
-		hlslFile.c_str(),
-		nullptr,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		EntryPoint.c_str(),
-		model.c_str(),
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		_xsBlob.ReleaseAndGetAddressOf(),
-		errBlob.ReleaseAndGetAddressOf());
-
-	return CheckResult(result);
-}
-
+//ルートシグネチャの初期化
 bool Renderer::RootSignatureInit()
 {
 
@@ -85,6 +107,7 @@ bool Renderer::RootSignatureInit()
 	return true;
 }
 
+//ペラポリゴン用のルートシグネチャのパラメータ設定
 void Renderer::SetRootSigParamForPera(size_t cbvDescs, size_t srvDescs)
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
@@ -119,6 +142,7 @@ void Renderer::SetRootSigParamForPera(size_t cbvDescs, size_t srvDescs)
 
 }
 
+//モデル用のルートシグネチャのパラメータ設定
 void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
 {
 	CD3DX12_DESCRIPTOR_RANGE descTblRange;
@@ -166,6 +190,7 @@ void Renderer::SetRootSigParamForModel(size_t cbvDescs, size_t srvDescs)
 }
 
 
+//パイプラインステートの初期化
 bool Renderer::PipelineStateInit()
 {
 	gpipelineDesc.pRootSignature = rootsignature.Get();
@@ -218,16 +243,14 @@ bool Renderer::PipelineStateInit()
 	return true;
 }
 
-Renderer::Renderer(shared_ptr<Wrapper> dx, shared_ptr<Pera> pera, shared_ptr<Keyboard> keyboard, std::vector<std::shared_ptr<Model>> models, std::shared_ptr<Camera> camera) :
-	_dx(dx), _pera(pera), _keyboard(keyboard), _models(models), _camera(camera)
-{
-}
 
+//モデルの追加
 void Renderer::AddModel(std::shared_ptr<Model> model)
 {
 	_models.emplace_back(model);
 }
 
+//モデルの更新
 void Renderer::Update(bool isStart)
 {
 	for (auto& _models : _models) {
@@ -235,6 +258,7 @@ void Renderer::Update(bool isStart)
 	}
 }
 
+//モデルの描画
 void Renderer::DrawModel() const
 {
 	for (auto& _models : _models) {
@@ -242,12 +266,13 @@ void Renderer::DrawModel() const
 	}
 }
 
+//ペラポリゴンの描画
 void Renderer::DrawPera() const
 {
 	_pera->Draw();
 }
 
-
+//描画前の処理
 void Renderer::BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinestate,
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature) const
 {
@@ -255,6 +280,7 @@ void Renderer::BeforeDraw(Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelinest
 	_dx->GetCommandList()->SetGraphicsRootSignature(rootsignature.Get());
 }
 
+//バリアの状態を設定（ペラレンダラー用）
 void Renderer::SetBarrierState(Microsoft::WRL::ComPtr<ID3D12Resource> const& buffer, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
 {
 	CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -266,7 +292,7 @@ void Renderer::SetBarrierState(Microsoft::WRL::ComPtr<ID3D12Resource> const& buf
 
 }
 
-
+//バリアの状態を設定
 void Renderer::SetBarrierState(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> const& buffers, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
 {
 	vector<CD3DX12_RESOURCE_BARRIER> barriers;
@@ -280,6 +306,7 @@ void Renderer::SetBarrierState(std::vector<Microsoft::WRL::ComPtr<ID3D12Resource
 	_dx->GetCommandList()->ResourceBarrier(barriers.size(), barriers.data());
 }
 
+//レンダーターゲットの設定
 void Renderer::SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap, Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap, bool isBackBuffer)
 {
 	int numDescs = rtvHeap->GetDesc().NumDescriptors;
@@ -289,6 +316,7 @@ void Renderer::SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtv
 		_dx->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	uint32_t offset = 0;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE handle;
+	//バックバッファの場合
 	if (isBackBuffer)
 	{
 		numDescs = 1;
@@ -305,6 +333,7 @@ void Renderer::SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtv
 			offset += rtvIncSize;
 		}
 	}
+	//デプスバッファがある場合
 	if (dsvHeap)
 	{
 		auto dsvHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
@@ -338,6 +367,8 @@ void Renderer::SetRenderTargets(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtv
 			rtvHandles[i], clsClr, 0, nullptr);
 	}
 }
+
+//ビューポートとシザー矩形の設定
 void Renderer::SetVPAndSR(UINT windowWidth, UINT windowHeight)
 {
 	CD3DX12_VIEWPORT vp(0.0f, 0.0f, windowWidth, windowHeight);
@@ -346,6 +377,7 @@ void Renderer::SetVPAndSR(UINT windowWidth, UINT windowHeight)
 	_dx->GetCommandList()->RSSetScissorRects(1, &rc);
 }
 
+//SRVの設定
 void Renderer::SetSRVDesc(DXGI_FORMAT format)
 {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -355,6 +387,7 @@ void Renderer::SetSRVDesc(DXGI_FORMAT format)
 		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 }
 
+//バッファーの作成
 bool Renderer::CreateBuffers()
 {
 	_buffers.resize(_numBuffers);
@@ -401,6 +434,7 @@ bool Renderer::CreateBuffers()
 	return true;
 }
 
+//デプスバッファーの作成
 bool Renderer::CreateDepthBuffer()
 {
 	auto depthHeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -447,7 +481,7 @@ bool Renderer::CreateDepthBuffer()
 }
 
 
-
+//入力レイアウトの追加
 void Renderer::AddElement(const char* semantics, DXGI_FORMAT format)
 {
 	D3D12_INPUT_ELEMENT_DESC element = {
@@ -456,9 +490,4 @@ void Renderer::AddElement(const char* semantics, DXGI_FORMAT format)
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 	};
 	inputElements.emplace_back(element);
-}
-
-
-Renderer::~Renderer()
-{
 }

@@ -12,6 +12,7 @@
 #include <tchar.h>
 #include "TitleScene.h"
 
+//ゲームオーバーシーンクラス
 GameOverScene::GameOverScene(SceneManager& controller)
 	: Scene(controller), _controller(controller)
 {
@@ -36,9 +37,9 @@ bool GameOverScene::SceneInit()
 //シーンの更新
 void GameOverScene::SceneUpdate(void)
 {
-	ButtonUpdate();
 	//ポーズ判定と初めのフェードイン
 	_peraRenderer->FadeIn();
+	ButtonUpdate();
 }
 
 //シーンの描画
@@ -47,6 +48,31 @@ void GameOverScene::SceneRender(void)
 	_peraRenderer->Draw();
 	Application::_dx->ExecuteCommand();
 	Application::_dx->Flip();
+
+	//リスタートボタンが押されたら
+	if (_restartButton->IsActive())
+	{
+		_restartButton->Hide();
+		_titleButton->Hide();
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			_controller.ChangeScene(new GameScene(_controller));
+			return;
+		}
+	}
+	//タイトルボタンが押されたら
+	if (_titleButton->IsActive())
+	{
+		_restartButton->Hide();
+		_titleButton->Hide();
+		if (_peraRenderer->FadeOut())
+		{
+			SceneFinal();
+			_controller.ChangeScene(new TitleScene(_controller));
+			return;
+		}
+	}
 }
 
 //シーンの終了
@@ -163,7 +189,7 @@ void GameOverScene::ButtonUpdate()
 	//クリック判定
 	_restartButton->Update();
 	_titleButton->Update();
-	//ボタンが押された
+	//ボタンが押されていない
 	//ホバー時にボタンがフェードイン・アウトする
 	if (!_restartButton->IsActive() && !_titleButton->IsActive())
 	{
@@ -181,32 +207,9 @@ void GameOverScene::ButtonUpdate()
 		}
 	}
 	//押された
-	else {
+	else 
+	{
 		_peraRenderer->HoverCntReset();
-		//リスタートボタンが押されたら
-		if (_restartButton->IsActive())
-		{
-			_restartButton->Hide();
-			_titleButton->Hide();
-			if (_peraRenderer->FadeOut())
-			{
-				SceneFinal();
-				_controller.ChangeScene(new GameScene(_controller));
-				return;
-			}
-		}
-		//タイトルボタンが押されたら
-		if (_titleButton->IsActive())
-		{
-			_restartButton->Hide();
-			_titleButton->Hide();
-			if (_peraRenderer->FadeOut())
-			{
-				SceneFinal();
-				_controller.ChangeScene(new TitleScene(_controller));
-				return;
-			}
-		}
 	}
 	
 }

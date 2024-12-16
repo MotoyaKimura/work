@@ -5,6 +5,21 @@
 
 using namespace DirectX;
 
+//カメラクラス
+Camera::Camera(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera) : _dx(dx), _pera(pera),
+eye(0, 2.5, -10),
+rotate(0, 0, 0),
+target(0, 2.5, 0),
+up(0, 1, 0),
+lightVec(-10, 5, -10),
+_sceneTransMatrix(nullptr)
+{
+}
+
+Camera::~Camera()
+{
+}
+
 //カメラ情報の初期化
 bool Camera::Init()
 {
@@ -66,21 +81,8 @@ void Camera::CalcSceneTrans()
 		//ライトビュープロジェクション
 	_sceneTransMatrix->lightCamera =
 		XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up)) *
-		XMMatrixOrthographicLH(200, 200, 1.0f, 100.0f);
+		XMMatrixOrthographicLH(30, 30, 1.0f, 100.0f);
 		//ライトビュー
 	_sceneTransMatrix->lightView = XMMatrixLookAtLH(lightPos, XMLoadFloat3(&target), XMLoadFloat3(&up));
 }
 
-Camera::Camera(std::shared_ptr<Wrapper> dx, std::shared_ptr<Pera> pera) : _dx(dx), _pera(pera),
-eye(0, 2.5, -10),
-rotate(0, 0, 0),
-target(0, 2.5, 0),
-up(0, 1, 0),
-lightVec(-10, 10, -20),
-_sceneTransMatrix(nullptr)
-{
-}
-
-Camera::~Camera()
-{
-}

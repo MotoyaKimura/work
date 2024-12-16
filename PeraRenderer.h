@@ -13,8 +13,8 @@ private:
 	std::vector<std::shared_ptr<Model>> _models;
 	std::shared_ptr<Camera> _camera;
 	
-	Microsoft::WRL::ComPtr<ID3D12Resource> _wipeBuff = nullptr;
-	struct wipeBuffData {
+	Microsoft::WRL::ComPtr<ID3D12Resource> _peraEffectBuff = nullptr;
+	struct peraEffectBuffData {
 		float _startWipeOpen;
 		float _endWipeClose;
 		float _fade;
@@ -30,7 +30,7 @@ private:
 		int _milliSecond;
 		bool _isPause;
 	};
-	wipeBuffData* _wipeBuffData = nullptr;
+	peraEffectBuffData* _peraEffectBuffData = nullptr;
 	int wipeOpenCnt = 0;
 	int wipeCloseCnt = 0;
 	float hoverCnt = 0.0f;
@@ -38,7 +38,7 @@ private:
 	bool isWipe = false;
 	DWORD startTime = 0;
 	
-	bool wipeBuffInit();
+	bool peraEffectBuffInit();
 public:
 	void HoverButton(std::string buttonName);
 	void HoverCntReset();

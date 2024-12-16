@@ -5,11 +5,25 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Application.h"
 #pragma  comment(lib, "assimp-vc143-mtd.lib")
 
 using namespace DirectX;
 
-bool AssimpModel::Load(std::string filePath)
+//Assimpでモデルを読み込むクラス
+AssimpModel::AssimpModel(std::shared_ptr<Wrapper> dx,
+	std::shared_ptr<Camera> camera,
+	std::string filePath
+) : Model(dx, camera, filePath), _dx(dx), _camera(camera), _filePath(filePath)
+{
+	
+}
+
+AssimpModel::~AssimpModel()
+{
+}
+
+bool AssimpModel::Load()
 {
 	Assimp::Importer importer;
 	int flag = 0;
@@ -24,8 +38,11 @@ bool AssimpModel::Load(std::string filePath)
 	flag |= aiProcess_OptimizeMeshes;
 	flag |= aiProcess_GenBoundingBoxes;
 
-	auto pScene = importer.ReadFile(filePath.c_str(), flag);
-	if (pScene == nullptr) return false;
+	auto pScene = importer.ReadFile(_filePath.c_str(), flag);
+	if (pScene == nullptr)
+	{
+		Application::DebugOutputFormatString("モデルの読み込みに失敗しました\n");
+	}
 	const auto pMesh = pScene->mMeshes[0];
 	
 	ParseMesh(mesh, pMesh);
@@ -186,6 +203,7 @@ bool AssimpModel::ModelHeapInit()
 	return true;
 }
 
+//モデルのワールド行列の更新
 void AssimpModel::Update(bool isStart)
 {
 	world = XMMatrixRotationRollPitchYaw(_rotater.x, _rotater.y, _rotater.z)
@@ -193,6 +211,7 @@ void AssimpModel::Update(bool isStart)
 	*worldMatrix = world;
 }
 
+//モデルの描画
 void AssimpModel::Draw()
 {
 	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -234,14 +253,3 @@ void AssimpModel::Draw()
 	}
 }
 
-AssimpModel::AssimpModel(std::shared_ptr<Wrapper> dx,
-	std::shared_ptr<Camera> camera,
-	std::string filePath
-) : Model(dx, camera, filePath), _dx(dx), _camera(camera)
-{
-	Load(filePath);
-}
-
-AssimpModel::~AssimpModel()
-{
-}

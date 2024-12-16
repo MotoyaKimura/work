@@ -4,6 +4,16 @@
 
 using namespace DirectX;
 
+//ボーンノード管理クラス
+NodeManager::NodeManager()
+{
+}
+
+NodeManager::~NodeManager()
+{
+}
+
+//ボーンノードの初期化
 void NodeManager::Init(const std::vector<PMXBone>& bones)
 {
 	_boneNodeByIdx.resize(bones.size());
@@ -107,6 +117,7 @@ void NodeManager::Init(const std::vector<PMXBone>& bones)
 
 }
 
+//キーフレームをソート
 void NodeManager::SortKey()
 {
 	for (int index = 0; index < _boneNodeByIdx.size(); index++)
@@ -117,6 +128,7 @@ void NodeManager::SortKey()
 	}
 }
 
+//アニメーション更新前処理
 void NodeManager::BeforeUpdateAnimation()
 {
 	for (BoneNode* curNode : _boneNodeByIdx)
@@ -126,6 +138,7 @@ void NodeManager::BeforeUpdateAnimation()
 	}
 }
 
+//アニメーション更新
 void NodeManager::UpdateAnimation(unsigned int frameNo)
 {
 	
@@ -158,6 +171,7 @@ void NodeManager::UpdateAnimation(unsigned int frameNo)
 	}
 }
 
+//名前からボーンノードを取得
 BoneNode* NodeManager::GetBoneNodeByName(std::wstring& name) const
 {
 	auto index = _boneNodeByName.find(name);
@@ -168,18 +182,11 @@ BoneNode* NodeManager::GetBoneNodeByName(std::wstring& name) const
 	return nullptr;
 }
 
+//解放
 void NodeManager::Dispose()
 {
 	for (BoneNode* curNode : _boneNodeByIdx)
 	{
 		delete curNode;
 	}
-}
-
-NodeManager::NodeManager()
-{
-}
-
-NodeManager::~NodeManager()
-{
 }

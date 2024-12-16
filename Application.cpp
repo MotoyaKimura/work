@@ -26,9 +26,17 @@ POINT Application::center;
 UINT Application::window_width = GetSystemMetrics(SM_CXSCREEN);
 UINT Application::window_height = GetSystemMetrics(SM_CYSCREEN);
 
+//アプリケーションクラス
+Application::Application()
+{
+}
+Application::~Application()
+{
+}
+
+//ウィンドウプロシージャ
 LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-
 	if (msg == WM_DESTROY)
 	{
 		PostQuitMessage(0);
@@ -141,6 +149,7 @@ LRESULT CALLBACK Application::WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
+//デバッグ出力
 void Application::DebugOutputFormatString(const char* format, ...)
 {
 #ifdef _DEBUG
@@ -151,9 +160,7 @@ void Application::DebugOutputFormatString(const char* format, ...)
 #endif
 }
 
-Application::Application() 
-{
-}
+//ウィンドウ作成
 void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 {
 	if (hwnd != nullptr)return;
@@ -187,6 +194,7 @@ void Application::CreateGameWindow(HWND& hwnd, WNDCLASSEX& w)
 		nullptr);
 }
 
+//全画面表示の切り替え
 void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain)
 {
 	if (fullscreenMode)
@@ -231,7 +239,7 @@ void Application::ToggleFullscreenWindow(Microsoft::WRL::ComPtr<IDXGISwapChain4>
 }
 
 
-
+//ウィンドウサイズの取得
 SIZE Application::GetWindowSize()
 {
 	SIZE winSize;
@@ -264,6 +272,7 @@ bool Application::Init()
 	}
 }
 
+//アプリケーションのループ処理
 void Application::Run()
 {
 	DebugOutputFormatString("Show window test.\n ");
@@ -288,14 +297,13 @@ void Application::Run()
 
 	}
 }
+
+//アプリケーションの終了処理
 void Application::Terminate()
 {
 	_sceneManager->FinalizeSceneManager();
 	_sceneManager.reset();
 	CoUninitialize();
 	UnregisterClass(w.lpszClassName, w.hInstance);
-}
-Application::~Application()
-{
 }
 

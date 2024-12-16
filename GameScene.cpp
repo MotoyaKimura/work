@@ -18,6 +18,7 @@
 #include "ClearScene.h"
 #include "HowToPlayScene.h"
 
+//ゲームシーンクラス
 GameScene::GameScene(SceneManager& controller)
 	: Scene(controller), _controller(controller)
 {
@@ -52,7 +53,7 @@ void GameScene::SceneUpdate(void)
 	if (!_peraRenderer->IsPause() && !_peraRenderer->IsWipeOpen())
 	{
 		isStart = true;
-		_keyboard->Move();
+		_keyboard->Update();
 		_camera->CalcSceneTrans();
 	}
 
@@ -195,25 +196,33 @@ bool GameScene::CameraInit()
 }
 
 //モデルのリセット
-void GameScene::ModelReset()
+bool GameScene::ModelReset()
 {
 	modelNum = 22;
 	_models.resize(modelNum);
 	_models[0].reset(new PmxModel(Application::_dx, _camera, "modelData/八重沢なとり/YaezawaNatori.pmx",
-		L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd", true));
+	//	L"vmdData\\1.ぼんやり待ち_(490f_移動なし).vmd", true));
+	L"vmdData\\a.vmd", false));
+	if (!_models[0]->Load()) return false;
 	_models[0]->Move(0, 0.0, 0);
 
 	_models[1].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/floor/floor_yellow.obj"));
+	if (!_models[1]->Load()) return false;
+
 	_models[2].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/piller/piller.obj"));
+	if (!_models[2]->Load()) return false;
 	_models[2]->Move(9, 0, 9);
 	_models[3].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/piller/piller.obj"));
+	if (!_models[3]->Load()) return false;
 	_models[3]->Move(-9, 0, 9);
 	for (int i = 0; i < 10; i++)
 	{
 		_models[i + 4].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/floor/floor_white.obj"));
+		if (!_models[i + 4]->Load()) return false;
 		_models[i + 4]->Move(0, 2.5 * (i + 1), 5 * (i + 1));
 	}
 	_models[14].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/floor/floor_lightBlue.obj"));
+	if (!_models[14]->Load()) return false;
 	_models[14]->Move(0, 2.5 * 11, 5 * 15 - 1);
 
 	//家モデル（一遍にできないので１つずつ、モデル数：６）
@@ -225,10 +234,15 @@ void GameScene::ModelReset()
 	_models[20].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/house/base.obj"));
 	for (int i = 0; i < 6; i++)
 	{
+		if (!_models[15 + i]->Load()) return false;
 		_models[15 + i]->Move(0, 2.5 * 11 + 0.5, 5 * 18);
 	}
 	_models[21].reset(new AssimpModel(Application::_dx, _camera, "modelData/RSMScene/sky/skySphere.obj"));
+	if (!_models[21]->Load()) return false;
 	_models[21]->SetAABB(0, 0, 0, 0, 0, 0);
+
+
+	return true;
 }
 
 //キーボードの初期化
@@ -307,11 +321,6 @@ bool GameScene::ModelInit()
 		if (!model->Init())
 		{
 			Application::DebugOutputFormatString("モデルの初期化エラー\n ");
-			return false;
-		}
-		if (!model->RendererInit())
-		{
-			Application::DebugOutputFormatString("モデルのレンダラー初期化エラー\n ");
 			return false;
 		}
 	}

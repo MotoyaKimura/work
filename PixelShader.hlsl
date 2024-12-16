@@ -51,7 +51,8 @@ RSMOutput rsmPS(Output input) : SV_TARGET
     
     output.world = float4(normalize(input.pos.xyz), 1.0f);
     output.normal = float4(float3((input.normal.xyz + 1.0f) / 2.0f), 1.0f);
-    output.indirectLight = float4(diffuse.xyz, 1);
+    float4 texCol = texColor.Sample(smp, input.uv);
+    output.indirectLight = float4(diffuse.xyz * texCol, 1);
     return output;
 }
 

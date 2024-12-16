@@ -4,6 +4,41 @@
 using namespace std;
 using namespace DirectX;
 
+//ペラポリゴンモデルクラス
+
+Pera::Pera(std::shared_ptr<Wrapper> dx) : _dx(dx)
+{
+}
+
+Pera::~Pera()
+{
+}
+
+//初期化
+bool Pera::Init()
+{
+	if (!VertexInit()) return false;
+	return true;
+}
+
+//描画
+void Pera::Draw() const
+{
+	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	_dx->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
+	ID3D12DescriptorHeap* heaps[] = { _peraHeaps.Get() };
+
+	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
+	auto handle = _peraHeaps->GetGPUDescriptorHandleForHeapStart();
+	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
+		0,
+		handle);
+
+	_dx->GetCommandList()->DrawInstanced(4, 1, 0, 0);
+}
+
+
+//頂点バッファーの初期化
 bool Pera::VertexInit()
 {
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -29,6 +64,7 @@ bool Pera::VertexInit()
 	return true;
 }
 
+//ディスクリプタヒープの初期化
 bool Pera::HeapInit()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
@@ -45,17 +81,20 @@ bool Pera::HeapInit()
 	return true;
 }
 
+//SRVバッファーを一時的にためておく場所
 void Pera::SetSRV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer, DXGI_FORMAT format)
 {
 	std::pair< Microsoft::WRL::ComPtr<ID3D12Resource>, DXGI_FORMAT> srvBuff = { buffer, format };
 	srvBuffs.emplace_back(srvBuff);
 }
 
+//CBVバッファーを一時的にためておく場所
 void Pera::SetCBV(Microsoft::WRL::ComPtr<ID3D12Resource> buffer)
 {
 	cbvBuffs.emplace_back(buffer);
 }
 
+//ヒープの初期化、ビューの設定
 void Pera::SetViews()
 {
 	if (!HeapInit()) return;
@@ -82,34 +121,6 @@ void Pera::SetViews()
 	
 }
 
-Pera::Pera(std::shared_ptr<Wrapper> dx) : _dx(dx)
-{
-}
-
-bool Pera::Init()
-{
-	if (!VertexInit()) return false;
-	
-	return true;
-}
-
-void Pera::Draw() const
-{
-	_dx->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	_dx->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
-	ID3D12DescriptorHeap* heaps[] = { _peraHeaps.Get() };
-
-	_dx->GetCommandList()->SetDescriptorHeaps(1, heaps);
-	auto handle = _peraHeaps->GetGPUDescriptorHandleForHeapStart();
-	_dx->GetCommandList()->SetGraphicsRootDescriptorTable(
-		0,
-		handle);
-	
-	_dx->GetCommandList()->DrawInstanced(4, 1, 0, 0);
-}
 
 
-Pera::~Pera()
-{
-}
 

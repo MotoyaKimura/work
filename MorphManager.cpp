@@ -3,6 +3,16 @@
 
 using namespace DirectX;
 
+//モーフ管理クラス
+MorphManager::MorphManager(Mesh* mesh) : _mesh(mesh)
+{
+}
+
+MorphManager::~MorphManager()
+{
+}
+
+//モーフの初期化
 void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs, 
                         const std::vector<VMDMorph>& vmdMorphs,
                         unsigned int vertexCount,
@@ -18,10 +28,10 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 	_morphUV.clear();
 	_morphMaterial.clear();
 	_morphBone.clear();
-	 
 
 	_morphs.resize(pmxMorphs.size());
 
+	//モーフデータ取得
 	for (unsigned int index = 0; index < pmxMorphs.size(); index++)
 	{
 		Morph& currentMorph = _morphs[index];
@@ -76,39 +86,8 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 		}
 		_morphByName[currentMorph.GetName() + L'\0'] = &currentMorph;
 	}
-	//SetMorphKey(vmdMorphs);
-	_morphKeys.resize(vmdMorphs.size());
-	for (int i = 0; i < vmdMorphs.size(); i++)
-	{
-		_morphKeys[i] = vmdMorphs[i];
 
-		if (_morphByName.find(_morphKeys[i].blendShapeName) == _morphByName.end())
-		{
-			continue;
-		}
-
-		_morphKeyByName[_morphKeys[i].blendShapeName].push_back(&_morphKeys[i]);
-	}
-
-	for(auto& morphKey : _morphKeyByName)
-	{
-		std::vector<VMDMorph*>& morphKeys = morphKey.second;
-
-		if(morphKeys.size() <= 1)
-		{
-			continue;
-		}
-
-		std::sort(morphKeys.begin(), morphKeys.end(),
-			[](const VMDMorph* left, const VMDMorph* right)
-			{
-				if (left->frame == right->frame)
-				{
-					return false;
-				}
-				return left->frame < right->frame;
-			});
-	}
+	SetMorphKey(vmdMorphs);
 
 	_morphVertexPosition.resize(vertexCount);
 	_morphUV.resize(vertexCount);
@@ -116,11 +95,9 @@ void MorphManager::Init(const std::vector<PMXMorph>& pmxMorphs,
 	_morphBone.resize(boneCount);
 }
 
+////モーフキーの初期化
 void MorphManager::SetMorphKey(const std::vector<VMDMorph>& vmdMorphs)
 {
-	//_morphKeys.clear();
-	//_morphByName.clear();
-
 	_morphKeys.resize(vmdMorphs.size());
 	for (int i = 0; i < vmdMorphs.size(); i++)
 	{
@@ -134,6 +111,7 @@ void MorphManager::SetMorphKey(const std::vector<VMDMorph>& vmdMorphs)
 		_morphKeyByName[_morphKeys[i].blendShapeName].push_back(&_morphKeys[i]);
 	}
 
+	//モーフキーのソート
 	for (auto& morphKey : _morphKeyByName)
 	{
 		std::vector<VMDMorph*>& morphKeys = morphKey.second;
@@ -155,6 +133,7 @@ void MorphManager::SetMorphKey(const std::vector<VMDMorph>& vmdMorphs)
 	}
 }
 
+//モーフデータのリセット
 void MorphManager::ResetMorphData()
 {
 	for(XMFLOAT3& position : _morphVertexPosition)
@@ -189,10 +168,12 @@ void MorphManager::ResetMorphData()
 	}
 }
 
+//モーフのアニメーション
 void MorphManager::Animate(unsigned int frame)
 {
 	ResetMorphData();
 
+	
 	for(auto& morphKey : _morphKeyByName)
 	{
 		auto morphIt = _morphByName.find(morphKey.first);
@@ -201,22 +182,27 @@ void MorphManager::Animate(unsigned int frame)
 			continue;
 		}
 
+		//アニメーション経過フレームの直前のキーを取得
 		auto rit = std::find_if(morphKey.second.rbegin(), morphKey.second.rend(),
 			[frame](const VMDMorph* morph)
 			{
 				return morph->frame <= frame;
 			});
 
+		//1つ次のキーフレーム
 		auto iterator = rit.base();
 
+		//次のフレームがなかったら前のキーフレームの重みを０にする
 		if (iterator == morphKey.second.end())
 		{
 			morphIt->second->SetWeight(0.0f);
 		}
+		//ritで見つからなかったら次のキーフレームの重みをつかう
 		else if (rit == morphKey.second.rend())
 		{
 			morphIt->second->SetWeight((*iterator)->weight);
 		}
+		//補間
 		else
 		{
 			float t = static_cast<float>(frame - (*rit)->frame) / static_cast<float>((*iterator)->frame - (*rit)->frame);
@@ -230,6 +216,7 @@ void MorphManager::Animate(unsigned int frame)
 	}
 }
 
+//モーフの更新
 void MorphManager::AnimateMorph(Morph& morph, float weight)
 {
 	switch (morph.GetMorphType())
@@ -254,6 +241,7 @@ void MorphManager::AnimateMorph(Morph& morph, float weight)
 	}
 }
 
+//頂点座標モーフの更新
 void MorphManager::AnimatePositionMorph(Morph& morph, float weight)
 {
 	const auto& vertexPositionMorph = morph.GetPositionMorphData();
@@ -275,6 +263,7 @@ void MorphManager::AnimatePositionMorph(Morph& morph, float weight)
 	}
 }
 
+//UVモーフの更新
 void MorphManager::AnimateUVMorph(Morph& morph, float weight)
 {
 	const auto& uvMorph = morph.GetUVMorphData();
@@ -294,6 +283,7 @@ void MorphManager::AnimateUVMorph(Morph& morph, float weight)
 	}
 }
 
+//マテリアルモーフの更新
 void MorphManager::AnimateMaterialMorph(Morph& morph, float weight)
 {
 	const auto& materialMorph = morph.GetMaterialMorphData();
@@ -320,6 +310,7 @@ void MorphManager::AnimateMaterialMorph(Morph& morph, float weight)
 	}
 }
 
+//ボーンモーフの更新
 void MorphManager::AnimateBoneMorph(Morph& morph, float weight)
 {
 	const auto& boneMorph = morph.GetBoneMorphData();
@@ -337,6 +328,7 @@ void MorphManager::AnimateBoneMorph(Morph& morph, float weight)
 	}
 }
 
+//グループモーフの更新
 void MorphManager::AnimateGroupMorph(Morph& morph, float weight)
 {
 	const auto& groupMorph = morph.GetGroupMorphData();
@@ -350,13 +342,5 @@ void MorphManager::AnimateGroupMorph(Morph& morph, float weight)
 
 		AnimateMorph(_morphs[data.morphIndex], morph.GetWeight() * weight);
 	}
-}
-
-MorphManager::MorphManager(Mesh* mesh) : _mesh(mesh)
-{
-}
-
-MorphManager::~MorphManager()
-{
 }
 

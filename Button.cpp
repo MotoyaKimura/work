@@ -1,6 +1,15 @@
 #include "Button.h"
 #include <tchar.h>
 
+//ボタンクラス
+Button::Button(std::string name) : _name(name)
+{
+}
+
+Button::~Button()
+{
+}
+
 //ボタンの作成
 void Button::Create(LPCWSTR name, int left, int top, int width, int height, HMENU id)
 {
@@ -72,10 +81,3 @@ void Button::Update()
 	}
 }
 
-Button::Button(std::string name) : _name(name)
-{
-}
-
-Button::~Button()
-{
-}
