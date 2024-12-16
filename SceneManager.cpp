@@ -66,7 +66,7 @@ void SceneManager::PopScene(void)
 
 SceneManager::SceneManager()
 {
-	_scene.emplace(new GameScene(*this));
+	_scene.emplace(new TitleScene(*this));
 	//_scene.emplace(new GameScene(*this));
 }
 
