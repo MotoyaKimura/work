@@ -2,8 +2,11 @@
 >DirectX12とC++によるシンプルなゲームアプリケーション  
 >制作期間：3か月  
 >(C)2024 Motoya Kimura
-
-<img src="https://img.shields.io/badge/-c++-000000.svg?logo=c%2B%2B&style=for-the-badge">  <img src="https://img.shields.io/badge/-DirectX12-000000.svg?&style=for-the-badge">
+## 使用技術一覧
+### 言語・ライブラリ
+<img src="https://img.shields.io/badge/-c++-000000.svg?logo=c%2B%2B&style=for-the-badge">  <img src="https://img.shields.io/badge/-DirectX12-000000.svg?&style=for-the-badge">  <img src="https://img.shields.io/badge/-assimp-000000.svg?&style=for-the-badge">
+### ソフトウェア
+<img src="https://img.shields.io/badge/-Blender4.2-000000.svg?&style=for-the-badge">  <img src="https://img.shields.io/badge/-Adobe_Illustrator_2025-000000.svg?&style=for-the-badge">  <img src="https://img.shields.io/badge/-CLIP_STUDIO-000000.svg?&style=for-the-badge">  
 <br>
 ## プロジェクトの概要
 本プロジェクトはDirectX12とC++を使用したゲームアプリケーションです。  
@@ -215,9 +218,6 @@ CPU        ：Intel(R) Core(TM) i5-14400F
 ### 開発環境
 名前        ：Visual Studio 2022、Debug x64  
 バージョン  ：17.12.3  
-<br>
-### プログラム言語
-C++  
 <br>
 ## ライセンス
 このプロジェクトはMITライセンスのもとで公開されています。  
