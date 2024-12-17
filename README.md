@@ -42,7 +42,7 @@
 「やばい！バイトの時間ダッ」  
 <br>
 ## 作品動画
-URL：  
+YouTubeで限定公開  
 ※再配布の関係上、PMXモデルとモーションはGitHub上のものとは異なります。  
 ※音楽機能はまだ実装しておりません、今後実装していく予定です。  
 <br>
@@ -213,6 +213,7 @@ OS         ：Windows 11 Home 64bit
 バージョン  ：24H2  
 API        ：DirectX12  
 CPU        ：Intel(R) Core(TM) i5-14400F  
+GPU        ：NVIDIA GeForce RTX 4060  
 メモリ      ：16.0 GB  
 <br>
 ### 開発環境
